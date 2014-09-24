@@ -58,4 +58,24 @@ class Income
     (Rational(amount_in_cents) / Rational(100)).to_f if amount_in_cents
   end
 
+  def same_as?(other)
+    amount_in_cents == other.amount_in_cents \
+      && income_type == other.income_type \
+      && frequency == other.frequency \
+      && start_date == other.start_date \
+      && end_date == other.end_date
+  end
+
+  def self.from_income_request(income_data)
+    income = Income.new(
+      amount_in_cents: (income_data[:amount] * 100).to_i,
+      income_type: income_data[:income_type],
+      frequency: income_data[:frequency],
+      start_date: income_data[:start_date],
+      end_date: income_data[:end_date],
+      evidence_flag: income_data[:evidence_flag],
+      reported_date: income_data[:reported_date],
+      reported_by: income_data[:reported_by] )
+  end
+
 end
