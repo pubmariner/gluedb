@@ -22,7 +22,7 @@ group :development, :assets do
   gem 'uglifier', '>= 1.0.3'
   gem 'therubyracer', :platforms => :ruby
   gem 'less-rails-bootstrap', :group => :test
-  gem 'designmodo-flatuipro-rails', '~> 1.2.5.0.branch', :group => :test
+  gem 'designmodo-flatuipro-rails', '~> 1.3.0.0.branch', :group => :test
   gem 'font-awesome-rails'
 end
 
@@ -40,7 +40,6 @@ group :production do
   gem 'unicorn'
 end
 
-gem 'simple_form'
 gem "haml"
 gem 'kaminari'
 gem 'bootstrap-kaminari-views'
@@ -53,3 +52,4 @@ gem 'american_date'
 gem 'cancancan', '~> 1.9'
 gem 'oj'
 gem 'roo'
+gem 'bh'

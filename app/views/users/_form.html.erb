@@ -1,23 +1,26 @@
-<%= simple_form_for @user, :html => { :class => 'form-horizontal' } do |f| %>
-	<%= f.error_notification %>
+<%= form_for @user, layout: :inline do |f| %>
 
-	<div class="row">
-		<div class="col-md-6">
-			<%= f.input :email, wrapper: :input_horizontal %>
-			<%= f.input :approved, as: :boolean, boolean_style: :inline, label: "Approved?" %>
-			<%= f.collection_select :role, User::ROLES, :to_s, :humanize %>
+		<div class="panel">
+			<div class="row">
+				<div class="col-md-4">
+					<%= f.email_field :email %>
+					<%= f.check_box :approved, label: "Approved?" %>
+				</div>
+				<div class="col-md-4">
+				  <%= f.select :role,  User::ROLES, {}, { class: "select select-primary", data: { toggle: "select"} } %>
+				</div>
+			</div>
 		</div>
-	</div>
 
-	<div class="well well-sm well-default">
-		<div class="form-actions">
-			<%= f.button :submit , :class => 'btn btn-primary'  %>
-			<%= link_to t('.cancel', :default => t("helpers.links.cancel")), users_path, :class => 'btn btn-default' %>
-		  <%= link_to t('.remove', :default => t("helpers.links.remove")),
-	              user_path(@user),
-	              :method => 'delete',
-	              :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
-	              :class => 'btn btn-warning' %>
-		</div>
-  </div>
+		<div class="well well-sm well-default">
+			<div class="form-actions">
+				<%= f.button :Submit , :class => 'btn btn-primary'  %>
+				<%= link_to t('.cancel', :default => t("helpers.links.cancel")), users_path, :class => 'btn btn-default' %>
+			  <%= link_to t('.remove', :default => t("helpers.links.remove")),
+		              user_path(@user),
+		              :method => 'delete',
+		              :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
+		              :class => 'btn btn-warning' %>
+			</div>
+	  </div>
 <% end %>

@@ -2,7 +2,7 @@
   Tools
 </ul>
 
-<div class='col-md-offset-2 col-md-10'>
+<div class='col-md-offset-1 col-md-10'>
   <h4>Premium Calculator</h4>
   <div class="panel panel-default">
     <div class="panel-heading">
@@ -13,55 +13,74 @@
     </div>
 
     <div class="panel-body">
-      <%= form_tag calculate_premium_carriers_path, method: :post, remote: true, class: 'form-horizontal' do %>
+      <%= form_tag calculate_premium_carriers_path, method: :post, remote: true do %>
         <div class="form-group">
           <div class="row">
-            <div class="col-md-2 text-center">
+            <div class="col-sm-2 text-center">
               <%= label_tag "Select Carrier" %>
             </div>
-            <div class="col-md-3">
-              <%= select_tag "Carriers", options_from_collection_for_select(@carriers, "id", "name"), prompt: "Nothing Selected" =%>
+            <div class="col-sm-3">
+              <%= select_tag "Carriers", options_from_collection_for_select(@carriers, "id", "name"), prompt: "Nothing Selected", class: "select select-primary", data: { toggle: "select"} =%>
             </div>
           </div>
 
           <div class="row">
-
-            <div class="col-md-2 text-center">
+            <br>
+            <div class="col-sm-2 text-center">
               <%= label_tag "Select Plan"%>
             </div>
-            <div class="col-md-3">
-              <%= select_tag "Plans" =%>
+            <div class="col-sm-3">
+              <%= select_tag "Plans", {}  ,class: "select select-primary" =%>
             </div>
           </div>
+          <br>
 
           <div class="row">
-            <div class="col-md-2 text-center">
+            <div class="col-sm-2 text-center">
               <%= label_tag :rate_period_date %>
             </div>
-            <div class="col-md-3">
-              <%= text_field_tag :rate_period_date, @rate_period_date, { class: 'date_picker'} %>
+            <div class="col-sm-3">
+              <div class="input-group">
+                <span class="input-group-btn">
+                  <button class="btn" type="button"><span class="fui-calendar"></span></button>
+                </span>
+                <%= text_field_tag :rate_period_date, @rate_period_date, class: "form-control date_picker" %>
+              </div>
             </div>
           </div>
 
+          <br>
           <div class="row">
-            <div class="col-md-2 text-center">
+            <div class="col-sm-2 text-center">
               <%= label_tag :benefit_begin_date %>
             </div>
-            <div class="col-md-3">
-              <%= text_field_tag :benefit_begin_date, @benefit_begin_date, { class: 'date_picker'} %>
+            <div class="col-sm-3">
+              <div class="input-group">
+                <span class="input-group-btn">
+                  <button class="btn" type="button"><span class="fui-calendar"></span></button>
+                </span>
+                <%= text_field_tag :benefit_begin_date, @benefit_begin_date, class: "form-control date_picker" %>
+              </div>
             </div>
           </div>
 
+          <br>
           <div class="row">
-            <div class="col-md-2 text-center">
+            <div class="col-sm-2 text-center">
               <%= label_tag :birth_date %>
             </div>
-            <div class="col-md-3  ">
-              <%= text_field_tag :birth_date, @birth_date, { class: 'date_picker' } %>
+            <div class="col-sm-3  ">
+              <div class="input-group">
+                <span class="input-group-btn">
+                  <button class="btn" type="button"><span class="fui-calendar"></span></button>
+                </span>
+                <%= text_field_tag :birth_date, @birth_date, class: "form-control date_picker" %>
+              </div>
             </div>
           </div>
 
-          <div class="col-md-offset-1 col-md-2 text-center">
+          <br>
+          <div class="col-sm-offset-1 col-sm-2 text-center">
             <%= submit_tag "Calculate", { :class => "btn btn-primary" } %>
           </div>
         </div>

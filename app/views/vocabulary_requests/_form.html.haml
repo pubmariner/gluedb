@@ -1,5 +1,4 @@
-= simple_form_for(@vocabulary_request, :html => { :class => 'form-horizontal' }) do |f|
-  = f.error_notification
+= form_for(@vocabulary_request) do |f|
   .row
     .col-sm-offset-1.col-sm-8
       = f.input :enrollment_group_list, :as => :text

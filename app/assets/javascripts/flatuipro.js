@@ -1,8 +1,11 @@
-//= require jquery.ui.touch-punch.min
-//= require bootstrap-select
+//= require fileinput
+//= require radiocheck
 //= require bootstrap-switch
-//= require flatui-checkbox
-//= require flatui-radio
-//= require jquery.tagsinput
+//= require bootstrap-tagsinput
+//= require holder
 //= require jquery.placeholder
-//= require typeahead
+//= require jquery.ui.touch-punch
+//= require respond
+//= require select2
+//= require typeahead.bundle
+//= require video

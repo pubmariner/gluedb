@@ -8,8 +8,8 @@
 //##
 
 // Color swatches
-@turquoise:                 #1abc9c;
-@green-sea:                 #16a085;
+@turquoise:                 #3498db;
+@green-sea:                 #2980b9;
 
 @emerald:                   #2ecc71;
 @nephritis:                 #27ae60;
@@ -40,16 +40,16 @@
 
 // Grays
 @gray:                      @asbestos;
-@gray-light:                @concrete;
+@gray-light:                @silver;
 @inverse:                   white;
 
 // Brand colors
-@brand-primary:             @midnight-blue;
-@brand-secondary:           @belize-hole;
-@brand-success:             @nephritis;
+@brand-primary:             @wet-asphalt;
+@brand-secondary:           @turquoise;
+@brand-success:             @emerald;
 @brand-warning:             @sun-flower;
 @brand-danger:              @alizarin;
-@brand-info:                @belize-hole;
+@brand-info:                @peter-river;
 
 // Social colors
 @social-pinterest:          #cb2028;
@@ -65,11 +65,11 @@
 //## Settings for some of the most global styles.
 
 @body-bg:                   #fff;
-@text-color:                @wet-asphalt;
+@text-color:                @brand-primary;
 
 //** Global textual link color.
-@link-color:                @belize-hole;
-@link-hover-color:          @peter-river;
+@link-color:                @green-sea;
+@link-hover-color:          @turquoise;
 
 
 //== Typography
@@ -79,7 +79,6 @@
 @font-family-base:          "Lato", Helvetica, Arial, sans-serif;
 @font-family-demo:          "Helvetica Neue", Helvetica, Arial, sans-serif;
 @font-family-monospace:     Monaco, Menlo, Consolas, "Courier New", monospace;
-// @font-size-base:            18px;
 @font-size-base:            16px;
 
 @local-font-path:               "../fonts/lato/";
@@ -118,14 +117,11 @@
 //
 //## Specify custom locations of the include Glyphicons icon font.
 
-@icon-font-path:            "../fonts/";
-@icon-font-name:            "flat-ui-icons-regular";
-@icon-font-svg-id:          "flat-ui-icons-regular";
+// @icon-font-path:            "../fonts/";
+// @icon-font-name:            "flat-ui-icons-regular";
+// @icon-font-svg-id:          "flat-ui-icons-regular";
 
 //** Icon sizes for use in components
-@icon-normal:               16px;
-@icon-medium:               18px;
-@icon-large:                32px;
 
 @icon-normal:               14px;
 @icon-medium:               16px;
@@ -383,7 +379,12 @@
 @navbar-inverse-dropdown-link-hover-color:  @inverse;
 @navbar-inverse-dropdown-link-hover-bg:     @brand-secondary;
 
+//== Breadcrumbs
+//
+//##
 
+@breadcrubms-bg:           mix(@brand-primary, white, 6%);
+@breadcrubms-text-color:   @concrete;
 
 //== Dropdown Menu
 //

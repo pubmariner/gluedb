@@ -1,18 +1,13 @@
-= simple_form_for(@vocab_upload, :html => { :multipart => true, :class => 'form-horizontal' }) do |f|
-  = f.error_notification
-  .row
-    .col-sm-offset-1.col-sm-8
-      = f.collection_radio_buttons :kind, [["initial_enrollment", 'Initial Enrollment'], ["maintenance", 'Maintenance']], :first, :last
-      = f.error :kind
-  .row
-    .col-sm-offset-1.col-sm-8
-      = f.input :vocab, :as => :file
-  .row
-    .col-sm-offset-1.col-sm-3
-      = f.input :bypass_validation, :as => :boolean, :label => false, :inline_label => "Bypass Premium Validation", :input_html => { data: {toggle: :checkbox} }
-
-  = f.hidden_field :submitted_by
-
-  .row
-    .col-sm-offset-1
-      = f.submit "Upload", :class => "btn btn-primary"
+= form_for @vocab_upload,layout: :inline do |f|
+  .col-md-4.container
+    .row
+      = f.radio_button :kind, 'initial_enrollment', label: "Initial Enrollment", checked: true
+      = f.radio_button :kind, 'maintenance', label: "Maintenance"
+    .row
+      .col-md-12
+        .container
+          = f.file_field :vocab, :class => "file form-control"
+    .row
+      = f.check_box :bypass_validation, label: 'Bypass Premium Validation?'
+      = f.hidden_field :submitted_by
+    = f.submit "Upload", :class => "btn btn-primary"

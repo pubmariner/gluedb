@@ -2,26 +2,26 @@
 
   <div class="jumbotron">
   <h3>Change your password</h3>
-    <%= simple_form_for(resource, :as => resource_name, :url => user_registration_path(resource_name), :html => { :method => :put }) do |f| %>
+    <%= form_for(resource, :as => resource_name, :url => user_registration_path(resource_name), :html => { :method => :put }, layout: :basic) do |f| %>
       <%= devise_error_messages! %>
 
-      <%= f.input :password, placeholder: "New password", required: true, input_html: {autofocus: true, autocomplete: "off"} %>
-      <%= f.input :password_confirmation, placeholder: "Confirm new password", required: true, input_html: {autocomplete: "off"} %>
+      <%= f.password_field :password, placeholder: "New password", required: true, input_html: {autofocus: true, autocomplete: "off"} %>
+      <%= f.password_field :password_confirmation, placeholder: "Confirm new password", required: true, input_html: {autocomplete: "off"} %>
 
-      <%= f.input :current_password, required: true, wrapper_html: {autocomplete: "off"} do %>
-        <%= f.input_field :current_password, placeholder: "Current password" %>
+      <%= f.password_field :current_password, required: true, wrapper_html: {autocomplete: "off"} do %>
+        <%= f.password_field :current_password, placeholder: "Current password" %>
         <%= content_tag :span, "(Enter current password to confirm changes)", class: "help-inline" %>
       <% end %>
 
       <div class="form-actions">
         <%= f.submit "Update", class: "btn btn-primary" %>
-        <%= link_to "Back", :back, class: "btn" %>
+        <%= link_to "Back", :back, class: "btn btn-default" %>
       </div>
     <% end %>
   </div>
 
   <div class="jumbotron">
     <h4>Cancel my account</h4>
-    <p>Unhappy? <%= link_to "Cancel my account", user_registration_path(resource_name), :data => { :confirm => "Are you sure?" }, :method => :delete %>.</p>
+    Unhappy? <%= link_to "Cancel my account", user_registration_path(resource_name), :data => { :confirm => "Are you sure?" }, :method => :delete, class: "btn btn-default" %>
   </div>
 </div>

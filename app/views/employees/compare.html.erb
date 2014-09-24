@@ -7,7 +7,7 @@
   </ul>
 </div>
 
-<%= simple_form_for(@person, url: employer_employees_path, html: { action: :put, class: 'form-horizontal' }) do |f| %>
+<%= form_for(@person, url: employer_employees_path) do |f| %>
 
 	<% @person.fields.each do |pf| %>
 		<p><%= "Field: #{pf.humanize}" %></p>

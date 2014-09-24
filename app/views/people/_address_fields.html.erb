@@ -1,35 +1,15 @@
-<fieldset >
-	<div class="row">
-		<div class="col-md-3">
-			<%= f.input :address_type, as: :select, collection: Address::TYPES, include_blank: "Type" %>
-		</div>
-		<p class="text-right">
-			<%= link_to '<span class="fui-cross-inverted"> Delete Address</span>'.html_safe, '#', :class => "remove_fields text-danger" %>
-		</p>
-	</div>
-
-	<div class="row">
-		<div class="col-md-7">
-			<%= f.input :address_1, placeholder: 'Street', :required => true %>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-7">
-			<%= f.input :address_2, placeholder: "Apt, Suite, Bldg (optional)" %>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-2">
-		  <%= f.input :city, placeholder: "City", required: true %>
-		</div>
-		<div class="col-md-offset-1 col-md-3">
-		  <%= f.input :state, as: :select, collection: State::NAME_IDS, include_blank: 'State', required: true %>
-		</div>
-		<div class="col-md-2">
-		  <%= f.input_field :zip, :placeholder => "Zip code", :required => true %>
-		</div>
-	</div>
-
-	<%= f.hidden_field :_destroy %>
-	<hr/>
+<fieldset>
+  <div class="row">
+    <p class="text-right col-md-6 col-md-push-6">
+      <%= link_to '<span class="fui-cross-circle"> Delete Address</span>'.html_safe, '#', :class => "remove_fields text-danger" %>
+    </p>
+  </div>
+  <%= f.select :address_type, Address::TYPES, {include_blank: "Type"}, { class: "select select-primary", data: { toggle: "select"} } %>
+  <%= f.text_field :address_1, placeholder: 'Street', required: true %>
+  <%= f.text_field :address_2, placeholder: "Apt, Suite, Bldg (optional)" %>
+  <%= f.text_field :city, placeholder: "City", required: true %>
+  <%= f.select :state, State::NAME_IDS, {include_blank: "State", required: true}, { class: "select form-control select-primary", data: { toggle: "select"} } %>
+  <%= f.text_field :zip, placeholder: "Zip code", required: true %>
+  <%= f.hidden_field :_destroy %>
+  <hr>
 </fieldset>

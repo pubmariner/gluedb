@@ -8,6 +8,6 @@
   </ul>
 </div>
 
-<%= simple_form_for(@person, url: employer_employees_path, html: { action: :compare, class: 'form-horizontal' }) do |f| %>
+<%= form_for(@person, url: employer_employees_path ) do |f| %>
 	<%= render :partial => 'form', :locals=> {f: f} %>
 <% end %>

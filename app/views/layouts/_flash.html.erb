@@ -1,4 +1,10 @@
-<div class="alert alert-<%= type == :notice ? 'success' : 'error' %>">
-  <a class="close" data-dismiss="alert">×</a>
-  <%= message %>
-</div>
+<% if type == :notice %>
+  <%= alert_box context: :success, dismissible: true do %>
+    <%= message %>
+  <% end %>
+<% else %>
+  <%= alert_box context: :danger, dismissible: true do %>
+    <%= message %>
+  <% end %>
+<% end %>
+

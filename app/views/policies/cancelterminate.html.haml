@@ -1,6 +1,6 @@
 %ul.breadcrumb
   Cancel or Terminate
-= form_for @cancel_terminate, :html => { :class => 'form-horizontal', :role => "form" }, url: transmit_policy_path(@cancel_terminate.policy) do |f|
+= form_for @cancel_terminate, url: transmit_policy_path(@cancel_terminate.policy) do |f|
   .panel.panel-default
     .panel-body
       .row

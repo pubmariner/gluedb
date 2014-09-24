@@ -1,8 +1,14 @@
-= form_for @change_vocabulary, :html => { :class => 'form-horizontal', :role => "form" } do |f|
-  .control-group
-    = f.select :operation, options_for_select(ChangeVocabulary.operations), :class => 'form-control select-block select mbl'
-  .control-group
-    = f.select :reason, options_for_select(ChangeVocabulary.reasons), :class => 'form-control select-block select mbl'
+= form_for @change_vocabulary do |f|
+  .row
+    .col-xs-4
+      .control-group
+        = f.select :operation, options_for_select(ChangeVocabulary.operations), {}, :class => 'form-control select select-primary'
+  %br
+  .row
+    .col-xs-4
+      .control-group
+        = f.select :reason, options_for_select(ChangeVocabulary.reasons),{}, :class => 'form-control select-block select select-primary'
+  %br
 
   %table.table.table-condensed
     %thead

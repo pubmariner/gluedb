@@ -85,7 +85,7 @@ class PeopleController < ApplicationController
     address_changer = ChangeMemberAddress.new(nil)
     update_person = UpdatePerson.new(Person, address_changer, ChangeAddressRequest)
     if(!update_person.validate(request, listener))
-      render action: "edit" and return
+      render "edit" and return
     end
     @diff = PersonDiff.new(params)
     @updates = params[:person] || {}

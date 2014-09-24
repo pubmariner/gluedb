@@ -14,10 +14,7 @@ jQuery ->
   $('.input-group-btn button').click ->
     $('.date_picker').datepicker("show")
 
-  $("select").selectpicker
-      style: 'btn-info',
-      menuStyle: 'dropdown-inverse'
-      # size: 5
+  $("select").select2()
 
   $('.nav.nav-list .disabled a').removeAttr('href')
 

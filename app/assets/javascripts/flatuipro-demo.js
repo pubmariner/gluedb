@@ -27,10 +27,10 @@ String.prototype.repeat = function(num) {
   $(function() {
 
     // Custom Selects
-    $("select[name='huge']").selectpicker({style: 'btn-hg btn-primary', menuStyle: 'dropdown-inverse'});
-    $("select[name='large']").selectpicker({style: 'btn-lg btn-danger'});
-    $("select[name='info']").selectpicker({style: 'btn-info'});
-    $("select[name='small']").selectpicker({style: 'btn-sm btn-warning'});
+    // $("select[name='huge']").selectpicker({style: 'btn-hg btn-primary', menuStyle: 'dropdown-inverse'});
+    // $("select[name='large']").selectpicker({style: 'btn-lg btn-danger'});
+    // $("select[name='info']").selectpicker({style: 'btn-info'});
+    // $("select[name='small']").selectpicker({style: 'btn-sm btn-warning'});
 
     // Tabs
     $(".nav-tabs a").on('click', function (e) {
@@ -42,7 +42,7 @@ String.prototype.repeat = function(num) {
     $("[data-toggle=tooltip]").tooltip("show");
 
     // Tags Input
-    $(".tagsinput").tagsInput();
+    // $(".tagsinput").tagsInput();
 
     // jQuery UI Sliders
     var $slider = $("#slider");

@@ -44,9 +44,9 @@
           - else
             - changed.each do |c|
               = render 'change_table', c: c
-= simple_form_for(@person, url: persist_and_transmit_person_path(@person), html: { class: 'form-horizontal' }) do |f|
+= form_for(@person, url: persist_and_transmit_person_path(@person), layout: :horizontal) do |f|
   = hidden_field_tag(:person, @updates.to_json, id: nil)
   .well.well-sm.well-default
     .form-actions
-      = f.submit "Confirm Changes", :class => 'btn btn-primary'
+      = submit_tag "Confirm Changes", :class => 'btn btn-primary'
       = link_to "Back", 'javascript:history.back()', :class => 'btn btn-default'

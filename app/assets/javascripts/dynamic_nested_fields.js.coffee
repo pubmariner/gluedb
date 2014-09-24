@@ -15,9 +15,7 @@ jQuery ->
     update_delete_buttons()
 
 style_select_picker = ->
-	$(document).find('select').selectpicker
-    style: 'btn-info',
-    menuStyle: 'dropdown-inverse'
+	$(document).find('select').select2()
 
 @update_delete_buttons = ->
   nested_fields = $('.form-inputs')

@@ -13,7 +13,6 @@ class Address
   field :state, type: String
   field :zip, type: String
 
-  validates_presence_of  :address_type, message: "Choose a type"
   validates_inclusion_of :address_type, in: TYPES, message: "Invalid type"
 
   validates_presence_of :address_1, :city, :state, :zip

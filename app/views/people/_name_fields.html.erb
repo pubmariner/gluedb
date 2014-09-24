@@ -1,19 +1,5 @@
-<fieldset>
-	<div class="row">
-		<div class="col-md-1">
-			<%= f.input :name_pfx, placeholder: "Pfx", disabled: true %>
-		</div>
-		<div class="col-md-3">
-			<%= f.input :name_first, placeholder: "First", disabled: true  %>
-		</div>
-		<div class="col-md-1">
-			<%= f.input :name_middle, placeholder: "Mid", disabled: true  %>
-		</div>
-		<div class="col-md-3">
-			<%= f.input :name_last, placeholder: "Last", disabled: true  %>
-		</div>
-		<div class="col-md-1">
-			<%= f.input :name_sfx, placeholder: "Sfx", disabled: true %>
-		</div>
-	</div>
-</fieldset>
+<%= f.text_field :name_pfx, placeholder: "Pfx", label: "Prefix", disabled: true %>
+<%= f.text_field :name_first, placeholder: "First", label: "First Name", disabled: true  %>
+<%= f.text_field :name_middle, placeholder: "Mid", label: "Middle Name", disabled: true  %>
+<%= f.text_field :name_last, placeholder: "Last", label: "Last Name", disabled: true  %>
+<%= f.text_field :name_sfx, placeholder: "Sfx", label: "Suffix", disabled: true %>

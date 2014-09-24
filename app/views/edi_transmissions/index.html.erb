@@ -18,9 +18,9 @@
       <tr>
         <td><%= link_to edi_transmission.id, edi_transmission_path(edi_transmission) %></td>
         <td><%= edi_transmission.sender.name %></td>
-        <td><%= edi_transmission.receiver.name %></td>
+        <td><%= edi_transmission.receiver.name unless edi_transmission.receiver.nil? %></td>
         <td><%= edi_transmission.submitted_at.strftime("%m-%d-%Y") if edi_transmission.submitted_at.present?  %></td>
-        <td><%= edi_transmission.edi_transaction_sets.count %></td>
+        <td><%= edi_transmission.transaction_set_headers_count %></td>
       </tr>
     <% end %>
   </tbody>

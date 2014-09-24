@@ -8,18 +8,13 @@
   %>
 </div>
 
-<%= simple_form_for(@person, url: compare_person_path(@person)) do |f| %>
+<%= form_for @person, url: compare_person_path(@person), layout: :horizontal do |f| %>
 
 	<%= render 'form', f: f %>
 
   <div class="well well-sm well-default">
-    <div class="form-actions">
-      <div class="row">
-        <div class="col-md-4">
-          <%= f.submit "Save Changes", :class => 'btn btn-primary' %>
-          <%= link_to t('.cancel', :default => t("helpers.links.cancel")), person_path(@person), class: "btn btn-primary" %>
-        </div>
-		</div>
+    <%= submit_tag "Save Changes", class: "btn btn-primary" %>
+    <%= link_to t('.cancel', :default => t("helpers.links.cancel")), person_path(@person), class: "btn btn-primary" %>
 	</div>
 
 <% end %>
