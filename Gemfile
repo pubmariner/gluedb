@@ -6,13 +6,13 @@ gem "mongoid", "~> 3.1.6"
 gem "origin"
 gem "aasm", "~> 3.0.25"
 gem "nokogiri", "~> 1.6.1"
-gem "bunny"
+gem "bunny", '1.4.1'
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
 
 group :development do
   gem 'capistrano', '2.15.4'
-  gem 'ruby-progressbar'
+  gem 'ruby-progressbar', '1.6.0'
 #  gem 'jazz_hands'
 end
 
@@ -21,9 +21,9 @@ group :development, :assets do
   gem 'coffee-rails', '~> 3.2.1', :group => :test
   gem 'uglifier', '>= 1.0.3'
   gem 'therubyracer', :platforms => :ruby
-  gem 'less-rails-bootstrap', :group => :test
+  gem 'less-rails-bootstrap', '3.2.0', :group => :test
   gem 'designmodo-flatuipro-rails', '~> 1.3.0.0.branch', :group => :test
-  gem 'font-awesome-rails'
+  gem 'font-awesome-rails', '4.2.0.0'
 end
 
 group :test do
@@ -32,20 +32,20 @@ group :test do
   gem 'capybara'
   gem "capybara-webkit"
   gem 'factory_girl_rails'
-  gem 'database_cleaner'
-  gem 'ci_reporter'
+  gem 'database_cleaner', '1.3.0'
+  gem 'ci_reporter', '2.0.0'
 end
 
 group :production do
-  gem 'unicorn'
+  gem 'unicorn', '4.8.2'
 end
 
 gem "haml"
 gem 'kaminari'
-gem 'bootstrap-kaminari-views'
+gem 'bootstrap-kaminari-views', '0.0.5'
 gem "pd_x12"
-gem 'carrierwave-mongoid', :require => 'carrierwave/mongoid'
-gem 'devise'
+gem 'carrierwave-mongoid', '0.7.1', :require => 'carrierwave/mongoid'
+gem 'devise', '3.3.0'
 gem "rsec"
 gem "mongoid_auto_increment"
 gem 'american_date'
