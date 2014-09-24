@@ -2,7 +2,7 @@ require 'csv'
 
 people = []
 
-CSV.open('brokers_with_glue_data_20140814.csv', 'w') do |csv|
+CSV.open('brokers_with_glue_data_20140919.csv', 'w') do |csv|
   csv << ["PROVIDERTYPE",  "PROVIDERPRACTICEBUSINESSAREA" , "PROVIDERREFERENCENUMBER", "NATIONALPRODUCERNUMBER", "PROVIDERNAME", "CLIENT_NAME", "SSN", "DOB", "USER_ACCOUNT", "PROVIDERSTATUS", "STARTDATE", "ENDDATE",
           "CARRIERINGLUE", "BROKERINGLUE", "SHOP"]
 
