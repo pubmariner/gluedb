@@ -43,17 +43,6 @@ feature 'uploading individual CV' do
     expect(page).to have_content 'Upload failed.'
   end
 
-  scenario 'kind is not selected' do
-    visit new_vocab_upload_path
-
-    file_path = Rails.root + "spec/support/fixtures/individual_enrollment/correct.xml"
-    attach_file('vocab_upload_vocab', file_path)
-
-    click_button "Upload"
-
-    expect(page).to have_content 'Upload failed.'
-  end
-
   scenario 'enrollee\'s premium is incorrect' do
     visit new_vocab_upload_path
 

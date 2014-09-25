@@ -32,17 +32,6 @@ feature 'uploading show CV' do
     expect(page).to have_content 'Upload failed.'
   end
 
-  scenario 'kind is not selected' do
-    visit new_vocab_upload_path
-
-    file_path = Rails.root + "spec/support/fixtures/shop_enrollment/correct.xml"
-    attach_file('vocab_upload_vocab', file_path)
-
-    click_button "Upload"
-
-    expect(page).to have_content 'Upload failed.'
-  end
-
   scenario 'a successful upload' do
     visit new_vocab_upload_path
 
