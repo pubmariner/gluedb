@@ -29,8 +29,12 @@ describe Parsers::Edi::Etf::HouseholdParser do
 
   subject { Parsers::Edi::Etf::HouseholdParser.new(l834)  }
 
-  its(:member_ids) { should include(the_first_member_id) }
-  its(:member_ids) { should include(another_member_id) }
+  it "should have the first member" do
+    expect(subject.member_ids).to include(the_first_member_id)
+  end
+  it "should have the other member" do
+    expect(subject.member_ids).to include(another_member_id)
+  end
 
   it "should tell the household to create itself when persisted" do
     expect(Person).to receive(:find_for_members).with([the_first_member_id, another_member_id]).and_return(people)

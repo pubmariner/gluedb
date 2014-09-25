@@ -40,7 +40,7 @@ describe Broker do
     describe 'b_type' do
       let(:broker) { build(:broker, :with_invalid_b_type) }
       context 'when invalid' do
-        its 'invalid' do
+        it 'is invalid' do
           expect(broker).to be_invalid
         end
       end
@@ -48,7 +48,7 @@ describe Broker do
       ['broker', 'tpa'].each do |type|
         context('when ' + type) do
           before { broker.b_type = type}
-          its 'valid' do
+          it 'is valid' do
             expect(broker).to be_valid
           end
         end

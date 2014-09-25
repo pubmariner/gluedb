@@ -26,7 +26,7 @@ describe Address do
   describe 'validations' do
     describe 'presence' do
       [:address_1, :city, :state, :zip].each do |missing|
-        its('invalid without ' + missing.to_s) do
+        it ('is invalid without ' + missing.to_s) do
           trait = 'without_' + missing.to_s
           address = build(:address, trait.to_sym)
           expect(address).to be_invalid
@@ -37,7 +37,7 @@ describe Address do
     describe 'address type' do
       let(:address) { build(:address, :with_invalid_address_type) }
       context 'when invalid' do
-        its 'invalid' do
+        it 'is invalid' do
           expect(address).to be_invalid
         end
       end
@@ -45,7 +45,7 @@ describe Address do
       ['home', 'work', 'billing'].each do |type|
         context('when ' + type) do
           before { address.address_type = type}
-          its 'valid' do
+          it 'is valid' do
             expect(address).to be_valid
           end
         end

@@ -14,7 +14,7 @@ describe Phone do
     describe 'phone type' do
       let(:phone) { Phone.new(phone_type: 'invalid', phone_number: "12345") }
       context 'when invalid' do
-        its 'invalid' do
+        it 'is invalid' do
           expect(phone).to be_invalid
         end
       end
@@ -25,7 +25,7 @@ describe Phone do
             phone.phone_number = "12345"
             phone.phone_type = type
           }
-          its 'valid' do
+          it 'is valid' do
             expect(phone).to be_valid
           end
         end

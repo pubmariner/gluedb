@@ -63,4 +63,6 @@ RSpec.configure do |config|
   config.include Features, type: :feature
   config.include Requests, type: :request
   config.include(Capybara::Webkit::RspecMatchers, :type => :feature)
+
+  config.infer_spec_type_from_file_location!
 end

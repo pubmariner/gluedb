@@ -6,11 +6,13 @@ describe Queries::PersonMemberQuery do
 
   subject { Queries::PersonMemberQuery.new(member_ids) }
 
-  its(:query) { should eq({
+  it "should have the correct query" do
+    expect(subject.query).to eq({
     "members" => {
       "$elemMatch" => {
         "hbx_member_id" => { "$in" => member_ids }
       }
     }
-  }) }
+  }) 
+  end
 end
