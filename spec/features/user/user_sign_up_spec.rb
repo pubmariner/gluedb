@@ -24,13 +24,4 @@ feature 'User sign up' do
 
     expect(page).to have_content "Password can't be blank"
   end
-
-  scenario 'password confirmation doesnt match' do
-    user = build :user, :without_password_confirmation
-
-    sign_up_as user
-
-    expect(page).to have_content "Password doesn't match"
-  end
 end
-

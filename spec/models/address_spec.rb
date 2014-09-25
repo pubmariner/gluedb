@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Address do
   it "should have an invalid zipcode" do
@@ -42,7 +42,7 @@ describe Address do
         end
       end
 
-      ['home', 'work', 'billing'].each do |type|
+      ['home', 'work', 'mailing'].each do |type|
         context('when ' + type) do
           before { address.address_type = type}
           it 'is valid' do
