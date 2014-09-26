@@ -11,7 +11,17 @@ roles = Hash["kevin.wei@dc.gov" => "admin",
   "candice.hammonds@dc.gov" => "edi_ops",
   "zoheb.nensey@dc.gov" => "edi_ops",
   "azizza.brown2@dc.gov" => "edi_ops",
-  "pamela.yeung@dc.gov" => "edi_ops"]
+  "pamela.yeung@dc.gov" => "edi_ops",
+  "camille.gray@dc.gov" => "edi_ops",
+  "selamawit.teka@dc.gov" => "edi_ops",
+  "prasanth.manda@dc.gov" => "edi_ops",
+  "yvonn.okyere@dc.gov" => "edi_ops",
+  "brandon.armani@dc.gov" => "edi_ops",
+  "deborah.scott2@dc.gov" => "edi_ops",
+  "patricia.faggett@dc.gov" => "edi_ops",
+  "johnette.wilson@dc.gov" => "edi_ops",
+  "cliff.cooper@dc.gov" => "edi_ops",
+  "yogesh.mali@dc.gov" => "edi_ops"]
 
 roles.each do |r|
   u = User.where(email: r[0]).first
