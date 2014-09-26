@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 feature 'viewing a person' do
   scenario 'by clicking on the person name in list' do
