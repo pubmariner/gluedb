@@ -9,7 +9,7 @@ feature 'uploading show CV' do
       amount: 742.47)
   end
   background do
-    user = create :user
+    user = create :user, :admin
     visit root_path
     sign_in_with(user.email, user.password)
 
