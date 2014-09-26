@@ -1,4 +1,5 @@
 class VocabUploadsController < ApplicationController
+  load_and_authorize_resource :class => "VocabUpload"
 
   def new
     @vocab_upload = VocabUpload.new(:submitted_by => current_user.email)

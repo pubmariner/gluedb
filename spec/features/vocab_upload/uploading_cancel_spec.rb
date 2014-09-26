@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 feature 'uploading a cancel/term CV' do
   given(:premium) do
@@ -10,7 +10,7 @@ feature 'uploading a cancel/term CV' do
     )
   end
   background do
-    user = create :user
+    user = create :user, :admin
     visit root_path
     sign_in_with(user.email, user.password)
 

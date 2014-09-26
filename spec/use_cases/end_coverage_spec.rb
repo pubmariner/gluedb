@@ -28,7 +28,7 @@ shared_examples "coverage ended with correct responsible amount" do
 end
 
 describe EndCoverage do
-  subject(:end_coverage) { EndCoverage.new(listener, action_factory, policy_repo) }
+  subject(:end_coverage) { EndCoverage.new(action_factory, policy_repo) }
   let(:request) do
     {
       policy_id: policy.id,
@@ -64,8 +64,7 @@ describe EndCoverage do
   let(:subscriber) { Enrollee.new(rel_code: 'self', coverage_start: coverage_start, pre_amt: 100.00, ben_stat: 'active', emp_stat: 'active',  m_id: '1') }
   let(:member) { Enrollee.new(rel_code: 'child', coverage_start: coverage_start, pre_amt: 200.00, ben_stat: 'active', emp_stat: 'active',  m_id: '2') }
   let(:previous_employer_contribution) { 248.33 }
-  let(:listener) { double }
-
+  
   let(:action_factory) { double(create_for: action) }
   let(:action) { double(execute: nil) }
   let(:coverage_start) { Date.new(2014, 1, 2)}

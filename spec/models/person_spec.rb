@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Person do
   describe "validate associations" do
@@ -131,22 +131,22 @@ describe Person do
           Member.new({gender: "female", ssn: "564781254", dob: "19890312"})
         ],
         addresses: [
-          Address.new({address_type: "home", address_1: "110 Main St", city: "Washington", state: "DC", zip: "200001"}),
-          Address.new({address_type: "work", address_1: "222 Park Ave", city: "Washington", state: "DC", zip: "200002"})
+          Address.new({address_type: "home", address_1: "110 Main St", city: "Washington", state: "DC", zip: "20001"}),
+          Address.new({address_type: "work", address_1: "222 Park Ave", city: "Washington", state: "DC", zip: "20002"})
         ]
       })
 
       q = Person.find p
       q.name_first = "Bones"
       q.members.first.gender = "male"
-      q.addresses.first.address_type = "billing"
+      q.addresses.first.address_type = "mailing"
       q.addresses.last.state = "CA"
 
       delta = q.changes_with_embedded
       expect(delta[:person].first[:name_first][:from]).to eq("Leonard")
       expect(delta[:person].first[:name_first][:to]).to eq("Bones")
 
-      expect(delta[:addresses].first[:address_type][:to]).to eq("billing")
+      expect(delta[:addresses].first[:address_type][:to]).to eq("mailing")
       expect(delta[:addresses].last[:state][:to]).to eq("CA")
 
       expect(delta[:members].first[:gender][:to]).to eq("male")
@@ -157,14 +157,14 @@ describe Person do
     let(:person) { Person.new }
     context 'one member' do
       let(:member) { Member.new(hbx_member_id: 1) }
-      its 'authority member id is the member hbx id' do
+      it 'authority member id is the member hbx id' do
         person.members << member
         person.assign_authority_member_id
         expect(person.authority_member_id).to eq member.hbx_member_id
       end
     end
     context 'more than one member' do
-      its 'authority member id is nil' do
+      it 'authority member id is nil' do
         2.times { |i| person.members << Member.new(hbx_member_id: i) }
         person.assign_authority_member_id
         expect(person.authority_member_id).to be_nil
@@ -331,11 +331,11 @@ describe Person do
     let(:policy) { Policy.new(eg_id: '1', enrollees: [enrollee]) }
     let(:enrollee) do
       Enrollee.new(
-        m_id: member.hbx_member_id, 
-        benefit_status_code: 'active', 
+        m_id: member.hbx_member_id,
+        benefit_status_code: 'active',
         employment_status_code: 'active',
         relationship_status_code: 'self',
-        coverage_start: future_date) 
+        coverage_start: future_date)
     end
     let(:future_date) { Date.today.next_month }
     before { policy.save! }
@@ -347,7 +347,7 @@ describe Person do
 
   describe '#billing_address' do
     let(:person) { Person.new(name_first: 'Joe', name_last: 'Dirt') }
-    let(:address) { 
+    let(:address) {
         Address.new(
         address_type: address_type,
         address_1: "101 Main St",
@@ -361,14 +361,14 @@ describe Person do
 
     context 'when there is a billing address' do
       let(:address_type) { 'billing' }
-      
+
       it 'returns the billing address' do
         expect(person.billing_address).to eq address
       end
     end
 
     context 'when there is no billing address' do
-      context 'but there is a home address' do 
+      context 'but there is a home address' do
         let(:address_type) { 'home' }
 
         it 'returns the home address' do
@@ -386,5 +386,5 @@ describe Person do
   it 'has a home address' do
     expect(subject.address_of('home')).to eq address
   end
- 
+
 end

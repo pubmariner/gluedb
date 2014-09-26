@@ -1,0 +1,2 @@
+module MassSilentCancelsHelper
+end

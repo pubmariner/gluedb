@@ -42,7 +42,7 @@ class PoliciesController < ApplicationController
 
     if @cancel_terminate.valid?
       request = EndCoverageRequest.from_form(params, current_user.email)
-      EndCoverage.new(self, EndCoverageAction).execute(request)
+      EndCoverage.new(EndCoverageAction).execute(request)
       redirect_to person_path(Policy.find(params[:id]).subscriber.person)
     else
       @cancel_terminate.errors.full_messages.each do |msg|

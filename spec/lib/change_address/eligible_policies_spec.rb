@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 describe ChangeAddress::EligiblePolicies do
   subject { ChangeAddress::EligiblePolicies.for_person(person) }
   let(:person) { double(policies: policies) }

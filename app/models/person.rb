@@ -180,13 +180,12 @@ class Person
       found_member.merge_member(m_member)
     else
       self.members << m_member
-      assign_authority_member_id
+      #assign_authority_member_id #Don't allow merge to wipe authority member id's
     end
   end
 
   def assign_authority_member_id
-    #  This is disabled for the moment, so we don't lose authority member ids..
-    #    self.authority_member_id = (self.members.length > 1) ? nil : self.members.first.hbx_member_id
+        self.authority_member_id = (self.members.length > 1) ? nil : self.members.first.hbx_member_id
   end
 
   def merge_address(m_address)
@@ -321,7 +320,7 @@ class Person
   def employee_roles
     policies_through_employer = policies.select { |p| !p.employer_id.nil? }
 
-    enrollees = [] 
+    enrollees = []
     policies_through_employer.each do |p|
       enrollees << p.enrollees.detect { |e| e.m_id == authority_member_id }
     end
@@ -331,7 +330,7 @@ class Person
   def billing_address
     billing_addr = addresses.detect { |adr| adr.address_type == "billing" }
     if (billing_addr.nil?)
-      home_address 
+      home_address
     else
       billing_addr
     end

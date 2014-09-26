@@ -16,7 +16,7 @@ describe PremiumTotalCalculator do
   let(:enrollees) { [] }
   context 'policy with no enrollees' do
     let(:enrollees) { [] }
-    its 'total is zero' do
+    it 'total is zero' do
       expect(calculator.calculate).to eq 0
     end
   end

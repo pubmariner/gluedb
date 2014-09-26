@@ -14,7 +14,7 @@ describe Email do
     describe 'email type' do
       let(:email) { Email.new(email_type: 'invalid', email_address: 'example@example.com') }
       context 'when invalid' do
-        its 'invalid' do
+        it 'is invalid' do
           expect(email).to be_invalid
         end
       end
@@ -22,7 +22,7 @@ describe Email do
       valid_types.each do |type|
         context('when ' + type) do
           before { email.email_type = type}
-          its 'valid' do
+          it 'is valid' do
             expect(email).to be_valid
           end
         end
@@ -31,7 +31,7 @@ describe Email do
 
     describe 'presence' do
       [:email_address].each do |missing|
-        its('invalid without ' + missing.to_s) do
+        it('is invalid without ' + missing.to_s) do
           trait = 'without_' + missing.to_s
           email = build(:email, trait.to_sym)
           expect(email).to be_invalid

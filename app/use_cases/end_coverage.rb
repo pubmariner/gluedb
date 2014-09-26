@@ -1,7 +1,6 @@
 class EndCoverage
-  def initialize(listener, action_factory, policy_repo = Policy)
+  def initialize(action_factory, policy_repo = Policy)
     @policy_repo = policy_repo
-    @listener = listener
     @action_factory = action_factory
   end
 

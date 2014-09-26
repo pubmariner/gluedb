@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe SpecialEnrollmentPeriod do
 	it "fails validation with no 'reason' attribute" do

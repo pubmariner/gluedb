@@ -1,6 +1,6 @@
-require 'spec_helper'
+require 'rails_helper'
 
-describe Api::V1::EmployersController do
+describe Api::V1::EmployersController, :type => :controller do
   login_user
 
   describe 'GET show' do

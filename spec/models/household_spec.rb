@@ -7,7 +7,9 @@ describe Household do
 	  it { should embed_many :eligibilities }
   end
 
-  its(:people) { should be_empty }
+  it "should have no people" do
+    expect(subject.people).to be_empty
+  end
 
   it "max_aptc and csr values returned are from the most recent eligibility record" do
   	hh = Household.new(

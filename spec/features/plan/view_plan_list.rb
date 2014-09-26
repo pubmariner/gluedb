@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 feature 'viewing list of plans' do
   scenario 'when there are many plans' do
@@ -8,7 +8,7 @@ feature 'viewing list of plans' do
 
     plan = create :plan
 
-    click_link 'Plans'
+    visit('/plans')
 
     expect(page).to have_content(plan.name)
   end

@@ -68,7 +68,7 @@ describe Enrollee do
 
   context 'when coverage end date is present' do
     let(:enrollee) { Enrollee.new(coverage_end: Date.today) }
-    its 'coverage has ended' do
+    it 'coverage has ended' do
       expect(enrollee.coverage_ended?).to be_true
     end
   end

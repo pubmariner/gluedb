@@ -45,7 +45,7 @@ class Member
 
   validates_presence_of  :gender, message: "Choose a gender"
   validates_inclusion_of :gender, in: GENDER_TYPES, message: "Invalid gender"
-  validates_inclusion_of :tax_filing_status, in: TAX_FILING_TYPES, message: "Invalid tax filing status"
+  # validates_inclusion_of :tax_filing_status, in: TAX_FILING_TYPES, message: "Invalid tax filing status"
 
   # validates_numericality_of :ssn
   validates_length_of :ssn, allow_blank: true, allow_nil: true, minimum: 9, maximum: 9,
