@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Person do
   describe "validate associations" do
@@ -331,11 +331,11 @@ describe Person do
     let(:policy) { Policy.new(eg_id: '1', enrollees: [enrollee]) }
     let(:enrollee) do
       Enrollee.new(
-        m_id: member.hbx_member_id, 
-        benefit_status_code: 'active', 
+        m_id: member.hbx_member_id,
+        benefit_status_code: 'active',
         employment_status_code: 'active',
         relationship_status_code: 'self',
-        coverage_start: future_date) 
+        coverage_start: future_date)
     end
     let(:future_date) { Date.today.next_month }
     before { policy.save! }
@@ -347,7 +347,7 @@ describe Person do
 
   describe '#billing_address' do
     let(:person) { Person.new(name_first: 'Joe', name_last: 'Dirt') }
-    let(:address) { 
+    let(:address) {
         Address.new(
         address_type: address_type,
         address_1: "101 Main St",
@@ -361,14 +361,14 @@ describe Person do
 
     context 'when there is a billing address' do
       let(:address_type) { 'billing' }
-      
+
       it 'returns the billing address' do
         expect(person.billing_address).to eq address
       end
     end
 
     context 'when there is no billing address' do
-      context 'but there is a home address' do 
+      context 'but there is a home address' do
         let(:address_type) { 'home' }
 
         it 'returns the home address' do
@@ -386,5 +386,5 @@ describe Person do
   it 'has a home address' do
     expect(subject.address_of('home')).to eq address
   end
- 
+
 end
