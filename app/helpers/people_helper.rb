@@ -1,7 +1,10 @@
 module PeopleHelper
 
 	def person_members(person = @person)
-		person.members
+		return person.members if person.members.count < 2
+		member_list = person.members.sort { |a,b| a.hbx_member_id <=> b.hbx_member_id }.reverse
+		member_list.unshift(member_list.delete(person.authority_member)) unless person.authority_member.blank?
+		member_list
 	end
 
 	def policy_market(policy)
