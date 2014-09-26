@@ -1,4 +1,4 @@
-require File.expand_path(File.join(File.dirname(__FILE__), "..", 'spec_helper'))
+require File.expand_path(File.join(File.dirname(__FILE__), "..", 'rails_helper'))
 
 describe VocabularyRequestsController do
   login_user
@@ -6,8 +6,8 @@ describe VocabularyRequestsController do
 
   describe 'GET new' do
 
-    before { 
-      VocabularyRequest.stub(:new).and_return(mock_vr)  
+    before {
+      VocabularyRequest.stub(:new).and_return(mock_vr)
       get :new
     }
 
@@ -23,8 +23,8 @@ describe VocabularyRequestsController do
   describe 'POST create' do
     describe 'with valid data' do
 
-      before { 
-        VocabularyRequest.stub(:new).and_return(mock_vr)  
+      before {
+        VocabularyRequest.stub(:new).and_return(mock_vr)
         mock_vr.stub(:save).and_return true
         post :create
       }
@@ -35,8 +35,8 @@ describe VocabularyRequestsController do
     end
 
     describe 'with invalid data' do
-      before { 
-        VocabularyRequest.stub(:new).and_return(mock_vr)  
+      before {
+        VocabularyRequest.stub(:new).and_return(mock_vr)
         mock_vr.stub(:save).and_return false
         post :create
       }
