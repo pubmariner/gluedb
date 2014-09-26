@@ -1,9 +1,9 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Eligibility do
 
 	it "fails validation without required attributes" do
-		expect(Eligibility.new).to have(1).errors_on(:date_determined)
+		expect(Eligibility.new).to have(1).errors_on(:determination_date)
 	end
 
 	it "fails validation with csr_percent value is out of range" do
@@ -12,7 +12,7 @@ describe Eligibility do
 	end
 
 	it "passes validation with correct attributes" do
-		expect(Eligibility.new(date_determined: Date.today, max_aptc: 250.35, csr_percent: 0.73)).to have(:no).errors_on(:base)
+		expect(Eligibility.new(determination_date: Date.today, max_aptc: 250.35, csr_percent: 0.73)).to have(:no).errors_on(:base)
 	end
 
 end
