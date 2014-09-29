@@ -64,7 +64,7 @@ describe ExposesPlanXml do
     it 'returns blank when absent' do
       parser = Nokogiri::XML("<plan></plan>")
       plan = ExposesPlanXml.new(parser)
-      expect(plan.group_id).to eq ''
+      expect(plan.group_id).to eq nil
     end
   end
 
