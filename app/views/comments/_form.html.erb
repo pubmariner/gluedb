@@ -1,9 +1,4 @@
-<%= simple_form_for [@commentable, @comment], html: { :class => 'form-horizontal' } do |f| %>
-	<fieldset>
-		<!-- Use custom Bootstrap wrapper to left-justify input box -->
-		<%= f.input :content, label: false, wrapper: :horizontal_form_no_label do %>
-			<%= f.input_field :content, :class => "span8" %>
-			<%= f.button :submit, "Add", class: 'btn btn-primary btn-small'  %>
-		<% end %>
-	</fieldset>
+<%= form_for [commentable, commentable.comments.build], layout: :inline do |f| %>
+  <%= f.text_field :content, placeholder: 'Comment' %>
+  <%= f.submit 'Add' %>
 <% end %>

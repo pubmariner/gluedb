@@ -64,6 +64,7 @@ Gluedb::Application.routes.draw do
 
   resources :individuals
   resources :people do
+    resources :comments
     get 'page/:page', :action => :index, :on => :collection
     member do
       put :compare

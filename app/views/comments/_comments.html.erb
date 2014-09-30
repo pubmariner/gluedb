@@ -1,9 +1,13 @@
-<% @comments.each do |comment| %>
-	<ul class="unstyled">
-		<% if comment.priority? %>
-			<li class="text-warning"><%= "#{comment.content} - #{time_ago_in_words comment.updated_at} ago" %></li>
-		<% else %>
-			<li><%= "#{comment.content} - #{distance_of_time_in_words_to_now comment.updated_at, true} ago" %></li>
-		<% end %>
-	</ul>
-<% end %>
+<div class="row">
+  <% comments.each do |comment| %>
+  	<ul>
+  	 <li>
+        <%= "#{comment.content}"%>
+        <span class="label label-default">
+          <%=link_to "#{comment.updated_at.strftime("%m-%e-%Y %I:%M:%S %p")}","#", title: comment.user , rel: 'tooltip' %>
+        </span>
+        <%= link_to 'Delete Comment', [comment.person, comment], method: :delete, class: "btn btn-xs btn-warning" if can? :edit, @people %>
+      </li>
+  	</ul>
+  <% end %>
+</div>

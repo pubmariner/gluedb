@@ -47,6 +47,9 @@ class Person
   embeds_many :incomes, :inverse_of => :person
   accepts_nested_attributes_for :incomes, allow_destroy: true
 
+  embeds_many :comments
+  accepts_nested_attributes_for :comments, reject_if: proc { |attribs| attribs['content'].blank? }, allow_destroy: true
+
   index({"members.hbx_member_id" =>1})
   index({"members.ssn" => 1})
   index({"members.dob" => 1})

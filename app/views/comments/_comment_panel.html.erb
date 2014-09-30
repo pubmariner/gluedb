@@ -1,0 +1,15 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          Comments
+        </h3>
+      </div>
+      <div class="container panel-body">
+        <%= render 'comments/comments', comments: commentable.comments if !commentable.comments.empty? %>
+        <%= render 'comments/form', commentable: commentable if can? :edit, @people %>
+      </div>
+    </div>
+  </div>
+</div>

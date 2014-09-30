@@ -5,7 +5,7 @@ class Comment
   PRIORITY_TYPE = %W[low normal high]
 
   field :content, type: String
-  field :priority, type: Boolean, default: "normal"
+  field :priority, type: String, default: "normal"
   field :user, type: String
 
   validates_inclusion_of :priority, in: PRIORITY_TYPE, message: "Invalid priority"
@@ -13,5 +13,6 @@ class Comment
 
   embedded_in :application_group
   embedded_in :household
+  embedded_in :person
 
 end
