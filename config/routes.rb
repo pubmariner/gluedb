@@ -114,6 +114,12 @@ Gluedb::Application.routes.draw do
 
   resources :special_enrollment_periods, only: [:new, :create]
 
+  resources :carefirst_imports do
+    collection do
+      post 'update_policy_status'
+      post 'update_enrollee_status'
+    end
+  end
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
