@@ -4,23 +4,24 @@ class Household
   #include Mongoid::Versioning
   include Mongoid::Paranoia
 
+  KIND = %W(uqhp, aqhp, shop, medicaid)
 
 #  field :rel, as: :relationship, type: String
+  field :consent_applicant, type: Integer
   field :active, type: Boolean, default: true   # Household active on the Exchange?
-  field :relationships, type: Array, default: []
-  field :integrated_case_id, type: String # Eligibility system foreign key
   field :irs_group_id, type: String
 
-  index({integrated_case_id:  1})
+  field :e_product_id, type: String  # Eligibility system PDC foreign key
+  field :primary_applicant_id, type: String
+  field :kind, type: String
+
   index({irs_group_id:  1})
 
 #  validates :rel, presence: true, inclusion: {in: %w( subscriber responsible_party spouse life_partner child ward )}
 
   belongs_to :application_group
   has_many :policies, autosave: true
-  has_many :people, autosave: true
-  # embeds_many :person_relationships
-  # accepts_nested_attributes_for :person_relationships, reject_if: proc { |attribs| attribs['subject_person', 'relationship_kind', 'object_person'].blank? }, allow_destroy: true
+  embeds_many :assistance_applicants
 
   embeds_many :eligibilities
   accepts_nested_attributes_for :eligibilities, reject_if: proc { |attribs| attribs['date_determined'].blank? }, allow_destroy: true
@@ -29,8 +30,8 @@ class Household
   accepts_nested_attributes_for :comments, reject_if: proc { |attribs| attribs['content'].blank? }, allow_destroy: true
 
   # Number of people in this household for elibility determination purposes
-  def eligibility_size
-    self.people.count #TODO: may be filtered by tax filer type??
+  def size
+    applicant.count #TODO: may be filtered by tax filer type??
   end
 
   # Income sum of all tax filers in this Household for specified year

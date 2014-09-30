@@ -5,24 +5,16 @@ class Eligibility
 	field :determination_date, type: Date
   field :magi_in_cents, type: Integer, default: 0  # Modified Adjusted Gross Income
   field :max_aptc_in_cents, type: Integer, default: 0
-  field :csr_percent, type: BigDecimal, default: 0.00
+  field :csr_percent, type: BigDecimal, default: 0.00   #values in DC: 0, .73, .87, .94
 
-  field :ia_eligible, type: Boolean
-  field :medicaid_chip_eligible, type: Boolean
-
-
-  field :tax_filing_status, type: String
-  field :tax_filing_together, type: Boolean
-  field :is_enrolled_for_res_coverage, type: Boolean
+  field :receiving_es_coverage, type: Boolean # Employer-sponsored coverage
   field :is_without_assistance, type: Boolean
-  field :max_renewal_year, type: Integer
-  field :financial_assistance, type: Boolean
-  field :receiving_benefit, type: Boolean
+  field :financial_assistance, type: Boolean  # ???
+  field :is_receiving_benefit, type: Boolean
 
   embedded_in :household
 
   validates_presence_of :determination_date, :max_aptc_in_cents, :csr_percent
-  validates_inclusion_of :max_renewal_year, :in => 2013..2030, message: "must fall between 2013 and 2030"
   validate :csr_as_percent
 
   def magi_in_dollars=(dollars)

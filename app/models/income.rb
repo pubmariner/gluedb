@@ -1,7 +1,8 @@
 class Income
   include Mongoid::Document
+  include Mongoid::Timestamps
 
-  TYPES = %W(
+  KINDS = %W(
   	alimony_and_maintenance
 		american_indian_and_alaskan_native
 		capital_gains
@@ -30,10 +31,11 @@ class Income
   FREQUENCIES = %W(biweekly daily half_yearly monthly quarterly weekly yearly)
 
   field :amount_in_cents, type: Integer, default: 0
-  field :income_type, type: String
+  field :kind, type: String
   field :frequency, type: String
   field :start_date, type: Date
   field :end_date, type: Date
+  field :is_projected?, type: Boolean, default: false
   field :evidence_flag, type: Boolean, default: false	# Proof of income provided?
   field :reported_date, type: DateTime
   field :reported_by, type: String
@@ -43,8 +45,8 @@ class Income
 
   validates :amount_in_cents, presence: true, 
   														numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-  validates :income_type, presence: true, 
-  												inclusion: { in: TYPES, message: "%{value} is not a valid income type" }
+  validates :kind, presence: true, 
+  												inclusion: { in: KINDS, message: "%{value} is not a valid income type" }
   validates :frequency, 	presence: true, 
  												 	inclusion: { in: FREQUENCIES, message: "%{value} is not a valid frequency" }
   validates :start_date, presence: true

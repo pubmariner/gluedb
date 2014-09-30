@@ -5,18 +5,24 @@ class ApplicationGroup
   include Mongoid::Paranoia
   include AASM
 
+  field :case_id, type: Integer  # Eligibility system foreign key
   field :aasm_state, type: String
   field :active, type: Boolean, default: true   # ApplicationGroup active on the Exchange?
-  field :notes, type: String
-  field :renew_coverage_through, type: Integer  # Authorize auto-renewal elibility check through this year (CCYY format)
+  field :coverage_renewal_year, type: Integer   # Authorize auto-renewal elibility check through this year (CCYY format)
 
-  index({:aasm_state => 1})
+  validates_inclusion_of :max_renewal_year, :in => 2013..2030, message: "must fall between 2013 and 2030"
+
+  index({aasm_state: 1})
+  index({case_id:  1})
+
 
   index({"person_relationships.subject_person" => 1})
   index({"person_relationships.object_person" => 1})
 
 	has_many :households, autosave: true
-  has_many :people
+
+  embeds_many :members
+  accepts_nested_attributes_for :members, allow_destroy: false
 
   embeds_many :special_enrollment_periods, cascade_callbacks: true
   accepts_nested_attributes_for :special_enrollment_periods, reject_if: proc { |attribs| attribs['start_date'].blank? }, allow_destroy: true
@@ -24,23 +30,14 @@ class ApplicationGroup
   embeds_many :comments
   accepts_nested_attributes_for :comments, reject_if: proc { |attribs| attribs['content'].blank? }, allow_destroy: true
 
-  embeds_many :person_relationships
-
-  def applicant
-    unless person_relationships.first.subject_person.nil?
-      pid = person_relationships.first.subject_person
-      Person.find(pid)
-    end
-  end
-
-  # List of SEPs active for this Household on this or specified date
-  def active_seps(day = Date.today)
-    special_enrollment_periods.find_all { |sep| (sep.start_date..sep.end_date).include?(day) }
-  end
-
   # single SEP with latest end date from list of active SEPs
   def current_sep
     active_seps.max { |sep| sep.end_date }
+  end
+
+  # List of SEPs active for this Application Group today, or passed date
+  def active_seps(day = Date.today)
+    special_enrollment_periods.find_all { |sep| (sep.start_date..sep.end_date).include?(day) }
   end
 
   def self.default_search_order
