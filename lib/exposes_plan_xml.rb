@@ -33,7 +33,7 @@ class ExposesPlanXml
 
   def group_id
     node = @parser.at_css('group_id')
-    (node.nil?) ? '' : node.text
+    (node.nil?) ? nil : node.text
   end
 
   def metal_level_code
