@@ -10,6 +10,7 @@ class Address
   field :address_1, type: String
   field :address_2, type: String, default: ""
   field :city, type: String
+  field :county, type: String
   field :state, type: String
   field :zip, type: String
 
