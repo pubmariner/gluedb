@@ -19,19 +19,19 @@ class CarefirstPolicyUpdatesController < ApplicationController
     end
     
     def subscriber_id_mismatch(details)
-      @error << "Subscriber ID does not match. Provided: #{details[:provided]}, Existing: #{details[:existing]}"
+      @errors << "Subscriber ID does not match. Provided: #{details[:provided]}, Existing: #{details[:existing]}"
     end
       
     def enrolled_count_mismatch(details)
-      @error << "Enrolled Count does not match. Provided: #{details[:provided]}, Existing: #{details[:existing]}"
+      @errors << "Enrolled Count does not match. Provided: #{details[:provided]}, Existing: #{details[:existing]}"
     end
 
     def plan_mismatch(details)
-      @error << "Plan does not match. Provided: #{details[:provided]}, Existing: #{details[:existing]}"
+      @errors << "Plan does not match. Provided: #{details[:provided]}, Existing: #{details[:existing]}"
     end
 
     def enrollee_end_date_is_different
-      @error << "An enrollee's end date doesn't match the subscriber's"
+      @errors << "An enrollee's end date doesn't match the subscriber's"
     end
 
     def fail
