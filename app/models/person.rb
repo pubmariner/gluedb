@@ -89,6 +89,11 @@ class Person
     self.update_attributes(props)
   end
 
+  def is_authority_member?(m_id)
+    return true if self.members.length < 2
+    m_id == self.authority_member_id
+  end
+
   def associate_all_policies_and_employers_and_brokers
     self.members.each do |m|
       Policy.find_all_policies_for_member_id(m.hbx_member_id).each do |pol|

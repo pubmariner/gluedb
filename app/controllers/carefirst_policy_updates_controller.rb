@@ -6,6 +6,14 @@ class CarefirstPolicyUpdatesController < ApplicationController
       @errors = []
     end
 
+    def non_authority_member(s_id)
+      @errors << "Member #{s_id} is not the authority member"
+    end
+
+    def begin_date_mismatch(details)
+      @errors << "Begin date does not match. Provided: #{details[:provided]}, Existing: #{details[:existing]}"
+    end
+
     def policy_not_found(policy_id)
       @errors << "Policy(#{policy_id}) not found."
     end

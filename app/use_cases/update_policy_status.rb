@@ -18,10 +18,21 @@ class UpdatePolicyStatus
     end
 
     subscriber = policy.subscriber
+    sub_person = subscriber.person
 
     if(policy.subscriber.m_id != request[:subscriber_id])
       listener.subscriber_id_mismatch({provided: request[:subscriber_id], existing: policy.subscriber.m_id})
       failed = true
+    end
+
+    if (!sub_person.is_authority_member?(subscriber.m_id))
+      listener.non_authority_member(subscriber.m_id)
+      failed = true
+    end
+
+    if (!subscriber.coverage_start_matches?(request[:begin_date]))
+       listener.begin_date_mismatch({provided: request[:begin_date], existing: subscriber.coverage_start})
+       failed = true
     end
 
     if(policy.enrollees.length != request[:enrolled_count].to_i)

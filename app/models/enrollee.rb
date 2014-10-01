@@ -32,6 +32,14 @@ class Enrollee
   validates_inclusion_of :employment_status_code, in: EMPLOYMENT_STATUS_CODE_LIST
   validates_inclusion_of :relationship_status_code, in: RELATIONSHIP_STATUS_CODE_LIST
 
+  def coverage_start_matches?(date)
+    if date.kind_of?(String)
+      self.coverage_start == Date.parse(date)
+    else
+      self.coverage_start == date
+    end
+  end
+
   def person
     Queries::PersonByHbxIdQuery.new(m_id).execute
   end

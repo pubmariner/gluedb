@@ -4,8 +4,9 @@ describe UpdatePolicyStatus do
 
   let(:policy_repo) { double(find_by_id: policy) }
   let(:policy) { Policy.new(aasm_state: current_status, plan: plan, enrollees: enrollees) }
-  let(:subscriber) { Enrollee.new(m_id: subscriber_id, relationship_status_code: 'self', coverage_status: subscriber_coverage_status) }
+  let(:subscriber) { Enrollee.new(m_id: subscriber_id, relationship_status_code: 'self', coverage_status: subscriber_coverage_status, coverage_start: Date.today.prev_month ) }
   let(:subscriber_id) { '4321'}
+  let(:person) { double(:is_authority_member? => true) }
 
   let(:subscriber_coverage_status) { 'active' }
   let(:subscriber_coverage_start) { Date.today.prev_month }
@@ -34,11 +35,15 @@ describe UpdatePolicyStatus do
   end
 
   let(:requested_status) { 'carrier_terminated' }
-  let(:requested_begin_date) { Date.today.prev_year }
+  let(:requested_begin_date) { Date.today.prev_month }
   let(:requested_end_date) { Date.today }
   let(:requested_subscriber_id) { subscriber_id }
   let(:requested_enrollee_count) { enrollees.length }
   let(:requested_hios_plan_id) { hios_plan_id }
+
+  before :each do
+    allow(subscriber).to receive(:person).and_return(person)
+  end
 
 
   it 'finds the policy' do
@@ -118,7 +123,7 @@ describe UpdatePolicyStatus do
     let(:requested_status) { 'carrier_canceled' }
 
     context 'requested begin date and end date are not equal' do
-      let(:requested_begin_date) { Date.today.prev_year }
+      let(:requested_begin_date) { Date.today.prev_month }
       let(:requested_end_date) { Date.today }
 
       it 'notifies the listener' do
@@ -138,8 +143,8 @@ describe UpdatePolicyStatus do
   context 'status is terminated' do
     let(:requested_status) { 'carrier_terminated' }
     context 'when begin and end date are equal' do
-      let(:requested_begin_date) { Date.today }
-      let(:requested_end_date) { Date.today }
+      let(:requested_begin_date) { Date.today.prev_month }
+      let(:requested_end_date) { Date.today.prev_month }
       it 'notifies the listener' do
         expect(listener).to receive(:invalid_dates).with(
           {
@@ -155,7 +160,7 @@ describe UpdatePolicyStatus do
   end
 
   context 'when end date is before start date' do
-    let(:requested_begin_date) { Date.today }
+    let(:requested_begin_date) { Date.today.prev_month }
     let(:requested_end_date) { Date.today.prev_year }
     it 'notifies listener' do
       expect(listener).to receive(:invalid_dates).with(
@@ -185,8 +190,8 @@ describe UpdatePolicyStatus do
 
     context 'and requested status is canceled' do
       let(:requested_status) { 'carrier_canceled' }
-      let(:requested_begin_date) { Date.today }
-      let(:requested_end_date) { Date.today }
+      let(:requested_begin_date) { Date.today.prev_month }
+      let(:requested_end_date) { Date.today.prev_month }
 
       it 'sets all enrollee\'s end date' do
         subject.execute(request, listener)  
@@ -363,8 +368,8 @@ describe UpdatePolicyStatus do
 
     context 'and requested status is canceled' do
       let(:requested_status) { 'carrier_canceled' }
-      let(:requested_begin_date) { Date.today }
-      let(:requested_end_date) { Date.today }
+      let(:requested_begin_date) { Date.today.prev_month }
+      let(:requested_end_date) { Date.today.prev_month }
 
       it 'sets enrollee\'s end date' do
         subject.execute(request, listener)  
