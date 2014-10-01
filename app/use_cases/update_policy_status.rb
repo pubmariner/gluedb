@@ -24,7 +24,7 @@ class UpdatePolicyStatus
       failed = true
     end
 
-    if(policy.enrollees.length != request[:enrolled_count])
+    if(policy.enrollees.length != request[:enrolled_count].to_i)
       listener.enrolled_count_mismatch({provided: request[:enrolled_count], existing: policy.enrollees.length})
       failed = true
     end
