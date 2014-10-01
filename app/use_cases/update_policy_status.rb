@@ -17,13 +17,15 @@ class UpdatePolicyStatus
       return
     end
 
+    subscriber = policy.subscriber
+
     if(policy.subscriber.m_id != request[:subscriber_id])
       listener.subscriber_id_mismatch({provided: request[:subscriber_id], existing: policy.subscriber.m_id})
       failed = true
     end
 
-    if(policy.enrollees.count != request[:enrolled_count])
-      listener.enrolled_count_mismatch({provided: request[:enrolled_count], existing: policy.enrollees.count})
+    if(policy.enrollees.length != request[:enrolled_count])
+      listener.enrolled_count_mismatch({provided: request[:enrolled_count], existing: policy.enrollees.length})
       failed = true
     end
 
@@ -32,7 +34,7 @@ class UpdatePolicyStatus
       failed = true
     end
 
-    if(request[:end_date] < request[:begin_date])
+    if(!request[:end_date].nil? && request[:end_date] < request[:begin_date])
       listener.invalid_dates({begin_date: request[:begin_date], end_date: request[:end_date]})
       failed = true 
     end
@@ -61,13 +63,49 @@ class UpdatePolicyStatus
       failed = true
     end
 
+    policy.enrollees.each do |e|
+      if(subscriber.coverage_end != e.coverage_end)
+        listener.enrollee_end_date_is_different
+        failed = true
+      end
+    end
+
     if(failed)
       listener.fail
       return
+    end
+
+    if(subscriber.active?)
+      if(request[:status] == 'carrier_canceled' || request[:status] == 'carrier_terminated')
+        policy.enrollees.each do |e|
+          e.coverage_end = request[:end_date]
+          e.coverage_status = 'inactive'
+        end
+      end
+    else
+
+      case request[:status]
+        when 'effectuated'
+          policy.enrollees.each do |e|
+            e.coverage_end = nil
+            e.coverage_status = 'active'
+          end
+        when 'carrier_terminated'
+          policy.enrollees.each do |e|
+            e.coverage_end = request[:end_date]
+            e.coverage_status = 'inactive'
+          end
+        when 'carrier_canceled'
+          policy.enrollees.each do |e|
+            e.coverage_end = request[:end_date]
+            e.coverage_status = 'inactive'
+          end
+      end
     end
 
     policy.aasm_state = request[:status]
     policy.save
     listener.success
   end
+
 end

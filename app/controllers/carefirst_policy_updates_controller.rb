@@ -30,6 +30,10 @@ class CarefirstPolicyUpdatesController < ApplicationController
       @error << "Plan does not match. Provided: #{details[:provided]}, Existing: #{details[:existing]}"
     end
 
+    def enrollee_end_date_is_different
+      @error << "An enrollee's end date doesn't match the subscriber's"
+    end
+
     def fail
       @controller.respond_to_failure(@errors)
     end

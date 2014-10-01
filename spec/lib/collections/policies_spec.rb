@@ -1,5 +1,5 @@
-require './lib/collections/policies'
-require 'forwardable'
+require 'spec_helper'
+
 describe Collections::Policies do
   subject { Collections::Policies.new(policies) }
   let(:policies) { [health_policy, dental_policy] }
