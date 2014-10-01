@@ -2,6 +2,7 @@ class UpdatePolicyStatus
 
   def initialize(policy_repo)
     @policy_repo = policy_repo
+    @allowed_statuses = ['effectuated', 'carrier_canceled', 'carrier_terminated']
   end
 
   def execute(request, listener)
@@ -17,17 +18,17 @@ class UpdatePolicyStatus
     end
 
     if(policy.subscriber.m_id != request[:subscriber_id])
-      listener.subscriber_id_mismatch(request[:policy_id])
+      listener.subscriber_id_mismatch({provided: request[:subscriber_id], existing: policy.subscriber.m_id})
       failed = true
     end
 
     if(policy.enrollees.count != request[:enrolled_count])
-      listener.enrolled_count_mismatch
+      listener.enrolled_count_mismatch({provided: request[:enrolled_count], existing: policy.enrollees.count})
       failed = true
     end
 
     if(policy.plan.hios_plan_id != request[:hios_plan_id])
-      listener.plan_mismatch
+      listener.plan_mismatch({provided: request[:hios_plan_id], existing: policy.plan.hios_plan_id})
       failed = true
     end
 
@@ -36,14 +37,14 @@ class UpdatePolicyStatus
       failed = true 
     end
 
-    if(request[:status] == 'terminated')
+    if(request[:status] == 'carrier_terminated')
       if(request[:begin_date] == request[:end_date])
         listener.invalid_dates({begin_date: request[:begin_date], end_date: request[:end_date]})
         failed = true
       end
     end
 
-    if(request[:status] == 'canceled')
+    if(request[:status] == 'carrier_canceled')
       if(request[:begin_date] != request[:end_date])
         listener.invalid_dates({begin_date: request[:begin_date], end_date: request[:end_date]})
         failed = true
@@ -52,6 +53,11 @@ class UpdatePolicyStatus
 
     if (request[:status] == policy.aasm_state)
       listener.policy_status_is_same
+      failed = true
+    end
+
+    if (!@allowed_statuses.include?(request[:status]))
+      listener.invalid_status({provided: request[:status], allowed: @allowed_statuses})
       failed = true
     end
 

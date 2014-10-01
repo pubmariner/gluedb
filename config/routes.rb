@@ -121,6 +121,12 @@ Gluedb::Application.routes.draw do
       post 'update_enrollee_status'
     end
   end
+
+  resources :carefirst_policy_updates, only: [:create] do
+    collection do
+      post 'upload_csv'
+    end
+  end  
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

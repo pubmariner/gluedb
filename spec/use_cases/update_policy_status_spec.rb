@@ -14,7 +14,9 @@ describe UpdatePolicyStatus do
     def save
     end
   end
+
   subject { UpdatePolicyStatus.new(policy_repo) }
+
   let(:policy_repo) { double(find_by_id: policy) }
   let(:policy) { TestPolicy.new(current_status, subscriber, enrollees, plan) }
   let(:subscriber) { double(m_id: subscriber_id) }
@@ -23,8 +25,10 @@ describe UpdatePolicyStatus do
   let(:plan) { double(hios_plan_id: hios_plan_id) }
   let(:hios_plan_id) { '123456789-01'}
 
-  let(:enrollees) { double(count: 2) }
+  let(:enrollees) { double(count: 3) }
   let(:current_status) { 'effectuated' }
+  let(:allowed_statuses) { ['effectuated', 'carrier_canceled', 'carrier_terminated'] }
+
   let(:listener) { double(policy_not_found: nil, invalid_dates: nil, policy_status_is_same: nil, fail: nil, success: nil) }
 
   let(:request) do
@@ -39,7 +43,7 @@ describe UpdatePolicyStatus do
     }
   end
 
-  let(:requested_status) { 'terminated' }
+  let(:requested_status) { 'carrier_terminated' }
   let(:begin_date) { Date.today.prev_year }
   let(:end_date) { Date.today }
   let(:requested_subscriber_id) { subscriber_id }
@@ -91,17 +95,17 @@ describe UpdatePolicyStatus do
     let(:subscriber_id) { '1234'}
     let(:requested_subscriber_id) { '9999'}
     it 'notifies listener' do
-      expect(listener).to receive(:subscriber_id_mismatch)
+      expect(listener).to receive(:subscriber_id_mismatch).with({provided: requested_subscriber_id, existing: subscriber_id})
       expect(listener).to receive(:fail)
       subject.execute(request, listener)
     end
   end
 
   context 'when enrollee count does not match' do
-    let(:enrollee_count) { '3'}
-    let(:requested_enrollee_count) { '99'}
+    let(:enrollee_count) { 3 }
+    let(:requested_enrollee_count) { '99' }
     it 'notifies listener' do
-      expect(listener).to receive(:enrolled_count_mismatch)
+      expect(listener).to receive(:enrolled_count_mismatch).with({provided: requested_enrollee_count, existing: enrollee_count})
       expect(listener).to receive(:fail)
 
       subject.execute(request, listener)
@@ -113,7 +117,7 @@ describe UpdatePolicyStatus do
     let(:requested_hios_plan_id) { '987654321-01' }
 
     it 'notifies listener' do
-      expect(listener).to receive(:plan_mismatch)
+      expect(listener).to receive(:plan_mismatch).with({provided: requested_hios_plan_id, existing: hios_plan_id})
       expect(listener).to receive(:fail)
 
       subject.execute(request, listener)
@@ -121,7 +125,7 @@ describe UpdatePolicyStatus do
   end
 
   context 'status is canceled' do
-    let(:requested_status) { 'canceled' }
+    let(:requested_status) { 'carrier_canceled' }
 
     context 'requested begin date and end date are not equal' do
       let(:begin_date) { Date.today.prev_year }
@@ -142,7 +146,7 @@ describe UpdatePolicyStatus do
   end
 
   context 'status is terminated' do
-    let(:requested_status) { 'terminated' }
+    let(:requested_status) { 'carrier_terminated' }
     context 'when begin and end date are equal' do
       let(:begin_date) { Date.today }
       let(:end_date) { Date.today }
@@ -176,5 +180,22 @@ describe UpdatePolicyStatus do
     end
   end
 
+  context 'when status is invalid' do
+    let(:requested_status) { 'bingjiggitybong' }
+    it 'notifies listener' do
+      expect(listener).to receive(:invalid_status).with({provided: requested_status, allowed: allowed_statuses})
+      subject.execute(request, listener)
+    end
+  end
+
+  context 'when requested status is effectuated and was canceled/terminated' do
+    let(:requested_status) { 'effectuated' }
+
+    it 'sets the enrollee\'s end date' do
+      
+    end
+
+
+  end
 
 end
