@@ -54,13 +54,13 @@ class CarefirstPolicyUpdatesController < ApplicationController
     }
 
     request_model = {
-      policy_id: carefirst_policy_update[:policy_hbx_id],
-      status: status_map[carefirst_policy_update[:status]],
-      begin_date: carefirst_policy_update[:begin_date],
-      end_date: carefirst_policy_update[:end_date],
-      subscriber_id: carefirst_policy_update[:subscriber_hbx_id],
-      enrolled_count: carefirst_policy_update[:enrolled_count],
-      hios_plan_id: carefirst_policy_update[:hios_plan_id]
+      policy_id: @carefirst_policy_update[:policy_hbx_id],
+      status: status_map[@carefirst_policy_update[:status]],
+      begin_date: @carefirst_policy_update[:begin_date],
+      end_date: @carefirst_policy_update[:end_date],
+      subscriber_id: @carefirst_policy_update[:subscriber_hbx_id],
+      enrolled_count: @carefirst_policy_update[:enrolled_count],
+      hios_plan_id: @carefirst_policy_update[:hios_plan_id]
     }
 
     UpdatePolicyStatus.new(Policy).execute(request_model, Listener.new(self))
