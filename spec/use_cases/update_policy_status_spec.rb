@@ -17,7 +17,7 @@ describe UpdatePolicyStatus do
 
   let(:enrollees) { [subscriber] }
   let(:current_status) { 'effectuated' }
-  let(:allowed_statuses) { ['effectuated', 'carrier_canceled', 'carrier_terminated'] }
+  let(:allowed_statuses) { ['effectuated', 'carrier_canceled', 'carrier_terminated', 'submitted'] }
 
   let(:listener) { double(policy_not_found: nil, invalid_dates: nil, policy_status_is_same: nil, fail: nil, success: nil, enrollee_end_date_is_different: nil) }
 

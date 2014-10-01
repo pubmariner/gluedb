@@ -2,7 +2,7 @@ class UpdatePolicyStatus
 
   def initialize(policy_repo)
     @policy_repo = policy_repo
-    @allowed_statuses = ['effectuated', 'carrier_canceled', 'carrier_terminated']
+    @allowed_statuses = ['effectuated', 'carrier_canceled', 'carrier_terminated', 'submitted']
   end
 
   def execute(request, listener)
@@ -53,6 +53,13 @@ class UpdatePolicyStatus
       end
     end
 
+    if(request[:status] == 'submitted' || request[:status] == 'effectuated')
+      if(!request[:end_date].blank?)
+        listener.invalid_dates({begin_date: request[:begin_date], end_date: request[:end_date]})
+        failed = true
+      end
+    end
+
     if (request[:status] == policy.aasm_state)
       listener.policy_status_is_same
       failed = true
@@ -86,6 +93,11 @@ class UpdatePolicyStatus
 
       case request[:status]
         when 'effectuated'
+          policy.enrollees.each do |e|
+            e.coverage_end = nil
+            e.coverage_status = 'active'
+          end
+        when 'submitted'
           policy.enrollees.each do |e|
             e.coverage_end = nil
             e.coverage_status = 'active'
