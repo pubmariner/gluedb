@@ -54,7 +54,8 @@ class CarefirstPolicyUpdatesController < ApplicationController
     status_map = {
       'canceled' => 'carrier_canceled',
       'terminated' => 'carrier_terminated',
-      'effectuated' => 'effectuated'
+      'effectuated' => 'effectuated',
+      'submitted' => 'submitted'
     }
 
     request_model = {
