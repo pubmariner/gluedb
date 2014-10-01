@@ -34,6 +34,10 @@ class CarefirstPolicyUpdatesController < ApplicationController
       @errors << "An enrollee's end date doesn't match the subscriber's"
     end
 
+    def invalid_status(details)
+      @errors << "Invalid status: #{details[:provided]} must be one of: #{details[:allowed]}"
+    end
+
     def fail
       @controller.respond_to_failure(@errors)
     end
