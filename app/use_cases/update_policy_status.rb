@@ -22,8 +22,8 @@ class UpdatePolicyStatus
       failed = true
     end
 
-    if(policy.enrollees.count != request[:enrolled_count])
-      listener.enrolled_count_mismatch({provided: request[:enrolled_count], existing: policy.enrollees.count})
+    if(policy.enrollees.length != request[:enrolled_count])
+      listener.enrolled_count_mismatch({provided: request[:enrolled_count], existing: policy.enrollees.length})
       failed = true
     end
 
@@ -66,8 +66,19 @@ class UpdatePolicyStatus
       return
     end
 
+    subscriber = policy.subscriber
+    if(subscriber.active?)
+      if(request[:status] == 'carrier_canceled' || request[:status] == 'carrier_terminated')
+        policy.enrollees.each do |e|
+          e.coverage_end = request[:end_date]
+          e.coverage_status = 'inactive'
+        end
+      end
+    end
+
     policy.aasm_state = request[:status]
     policy.save
     listener.success
   end
+
 end

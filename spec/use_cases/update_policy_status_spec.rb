@@ -1,31 +1,21 @@
-require './app/use_cases/update_policy_status'
-
+require 'rails_helper'
 describe UpdatePolicyStatus do
-  class TestPolicy
-    attr_accessor :aasm_state, :subscriber, :enrollees, :plan
-
-    def initialize(aasm_state, subscriber, enrollees, plan)
-      @aasm_state = aasm_state
-      @subscriber = subscriber
-      @enrollees = enrollees
-      @plan = plan
-    end
-
-    def save
-    end
-  end
-
   subject { UpdatePolicyStatus.new(policy_repo) }
 
   let(:policy_repo) { double(find_by_id: policy) }
-  let(:policy) { TestPolicy.new(current_status, subscriber, enrollees, plan) }
-  let(:subscriber) { double(m_id: subscriber_id) }
+  let(:policy) { Policy.new(aasm_state: current_status, plan: plan, enrollees: enrollees) }
+  let(:subscriber) { Enrollee.new(m_id: subscriber_id, relationship_status_code: 'self', coverage_status: subscriber_coverage_status) }
   let(:subscriber_id) { '4321'}
 
-  let(:plan) { double(hios_plan_id: hios_plan_id) }
+  let(:subscriber_coverage_status) { 'active' }
+  let(:subscriber_coverage_start) { Date.today.prev_month }
+  let(:subscriber_coverage_end) { nil }
+
+
+  let(:plan) { Plan.new(hios_plan_id: hios_plan_id) }
   let(:hios_plan_id) { '123456789-01'}
 
-  let(:enrollees) { double(count: 3) }
+  let(:enrollees) { [subscriber] }
   let(:current_status) { 'effectuated' }
   let(:allowed_statuses) { ['effectuated', 'carrier_canceled', 'carrier_terminated'] }
 
@@ -35,8 +25,8 @@ describe UpdatePolicyStatus do
     {
       policy_id: '1234',
       status: requested_status,
-      begin_date: begin_date,
-      end_date: end_date,
+      begin_date: requested_begin_date,
+      end_date: requested_end_date,
       subscriber_id: requested_subscriber_id,
       enrolled_count: requested_enrollee_count,
       hios_plan_id: requested_hios_plan_id
@@ -44,10 +34,10 @@ describe UpdatePolicyStatus do
   end
 
   let(:requested_status) { 'carrier_terminated' }
-  let(:begin_date) { Date.today.prev_year }
-  let(:end_date) { Date.today }
+  let(:requested_begin_date) { Date.today.prev_year }
+  let(:requested_end_date) { Date.today }
   let(:requested_subscriber_id) { subscriber_id }
-  let(:requested_enrollee_count) { enrollees.count }
+  let(:requested_enrollee_count) { enrollees.length }
   let(:requested_hios_plan_id) { hios_plan_id }
 
 
@@ -102,7 +92,7 @@ describe UpdatePolicyStatus do
   end
 
   context 'when enrollee count does not match' do
-    let(:enrollee_count) { 3 }
+    let(:enrollee_count) { enrollees.length}
     let(:requested_enrollee_count) { '99' }
     it 'notifies listener' do
       expect(listener).to receive(:enrolled_count_mismatch).with({provided: requested_enrollee_count, existing: enrollee_count})
@@ -128,8 +118,8 @@ describe UpdatePolicyStatus do
     let(:requested_status) { 'carrier_canceled' }
 
     context 'requested begin date and end date are not equal' do
-      let(:begin_date) { Date.today.prev_year }
-      let(:end_date) { Date.today }
+      let(:requested_begin_date) { Date.today.prev_year }
+      let(:requested_end_date) { Date.today }
 
       it 'notifies the listener' do
         expect(listener).to receive(:invalid_dates).with(
@@ -148,8 +138,8 @@ describe UpdatePolicyStatus do
   context 'status is terminated' do
     let(:requested_status) { 'carrier_terminated' }
     context 'when begin and end date are equal' do
-      let(:begin_date) { Date.today }
-      let(:end_date) { Date.today }
+      let(:requested_begin_date) { Date.today }
+      let(:requested_end_date) { Date.today }
       it 'notifies the listener' do
         expect(listener).to receive(:invalid_dates).with(
           {
@@ -165,8 +155,8 @@ describe UpdatePolicyStatus do
   end
 
   context 'when end date is before start date' do
-    let(:begin_date) { Date.today }
-    let(:end_date) { Date.today.prev_year }
+    let(:requested_begin_date) { Date.today }
+    let(:requested_end_date) { Date.today.prev_year }
     it 'notifies listener' do
       expect(listener).to receive(:invalid_dates).with(
         {
@@ -188,13 +178,73 @@ describe UpdatePolicyStatus do
     end
   end
 
-  context 'when requested status is effectuated and was canceled/terminated' do
-    let(:requested_status) { 'effectuated' }
+  context 'when current status is effectuated' do
+    let(:subscriber_coverage_status) { 'active' }
+    let(:subscriber_coverage_start) { Date.today.prev_month }
+    let(:subscriber_coverage_end) { nil }
 
-    it 'sets the enrollee\'s end date' do
-      
+    context 'and requested status is canceled' do
+      let(:requested_status) { 'carrier_canceled' }
+      let(:requested_begin_date) { Date.today }
+      let(:requested_end_date) { Date.today }
+
+      it 'sets all enrollee\'s end date' do
+        subject.execute(request, listener)  
+
+        enrollees.each do |e|
+          expect(e.coverage_end).to eq requested_end_date
+        end
+      end
+
+      it 'updates enrollee status' do 
+        subject.execute(request, listener)
+
+        enrollees.each do |e|
+          expect(e.coverage_status).to eq 'inactive'
+        end
+      end
+
+      it 'sets policy as carrier_canceled' do
+        subject.execute(request, listener)
+
+        expect(policy.aasm_state).to eq('carrier_canceled')
+      end
     end
 
+    context 'and request status is status is terminated' do
+      let(:requested_status) { 'carrier_terminated' }
+      let(:requested_begin_date) { Date.today.prev_month }
+      let(:requested_end_date) { Date.today }
+
+      it 'sets all enrollee\'s end date' do
+        subject.execute(request, listener)  
+
+        enrollees.each do |e|
+          expect(e.coverage_end).to eq requested_end_date
+        end
+      end
+
+      it 'updates enrollee status' do 
+        subject.execute(request, listener)
+
+        enrollees.each do |e|
+          expect(e.coverage_status).to eq 'inactive'
+        end
+      end
+
+      it 'sets policy as carrier_canceled' do
+        subject.execute(request, listener)
+
+        expect(policy.aasm_state).to eq('carrier_terminated')
+      end
+    end
+  end
+
+  context 'when current status is canceled' do
+
+  end
+
+  context 'when current status is terminated' do
 
   end
 
