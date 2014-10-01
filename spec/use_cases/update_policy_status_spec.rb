@@ -211,7 +211,7 @@ describe UpdatePolicyStatus do
       end
     end
 
-    context 'and request status is status is terminated' do
+    context 'and request status is terminated' do
       let(:requested_status) { 'carrier_terminated' }
       let(:requested_begin_date) { Date.today.prev_month }
       let(:requested_end_date) { Date.today }
@@ -241,11 +241,132 @@ describe UpdatePolicyStatus do
   end
 
   context 'when current status is canceled' do
+    let(:subscriber_coverage_status) { 'inactive' }
+    let(:current_status) { 'canceled' }
+    let(:subscriber_coverage_start) { Date.today.prev_month }
+    let(:subscriber_coverage_end) { Date.today.prev_month }
+
+    context 'and requested_status is effectuated' do
+      let(:requested_status) { 'effectuated' }
+      let(:requested_begin_date) { Date.today.prev_month }
+      let(:requested_end_date) { nil }
+
+
+      it 'sets enrollee\'s end date' do
+        subject.execute(request, listener)  
+
+        enrollees.each do |e|
+          expect(e.coverage_end).to eq requested_end_date
+        end
+      end
+
+      it 'updates enrollee status' do 
+        subject.execute(request, listener)
+
+        enrollees.each do |e|
+          expect(e.coverage_status).to eq 'active'
+        end
+      end
+
+      it 'sets policy as effectuated' do
+        subject.execute(request, listener)
+
+        expect(policy.aasm_state).to eq('effectuated')
+      end
+    end
+
+    context 'and requested status is terminated' do
+      let(:requested_status) { 'carrier_terminated' }
+      let(:requested_begin_date) { Date.today.prev_month }
+      let(:requested_end_date) { Date.today }
+
+      it 'sets enrollee\'s end date' do
+        subject.execute(request, listener)  
+
+        enrollees.each do |e|
+          expect(e.coverage_end).to eq requested_end_date
+        end
+      end
+
+      it 'updates enrollee status' do 
+        subject.execute(request, listener)
+
+        enrollees.each do |e|
+          expect(e.coverage_status).to eq 'inactive'
+        end
+      end
+
+      it 'sets policy as terminated' do
+        subject.execute(request, listener)
+
+        expect(policy.aasm_state).to eq('carrier_terminated')
+      end
+    end
 
   end
 
   context 'when current status is terminated' do
+    let(:subscriber_coverage_status) { 'inactive' }
+    let(:current_status) { 'terminated' }
+    let(:subscriber_coverage_start) { Date.today.prev_month }
+    let(:subscriber_coverage_end) { Date.today.prev_week }
 
+    context 'and requested_status is effectuated' do
+      let(:requested_status) { 'effectuated' }
+      let(:requested_begin_date) { Date.today.prev_month }
+      let(:requested_end_date) { nil }
+
+
+      it 'sets enrollee\'s end date' do
+        subject.execute(request, listener)  
+
+        enrollees.each do |e|
+          expect(e.coverage_end).to eq requested_end_date
+        end
+      end
+
+      it 'updates enrollee status' do 
+        subject.execute(request, listener)
+
+        enrollees.each do |e|
+          expect(e.coverage_status).to eq 'active'
+        end
+      end
+
+      it 'sets policy as effectuated' do
+        subject.execute(request, listener)
+
+        expect(policy.aasm_state).to eq('effectuated')
+      end
+    end
+
+    context 'and requested status is canceled' do
+      let(:requested_status) { 'carrier_canceled' }
+      let(:requested_begin_date) { Date.today }
+      let(:requested_end_date) { Date.today }
+
+      it 'sets enrollee\'s end date' do
+        subject.execute(request, listener)  
+
+        enrollees.each do |e|
+          expect(e.coverage_end).to eq requested_end_date
+        end
+      end
+
+      it 'updates enrollee status' do 
+        subject.execute(request, listener)
+
+        enrollees.each do |e|
+          expect(e.coverage_status).to eq 'inactive'
+        end
+      end
+
+      it 'sets policy as terminated' do
+        subject.execute(request, listener)
+
+        expect(policy.aasm_state).to eq('carrier_canceled')
+      end
+    end
   end
 
 end

@@ -75,11 +75,22 @@ class UpdatePolicyStatus
         end
       end
     else
-      if(request[:status] == 'effectuated')
-        policy.enrollees.each do |e|
-          e.coverage_end = nil
-          e.coverage_status = 'active'
-        end
+      case request[:status]
+        when 'effectuated'
+          policy.enrollees.each do |e|
+            e.coverage_end = nil
+            e.coverage_status = 'active'
+          end
+        when 'carrier_terminated'
+          policy.enrollees.each do |e|
+            e.coverage_end = request[:end_date]
+            e.coverage_status = 'inactive'
+          end
+        when 'carrier_canceled'
+          policy.enrollees.each do |e|
+            e.coverage_end = request[:end_date]
+            e.coverage_status = 'inactive'
+          end
       end
     end
 
