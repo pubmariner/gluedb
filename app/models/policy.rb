@@ -423,6 +423,10 @@ class Policy
     subscriber.coverage_end
   end
 
+  def self.find_by_id(the_id)
+    Policy.where({:id => the_id}).first
+  end
+
 protected
   def generate_enrollment_group_id
     self.eg_id = self.eg_id || self._id.to_s
