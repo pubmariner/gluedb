@@ -91,4 +91,11 @@ module ApplicationHelper
     end
     rendered.join('').html_safe
   end
+
+  def commentable_url(cmtble,cmt)
+    "/" + cmtble.comments.metadata.inverse_foreign_key.pluralize +
+    "/" + cmtble.id + "/comments/" + cmt.id  +
+    "?commentable=" + cmtble.comments.metadata.inverse_class_name +
+    "&commentable_id=" + cmtble.id
+  end
 end

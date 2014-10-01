@@ -1,4 +1,6 @@
 <%= form_for [commentable, commentable.comments.build], layout: :inline do |f| %>
   <%= f.text_field :content, placeholder: 'Comment' %>
+  <%= f.hidden_field :commentable, value: commentable.class %>
+  <%= f.hidden_field :commentable_id, value: commentable.id %>
   <%= f.submit 'Add' %>
 <% end %>
