@@ -19,7 +19,7 @@ describe UpdatePolicyStatus do
   let(:current_status) { 'effectuated' }
   let(:allowed_statuses) { ['effectuated', 'carrier_canceled', 'carrier_terminated'] }
 
-  let(:listener) { double(policy_not_found: nil, invalid_dates: nil, policy_status_is_same: nil, fail: nil, success: nil) }
+  let(:listener) { double(policy_not_found: nil, invalid_dates: nil, policy_status_is_same: nil, fail: nil, success: nil, enrollee_end_date_is_different: nil) }
 
   let(:request) do
     {
@@ -273,6 +273,27 @@ describe UpdatePolicyStatus do
 
         expect(policy.aasm_state).to eq('effectuated')
       end
+
+      context 'when an enrollee has a different end date' do
+        let(:other_enrollee) do
+          Enrollee.new(
+            coverage_status: subscriber_coverage_status,
+            coverage_start: subscriber_coverage_start,
+            coverage_end: subscriber_coverage_end.prev_month
+            ) 
+        end
+
+        let(:enrollees) {[ subscriber, other_enrollee ]}
+        it 'notifies the listener' do
+          expect(listener).to receive(:enrollee_end_date_is_different)
+          subject.execute(request, listener)
+        end
+
+        it 'fails' do
+          expect(listener).to receive(:fail)
+          subject.execute(request, listener)
+        end
+      end
     end
 
     context 'and requested status is terminated' do
@@ -363,10 +384,8 @@ describe UpdatePolicyStatus do
 
       it 'sets policy as terminated' do
         subject.execute(request, listener)
-
         expect(policy.aasm_state).to eq('carrier_canceled')
       end
     end
   end
-
 end

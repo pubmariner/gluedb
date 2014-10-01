@@ -17,6 +17,8 @@ class UpdatePolicyStatus
       return
     end
 
+    subscriber = policy.subscriber
+
     if(policy.subscriber.m_id != request[:subscriber_id])
       listener.subscriber_id_mismatch({provided: request[:subscriber_id], existing: policy.subscriber.m_id})
       failed = true
@@ -61,12 +63,18 @@ class UpdatePolicyStatus
       failed = true
     end
 
+    policy.enrollees.each do |e|
+      if(subscriber.coverage_end != e.coverage_end)
+        listener.enrollee_end_date_is_different
+        failed = true
+      end
+    end
+
     if(failed)
       listener.fail
       return
     end
 
-    subscriber = policy.subscriber
     if(subscriber.active?)
       if(request[:status] == 'carrier_canceled' || request[:status] == 'carrier_terminated')
         policy.enrollees.each do |e|
@@ -75,6 +83,7 @@ class UpdatePolicyStatus
         end
       end
     else
+
       case request[:status]
         when 'effectuated'
           policy.enrollees.each do |e|
