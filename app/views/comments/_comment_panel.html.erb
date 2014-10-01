@@ -7,7 +7,7 @@
         </h3>
       </div>
       <div class="container panel-body">
-        <%= render 'comments/comments', comments: commentable.comments if !commentable.comments.empty? %>
+        <%= render 'comments/comments', commentable: commentable if commentable.has_comments? %>
         <%= render 'comments/form', commentable: commentable if can? :edit, @people %>
       </div>
     </div>
