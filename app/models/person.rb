@@ -26,6 +26,7 @@ class Person
   validates_presence_of :name_first, :name_last
   index({name_last:  1})
   index({name_first: 1})
+  index({name_first: 1, name_last:1})
 
   belongs_to :broker
   belongs_to :employer

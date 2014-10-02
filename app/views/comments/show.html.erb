@@ -1,0 +1,6 @@
+<%= form_for [@commentable, @comment], layout: :basic do |f| %>
+  <%= f.text_field :content, placeholder: 'Comment', label: "Comment text" %>
+  <%= f.hidden_field :commentable, value: @commentable.class %>
+  <%= f.hidden_field :commentable_id, value: @commentable.id %>
+  <%= f.submit 'Edit' %>
+<% end %>
