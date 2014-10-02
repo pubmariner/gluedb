@@ -72,7 +72,8 @@ end
 
 files = [
   "./db/seedfiles/premium_tables/2014_DCHL_Rates_12_13_14_INDVandSHOPthruQ2.xlsx",
-  "./db/seedfiles/premium_tables/2014_DCHL_Rates_IVL_and_SHOP_Q1_thru_Q4.xlsx"
+  "./db/seedfiles/premium_tables/2014_DCHL_Rates_IVL_and_SHOP_Q1_thru_Q4.xlsx",
+  "./db/seedfiles/premium_tables/MASTER_2015_QHP_IVL_and_SHOP_Plan_and_Rate_Matrix_v3.xls"
 ]
 
 clean_old_premiums
