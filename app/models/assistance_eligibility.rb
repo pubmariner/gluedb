@@ -13,8 +13,6 @@ class AssistanceEligibility
   field :is_enrolled_for_es_coverage, type: Boolean
   field :is_without_assistance, type: Boolean
 
-  field :submission_date, type: Date
-
   field :is_ia_eligible, type: Boolean
   field :is_medicaid_chip_eligible, type: Boolean
   field :submission_date, type: Date
@@ -25,7 +23,7 @@ class AssistanceEligibility
 
   embeds_many :incomes
   embeds_many :deductions
-  embeds_many :alternative_benefits
+  embeds_many :alternate_benefits
 
   validates :tax_filing_status, 
     inclusion: { in: TAX_FILING_STATUS_TYPES, message: "%{value} is not a valid tax filing status" }, 
