@@ -120,6 +120,12 @@ class Policy
       transitions from: :hbx_canceled, to: :submitted
     end
 
+    # Carrier Attestation documentation reference should accompany this non-standard transition
+    event :carrier_reinstate do
+      transitions from: :carrier_terminated, to: :effectuated
+      transitions from: :carrier_canceled, to: :effectuated
+    end
+
   end
 
   def market

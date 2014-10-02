@@ -44,8 +44,8 @@ class Person
   # embeds_many :members, after_add: :generate_hbx_member_id
   embeds_many :members, cascade_callbacks: true
 
-  embeds_many :incomes, :inverse_of => :person
-  accepts_nested_attributes_for :incomes, allow_destroy: true
+  embeds_many :responsible_parties
+#  accepts_nested_attributes_for :responsible_parties, reject_if: :all_blank, allow_destroy: true
 
   embeds_many :comments
   accepts_nested_attributes_for :comments, reject_if: proc { |attribs| attribs['content'].blank? }, allow_destroy: true
@@ -54,9 +54,6 @@ class Person
   index({"members.ssn" => 1})
   index({"members.dob" => 1})
   accepts_nested_attributes_for :members, reject_if: :all_blank, allow_destroy: true
-
-  embeds_many :responsible_parties
-#  accepts_nested_attributes_for :responsible_parties, reject_if: :all_blank, allow_destroy: true
 
   scope :all_under_age_twenty_six, ->{ gt(:'members.dob' => (Date.today - 26.years))}
   scope :all_over_age_twenty_six,  ->{lte(:'members.dob' => (Date.today - 26.years))}
@@ -71,6 +68,10 @@ class Person
   default_scope order_by(name_last: 1, name_first: 1)
   index({name_last: 1, name_first: 1})
   #
+  #
+  embeds_many :assistance_eligibilities
+  accepts_nested_attributes_for :assistance_eligibilities, reject_if: proc { |attribs| attribs['date_determined'].blank? }, allow_destroy: true
+
   def update_attributes_with_delta(props = {})
     old_record = self.find(self.id)
     self.assign_attributes(props)
@@ -193,7 +194,7 @@ class Person
   end
 
   def assign_authority_member_id
-        self.authority_member_id = (self.members.length > 1) ? nil : self.members.first.hbx_member_id
+    self.authority_member_id = (self.members.length > 1) ? nil : self.members.first.hbx_member_id
   end
 
   def merge_address(m_address)

@@ -1,3 +1,4 @@
+=begin
 require 'spec_helper'
 
 describe AddPerson do
@@ -62,4 +63,4 @@ describe AddPerson do
     end
   end
 end
-
+=end

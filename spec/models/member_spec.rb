@@ -97,7 +97,7 @@ describe Member do
   end
 
   [ :hbx_member_id,
-    :concern_role_id,
+#    :concern_role_id,
     :import_source,
     :imported_at,
     :dob,

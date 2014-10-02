@@ -6,6 +6,7 @@ class Member
   include MergingModel
 
   GENDER_TYPES = %W(male female unknown)
+
   CITIZEN_STATUS_TYPES = %W[
       us_citizen
       naturalized_citizen
@@ -15,15 +16,16 @@ class Member
       undocumented_immigrant
       not_lawfully_present_in_us
   ]
-  TAX_FILING_TYPES = %W[tax_filer tax_dependent non_filer]
 
   # gdb_member_id is the primary key. if hbx_member_id isn't provided, gdb_member_id is used
   auto_increment :_id, seed: 9999
-  field :hbx_member_id, type: String
-  field :curam_person_id, type: String  # Curam case-level internal ID
-  field :concern_role_id, type: String  # Curam consolidated internal ID
+  field :hbx_member_id, type: String      # Enterprise-level unique ID for this person
 
-  field :import_source, type: String  # e.g. :b2b_gateway
+  field :e_person_id, type: String        # Elibility system transaction-level foreign key
+  field :e_concern_role_id, type: String  # Eligibility system 'unified person' foreign key
+  field :aceds_id, type: Integer          # Medicaid system foreign key
+
+  field :import_source, type: String      # e.g. :b2b_gateway, :eligibility_system
   field :imported_at, type: DateTime
 
   # Carrier ids are N <-> N with members,
@@ -34,28 +36,33 @@ class Member
   field :ssn, type: String
   field :gender, type: String
 
-  field :is_state_resident, type: Boolean
-  field :tax_filing_status, type: String
-  field :citizen_status, type: String
-  field :incarcerated, type: Boolean
-  field :coverage_participant, type: Boolean
+  field :citizen_status, type: String, default: 'us_citizen'
+  field :is_state_resident, type: Boolean, default: true
+  field :is_incarcerated, type: Boolean, default: false
 
   field :hlh, as: :tobacco_use_code, type: String, default: "Unknown"
   field :lui, as: :language_code, type: String
 
   validates_presence_of  :gender, message: "Choose a gender"
   validates_inclusion_of :gender, in: GENDER_TYPES, message: "Invalid gender"
-  # validates_inclusion_of :tax_filing_status, in: TAX_FILING_TYPES, message: "Invalid tax filing status"
 
   # validates_numericality_of :ssn
   validates_length_of :ssn, allow_blank: true, allow_nil: true, minimum: 9, maximum: 9,
                       message: "SSN must be 9 digits"
+
+  validates :citizen_status, 
+    inclusion: { in: CITIZEN_STATUS_TYPES, message: "%{value} is not a valid citizen status" }, 
+    allow_blank: true
+
+  index({"person_relationships.subject_person" => 1})
+  index({"person_relationships.object_person" => 1})
 
 #  index({ hbx_member_id: 1 }, { unique: false, name: "member_exchange_id_index" })
 #  index({ a_id: 1 }, { unique: false, name: "authority_member_exchange_id_index" })
 #	index({ ssn: -1 }, { unique: false, sparse: true, name: "member_ssn_index" })
 
   embedded_in :person
+  embeds_many :person_relationships
 
   before_create :generate_hbx_member_id
 

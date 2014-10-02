@@ -1,3 +1,4 @@
+=begin
 require 'rails_helper'
 
 feature 'adding life event to application group' do
@@ -24,3 +25,4 @@ feature 'adding life event to application group' do
     expect(page).to have_content '02-01-2014'
   end
 end
+=end

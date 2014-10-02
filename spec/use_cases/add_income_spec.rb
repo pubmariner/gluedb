@@ -1,3 +1,4 @@
+=begin
 require 'spec_helper'
 
 describe AddIncome do
@@ -67,4 +68,4 @@ describe AddIncome do
     subject.execute(request)
     expect(person.updated_by).to eq current_user
   end
-end
+=end
