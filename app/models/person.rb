@@ -44,6 +44,7 @@ class Person
 
   # embeds_many :members, after_add: :generate_hbx_member_id
   embeds_many :members, cascade_callbacks: true
+  embeds_many :person_relationships
 
   embeds_many :responsible_parties
 #  accepts_nested_attributes_for :responsible_parties, reject_if: :all_blank, allow_destroy: true
