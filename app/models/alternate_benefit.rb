@@ -20,7 +20,7 @@ class AlternateBenefit
   field :start_date, type: Date
   field :end_date, type: Date
 
-  embedded_in :assistance_applicant
+  embedded_in :assistance_eligibility
 
   validates :kind, presence: true, 
   						inclusion: { in: KINDS, message: "%{value} is not a valid alternative benefit type" }

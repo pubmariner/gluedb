@@ -41,8 +41,7 @@ class Income
   field :evidence_flag, type: Boolean, default: false	# Proof of income provided?
   field :reported_by, type: String
 
-  embedded_in :assistance_request, :inverse_of => :incomes
-  embedded_in :household, :inverse_of => :total_income
+  embedded_in :assistance_eligibility, :inverse_of => :incomes
 
   validates :amount_in_cents, presence: true, 
   														numericality: { only_integer: true, greater_than_or_equal_to: 0 }

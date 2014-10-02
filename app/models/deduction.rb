@@ -34,7 +34,7 @@ class Deduction
   field :reported_date, type: DateTime
   field :reported_by, type: String
 
-  embedded_in :assistance_applicant
+  embedded_in :assistance_eligibility
 
   validates :amount_in_cents, presence: true, 
   														numericality: { only_integer: true, greater_than_or_equal_to: 0 }
