@@ -8,14 +8,12 @@
   <thead>
     <tr>
       <th>Applicant</th>
-      <th>Total People</th>
     </tr>
   </thead>
   <% @application_groups.each do |application_group| %>
     <tbody>
       <tr>
-        <td><%= link_to prepend_glyph_to_name(application_group.applicant.name_full), application_group_path(application_group) %></td>
-        <td><%= application_group.person_relationships.count %></td>
+        <td><%= link_to prepend_glyph_to_name(application_group.primary_applicant_id), application_group_path(application_group) %></td>
       </tr>
     </tbody>
   <% end %>
