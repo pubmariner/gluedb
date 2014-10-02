@@ -7,7 +7,8 @@
           <%=link_to "#{comment.updated_at.strftime("%m-%d-%Y %I:%M:%S %p")}","#", title: comment.user , rel: 'tooltip' %>
         </span>
 
-        <%= link_to 'delete', commentable_url(commentable, comment), controller: "comment", method: "delete", class: "btn btn-xs btn-warning" if can? :edit, @people %>
+        <%= link_to 'edit', commentable_url(commentable, comment), class: "btn btn-xs btn-warning" if can? :edit, @person %>
+        <%= link_to 'delete', commentable_url(commentable, comment), controller: "comment", method: "delete", class: "btn btn-xs btn-danger" if can? :edit, @user %>
       </li>
   	</ul>
   <% end %>
