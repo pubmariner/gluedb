@@ -23,7 +23,7 @@ class AssistanceEligibility
 
   embeds_many :incomes
   embeds_many :deductions
-  embeds_many :alternative_benefits
+  embeds_many :alternate_benefits
 
   validates :tax_filing_status, 
     inclusion: { in: TAX_FILING_STATUS_TYPES, message: "%{value} is not a valid tax filing status" }, 
