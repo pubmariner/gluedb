@@ -1,37 +1,62 @@
 class Household
   include Mongoid::Document
   include Mongoid::Timestamps
-  #include Mongoid::Versioning
-  include Mongoid::Paranoia
 
-  KIND = %W(uqhp, aqhp, shop, medicaid)
+  KIND = %W(qhp, ia)
+  # TODO - support additional types KIND = %W(shop, qhp, ia, medicaid)
 
 #  field :rel, as: :relationship, type: String
-  field :consent_applicant, type: Integer
-  field :active, type: Boolean, default: true   # Household active on the Exchange?
+  field :e_pdc_id, type: String  # Eligibility system PDC foreign key
   field :irs_group_id, type: String
 
-  field :e_product_id, type: String  # Eligibility system PDC foreign key
-  field :primary_applicant_id, type: String
   field :kind, type: String
+  field :primary_applicant_id, type: String
 
+  field :magi_in_cents, type: Integer, default: 0  # Modified Adjusted Gross Income
+  field :max_aptc_in_cents, type: Integer, default: 0
+  field :csr_percent, type: BigDecimal, default: 0.00   #values in DC: 0, .73, .87, .94
+
+  field :submission_date, type: Date
+  field :is_active, type: Boolean, default: true   # this Household active on the Exchange?
+
+  validates_presence_of :submission_date, :max_aptc_in_cents, :csr_percent
+  validate :csr_as_percent
+
+  index({e_pdc_id:  1})
   index({irs_group_id:  1})
+  index({submission_date:  1})
 
 #  validates :rel, presence: true, inclusion: {in: %w( subscriber responsible_party spouse life_partner child ward )}
 
-  belongs_to :application_group
-  has_many :policies, autosave: true
-  embeds_many :assistance_applicants
-
-  embeds_many :eligibilities
-  accepts_nested_attributes_for :eligibilities, reject_if: proc { |attribs| attribs['date_determined'].blank? }, allow_destroy: true
+  embedded_in :application_group
+  has_many :people
+  
+  embeds_one :total_income, inverse_of: :income
 
   embeds_many :comments
   accepts_nested_attributes_for :comments, reject_if: proc { |attribs| attribs['content'].blank? }, allow_destroy: true
 
+  has_many :policies, autosave: true
+
   # Number of people in this household for elibility determination purposes
   def size
-    applicant.count #TODO: may be filtered by tax filer type??
+    person.count #TODO: filter by tax filer type??
+  end
+
+  def magi_in_dollars=(dollars)
+    self.magi_in_cents = Rational(dollars) * Rational(100)
+  end
+
+  def magi_in_dollars
+    (Rational(magi_in_cents) / Rational(100)).to_f if magi_in_cents
+  end
+
+  def max_aptc_in_dollars=(dollars)
+    self.max_aptc_in_cents = Rational(dollars) * Rational(100)
+  end
+
+  def max_aptc_in_dollars
+    (Rational(max_aptc_in_cents) / Rational(100)).to_f if max_aptc_in_cents
   end
 
   # Income sum of all tax filers in this Household for specified year
@@ -49,20 +74,6 @@ class Household
     self.create!( :people => the_people )
   end
 
-  def current_eligibility
-    eligibilities.max_by { |e| e.date_determined }
-  end
-
-  # Value from latest eligibility determination
-  def max_aptc
-    current_eligibility.max_aptc
-  end
-
-  # Value from latest eligibility determination
-  def csr_percent
-    current_eligibility.csr_percent
-  end
-
   def subscriber
     #TODO - correct when household has policy association
     people.detect do |person|
@@ -76,4 +87,11 @@ class Household
     relationship = application_group.person_relationships.detect { |r| r.relationship_kind == "self" }
     Person.find_by_id(relationship.subject_person)
   end
+
+private
+  # Validate csr_percent value is in range 1..0
+  def csr_as_percent
+    errors.add(:csr_percent, "value must be between 0 and 1") unless (0 <= csr_percent && csr_percent <= 1)
+  end
+
 end

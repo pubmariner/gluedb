@@ -44,16 +44,13 @@ class Person
   # embeds_many :members, after_add: :generate_hbx_member_id
   embeds_many :members, cascade_callbacks: true
 
-  embeds_many :incomes, :inverse_of => :person
-  accepts_nested_attributes_for :incomes, allow_destroy: true
+  embeds_many :responsible_parties
+#  accepts_nested_attributes_for :responsible_parties, reject_if: :all_blank, allow_destroy: true
 
   index({"members.hbx_member_id" =>1})
   index({"members.ssn" => 1})
   index({"members.dob" => 1})
   accepts_nested_attributes_for :members, reject_if: :all_blank, allow_destroy: true
-
-  embeds_many :responsible_parties
-#  accepts_nested_attributes_for :responsible_parties, reject_if: :all_blank, allow_destroy: true
 
   scope :all_under_age_twenty_six, ->{ gt(:'members.dob' => (Date.today - 26.years))}
   scope :all_over_age_twenty_six,  ->{lte(:'members.dob' => (Date.today - 26.years))}

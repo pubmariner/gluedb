@@ -1,34 +1,39 @@
 class ApplicationGroup
   include Mongoid::Document
   include Mongoid::Timestamps
-  #include Mongoid::Versioning
-  include Mongoid::Paranoia
-  include AASM
 
-  field :case_id, type: Integer  # Eligibility system foreign key
-  field :aasm_state, type: String
-  field :active, type: Boolean, default: true   # ApplicationGroup active on the Exchange?
+  field :e_case_id, type: Integer  # Eligibility system foreign key
+  field :is_active, type: Boolean, default: true   # ApplicationGroup active on the Exchange?
+
+  field :primary_applicant_id, type: String     # Person who authorized auto-renewal eligibility check
+  field :consent_applicant_id, type: String     # Person who authorized auto-renewal eligibility check
+  field :consent_applicant_name, type: String
   field :coverage_renewal_year, type: Integer   # Authorize auto-renewal elibility check through this year (CCYY format)
+  field :submission_date, type: Date
 
   validates_inclusion_of :max_renewal_year, :in => 2013..2030, message: "must fall between 2013 and 2030"
 
-  index({aasm_state: 1})
-  index({case_id:  1})
+  index({e_case_id:  1})
+  index({is_active:  1})
+  index({primary_applicant_id:  1})
+  index({submission_date:  1})
 
+  # TODO: An application can have only one kind of each Household active, except UQHP, where >1 may be active
+  # Create validation for this rule 
+  has_many :people
 
-  index({"person_relationships.subject_person" => 1})
-  index({"person_relationships.object_person" => 1})
+  embeds_many :assistance_eligibilities
+  accepts_nested_attributes_for :assistance_eligibilities, reject_if: proc { |attribs| attribs['date_determined'].blank? }, allow_destroy: true
 
-	has_many :households, autosave: true
-
-  embeds_many :members
-  accepts_nested_attributes_for :members, allow_destroy: false
+  embeds_many :households
 
   embeds_many :special_enrollment_periods, cascade_callbacks: true
   accepts_nested_attributes_for :special_enrollment_periods, reject_if: proc { |attribs| attribs['start_date'].blank? }, allow_destroy: true
 
   embeds_many :comments
   accepts_nested_attributes_for :comments, reject_if: proc { |attribs| attribs['content'].blank? }, allow_destroy: true
+
+  scope :all_with_multiple_members, exists({ :'members.1' => true })
 
   # single SEP with latest end date from list of active SEPs
   def current_sep
@@ -55,24 +60,4 @@ class ApplicationGroup
     map
   end
   
-  aasm do
-    state :closed_enrollment, initial: true
-    state :open_enrollment_period
-    state :special_enrollment_period
-
-    event :open_enrollment do
-      transitions from: [:closed_enrollment, :special_enrollment_period, :open_enrollment_period], to: :open_enrollment_period
-    end
-
-    # TODO - what are rules around special enrollments that extend past open enrollment?
-    event :special_enrollment do
-      transitions from: [:closed_enrollment, :open_enrollment_period, :special_enrollment_period], to: :special_enrollment_period
-    end
-
-    event :close_enrollment do
-      transitions from: [:open_enrollment_period, :special_enrollment_period, :closed_enrollment], to: :closed_enrollment
-    end
-  end
-
-
 end

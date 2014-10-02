@@ -38,6 +38,7 @@ class Member
 
   field :citizen_status, type: String, default: 'us_citizen'
   field :is_state_resident, type: Boolean, default: true
+  field :is_incarcerated, type: Boolean, default: false
 
   field :hlh, as: :tobacco_use_code, type: String, default: "Unknown"
   field :lui, as: :language_code, type: String
@@ -53,6 +54,8 @@ class Member
     inclusion: { in: CITIZEN_STATUS_TYPES, message: "%{value} is not a valid citizen status" }, 
     allow_blank: true
 
+  index({"person_relationships.subject_person" => 1})
+  index({"person_relationships.object_person" => 1})
 
 #  index({ hbx_member_id: 1 }, { unique: false, name: "member_exchange_id_index" })
 #  index({ a_id: 1 }, { unique: false, name: "authority_member_exchange_id_index" })
@@ -60,8 +63,6 @@ class Member
 
   embedded_in :person
   embeds_many :person_relationships
-  embeds_many :incomes
-  embeds_many :deductions
 
   before_create :generate_hbx_member_id
 

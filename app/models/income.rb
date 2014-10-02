@@ -36,11 +36,12 @@ class Income
   field :start_date, type: Date
   field :end_date, type: Date
   field :is_projected?, type: Boolean, default: false
+  field :submission_date, type: Date
+
   field :evidence_flag, type: Boolean, default: false	# Proof of income provided?
-  field :reported_date, type: DateTime
   field :reported_by, type: String
 
-  embedded_in :person, :inverse_of => :incomes
+  embedded_in :assistance_request, :inverse_of => :incomes
   embedded_in :household, :inverse_of => :total_income
 
   validates :amount_in_cents, presence: true, 

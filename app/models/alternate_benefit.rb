@@ -23,7 +23,7 @@ class AlternateBenefit
   embedded_in :assistance_applicant
 
   validates :kind, presence: true, 
-  												inclusion: { in: KINDS, message: "%{value} is not a valid alternative benefit type" }
+  						inclusion: { in: KINDS, message: "%{value} is not a valid alternative benefit type" }
   validates :start_date, presence: true
 
 end
