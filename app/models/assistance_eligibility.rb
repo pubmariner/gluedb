@@ -14,7 +14,6 @@ class AssistanceEligibility
   field :is_without_assistance, type: Boolean
 
   field :is_receiving_benefit, type: Boolean
-  field :projected_amount_in_cents, type: Integer
   field :submission_date, type: Date
 
   field :is_ia_eligible, type: Boolean
