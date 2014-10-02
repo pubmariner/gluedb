@@ -13,8 +13,6 @@ class AssistanceEligibility
   field :is_enrolled_for_es_coverage, type: Boolean
   field :is_without_assistance, type: Boolean
 
-  field :submission_date, type: Date
-
   field :is_ia_eligible, type: Boolean
   field :is_medicaid_chip_eligible, type: Boolean
   field :submission_date, type: Date
