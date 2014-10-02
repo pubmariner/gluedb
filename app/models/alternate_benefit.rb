@@ -19,6 +19,7 @@ class AlternateBenefit
   field :kind, type: String
   field :start_date, type: Date
   field :end_date, type: Date
+  field :submission_date, type: Date
 
   embedded_in :assistance_applicant
 
