@@ -2,6 +2,11 @@
   <% commentable.comments.each do |comment| %>
   	<ul>
   	 <li>
+        <% if comment.high? %>
+          <%=link_to "","#", title: comment.priority , rel: 'tooltip', class: "fui-alert-circle" %>
+        <% elsif comment.low? %>
+          <%=link_to "low","#", class: "badge" %>
+        <% end %>
         <%= "#{comment.content}"%>
         <span class="label label-default">
           <%=link_to "#{comment.updated_at.strftime("%m-%d-%Y %I:%M:%S %p")}","#", title: comment.user , rel: 'tooltip' %>

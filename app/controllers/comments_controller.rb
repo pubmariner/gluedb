@@ -5,6 +5,7 @@ class CommentsController < ActionController::Base
     @commentable = params[:comment][:commentable].constantize.find(params[:comment][:commentable_id])
     @comment = @commentable.comments.build
     @comment.content = params[:comment][:content]
+    @comment.priority = params[:comment][:priority]
     @comment.user = current_user.email
     @comment.save
     redirect_to @commentable
