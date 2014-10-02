@@ -13,7 +13,6 @@ class AssistanceEligibility
   field :is_enrolled_for_es_coverage, type: Boolean
   field :is_without_assistance, type: Boolean
 
-  field :is_receiving_benefit, type: Boolean
   field :submission_date, type: Date
 
   field :is_ia_eligible, type: Boolean
@@ -32,4 +31,7 @@ class AssistanceEligibility
     inclusion: { in: TAX_FILING_STATUS_TYPES, message: "%{value} is not a valid tax filing status" }, 
     allow_blank: true
 
+  def is_receiving_benefit
+    #look in alt benefits...if any are in this year...return true
+  end
 end
