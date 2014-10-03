@@ -29,5 +29,13 @@ module Parsers::Xml::Cv
     def object
       @parser.at_xpath('./ns1:object_individual', NAMESPACES).text
     end
+
+    def to_request
+      {
+        :subject_person => subject,
+        :object_person => object,
+        :relationship_kind => relationship
+      }
+    end
   end
 end

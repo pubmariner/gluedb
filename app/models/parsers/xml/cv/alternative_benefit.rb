@@ -24,5 +24,14 @@ module Parsers::Xml::Cv
     def submitted_date
       Date.parse(@parser.at_xpath('./n1:submitted_date', NAMESPACES).text).try(:strftime,"%Y%m%d")
     end
+
+    def to_request
+      {
+        :type => type,
+        :end_date => end_date,
+        :start_date => start_date,
+        :submitted_date => submitted_date
+      }
+    end
   end
 end

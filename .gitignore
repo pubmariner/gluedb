@@ -26,3 +26,4 @@ db/seedfiles/**/*.xlsx
 db/seedfiles/*.csv
 db/seedfiles/*.yml
 config/exchange.yml
+node_modules
