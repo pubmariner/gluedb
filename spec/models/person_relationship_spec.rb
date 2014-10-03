@@ -1,10 +1,13 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe PersonRelationship do
   subject { PersonRelationship.new(
-    :subject_person => "123",
-    :object_person => "345"
+    :subject_person => subject_person,
+    :object_person => object_person
   )}
+
+  let(:subject_person) { Person.new }
+  let(:object_person) { Person.new }
 
   relationship_values = [
     "self",

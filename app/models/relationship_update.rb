@@ -11,11 +11,11 @@ class RelationshipUpdate
   end
 
   def subject_person
-    Person.find_by_id(@subject_person_id)
+    @subject_person ||= Person.find_by_id(@subject_person_id)
   end
 
   def object_person
-    Person.find_by_id(@object_person_id)
+    @object_person ||= Person.find_by_id(@object_person_id)
   end
 
   def save
