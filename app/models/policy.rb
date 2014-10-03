@@ -49,6 +49,8 @@ class Policy
   belongs_to :employer, counter_cache: true, index: true
   belongs_to :responsible_party
   belongs_to :household
+  belongs_to :application_group
+  index({:application_group_id => 1})
 
   has_many :transaction_set_enrollments,
               class_name: "Protocols::X12::TransactionSetEnrollment",

@@ -31,7 +31,6 @@ class Person
 
   belongs_to :broker
   belongs_to :employer
-  belongs_to :application_group
   belongs_to :household
 
   embeds_many :addresses, :inverse_of => :person

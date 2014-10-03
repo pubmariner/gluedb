@@ -24,7 +24,8 @@ class ApplicationGroup
 
   # TODO: An application can have only one kind of each Household active, except UQHP, where >1 may be active
   # Create validation for this rule 
-  has_many :people
+  has_and_belongs_to_many :people, :inverse_of => nil
+  index({:people_ids => 1})
 
 #  embeds_many :assistance_eligibilities
 #  accepts_nested_attributes_for :assistance_eligibilities, reject_if: proc { |attribs| attribs['date_determined'].blank? }, allow_destroy: true
