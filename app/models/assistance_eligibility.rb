@@ -32,4 +32,26 @@ class AssistanceEligibility
   def is_receiving_benefit
     #look in alt benefits...if any are in this year...return true
   end
+
+  def calculate_income_per_year
+    income_per_year = {}
+    
+    self.incomes.each do |income|
+      case income.frequency
+        when "weekly"
+            multiplication_factor = 26
+        when "monthly"
+            multiplication_factor = 12
+        when "yearly"
+            multiplication_factor = 1
+      end
+
+
+      yearly_income =  income.amount_in_cents * multiplication_factor
+
+
+    end
+
+  end
+
 end
