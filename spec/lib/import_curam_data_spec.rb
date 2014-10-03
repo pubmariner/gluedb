@@ -151,6 +151,16 @@ describe ImportCuramData do
     subject.execute(request)
   end
 
+
+  context 'primary_applicant_id is nil' do
+    let(:applicant_id) { nil }
+    it 'does not create the application group' do
+      expect(app_group_factory).not_to receive(:create!)
+      subject.execute(request)
+    end
+
+  end
+
   # it "creates a new application group" do
   #   expect(app_group_factory).to receive(:create).with(request)
   #   subject.execute(request)

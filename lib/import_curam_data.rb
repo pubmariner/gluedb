@@ -34,6 +34,10 @@ class ImportCuramData
   end
 
   def execute(request)
+    if(request[:primary_applicant_id].nil?)
+      return
+    end
+
     app_group = @app_group_repo.find_by_case_id(request[:e_case_id])
     if(app_group)
       app_group.destroy!
