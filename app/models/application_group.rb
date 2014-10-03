@@ -11,6 +11,10 @@ class ApplicationGroup
   field :coverage_renewal_year, type: Integer   # Authorize auto-renewal elibility check through this year (CCYY format)
   field :submission_date, type: Date
 
+  field :notice_generated, type: Boolean, default: true
+  has_many :policies
+
+
 #  validates_inclusion_of :max_renewal_year, :in => 2013..2030, message: "must fall between 2013 and 2030"
 
   index({e_case_id:  1})
@@ -20,7 +24,8 @@ class ApplicationGroup
 
   # TODO: An application can have only one kind of each Household active, except UQHP, where >1 may be active
   # Create validation for this rule 
-  has_many :people
+  has_and_belongs_to_many :people, :inverse_of => nil
+  index({:people_ids => 1})
 
 #  embeds_many :assistance_eligibilities
 #  accepts_nested_attributes_for :assistance_eligibilities, reject_if: proc { |attribs| attribs['date_determined'].blank? }, allow_destroy: true

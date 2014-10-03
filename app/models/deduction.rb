@@ -3,11 +3,11 @@ class Deduction
   include Mongoid::Timestamps
 
   FREQUENCIES = %W(
-	  	bi_weekly
+	  	biweekly
 	  	half_yearly
 	  	monthly
 	  	quarterly
-	  	bi_weekly
+	  	weekly
 	  	yearly
   	)
 

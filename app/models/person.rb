@@ -15,6 +15,7 @@ class Person
   field :name_sfx, type: String, default: ""
   field :name_full, type: String
   field :updated_by, type: String, default: "system_service"
+  field :is_active, type: Boolean, default: true
 
   field :authority_member_id, type: String, default: nil
   index({"authority_member_id" => 1})
@@ -30,7 +31,6 @@ class Person
 
   belongs_to :broker
   belongs_to :employer
-  belongs_to :application_group
   belongs_to :household
 
   embeds_many :addresses, :inverse_of => :person
@@ -178,6 +178,7 @@ class Person
   end
 
   def authority_member
+    initialize_authority_member
     members.detect { |m| m.hbx_member_id == self.authority_member_id }
   end
 

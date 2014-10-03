@@ -2,6 +2,10 @@ module Queries
   class PersonMatch
     def self.find(options)
       found_person = nil
+      if (!options[:member_id].blank?)
+        found_person = Person.find_by_member_id(options[:member_id])
+        return found_person if found_person
+      end
       found_people = Person.where({"members.ssn" => options[:ssn]})
       if (found_people.length > 0)
         if (!options[:name_last].nil?)
