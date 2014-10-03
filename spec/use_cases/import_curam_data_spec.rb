@@ -1,12 +1,13 @@
 class ImportCuramData
 
-  def initialize(app_group_repo, person_finder, person_factory, app_group_factory, relationship_factory, qualification_factory)
+  def initialize(app_group_repo, person_finder, person_factory, app_group_factory, relationship_factory, qualification_factory, assistance_eligibilities_importer)
     @app_group_repo = app_group_repo
     @person_finder = person_finder
     @person_factory = person_factory
     @app_group_factory = app_group_factory
     @relationship_factory = relationship_factory
     @qualification_factory = qualification_factory
+    @assistance_eligibilities_importer = assistance_eligibilities_importer
   end
 
   def qualified_member(person_properties, person)
@@ -39,6 +40,10 @@ class ImportCuramData
           :is_state_resident => p_hash[:is_state_resident],
           :citizen_status => p_hash[:citizen_status]
       }).save!
+      @assistance_eligibilities_importer.import!(
+        person,
+        Array(p_hash[:assistance_eligibilities])
+      )
     end
 
     @app_group_factory.create!({
@@ -58,7 +63,7 @@ class ImportCuramData
 end
 
 describe ImportCuramData do
-  subject { ImportCuramData.new(app_group_repo, person_finder, person_factory, app_group_factory, relationship_factory, qualification_factory) }
+  subject { ImportCuramData.new(app_group_repo, person_finder, person_factory, app_group_factory, relationship_factory, qualification_factory, assistance_eligibilities_importer) }
   let(:app_group_repo) { double(find_by_case_id: app_group) }
   let(:app_group) { double(destroy!: nil) }
   let(:person_finder) { 
@@ -113,7 +118,8 @@ describe ImportCuramData do
       :dob => "frank",
       :citizen_status => citizen_status,
       :is_state_resident => is_state_resident,
-      :is_incarcerated => is_incarcerated
+      :is_incarcerated => is_incarcerated,
+      :assistance_eligibilities => assistance_eligibilities
     }
   end
 
@@ -183,7 +189,21 @@ describe ImportCuramData do
       subject.execute(request)
     end
   end
-  
+
+  let(:assistance_eligibilities_importer) { double(import!: nil) }
+  let(:assistance_eligibilities) { [double] }
+  it 'should import the assistance eligibility information' do
+    expect(assistance_eligibilities_importer).to receive(:import!).with(
+      person,
+      assistance_eligibilities
+    )
+    expect(assistance_eligibilities_importer).to receive(:import!).with(
+      child,
+      []
+    )
+    subject.execute(request)
+  end
+
   # it "creates a new application group" do
   #   expect(app_group_factory).to receive(:create).with(request)
   #   subject.execute(request)
