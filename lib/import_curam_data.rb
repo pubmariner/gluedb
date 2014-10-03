@@ -59,7 +59,7 @@ class ImportCuramData
           :citizen_status => p_hash[:citizen_status],
           :e_person_id => p_hash[:e_person_id],
           :e_concern_role_id => p_hash[:e_concern_role_id],
-          :aceds_id => p_hash[:aceds_id],
+          :aceds_id => p_hash[:aceds_id]
       }).save!
       @assistance_eligibilities_importer.import!(
         person,

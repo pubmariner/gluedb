@@ -74,6 +74,18 @@ module Parsers::Xml::Cv
       first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/ssn")
     end
 
+    def e_person_id
+      first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/e_person_id")
+    end
+
+    def e_concern_role_id
+      first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/e_concern_role_id")
+    end
+
+    def aceds_id
+      first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/aceds_id")
+    end
+
     def to_request
       person.to_request.merge({
         :is_incarcerated => is_incarcerated,
@@ -84,6 +96,9 @@ module Parsers::Xml::Cv
         :ssn => ssn,
         :dob => dob,
         :gender => gender,
+        :e_person_id => e_person_id,
+        :e_concern_role_id => e_concern_role_id,
+        :aceds_id => aceds_id,
         :assistance_eligibilities => assistance_eligibilities.map(&:to_request)
       })
     end
