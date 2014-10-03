@@ -14,7 +14,7 @@ class QualificationUpdate
     @member ||= Member.find_for_member_id(member_id)
   end
 
-  def save
+  def save!
     member.update_attributes!({
       :citizen_status => self.citizen_status,
       :is_state_resident => self.is_state_resident,

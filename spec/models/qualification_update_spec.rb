@@ -23,6 +23,6 @@ describe QualificationUpdate do
 
   it "should update the attributes for :citizen_status, :is_state_resident, and :is_incarcerated" do
     expect(member).to receive(:update_attributes!).with(updated_attributes)
-    subject.save
+    subject.save!
   end
 end
