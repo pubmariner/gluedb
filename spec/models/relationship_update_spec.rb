@@ -45,7 +45,7 @@ describe RelationshipUpdate do
   end
 
   it "should create the new relationship on the subject person" do
-    subject.save
+    subject.save!
     expect(person.person_relationships).to include(new_relationship)
   end
 
@@ -54,7 +54,7 @@ describe RelationshipUpdate do
     let(:old_relationship) { PersonRelationship.new({:object_person => third_person}) }
     let(:third_person) { Person.new }
     it "should leave that relationship alone" do
-      subject.save
+      subject.save!
       expect(person.person_relationships).to include(old_relationship)
       expect(person.person_relationships).to include(new_relationship)
     end
@@ -65,7 +65,7 @@ describe RelationshipUpdate do
     let(:old_relationship) { PersonRelationship.new({:object_person => other_person}) }
 
     it "should replace the old relationship" do
-      subject.save
+      subject.save!
       expect(person.person_relationships).not_to include(old_relationship)
       expect(person.person_relationships).to include(new_relationship)
     end

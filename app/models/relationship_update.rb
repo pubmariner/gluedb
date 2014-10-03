@@ -18,7 +18,7 @@ class RelationshipUpdate
     @object_person ||= Person.find_by_id(@object_person_id)
   end
 
-  def save
+  def save!
     new_rel = PersonRelationship.new({
       :subject_person => subject_person,
       :object_person => object_person,
