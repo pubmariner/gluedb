@@ -6,13 +6,12 @@ describe Income do
   let(:attributes) do
     {
       amount_in_cents: 1234,
-      income_type: 'wages_and_salaries',
+      kind: 'dividend',
       frequency: 'biweekly',
       start_date: Date.today,
       end_date: Date.today,
-      evidence_flag: Date.today,
-      reported_date: Date.today,
-      reported_by: 'Someone'
+      is_projected: true,
+      submission_date: Date.today
     }
   end
 
@@ -24,15 +23,18 @@ describe Income do
 
   it 'can be made from an income request model' do
     request = {
-      amount: 12.34,
-      income_type: 'wages_and_salaries',
+      amount_in_dollars: 12.34,
+      kind: 'wages_and_salaries',
       frequency: 'biweekly',
       start_date: Date.today,
-      end_date: Date.today,
-      evidence_flag: false,
-      reported_date: Date.today,
-      reported_by: 'someone'
+      end_date: Date.today + 10,
+      is_projected: true,
+      submission_date: Date.today
     }
     expect(Income.from_income_request(request)).to be_same_as subject
   end
+
+  it 'will sum all the incomes ' do
+  end
+
 end

@@ -35,11 +35,8 @@ class Income
   field :frequency, type: String
   field :start_date, type: Date
   field :end_date, type: Date
-  field :is_projected?, type: Boolean, default: false
+  field :is_projected, type: Boolean, default: false
   field :submission_date, type: Date
-
-  field :evidence_flag, type: Boolean, default: false	# Proof of income provided?
-  field :reported_by, type: String
 
   embedded_in :assistance_eligibility, :inverse_of => :incomes
 
@@ -62,22 +59,23 @@ class Income
 
   def same_as?(other)
     amount_in_cents == other.amount_in_cents \
-      && income_type == other.income_type \
+      && kind == other.kind \
       && frequency == other.frequency \
       && start_date == other.start_date \
-      && end_date == other.end_date
+      && end_date == other.end_date \
+      && is_projected == other.is_projected \
+      && submission_date == other.submission_date
   end
 
   def self.from_income_request(income_data)
     income = Income.new(
       amount_in_cents: (income_data[:amount] * 100).to_i,
-      income_type: income_data[:income_type],
+      kind: income_data[:kind],
       frequency: income_data[:frequency],
       start_date: income_data[:start_date],
       end_date: income_data[:end_date],
-      evidence_flag: income_data[:evidence_flag],
-      reported_date: income_data[:reported_date],
-      reported_by: income_data[:reported_by] )
+      is_projected: income_data[:is_projected],
+      submission_date: income_data[:submission_date])
   end
 
 end

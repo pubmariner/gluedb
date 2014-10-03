@@ -22,7 +22,7 @@ class Deduction
 	  	self_employed_health_insurance
 	  	moving_expenses
 	  	health_savings_account
-	  	Certain business expenses of reservists, performing artists, and fee-basis government officials
+	  	reservists_performing_artists_and_fee_basis_government_official_expenses
 		)
 
   field :amount_in_cents, type: Integer, default: 0
@@ -30,11 +30,9 @@ class Deduction
   field :frequency, type: String
   field :start_date, type: Date
   field :end_date, type: Date
-  field :evidence_flag, type: Boolean, default: false	# Proof of income provided?
-  field :reported_date, type: DateTime
-  field :reported_by, type: String
+  field :submission_date, type: Date
 
-  embedded_in :assistance_eligibility
+  embedded_in :assistance_eligibility, inverse_of: :deductions
 
   validates :amount_in_cents, presence: true, 
   														numericality: { only_integer: true, greater_than_or_equal_to: 0 }
