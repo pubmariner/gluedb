@@ -36,5 +36,20 @@ module Parsers::Xml::Cv
     def submitted_date
       Date.parse(@parser.at_xpath('./n1:submitted_date', NAMESPACES).text).try(:strftime,"%Y%m%d")
     end
+
+    def amount_in_cents
+      (dollar_amount * 100).to_i
+    end
+
+    def to_request
+      {
+        :type => type,
+        :frequency => frequency,
+        :start_date => start_date,
+        :end_date => end_date,
+        :submitted_date => submitted_date,
+        :amount_in_cents => amount_in_cents
+      }
+    end
   end
 end
