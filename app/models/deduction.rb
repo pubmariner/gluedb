@@ -26,7 +26,7 @@ class Deduction
 		)
 
   field :amount_in_cents, type: Integer, default: 0
-  field :kind, type: String
+  field :kind, as: :deduction_type, type: String
   field :frequency, type: String
   field :start_date, type: Date
   field :end_date, type: Date
@@ -34,11 +34,11 @@ class Deduction
 
   embedded_in :assistance_eligibility, inverse_of: :deductions
 
-  validates :amount_in_cents, presence: true, 
+  validates :amount_in_cents, presence: true,
   														numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-  validates :kind, presence: true, 
+  validates :kind, presence: true,
   												inclusion: { in: KINDS, message: "%{value} is not a valid deduction type" }
-  validates :frequency, 	presence: true, 
+  validates :frequency, 	presence: true,
  												 	inclusion: { in: FREQUENCIES, message: "%{value} is not a valid frequency" }
   validates :start_date, presence: true
 
