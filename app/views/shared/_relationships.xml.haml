@@ -1,5 +1,5 @@
 %n1:relationships
-  - person.relationships_in_group.each do |relationship|
+  - person.person_relationships.each do |relationship|
     %n1:relationship
       %n1:subject_individual= api_v1_person_url(relationship.subject_person)
       %n1:relationship_uri= "urn:openhbx:terms:v1:individual_relationship##{relationship.relationship_kind}"

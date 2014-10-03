@@ -2,9 +2,15 @@
   - if person.authority_member_id.present?
     %n1:authority_qhp_role_id= person.authority_member_id
   %n1:qhp_roles
-    - person.members.each do |member|
+    - member = person.authority_member
       %n1:qhp_role
         %n1:id= member.hbx_member_id
+        - if member.e_person_id.present?
+          %n1:e_person_id= member.e_person_id
+        - if member.e_concern_role_id.present?
+          %n1:e_concern_role_id= member.e_concern_role_id
+        - if member.aceds_id.present?
+          %n1:aceds_id= member.aceds_id
         %n1:gender= "urn:dc0:terms:gender##{member.gender}"
         %n1:dob= member.dob.try(:strftime,"%Y%m%d")
         - if member.ssn.present?
@@ -17,25 +23,25 @@
           %n1:policies
             - policies.each do |policy|
               %n1:policy= render 'shared/policy_link_type', policy: policy
-  - if person.responsible_parties.present?
+        - if false
+          %n1:exemptions=#todo
+  - if false #TODO
     %n1:responsible_party_roles
-      - person.responsible_parties.each do |party|
-        %n1:responsible_party_role
-          %n1:entity_identifier= party.entity_identifier
-          %n1:organization_id= party.organization_name
+      %n1:responsible_party_role
+        %n1:id
   - if false #TODO
     %n1:medicaid_roles
       %n1:medicaid_role
         %n1:id
-  - employee_roles = person.employee_roles
-
-  - if employee_roles.present?
+  - if person.employee_roles.present?
     %n1:employee_roles
-      - employee_roles.each do |role|
+      - person.employee_roles.each do |enrollee|
         %n1:employee_role
-          %n1:employer= render 'shared/employer_link_type', employer: role.policy.employer
-          %n1:employment_status= "urn:openhbx:terms:v1:employment_status##{role.employment_status_code}" 
-          - if role.coverage_start.present?
-            %n1:eligibility_start_date= role.coverage_start.try(:strftime,"%Y%m%d")
-          - if role.coverage_end.present?
-            %n1:eligibility_end_date= role.coverage_end.try(:strftime,"%Y%m%d")
+          %n1:employer= render 'shared/employer_link_type', employer: enrollee.policy.employer
+          %n1:employment_status= "urn:openhbx:terms:v1:employment_status##{enrollee.employment_status_code}"
+          - if enrollee.coverage_start.present?
+            %n1:eligibility_start_date= enrollee.coverage_start.try(:strftime,"%Y%m%d")
+          - if enrollee.coverage_end.present?
+            %n1:eligibility_end_date= enrollee.coverage_end.try(:strftime,"%Y%m%d")
+          - if false #todo
+            %n1:employment_termination_date= enrollee.employment_termination_date.try(:strftime,"%Y%m%d")

@@ -2,17 +2,32 @@ class SpecialEnrollmentPeriod
   include Mongoid::Document
   include Mongoid::Timestamps
   REASONS = [
-    "birth",
-    "death",
+    "open_enrollment",
+    "lost_access_to_mec",
     "adoption",
+    "foster_care",
+    "birth",
     "marriage",
-    "legal_separation",
     "divorce",
-    "retirement",
-    "employment_termination",
-    "reenrollment",
     "location_change",
-    "open_enrollment_start"
+    "termination_of_benefits",
+    "termination_of_employment",
+    "immigration_status_change",
+    "enrollment_error_or_misconduct_hbx",
+    "enrollment_error_or_misconduct_issuer",
+    "enrollment_error_or_misconduct_non_hbx",
+    "contract_violation",
+    "eligibility_change_medicaid_ineligible",
+    "eligibility_change_assistance",
+    "eligibility_change_employer_ineligible",
+    "qualified_native_american",
+    "exceptional_circumstances_natural_disaster",
+    "exceptional_circumstances_medical_emergency",
+    "exceptional_circumstances_system_outage",
+    "exceptional_circumstances_domestic_abuse",
+    "exceptional_circumstances_hardship_exemption",
+    "exceptional_circumstances_civic_service",
+    "exceptional_circumstances"
   ]
 
 	field :start_date, type: Date
