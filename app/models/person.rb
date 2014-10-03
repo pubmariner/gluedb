@@ -15,6 +15,7 @@ class Person
   field :name_sfx, type: String, default: ""
   field :name_full, type: String
   field :updated_by, type: String, default: "system_service"
+  field :is_active, type: Boolean, default: true
 
   field :authority_member_id, type: String, default: nil
   index({"authority_member_id" => 1})
