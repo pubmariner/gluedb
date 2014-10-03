@@ -2,16 +2,21 @@ require 'rails_helper'
 
 describe 'matching a person' do
   let(:person) { Person.new(name_last: last_name, name_first: first_name, members: [member]) }
-  let(:member) { Member.new(ssn: member_ssn, gender: 'male', dob: dob) }
+  let(:member) { Member.new(ssn: member_ssn, gender: 'male', dob: dob, hbx_member_id: member_id) }
   let(:member_ssn) {'123456789' }
   let(:last_name) { 'Dirt' }
   let(:first_name) { 'Joe' }
+  let(:member_id) { '123445554564577' }
   let(:dob) { Date.today.prev_year }
 
   before(:each) do
     person.save!
   end
-
+  context 'with a member id' do
+    it 'finds person with member id' do
+      expect(Queries::PersonMatch.find({member_id: member_id})).to eq person
+    end
+  end
   context "with a matching ssn" do
     it 'finds person with the same ssn' do
       expect(Queries::PersonMatch.find({ssn: member_ssn })).to eq person

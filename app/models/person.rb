@@ -178,6 +178,7 @@ class Person
   end
 
   def authority_member
+    initialize_authority_member
     members.detect { |m| m.hbx_member_id == self.authority_member_id }
   end
 

@@ -1,13 +1,11 @@
 require 'rails_helper'
 
 describe AddEligibilites do
-  subject { AddEligibilites.new(person_repo) }
+  subject { AddEligibilites }
 
-  let(:person_repo) { double(find_by_id: person) }
   let(:person) { Person.new(name_first: 'First', name_last: 'Last') }
-  let(:request) do
-    {
-      assistance_eligibilities: [
+  let(:assistance_eligibilities) do
+    [
         {
           is_primary_applicant: true,
           tax_filing_status: 'tax_filer',
@@ -52,24 +50,18 @@ describe AddEligibilites do
           ]
         }
       ]
-    }
   end
 
   let(:requested_submission_date) { Date.today }
 
-  it 'finds a person' do
-    expect(person_repo).to receive(:find_by_id).with(request[:person_id]).and_return(person)
-    subject.execute(request)
-  end
-
   it 'adds assistance eligibilities to person' do
-    subject.execute(request)
+    subject.import!(person, assistance_eligibilities)
 
     expect(person.assistance_eligibilities.length).to eq 1
 
     eligibility = person.assistance_eligibilities.last
 
-    requested_eligibility = request[:assistance_eligibilities].first
+    requested_eligibility = assistance_eligibilities.first
     expect(eligibility.is_primary_applicant).to eq requested_eligibility[:is_primary_applicant]
     expect(eligibility.tax_filing_status).to eq requested_eligibility[:tax_filing_status]
     expect(eligibility.is_tax_filing_together).to eq requested_eligibility[:is_tax_filing_together]
@@ -111,13 +103,13 @@ describe AddEligibilites do
 
   it 'saves the person' do
     expect(person).to receive(:save!)
-    subject.execute(request)
+    subject.import!(person, assistance_eligibilities)
   end
 
   context 'when eligibility already exists with submission date' do 
     before { person.assistance_eligibilities << AssistanceEligibility.new(submission_date: requested_submission_date)}
     it 'does not add to person' do  
-      subject.execute(request)
+      subject.import!(person, assistance_eligibilities)
       expect(person.assistance_eligibilities.count).to eq 1
     end
   end
