@@ -57,6 +57,9 @@ describe ImportCuramData do
       :citizen_status => citizen_status,
       :is_state_resident => is_state_resident,
       :is_incarcerated => is_incarcerated,
+      :e_person_id => e_person_id,
+      :e_concern_role_id => e_concern_role_id,
+      :aceds_id => aceds_id,
       :assistance_eligibilities => assistance_eligibilities
     }
   end
@@ -67,6 +70,9 @@ describe ImportCuramData do
   let(:citizen_status) { "nope" }
   let(:is_incarcerated) { "yup" }
   let(:is_state_resident) { "maybe, I guess.  Define 'state'."}
+  let(:e_person_id) { 'e_person_id' }
+  let(:e_concern_role_id) { 'e_concern_role_id' }
+  let(:aceds_id) { 'aceds_id' }
 
   it 'finds an application group by case number' do
     expect(app_group_repo).to receive(:find_by_case_id).with(request[:e_case_id]).and_return(app_group)
@@ -100,7 +106,10 @@ describe ImportCuramData do
       :member_id => member_id,
       :citizen_status => citizen_status,
       :is_state_resident => is_state_resident,
-      :is_incarcerated => is_incarcerated
+      :is_incarcerated => is_incarcerated,
+      :e_person_id => e_person_id,
+      :e_concern_role_id => e_concern_role_id,
+      :aceds_id => aceds_id
     ).and_return(qualification_update)
     expect(qualification_update).to receive(:save!)
     subject.execute(request)

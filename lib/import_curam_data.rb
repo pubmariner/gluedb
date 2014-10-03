@@ -53,7 +53,13 @@ class ImportCuramData
           :member_id => member_id,
           :is_incarcerated => p_hash[:is_incarcerated],
           :is_state_resident => p_hash[:is_state_resident],
-          :citizen_status => p_hash[:citizen_status]
+          :citizen_status => p_hash[:citizen_status],
+          :is_incarcerated => p_hash[:is_incarcerated],
+          :is_state_resident => p_hash[:is_state_resident],
+          :citizen_status => p_hash[:citizen_status],
+          :e_person_id => p_hash[:e_person_id],
+          :e_concern_role_id => p_hash[:e_concern_role_id],
+          :aceds_id => p_hash[:aceds_id],
       }).save!
       @assistance_eligibilities_importer.import!(
         person,

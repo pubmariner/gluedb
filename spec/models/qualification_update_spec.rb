@@ -6,9 +6,12 @@ describe QualificationUpdate do
   let(:member_id) { "memberid" }
   let(:updated_attributes) {
    {
-     :is_incarcerated => false,
-     :is_state_resident => true,
-     :citizen_status => "not_lawfully_present_in_us"
+      :is_incarcerated => false,
+      :is_state_resident => true,
+      :citizen_status => "not_lawfully_present_in_us",
+      :e_person_id => "123",
+      :e_concern_role_id => "4321",
+      :aceds_id => "9999"
    }
   }
   subject { QualificationUpdate.new(updated_attributes.merge({:member_id => member_id})) }

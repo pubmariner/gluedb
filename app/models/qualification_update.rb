@@ -1,5 +1,5 @@
 class QualificationUpdate
-  KEYS = [:member_id, :citizen_status, :is_state_resident, :is_incarcerated]
+  KEYS = [:member_id, :citizen_status, :is_state_resident, :is_incarcerated, :e_person_id, :e_concern_role_id, :aceds_id]
   attr_accessor(*KEYS)
 
   def initialize(data = {})
@@ -18,7 +18,10 @@ class QualificationUpdate
     member.update_attributes!({
       :citizen_status => self.citizen_status,
       :is_state_resident => self.is_state_resident,
-      :is_incarcerated => self.is_incarcerated
+      :is_incarcerated => self.is_incarcerated,
+      :e_person_id => self.e_person_id,
+      :e_concern_role_id => self.e_concern_role_id,
+      :aceds_id => self.aceds_id
     })
   end
 end
