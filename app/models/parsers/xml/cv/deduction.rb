@@ -1,5 +1,5 @@
 module Parsers::Xml::Cv
-  class Income
+  class Deduction
     def initialize(parser)
       @parser = parser
     end

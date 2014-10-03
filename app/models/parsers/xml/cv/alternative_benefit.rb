@@ -1,11 +1,7 @@
 module Parsers::Xml::Cv
-  class Income
+  class AlternativeBenefit
     def initialize(parser)
       @parser = parser
-    end
-
-    def dollar_amount
-      @parser.at_xpath('./n1:amount', NAMESPACES).text.to_f.round(2)
     end
 
     def type_urn
@@ -14,14 +10,6 @@ module Parsers::Xml::Cv
 
     def type
       income_type_urn.split('#').last
-    end
-
-    def frequency_urn
-      @parser.at_xpath('./n1:frequency', NAMESPACES).text
-    end
-
-    def frequency
-      frequency_urn.split('#').last
     end
 
     def start_date
