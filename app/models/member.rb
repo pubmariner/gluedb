@@ -62,7 +62,6 @@ class Member
 #	index({ ssn: -1 }, { unique: false, sparse: true, name: "member_ssn_index" })
 
   embedded_in :person
-  embeds_many :person_relationships
 
   before_create :generate_hbx_member_id
 

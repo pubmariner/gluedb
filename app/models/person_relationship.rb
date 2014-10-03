@@ -17,15 +17,16 @@ class PersonRelationship
   ALL_RELATIONSHIPS_LIST    =  SYMMETRICAL_RELATIONSHIPS_LIST | MALE_RELATIONSHIPS_LIST | FEMALE_RELATIONSHIPS_LIST
 
   # Relationships are defined using RDF-style Subject -> Predicate -> Object
-  # Subject is 'head of household' by convention
-  field :subject_person, type: Moped::BSON::ObjectId
+  # Generally speaking, it works better if you imagine it as:
+  #   Subject -> "is the <relationship kind> of" -> Object
+  #   A -> "is the child of" -> B
   field :relationship_kind, type: String
-  field :object_person, type: Moped::BSON::ObjectId
+  belongs_to :subject_person, :class_name => "Person", :inverse_of => nil
+  belongs_to :object_person, :class_name => "Person", :inverse_of => nil
 
-	validates_presence_of :subject_person, :relationship_kind, :object_person
+	validates_presence_of :subject_person_id, :relationship_kind, :object_person_id
 	validates_inclusion_of :relationship_kind, in: ALL_RELATIONSHIPS_LIST
 
-  embedded_in :household, :inverse_of => :person_relationships
-  embedded_in :application_group, :inverse_of => :person_relationships
+  embedded_in :person
 
 end
