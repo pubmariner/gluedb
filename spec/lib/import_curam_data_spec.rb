@@ -1,69 +1,7 @@
-class ImportCuramData
-
-  def initialize(app_group_repo, person_finder, person_factory, app_group_factory, relationship_factory, qualification_factory, assistance_eligibilities_importer)
-    @app_group_repo = app_group_repo
-    @person_finder = person_finder
-    @person_factory = person_factory
-    @app_group_factory = app_group_factory
-    @relationship_factory = relationship_factory
-    @qualification_factory = qualification_factory
-    @assistance_eligibilities_importer = assistance_eligibilities_importer
-  end
-
-  def qualified_member(person_properties, person)
-      [ 
-        person.members.detect { |m| m.hbx_member_id == person_properties[:member_id] },
-        person.authority_member, 
-        person.members.first
-      ].detect { |m| !m.nil? }
-  end
-
-  def execute(request)
-    app_group = @app_group_repo.find_by_case_id(request[:e_case_id])
-    if(app_group)
-      app_group.destroy!
-    end
-
-    mapped_people = {}
-    request[:people].each do |p_hash|
-      person = @person_finder.find(p_hash) # Doesn't currently search by member id as far as we know
-      if(person.nil?)
-        person = @person_factory.create!(p_hash)
-      end
-      mapped_people[p_hash[:id]] = person
-      
-      member_id = qualified_member(p_hash, person).hbx_member_id
-      @qualification_factory.new(
-        {
-          :member_id => member_id,
-          :is_incarcerated => p_hash[:is_incarcerated],
-          :is_state_resident => p_hash[:is_state_resident],
-          :citizen_status => p_hash[:citizen_status]
-      }).save!
-      @assistance_eligibilities_importer.import!(
-        person,
-        Array(p_hash[:assistance_eligibilities])
-      )
-    end
-
-    @app_group_factory.create!({
-        :e_case_id => request[:e_case_id],
-        primary_applicant_id: mapped_people[request[:primary_applicant_id]].id,
-        submission_date: request[:submission_date],
-        people: mapped_people.values
-      })
-    request[:relationships].each do |rel|
-      @relationship_factory.new({
-          :subject_person_id => mapped_people[rel[:subject_person]].id,
-          :relationship_kind => rel[:relationship_kind],
-          :object_person_id => mapped_people[rel[:object_person]].id
-        }).save!
-    end
-  end
-end
+require 'rails_helper'
 
 describe ImportCuramData do
-  subject { ImportCuramData.new(app_group_repo, person_finder, person_factory, app_group_factory, relationship_factory, qualification_factory, assistance_eligibilities_importer) }
+  subject { ImportCuramData.new(person_factory, app_group_repo, person_finder, app_group_factory, relationship_factory, qualification_factory, assistance_eligibilities_importer) }
   let(:app_group_repo) { double(find_by_case_id: app_group) }
   let(:app_group) { double(destroy!: nil) }
   let(:person_finder) { 

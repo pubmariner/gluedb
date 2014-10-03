@@ -1,4 +1,4 @@
-class AddEligibilites
+class AddEligibilities
   def self.import!(person, aes)
     aes.each do |requested_eligibility|
       eligibility = AssistanceEligibility.new(requested_eligibility)   

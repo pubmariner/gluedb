@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-describe AddEligibilites do
-  subject { AddEligibilites }
+describe AddEligibilities do
+  subject { AddEligibilities }
 
   let(:person) { Person.new(name_first: 'First', name_last: 'Last') }
   let(:assistance_eligibilities) do

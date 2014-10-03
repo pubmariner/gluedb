@@ -64,5 +64,8 @@ class ApplicationGroup
     end
     map
   end
-  
+
+  def self.find_by_case_id(case_id)
+    where({"e_case_id" => case_id}).first
+  end
 end
