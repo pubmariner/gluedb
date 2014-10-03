@@ -11,6 +11,10 @@ class ApplicationGroup
   field :coverage_renewal_year, type: Integer   # Authorize auto-renewal elibility check through this year (CCYY format)
   field :submission_date, type: Date
 
+  field :notice_generated, type: Boolean, default: true
+  has_many :policies
+
+
 #  validates_inclusion_of :max_renewal_year, :in => 2013..2030, message: "must fall between 2013 and 2030"
 
   index({e_case_id:  1})

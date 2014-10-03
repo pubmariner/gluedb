@@ -36,8 +36,6 @@ class Household
   embeds_many :comments
   accepts_nested_attributes_for :comments, reject_if: proc { |attribs| attribs['content'].blank? }, allow_destroy: true
 
-  has_many :policies, autosave: true
-
   # Number of people in this household for elibility determination purposes
   def size
     person.count #TODO: filter by tax filer type??
