@@ -30,8 +30,15 @@ module Parsers::Xml::Cv
 
     def assistance_eligibilities
       results = []
-      elements = @parser.xpath('./ns1:assistance_eligibilities/ns1:assistance_eligibility', NAMESPACES)
-      elements.each { |i| results << AssistanceEligibility.new(i) }
+      nodes = @parser.xpath('./ns1:assistance_eligibilities/ns1:assistance_eligibility', NAMESPACES)
+      nodes.each { |i| results << AssistanceEligibility.new(i) }
+      results
+    end
+
+    def relationships
+      results = []
+      nodes = @parser.xpath('./ns1:relationships', NAMESPACES)
+      nodes.each { |i| results << Relationship.new(i) }
       results
     end
   end
