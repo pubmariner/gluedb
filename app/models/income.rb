@@ -31,7 +31,7 @@ class Income
   FREQUENCIES = %W(biweekly daily half_yearly monthly quarterly weekly yearly)
 
   field :amount_in_cents, type: Integer, default: 0
-  field :kind, type: String
+  field :kind, as: :income_type, type: String
   field :frequency, type: String
   field :start_date, type: Date
   field :end_date, type: Date
@@ -43,11 +43,11 @@ class Income
 
   embedded_in :assistance_eligibility, :inverse_of => :incomes
 
-  validates :amount_in_cents, presence: true, 
+  validates :amount_in_cents, presence: true,
   														numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-  validates :kind, presence: true, 
+  validates :kind, presence: true,
   												inclusion: { in: KINDS, message: "%{value} is not a valid income type" }
-  validates :frequency, 	presence: true, 
+  validates :frequency, 	presence: true,
  												 	inclusion: { in: FREQUENCIES, message: "%{value} is not a valid frequency" }
   validates :start_date, presence: true
 
