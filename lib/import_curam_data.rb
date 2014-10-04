@@ -40,7 +40,7 @@ class ImportCuramData
 
     app_group = @app_group_repo.find_by_case_id(request[:e_case_id])
     if(app_group)
-      app_group.destroy!
+      app_group.destroy
     end
 
     mapped_people = {}

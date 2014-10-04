@@ -5,6 +5,18 @@ class AddEligibilities
       if person.assistance_eligibilities.any? { |e| e.submission_date == requested_eligibility[:submission_date]} 
         next
       end
+      bad_incomes = eligibility.incomes.reject(&:valid?)
+      bad_deductions = eligibility.deductions.reject(&:valid?)
+      bad_alts = eligibility.alternate_benefits.reject(&:valid?)
+      if bad_incomes.any?
+        raise bad_incomes.first.errors.inspect
+      end
+      if bad_deductions.any?
+        raise bad_deductions.first.errors.inspect
+      end
+      if bad_alts.any?
+        raise bad_alts.first.errors.inspect
+      end
       person.assistance_eligibilities << eligibility
     end
 

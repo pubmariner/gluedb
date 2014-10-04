@@ -14,7 +14,7 @@ module Parsers::Xml::Cv
     end
 
     def type
-      type_urn.split('#').last
+      type_urn.split('#').last.parameterize("_")
     end
 
     def frequency_urn
@@ -22,7 +22,7 @@ module Parsers::Xml::Cv
     end
 
     def frequency
-      frequency_urn.split('#').last
+      frequency_urn.split('#').last.gsub("-", "_").parameterize("_")
     end
 
     def start_date
@@ -42,7 +42,7 @@ module Parsers::Xml::Cv
     end
 
     def empty?
-      [dollar_amount,type,start_date,frequency].any?(&:blank?)
+      [dollar_amount,type_urn,start_date,frequency_urn].any?(&:blank?)
     end
 
     def to_request
@@ -50,7 +50,7 @@ module Parsers::Xml::Cv
         :submitted_date => submitted_date,
         :start_date => start_date,
         :end_date => end_date,
-        :type => type,
+        :kind => type,
         :frequency => frequency,
         :amount_in_cents => amount_in_cents
       }

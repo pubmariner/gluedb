@@ -1,5 +1,6 @@
 module Parsers::Xml::Cv
   class AssistanceEligibility
+    include NodeUtils
     def initialize(parser)
       @parser = parser
     end
@@ -9,7 +10,7 @@ module Parsers::Xml::Cv
     end
 
     def tax_filing_status_urn
-      @parser.at_xpath('./ns1:tax_filing_status', NAMESPACES).text
+      first_text('./ns1:tax_filing_status').to_s.parameterize("_")
     end
 
     def tax_filing_status

@@ -24,13 +24,19 @@ module Parsers::Xml::Cv
     end
 
     def citizen_status
+      status_map = {
+        "u.s. citizen" => "us_citizen",
+        "alien lawfully present" => "alien_lawfully_present"
+      }
       urn = citizen_status_urn
-      (urn.nil?) ? nil : urn.split('#').last
+      cit_status = (urn.nil?) ? nil : urn.split('#').last
+      status_map[cit_status]
     end
 
     def is_incarcerated
       node = @parser.at_xpath('./ns1:is_incarcerated', NAMESPACES)
-      (node.nil?)? nil : node.text.downcase == 'true'
+      is_inc = (node.nil?)? nil : node.text.downcase
+      "incarcerated" == is_inc
     end
 
     def assistance_eligibilities

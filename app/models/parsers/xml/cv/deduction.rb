@@ -15,7 +15,7 @@ module Parsers::Xml::Cv
     end
 
     def type
-      type_urn.split('#').last
+      type_urn.split('#').last.parameterize("_").gsub("-", "_")
     end
 
     def frequency_urn
@@ -43,12 +43,12 @@ module Parsers::Xml::Cv
     end
 
     def empty?
-      [type,start_date,frequency].any?(&:blank?)
+      [type_urn,start_date,frequency_urn].any?(&:blank?)
     end
 
     def to_request
       {
-        :type => type,
+        :kind => type,
         :frequency => frequency,
         :start_date => start_date,
         :end_date => end_date,

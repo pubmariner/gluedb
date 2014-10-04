@@ -43,7 +43,7 @@ module Parsers::Xml::Cv
 
     def to_request
       {
-        :type => type,
+        :kind => type,
         :end_date => end_date,
         :start_date => start_date,
         :submitted_date => submitted_date
