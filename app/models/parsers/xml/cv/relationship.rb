@@ -33,7 +33,7 @@ module Parsers::Xml::Cv
     end
 
     def relationship
-      RELATIONSHIP_MAP[first_text('./ns1:relationship_uri')]
+      RELATIONSHIP_MAP[first_text('./ns1:relationship_uri').downcase]
     end
 
     def object
