@@ -64,6 +64,10 @@ class Policy
   scope :all_active_states,   where(:aasm_state.in => %w[submitted resubmitted effectuated])
   scope :all_inactive_states, where(:aasm_state.in => %w[canceled carrier_canceled terminated])
 
+  scope :individual_mkt, where(:employer_id => nil)
+  scope :uqhp_policies, where(:applied_aptc.in => ["0", "0.0", "0.00"])
+  scope :ia_policies, where(:applied_aptc.nin => ["0", "0.0", "0.00"])
+
   aasm do
     state :submitted, initial: true
     state :effectuated
@@ -394,6 +398,17 @@ class Policy
     return false if subscriber.coverage_start > now
     return false if (subscriber.coverage_start == subscriber.coverage_end)
     return false if (!subscriber.coverage_end.nil? && subscriber.coverage_end < now)
+    true
+  end
+
+  def active_and_renewal_eligible?
+    return false if subscriber.nil?
+    return false if eg_id =~ /DC0.{32}/
+    # now = Date.today
+    # return false if (subscriber.coverage_start == subscriber.coverage_end)
+    # return false if (!subscriber.coverage_end.nil? && subscriber.coverage_end < now)
+    return false if subscriber.coverage_start.nil? || subscriber.coverage_start >= Date.strptime("20150101",'%Y%m%d')
+    return false if (!subscriber.coverage_end.nil? && subscriber.coverage_end < Date.strptime("20150101",'%Y%m%d'))
     true
   end
 

@@ -1,4 +1,10 @@
 = render 'shared/identity', id: api_v1_application_group_url(group.id)
+- if group.primary_applicant_id.present?
+  %n1:primary_applicatn_id= group.primary_applicant_id
+- if group.consent_applicant_id.present?
+  %n1:consent_applicant_id= group.consent_applicant_id
+- if group.e_case_id.present?
+  %n1:e_case_id= group.e_case_id
 %n1:applicants
   - group.people.each do |person|
     %n1:applicant= render 'shared/individual_type', person: person
@@ -7,26 +13,32 @@
     - group.households.each do |household|
       %n1:household
         = render 'shared/household_type', household: household
-%n1:qualifying_life_events
-  - group.special_enrollment_periods.each do |sep|
-    %n1:qualifying_life_event 
-      = render 'shared/identity', id: "" #TODO id is url to end point-- none for sep yet
-      %n1:kind= "urn:dc0:terms:v1:qualifying_life_event##{sep.reason}" # make sure the list in xsd match in the model
-      %n1:event_date= #TODO
-      - if false 
-        %n1:submitted_date
-      %n1:sep_dates
-        %n1:begin_date= sep.start_date.try(:strftime,"%Y%m%d")
-        %n1:end_date= sep.end_date.try(:strftime,"%Y%m%d")
-        %n1:number_of_days= sep.duration_in_days
-      - if false
-        %n1:approval
-          %n1:status
-          %n1:determined_by
-          %n1:determination_date
+- if false # no sep info yet
+  %n1:qualifying_life_events
+    - group.special_enrollment_periods.each do |sep|
+      %n1:qualifying_life_event
+        = render 'shared/identity', id: sep.id
+        %n1:kind= "urn:dc0:terms:v1:qualifying_life_event##{sep.reason}"
+        %n1:event_date= #TODO
+        - if false
+          %n1:submitted_date
+        %n1:sep_dates
+          %n1:begin_date= sep.start_date.try(:strftime,"%Y%m%d")
+          %n1:end_date= sep.end_date.try(:strftime,"%Y%m%d")
+          %n1:number_of_days= sep.duration_in_days
+        - if false
+          %n1:approval
+            %n1:status
+            %n1:determined_by
+            %n1:determination_date
+            %n1:notes
+        - if false
           %n1:notes
-      - if false
-        %n1:notes
-    = render 'shared/timestamp', record: sep
+      = render 'shared/timestamp', record: sep
+%n1:submitted_date= group.submission_date
+- if group.coverage_renewal_year.present?
+  %n1:coverage_renewal_year= group.coverage_renewal_year
 %n1:active_flag= group.active
+- unless group.comments.empty?
+  = render 'shared/comments', object: group
 = render 'shared/timestamp', record: group

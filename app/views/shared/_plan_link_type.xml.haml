@@ -5,5 +5,5 @@
 %n1:carrier= render 'shared/carrier_link_type', carrier: plan.carrier
 %n1:coverage_type= "urn:openhbx:terms:v1:benefit_coverage##{plan.coverage_type}"
 %n1:metal_level= "urn:openhbx:terms:v1:plan_metal_level##{plan.metal_level.downcase}"
-- if plan.market_type.present?
-  %n1:market= "urn:openhbx:terms:v1:hbx_market##{plan.market_type}"
+- if plan.ehb.present?
+  %n1:market= plan.ehb_max_as_percent
