@@ -84,4 +84,19 @@ class PersonRelationship
 
   embedded_in :person
 
+  def inverse
+    result = nil
+
+    inverse_kind = INVERSE_MAP[relationship_kind]
+    if(inverse_kind)
+      result = PersonRelationship.new({
+        :subject_person => object_person,
+        :object_person => subject_person,
+        :relationship_kind => inverse_kind
+        })
+    end
+
+    result
+  end
+
 end
