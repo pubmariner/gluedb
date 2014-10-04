@@ -2,8 +2,8 @@ module Parsers::Xml::Cv
   class AssistanceEligibility
     include NodeUtils
     TAX_FILING_STATUS_MAP = {
-      "non filer" => "non_filer"
-      "tax dependent" => "tax_dependent"
+      "non filer" => "non_filer",
+      "tax dependent" => "tax_dependent",
       "tax filer" => "tax_filer"
     }
     def initialize(parser)

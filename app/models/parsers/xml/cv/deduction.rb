@@ -17,11 +17,11 @@ module Parsers::Xml::Cv
     }
 
     FREQUENCY_MAP = {
-      "bi-weekly" => "biweekly"
-      "half yearly" => "half_yearly"
-      "monthly" => "monthly"
-      "quarterly" => "quarterly"
-      "weekly" => "weekly"
+      "bi-weekly" => "biweekly",
+      "half yearly" => "half_yearly",
+      "monthly" => "monthly",
+      "quarterly" => "quarterly",
+      "weekly" => "weekly",
       "yearly" => "yearly"
     }
 
@@ -34,11 +34,14 @@ module Parsers::Xml::Cv
     end
 
     def type
+      data = first_text('./ns1:type')
+      data.blank? ? nil : TYPE_MAP[data.downcase]
       TYPE_MAP[@parser.at_xpath('./ns1:type', NAMESPACES).text]
     end
 
     def frequency
-      FREQUENCY_MAP[@parser.at_xpath('./ns1:frequency', NAMESPACES).text]
+      data = first_text('./ns1:frequency')
+      data.blank? ? nil : FREQUENCY_MAP[data.downcase]
     end
 
     def start_date
