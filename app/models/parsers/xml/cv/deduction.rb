@@ -2,6 +2,29 @@ module Parsers::Xml::Cv
   class Deduction
     include NodeUtils
 
+    TYPE_MAP = {
+      "alimony paid" => "alimony_paid",
+      "deductible part of self-employment tax" => "deductable_part_of_self_employment_taxes",
+      "domestic production activities deduction" => "domestic_production_activities",
+      "penalty on early withdrawal of savings" => "penalty_on_early_withdrawel_of_savings",
+      "certain business expenses of reservists, performing artists, and fee-basis government officials" => "reservists_performing_artists_and_fee_basis_government_official_expenses",
+      "educator expenses" => "educator_expenses",
+      "health savings account deduction" => "health_savings_account",
+      "moving expenses" => "moving_expenses",
+      "rent or royalties" => "rent_or_royalties",
+      "self-employed health insurance deduction" => "self_employed_health_insurance",
+      "self-employed sep, simple, and qualified plans" => "self_employment_sep_simple_and_qualified_plans"
+    }
+
+    FREQUENCY_MAP = {
+      "bi-weekly" => "biweekly"
+      "half yearly" => "half_yearly"
+      "monthly" => "monthly"
+      "quarterly" => "quarterly"
+      "weekly" => "weekly"
+      "yearly" => "yearly"
+    }
+
     def initialize(parser)
       @parser = parser
     end
@@ -10,43 +33,13 @@ module Parsers::Xml::Cv
       @parser.at_xpath('./ns1:amount', NAMESPACES).text.to_f.round(2)
     end
 
-    def type_urn
-      @parser.at_xpath('./ns1:type', NAMESPACES).text
-    end
-
     def type
-      type_urn.split('#').last.parameterize("_").gsub("-", "_")
-    end
-=begin
-alimony paid
-certain business expenses of reservists, performing artists, and fee-basis government officials
-deductible part of self-employment tax
-domestic production activities deduction
-educator expenses
-health savings account deduction
-moving expenses
-penalty on early withdrawal of savings
-rent or royalties
-self-employed health insurance deduction
-self-employed sep, simple, and qualified plans
-=end
-
-    def frequency_urn
-      @parser.at_xpath('./ns1:frequency', NAMESPACES).text
+      TYPE_MAP[@parser.at_xpath('./ns1:type', NAMESPACES).text]
     end
 
     def frequency
-      frequency_urn.split('#').last
+      FREQUENCY_MAP[@parser.at_xpath('./ns1:frequency', NAMESPACES).text]
     end
-=begin
-Frequencies to map:
-bi-weekly
-half yearly
-monthly
-quarterly
-weekly
-yearly
-=end
 
     def start_date
       first_date('./ns1:start_date')
@@ -65,7 +58,7 @@ yearly
     end
 
     def empty?
-      [type_urn,start_date,frequency_urn].any?(&:blank?)
+      [type,start_date,frequency].any?(&:blank?)
     end
 
     def to_request
