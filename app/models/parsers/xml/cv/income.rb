@@ -27,6 +27,15 @@ module Parsers::Xml::Cv
       'wages and salaries' => 'wages_and_salaries'
     }
 
+    FREQUENCY_MAP = {
+      'bi-weekly' => 'biweekly'
+      'half yearly' => 'half_yearly'
+      'monthly' => 'monthly'
+      'quarterly' => 'quarterly'
+      'weekly' => 'weekly'
+      'yearly' => 'yearly'
+    }
+
     def initialize(parser)
       @parser = parser
     end
@@ -35,26 +44,13 @@ module Parsers::Xml::Cv
       @parser.at_xpath('./ns1:amount', NAMESPACES).text.to_f.round(2)
     end
 
-    def type_urn
+    def type
       TYPE_MAP[@parser.at_xpath('./ns1:type', NAMESPACES).text]
     end
 
-    def frequency_urn
-      @parser.at_xpath('./ns1:frequency', NAMESPACES).text
-    end
-
     def frequency
-      frequency_urn.split('#').last.gsub("-", "_").parameterize("_")
+      FREQUENCY_MAP[@parser.at_xpath('./ns1:frequency', NAMESPACES).text]
     end
-=begin
-Frequencies to map:
-bi-weekly
-half yearly
-monthly
-quarterly
-weekly
-yearly
-=end
 
     def start_date
       first_date('./ns1:start_date')
@@ -73,7 +69,7 @@ yearly
     end
 
     def empty?
-      [dollar_amount,type_urn,start_date,frequency_urn].any?(&:blank?)
+      [dollar_amount,type,start_date,frequency].any?(&:blank?)
     end
 
     def to_request
