@@ -28,7 +28,7 @@ module Parsers::Xml::Cv
 
     def citizen_status
       node = @parser.at_xpath('./ns1:citizen_status', NAMESPACES)
-      (node.nil?)? nil : CITIZEN_STATUS_MAP[node.text]
+      (node.nil?)? nil : CITIZEN_STATUS_MAP[node.text.downcase]
     end
 
     def is_incarcerated

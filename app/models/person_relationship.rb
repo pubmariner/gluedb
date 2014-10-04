@@ -36,7 +36,10 @@ class PersonRelationship
     "grandchild",
     "trustee", # no inverse
     "annuitant", # no inverse,
-    "other_relationship"
+    "other_relationship",
+    "unrelated",
+    "great_grandparent",
+    "great_grandchild"
   ]
 
   INVERSE_MAP = {
@@ -44,6 +47,8 @@ class PersonRelationship
     "parent" => "child",
     "grandparent" => "grandchild",
     "grandchild" => "grandparent",
+    "great_grandparent" => "great_grandchild",
+    "great_grandchild" => "great_grandparent",
     "stepparent" => "stepchild",
     "stepchild" => "stepparent",
     "aunt_or_uncle" => "nephew_or_niece",
@@ -60,6 +65,7 @@ class PersonRelationship
     "spouse" => "spouse",
     "other_relationship" => "other_relationship",
     "cousin" => "cousin"
+    "unrelated" => "unrelated"
 
     #one directional
     "foster_child" => "guardian",

@@ -9,18 +9,19 @@ module Parsers::Xml::Cv
       "is the domestic partner of" => "life_partner",
       "is the grandchild of" => "grandchild",
       "is the grandparent of" => "grandparent",
-      "is the great grandparent of" => "" #TODO
+      "is the great grandparent of" => "great_grandparent",
       "is the guardian of" => "guardian",
       "is the nephew of" => "nephew_or_niece",
       "is the niece of" => "nephew_or_niece",
-      "is the parent of" => "parent"
-      "is the person cared for by" => "" #TODO
-      "is the sibling of" => "sibling"
-      "is the spouse of" => "spouse"
-      "is the step child of" => "stepchild"
-      "is the step parent of" => "stepparent"
-      "is the step sibling of" => "sibling"
-      "is the uncle of" => "aunt_or_uncle"
+      "is the parent of" => "parent",
+      "is the person cared for by" => "", #TODO
+      "is the sibling of" => "sibling",
+      "is the spouse of" => "spouse",
+      "is the step child of" => "stepchild",
+      "is the step parent of" => "stepparent",
+      "is the step sibling of" => "sibling",
+      "is the uncle of" => "aunt_or_uncle",
+      "is unrelated to" => "unrelated"
     }
 
     def initialize(parser)
@@ -32,7 +33,7 @@ module Parsers::Xml::Cv
     end
 
     def relationship
-      RELATIONSHIP_MAP[first_text('./ns1:relationship_uri')]
+      RELATIONSHIP_MAP[first_text('./ns1:relationship_uri').downcase]
     end
 
     def object
@@ -40,7 +41,7 @@ module Parsers::Xml::Cv
     end
 
     def empty?
-      [subject, relationship, object].any?(&:blank?)
+      (([subject, relationship, object].any?(&:blank?)) || (subject == object))
     end
 
     def to_request
