@@ -19,20 +19,37 @@ module CanonicalVocabulary
 
     def serialize(file)
       sheet = Spreadsheet.open("#{Rails.root.to_s}/#{file}").worksheet(0)
-      sheet.rows.in_groups_of(10, false) do |group|
-        ids = group.map{|x| x[0]}
-        serialize_application_groups(ids, type)
-      end      
-      write_reports
+      current = 1
+      ids = []
+      limit = sheet.rows.count
+
+      sheet.each do |row|
+        ids << row[0]
+        if ids.size == 10 || current == limit
+          serialize_groupids(ids)
+          ids =[]
+          puts "----processed #{current} application groups"
+        end
+        current += 1
+      end
+
+      # group_ids.in_groups_of(10, false) do |group|
+      #   # ids = group.map{|x| x[0]}
+      #   puts group.inspect
+      #   serialize_application_groups(group)
+      #   break
+      # end
+      # write_reports
     end
 
-    def serialize_application_groups(group_ids)
+    def serialize_groupids(group_ids)
       groups_xml = Net::HTTP.get(URI.parse("#{CV_API_URL}application_groups?ids[]=#{group_ids.join("&ids[]=")}&user_token=zUzBsoTSKPbvXCQsB4Ky"))
       root = Nokogiri::XML(groups_xml).root
-
+      # puts root.xpath("n1:application_group").count
       root.xpath("n1:application_group").each do |application_group_xml|
+        # parser = File.open(Rails.root.to_s + "/application_group.xml")
+        # application_group_xml = Nokogiri::XML(parser).root
         application_group = Parsers::Xml::IrsReports::ApplicationGroup.new(application_group_xml)
-
         household = application_group_xml.xpath("n1:households/n1:household")[0]
         household = Parsers::Xml::IrsReports::Household.new(household)
 

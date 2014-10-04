@@ -2,15 +2,15 @@ class PersonRelationship
   include Mongoid::Document
   include Mongoid::Timestamps
 
-  MALE_RELATIONSHIPS_LIST   = %W[father grandfather grandson uncle nephew adopted\ child stepparent
+  MALE_RELATIONSHIPS_LIST   = %W(father grandfather grandson uncle nephew adopted\ child stepparent
                               foster\ child son-in-law brother-in-law father-in-law brother ward
                               stepson child sponsored\ dependent dependent\ of\ a\ minor\ dependent
-                              guardian court\ appointed\ guardian collateral\ dependent life\ partner]
+                              guardian court\ appointed\ guardian collateral\ dependent life\ partner)
 
-  FEMALE_RELATIONSHIPS_LIST = %W[mother grandmother granddaughter aunt niece adopted\ child stepparent
+  FEMALE_RELATIONSHIPS_LIST = %W(mother grandmother granddaughter aunt niece adopted\ child stepparent
                               foster\ child daughter-in-law sister-in-law mother-in-law sister ward
                               stepdaughter child sponsored\ dependent dependent\ of\ a\ minor\ dependent
-                              guardian court\ appointed\ guardian collateral\ dependent life\ partner]
+                              guardian court\ appointed\ guardian collateral\ dependent life\ partner)
   RELATIONSHIPS_LIST = [
     "parent",
     "grandparent",
