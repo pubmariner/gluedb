@@ -3,36 +3,56 @@
   = render 'shared/person', person: person
 = render 'shared/relationships', person: person
 = render 'shared/roles', person: person
-- if false
+- if false #ignore -to be deprecated
   %n1:other_coverage
     %n1:id
-- if false
-  %n1:state_of_residency
-- if false
-  %n1:immigration_status
-- if false
-  %n1:incarcerated_flag
-- if false
-  %n1:financial
-  - unless person.incomes.empty?
-    %n1:incomes
-      - person.incomes.each do |income|
-        %n1:income
-          %n1:amount= (income.amount_in_cents * 100.0)
-          %n1:type= "urn:openhbx:terms:v1:income##{income.income_type}"
-          %n1:frequency= "urn:openhbx:terms:v1:income_frequency##{income.frequency}"
-          %n1:evidence_flag= income.evidence_flag
-          %n1:start_date= income.start_date.try(:strftime,"%Y%m%d")
-          - if income.end_date.present?
-            %n1:end_date= income.end_date.try(:strftime,"%Y%m%d")
-          %n1:reported_date= income.reported_date.try(:strftime,"%Y-%m-%dT%H:%M:%S")
-          %n1:reported_by= income.reported_by
-          - if false
-            %n1:verification
-              %n1:verified_flag
-              %n1:source
-              %n1:recorded_date
-              %n1:recorded_by
-              %n1:notes
-    %n1:tax_file_status
+- if person.authority_member.is_state_resident.present?
+  %n1:is_state_resident= person.authority_member.is_state_resident
+- if person.authority_member.citizen_status.present?
+  %n1:citizenship_status= "urn:openhbx:terms:v1:immigration_status#{person.authority_member.citizen_status}"
+- if person.authority_member.is_incarcerated.present?
+  %n1:incarcerated_flag= person.authority_member.is_incarcerated
+- unless person.assistance_eligibilities.empty?
+  %n1:assistance_eligibilities
+  - person.assistance_eligibilities.each do |assistance_eligibility|
+    %n1:assistance_eligibility
+      %n1:is_primary_applicant= assistance_eligibility.is_primary_applicant
+      %n1:tax_filing_status= assistance_eligibility.tax_filing_status
+      %n1:is_tax_filing_together= assistance_eligibility.is_tax_filing_together
+      %n1:is_enrolled_for_es_coverage= assistance_eligibility.is_enrolled_for_es_coverage
+      %n1:is_without_assistance= assistance_eligibility.is_without_assistance
+      %n1:is_ia_eligible= assistance_eligibility.is_ia_eligible
+      %n1:is_medicaid_chip_eligible= assistance_eligibility.is_medicaid_chip_eligible
+      - unless assistance_eligibility.incomes.empty?
+        %n1:incomes
+          - assistance_eligibility.incomes.each do |income|
+            %n1:income
+              %n1:amount= income.amount_in_dollars
+              %n1:type= "urn:openhbx:terms:v1:income##{income.income_type}"
+              %n1:frequency= "urn:openhbx:terms:v1:income_frequency##{income.frequency}"
+              %n1:start_date= income.start_date.try(:strftime,"%Y%m%d")
+              - if income.end_date.present?
+                %n1:end_date= income.end_date.try(:strftime,"%Y%m%d")
+              %n1:submitted_date= income.submission_date.try(:strftime,"%Y%m%d")
+      - unless assistance_eligibility.deductions.empty?
+        %n1:deductions
+          - assistance_eligibility.deductions.each do |deduction|
+            %n1:deduction
+              %n1:amount= deduction.amount_in_dollars
+              %n1:type= "urn:openhbx:terms:v1:deduction##{deduction.deduction_type}"
+              %n1:frequency= "urn:openhbx:terms:v1:deduction_frequency##{deduction.frequency}"
+              %n1:start_date= deduction.start_date.try(:strftime,"%Y%m%d")
+              - if deduction.end_date.present?
+                %n1:end_date= deduction.end_date.try(:strftime,"%Y%m%d")
+              %n1:submitted_date= deduction.submission_date.try(:strftime,"%Y%m%d")
+      - unless assistance_eligibility.alternate_benefits.empty?
+        %n1:alternate_benefits
+          - assistance_eligibility.alternate_benefits.each do |alternate_benefit|
+            %n1:alternate_benefit
+              %n1:type= alternate_benefit.kind
+              %n1:start_date= alternate_benefit.start_date
+              %n1:= alternate_benefit.end_date
+              %n1:submitted_date= alternate_benefit.submission_date
+- unless person.comments.empty?
+  = render 'shared/comments', object: person
 = render 'shared/timestamp', record: person
