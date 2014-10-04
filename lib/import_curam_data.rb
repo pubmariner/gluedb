@@ -15,7 +15,7 @@ class CuramPersonFactory
 end
 
 class ImportCuramData
-  def initialize(person_factory = CuramPersonFactory, app_group_repo = ApplicationGroup, person_finder = PersonMatch, app_group_factory = ApplicationGroup, relationship_factory = RelationshipUpdate, qualification_factory = QualificationUpdate, assistance_eligibilities_importer = AddEligibility)
+  def initialize(person_factory = CuramPersonFactory, app_group_repo = ApplicationGroup, person_finder = Queries::PersonMatch, app_group_factory = ApplicationGroup, relationship_factory = RelationshipUpdate, qualification_factory = QualificationUpdate, assistance_eligibilities_importer = AddEligibilities)
     @app_group_repo = app_group_repo
     @person_finder = person_finder
     @person_factory = person_factory
@@ -40,7 +40,7 @@ class ImportCuramData
 
     app_group = @app_group_repo.find_by_case_id(request[:e_case_id])
     if(app_group)
-      app_group.destroy!
+      app_group.destroy
     end
 
     mapped_people = {}

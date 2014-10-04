@@ -33,25 +33,69 @@ class AssistanceEligibility
     #look in alt benefits...if any are in this year...return true
   end
 
-  def calculate_income_per_year
-    income_per_year = {}
-    
-    self.incomes.each do |income|
-      case income.frequency
+  def compute_yearwise(incomes_or_deductions)
+
+    income_deduction_per_year = Hash.new(0)
+
+
+    incomes_or_deductions.each do |income_deduction|
+
+      working_days_in_year = 52*5
+
+      daily_income = 0
+
+      case income_deduction.frequency
+        when "daily"
+          daily_income = income_deduction.amount_in_cents
         when "weekly"
-            multiplication_factor = 26
+          daily_income = income_deduction.amount_in_cents / (working_days_in_year/52)
+        when "biweekly"
+          daily_income = income_deduction.amount_in_cents / (working_days_in_year/26)
         when "monthly"
-            multiplication_factor = 12
+          daily_income = income_deduction.amount_in_cents / (working_days_in_year/12)
+        when "quarterly"
+          daily_income = income_deduction.amount_in_cents / (working_days_in_year/4)
+        when "half_yearly"
+          daily_income = income_deduction.amount_in_cents / (working_days_in_year/2)
         when "yearly"
-            multiplication_factor = 1
+          daily_income = income_deduction.amount_in_cents / (working_days_in_year)
       end
 
+      income_deduction.end_date = Date.today.end_of_year if income_deduction.end_date.to_s.eql? "0001-01-01"
 
-      yearly_income =  income.amount_in_cents * multiplication_factor
+      years = (income_deduction.start_date.year..income_deduction.end_date.year)
 
-
+      years.to_a.each do |year|
+        actual_days_worked = compute_actual_days_worked(year, income_deduction.start_date, income_deduction.end_date)
+        income_deduction_per_year[year] += actual_days_worked * daily_income
+      end
     end
 
+    income_deduction_per_year
+
   end
+
+  # The person may have not worked the entire year. This method computed the actual days worked.
+  def compute_actual_days_worked(year, start_date, end_date)
+
+    working_days_in_year = 52*5
+
+    if Date.new(year, 1, 1) < start_date
+      start_date_to_consider = start_date
+    else
+      start_date_to_consider = Date.new(year, 1, 1)
+    end
+
+    if Date.new(year, 1, 1).end_of_year < end_date
+      end_date_to_consider = Date.new(year, 1, 1).end_of_year
+    else
+      end_date_to_consider = end_date
+    end
+
+    # we have to add one to include last day of work. We multiply by working_days_in_year/365 to remove weekends.
+    ((end_date_to_consider - start_date_to_consider + 1).to_i * (Float(working_days_in_year)/365)).to_i #actual days worked in 'year'
+  end
+
+
 
 end

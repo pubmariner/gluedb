@@ -1,5 +1,12 @@
 module Parsers::Xml::Cv
   class Individual
+
+    CITIZEN_STATUS_MAP = {
+      "u.s. citizen" => "us_citizen",
+      "alien lawfully present" => "alien_lawfully_present",
+      "not lawfully present in the u.s" => "not_lawfully_present_in_us"
+    }
+
     def initialize(parser)
       @parser = parser
     end
@@ -18,19 +25,16 @@ module Parsers::Xml::Cv
       (node.nil?)? nil : node.text.downcase == 'true'
     end
 
-    def citizen_status_urn
-      node = @parser.at_xpath('./ns1:citizen_status', NAMESPACES)
-      (node.nil?)? nil : node.text
-    end
 
     def citizen_status
-      urn = citizen_status_urn
-      (urn.nil?) ? nil : urn.split('#').last
+      node = @parser.at_xpath('./ns1:citizen_status', NAMESPACES)
+      (node.nil?)? nil : CITIZEN_STATUS_MAP[node.text]
     end
 
     def is_incarcerated
       node = @parser.at_xpath('./ns1:is_incarcerated', NAMESPACES)
-      (node.nil?)? nil : node.text.downcase == 'true'
+      is_inc = (node.nil?)? nil : node.text.downcase
+      "incarcerated" == is_inc
     end
 
     def assistance_eligibilities
@@ -63,7 +67,7 @@ module Parsers::Xml::Cv
     #    at least not in CVs generated from Curam"
     #    -- Famous last words
     def gender
-      first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/ns1:gender").split("#").last
+      first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/ns1:gender").downcase #curam import doesnt use urn
     end
 
     def dob

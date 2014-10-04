@@ -4,5 +4,7 @@ nodes = datas.xpath("ns1:application_groups/ns1:application_group", {ns1: 'http:
 
 nodes.each do |node|
   parser = Parsers::Xml::Cv::ApplicationGroup.new(node)
-  parser.to_request
+  req = parser.to_request
+  cd_importer = ImportCuramData.new
+  cd_importer.execute(req)
 end
