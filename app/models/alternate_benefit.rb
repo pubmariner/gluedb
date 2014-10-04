@@ -14,6 +14,8 @@ class AlternateBenefit
 		state_supplementary_payment
 		tricare
 		veterans_benefits
+    naf_health_benefit_program
+    health_care_for_peace_corp_volunteers
 	)
 
   field :kind, type: String
