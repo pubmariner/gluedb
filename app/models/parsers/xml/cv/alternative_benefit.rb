@@ -11,6 +11,21 @@ module Parsers::Xml::Cv
     def type
       type_urn.split('#').last
     end
+=begin
+acf refugee medical assistance
+americorps health benefits
+child health insurance plan
+health care for peace corp volunteers
+medicaid
+medicare
+medicare part b
+medicare/medicare advantage
+naf health benefit program
+private individual and family coverage
+state supplementary payment
+tricare
+veterans' benefits
+=end
 
     def start_date
       begin
