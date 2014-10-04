@@ -90,6 +90,10 @@ module Parsers::Xml::Cv
       first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/ns1:aceds_id")
     end
 
+    def empty?
+      [person.name_last, person.name_first].any?(&:blank?)
+    end
+
     def to_request
       person.to_request.merge({
         :is_incarcerated => is_incarcerated,

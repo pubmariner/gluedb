@@ -27,7 +27,7 @@ class AlternateBenefit
 
   validates :kind, presence: true, 
   						inclusion: { in: KINDS, message: "%{value} is not a valid alternative benefit type" }
-  validates :start_date, presence: true
+#  validates :start_date, presence: true
   validates :submission_date, presence: true
 
   def receiving_benefit?

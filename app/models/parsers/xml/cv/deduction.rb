@@ -61,7 +61,7 @@ module Parsers::Xml::Cv
     end
 
     def empty?
-      [type,start_date,frequency].any?(&:blank?)
+      [type,frequency].any?(&:blank?)
     end
 
     def to_request

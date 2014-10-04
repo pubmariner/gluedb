@@ -26,20 +26,11 @@ module Parsers::Xml::Cv
     end
 
     def start_date
-      begin
-        Date.parse(@parser.at_xpath('./ns1:start_date', NAMESPACES).text).try(:strftime,"%Y%m%d")
-      rescue
-        nil
-      end
+      first_date('./ns1:start_date')
     end
 
     def end_date
-      node = @parser.at_xpath('./ns1:end_date', NAMESPACES)
-      begin
-        (node.nil?) ? nil : Date.parse(node.text).try(:strftime,"%Y%m%d")
-      rescue
-        nil
-      end
+      first_date('./ns1:end_date')
     end
 
     def submitted_date
@@ -51,7 +42,7 @@ module Parsers::Xml::Cv
     end
 
     def empty?
-      [type,start_date,end_date].any?(&:blank?)
+      [type].any?(&:blank?)
     end
 
     def to_request

@@ -40,7 +40,7 @@ class Deduction
   												inclusion: { in: KINDS, message: "%{value} is not a valid deduction type" }
   validates :frequency, 	presence: true,
  												 	inclusion: { in: FREQUENCIES, message: "%{value} is not a valid frequency" }
-  validates :start_date, presence: true
+#  validates :start_date, presence: true
 
 
   def amount_in_dollars=(dollars)

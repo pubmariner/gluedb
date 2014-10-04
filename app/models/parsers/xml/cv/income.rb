@@ -71,7 +71,7 @@ module Parsers::Xml::Cv
     end
 
     def empty?
-      [dollar_amount,type,start_date,frequency].any?(&:blank?)
+      [dollar_amount,type,frequency].any?(&:blank?)
     end
 
     def to_request
