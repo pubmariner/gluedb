@@ -78,11 +78,15 @@ class ImportCuramData
         people: mapped_people.values
       })
     request[:relationships].each do |rel|
+      begin
       @relationship_factory.new({
           :subject_person_id => mapped_people[rel[:subject_person]].id,
           :relationship_kind => rel[:relationship_kind],
           :object_person_id => mapped_people[rel[:object_person]].id
         }).save!
+      rescue
+        raise rel.inspect
+      end
     end
   end
 end

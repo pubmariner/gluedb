@@ -51,7 +51,7 @@ module Parsers::Xml::Cv
 
     def frequency
       data = first_text('./ns1:frequency')
-      data.blank? ? nil : TYPE_MAP[data.downcase]
+      data.blank? ? nil : FREQUENCY_MAP[data.downcase]
     end
 
     def start_date

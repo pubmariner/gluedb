@@ -17,7 +17,7 @@ module Parsers::Xml::Cv
     end
 
     def person
-      Person.new(@parser.at_xpath('./ns1:person', NAMESPACES))
+      Parsers::Xml::Cv::Person.new(@parser.at_xpath('./ns1:person', NAMESPACES))
     end
 
     def is_state_resident
@@ -40,19 +40,19 @@ module Parsers::Xml::Cv
     def assistance_eligibilities
       results = []
       nodes = @parser.xpath('./ns1:assistance_eligibilities/ns1:assistance_eligibility', NAMESPACES)
-      nodes.each { |i| results << AssistanceEligibility.new(i) }
+      nodes.each { |i| results << Parsers::Xml::Cv::AssistanceEligibility.new(i) }
       results
     end
 
     def relationships
       results = []
-      nodes = @parser.xpath('./ns1:relationships', NAMESPACES)
-      nodes.each { |i| results << Relationship.new(i) }
+      nodes = @parser.xpath('./ns1:relationships/ns1:relationship', NAMESPACES)
+      nodes.each { |i| results << Parsers::Xml::Cv::Relationship.new(i) }
       results
     end
 
     def id
-      @parser.at_xpath('.//ns1:qhp_roles/ns1:qhp_role/ns1:id', NAMESPACES).text
+      @parser.at_xpath('.//ns1:qhp_roles/ns1:qhp_role/ns1:id', NAMESPACES).text.strip
     end
 
     def member_id

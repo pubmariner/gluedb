@@ -29,15 +29,22 @@ module Parsers::Xml::Cv
     end
 
     def subject
-      first_text('./ns1:subject_individual')
+      data = first_text('./ns1:subject_individual')
+      return nil if data.blank?
+      return nil if data.split("#").last.blank?
+      data
     end
 
     def relationship
-      RELATIONSHIP_MAP[first_text('./ns1:relationship_uri').downcase]
+      data = first_text('./ns1:relationship_uri')
+      data.blank? ? nil : RELATIONSHIP_MAP[data.downcase.strip]
     end
 
     def object
-      first_text('./ns1:object_individual')
+      data = first_text('./ns1:object_individual')
+      return nil if data.blank?
+      return nil if data.split("#").length < 2
+      data
     end
 
     def empty?
