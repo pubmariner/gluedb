@@ -64,14 +64,13 @@ class PersonRelationship
     "life_partner" => "life_partner",
     "spouse" => "spouse",
     "other_relationship" => "other_relationship",
-    "cousin" => "cousin"
-    "unrelated" => "unrelated"
+    "cousin" => "cousin",
+    "unrelated" => "unrelated",
 
     #one directional
     "foster_child" => "guardian",
     "court_appointed_guardian" => "ward",
     "adopted_child" => "parent"
-
   }
 
   SYMMETRICAL_RELATIONSHIPS_LIST = %W[head\ of\ household spouse ex-spouse cousin ward trustee annuitant other\ relationship other\ relative self]
