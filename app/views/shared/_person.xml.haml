@@ -17,5 +17,5 @@
   %n1:phones
     - person.phones.each do |phone|
       = render 'shared/phone', phone: phone
-%n1:active_flag = person.is_active
+%n1:active_flag= person.is_active
 = render 'shared/timestamp', record: person
