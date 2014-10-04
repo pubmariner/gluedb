@@ -14,7 +14,7 @@ module Parsers::Xml::Cv
       "is the nephew of" => "nephew_or_niece",
       "is the niece of" => "nephew_or_niece",
       "is the parent of" => "parent",
-      "is the person cared for by" => "great_grandchild",
+      "is the person cared for by" => "", #TODO
       "is the sibling of" => "sibling",
       "is the spouse of" => "spouse",
       "is the step child of" => "stepchild",
