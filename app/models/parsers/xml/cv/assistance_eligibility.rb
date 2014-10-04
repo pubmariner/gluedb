@@ -27,11 +27,11 @@ tax filer
     end
 
     def is_enrolled_for_es_coverage
-      @parser.at_xpath('./ns1:is_enrolled_for_es_coverage', NAMESPACES).text.downcase == 'true'
+      @parser.at_xpath('./ns1:is_enrolled_for_es_coverage', NAMESPACES).text.downcase == 'yes'
     end
 
     def is_without_assistance
-      @parser.at_xpath('./ns1:is_without_assistance', NAMESPACES).text.downcase == 'true'
+      @parser.at_xpath('./ns1:is_without_assistance', NAMESPACES).text.downcase == 'yes'
     end
 
     def is_ia_eligible

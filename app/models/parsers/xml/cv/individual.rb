@@ -74,7 +74,7 @@ u.s. citizen
     #    at least not in CVs generated from Curam"
     #    -- Famous last words
     def gender
-      first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/ns1:gender").split("#").last
+      first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/ns1:gender").downcase #curam import doesnt use urn
     end
 
     def dob
