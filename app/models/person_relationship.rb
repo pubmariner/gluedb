@@ -31,8 +31,41 @@ class PersonRelationship
     "court_appointed_guardian",
     "collateral_dependent",
     "life_partner",
-    "spouse"
+    "spouse",
+    "child",
+    "grandchild",
+    "trustee", # no inverse
+    "annuitant", # no inverse,
+    "other_relationship"
   ]
+
+  INVERSE_MAP = {
+    "child" => "parent",
+    "parent" => "child",
+    "grandparent" => "grandchild",
+    "grandchild" => "grandparent",
+    "stepparent" => "stepchild",
+    "stepchild" => "stepparent",
+    "aunt_or_uncle" => "nephew_or_niece",
+    "nephew_or_niece" => "aunt_or_uncle",
+    "father_or_mother_in_law" => "daughter_or_son_in_law",
+    "daughter_or_son_in_law" => "father_or_mother_in_law",
+    "guardian" => "ward",
+    "ward" => "guardian",
+
+    # bi directional
+    "brother_or_sister_in_law" => "brother_or_sister_in_law",
+    "sibling" => "sibling",
+    "life_partner" => "life_partner",
+    "spouse" => "spouse",
+    "other_relationship" => "other_relationship",
+
+    #one directional
+    "foster_child" => "guardian",
+    "court_appointed_guardian" => "ward",
+    "adopted_child" => "parent"
+
+  }
 
   SYMMETRICAL_RELATIONSHIPS_LIST = %W[head\ of\ household spouse ex-spouse cousin ward trustee annuitant other\ relationship other\ relative self]
 
