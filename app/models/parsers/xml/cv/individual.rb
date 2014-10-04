@@ -32,6 +32,11 @@ module Parsers::Xml::Cv
       cit_status = (urn.nil?) ? nil : urn.split('#').last
       status_map[cit_status]
     end
+=begin
+alien lawfully present
+not lawfully present in the u.s
+u.s. citizen
+=end
 
     def is_incarcerated
       node = @parser.at_xpath('./ns1:is_incarcerated', NAMESPACES)

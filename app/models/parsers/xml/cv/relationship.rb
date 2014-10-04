@@ -16,6 +16,27 @@ module Parsers::Xml::Cv
     def relationship
       relationship_urn.split('#').last
     end
+=begin
+is the aunt of
+is the child of
+is the cousin of
+is the domestic partner of
+is the grandchild of
+is the grandparent of
+is the great grandparent of
+is the guardian of
+is the nephew of
+is the niece of
+is the parent of
+is the person cared for by
+is the sibling of
+is the spouse of
+is the step child of
+is the step parent of
+is the step sibling of
+is the uncle of
+is unrelated to
+=end
 
     def object
       first_text('./ns1:object_individual')

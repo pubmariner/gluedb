@@ -16,6 +16,11 @@ module Parsers::Xml::Cv
     def tax_filing_status
       tax_filing_status_urn.split('#').last
     end
+=begin
+non filer
+tax dependent
+tax filer
+=end
 
     def is_tax_filing_together
       @parser.at_xpath('./ns1:is_tax_filing_together', NAMESPACES).text.downcase == 'true'
