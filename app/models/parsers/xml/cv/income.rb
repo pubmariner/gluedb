@@ -41,6 +41,10 @@ module Parsers::Xml::Cv
       (dollar_amount * 100).to_i
     end
 
+    def empty?
+      [amount,type,start_date,frequency].any?(&:blank?)
+    end
+
     def to_request
       {
         :submitted_date => submitted_date,

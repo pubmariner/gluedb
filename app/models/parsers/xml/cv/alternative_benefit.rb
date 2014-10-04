@@ -25,6 +25,10 @@ module Parsers::Xml::Cv
       Date.parse(@parser.at_xpath('./n1:submitted_date', NAMESPACES).text).try(:strftime,"%Y%m%d")
     end
 
+    def empty?
+      [amount,type,start_date,end_date].any?(&:blank?)
+    end
+
     def to_request
       {
         :type => type,

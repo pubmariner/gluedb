@@ -38,7 +38,7 @@ module Parsers::Xml::Cv
       elements = @parser.xpath('./ns1:incomes/ns1:income', NAMESPACES)
       elements.each { |i| results << Income.new(i) }
 
-      results
+      results.reject(&:empty?)
     end
 
     def deductions
@@ -47,7 +47,7 @@ module Parsers::Xml::Cv
       elements = @parser.xpath('./ns1:deductions/ns1:deduction', NAMESPACES)
       elements.each { |i| results << Deductions.new(i) }
 
-      results
+      results.reject(&:empty?)
     end
 
     def alternative_benefits
@@ -56,7 +56,7 @@ module Parsers::Xml::Cv
       elements = @parser.xpath('./ns1:alternative_benefits/ns1:alternative_benefit', NAMESPACES)
       elements.each { |i| results << AlternativeBenefit.new(i) }
 
-      results
+      results.reject(&:empty?)
     end
 
     def submitted_date
