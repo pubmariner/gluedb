@@ -5,79 +5,53 @@ module CanonicalVocabulary
 
     CV_API_URL = "http://localhost:3000/api/v1/"
 
-    def initialize
-      @single_ia = CanonicalVocabulary::Renewals::Assisted.new('single')
-      @multiple_ia = CanonicalVocabulary::Renewals::Assisted.new('multiple')
-      @super_multiple_ia = CanonicalVocabulary::Renewals::Assisted.new('super')
-
-      @single_uqhp = CanonicalVocabulary::Renewals::Unassisted.new('single')
-      @multiple_uqhp = CanonicalVocabulary::Renewals::Unassisted.new('multiple')
-      @super_multiple_uqhp = CanonicalVocabulary::Renewals::Unassisted.new('super')
+    def initialize(type="assisted")
+      if type == "assisted"
+        @single = CanonicalVocabulary::Renewals::Assisted.new('single')
+        @multiple = CanonicalVocabulary::Renewals::Assisted.new('multiple')
+        @super_multiple = CanonicalVocabulary::Renewals::Assisted.new('super')
+      else
+        @single = CanonicalVocabulary::Renewals::Unassisted.new('single')
+        @multiple = CanonicalVocabulary::Renewals::Unassisted.new('multiple')
+        @super_multiple = CanonicalVocabulary::Renewals::Unassisted.new('super')
+      end
     end
 
-    def serialize
-      page_number = 1
-      count = 15
+    def serialize(file)
+      sheet = Spreadsheet.open("#{Rails.root.to_s}/#{file}").worksheet(0)
+      sheet.rows.in_groups_of(10, false) do |group|
+        ids = group.map{|x| x[0]}
+        serialize_application_groups(ids, type)
+      end      
+      write_reports
+    end
 
-      while(count == 15) do
-        # households_xml = Net::HTTP.get(URI.parse("#{CV_API_URL}households?user_token=zUzBsoTSKPbvXCQsB4Ky&page=#{page_number}"))        
-        # root = Nokogiri::XML(households_xml).root
+    def serialize_application_groups(group_ids)
+      groups_xml = Net::HTTP.get(URI.parse("#{CV_API_URL}application_groups?ids[]=#{group_ids.join("&ids[]=")}&user_token=zUzBsoTSKPbvXCQsB4Ky"))
+      root = Nokogiri::XML(groups_xml).root
 
-        groups_xml = Net::HTTP.get(URI.parse("#{CV_API_URL}application_groups?user_token=zUzBsoTSKPbvXCQsB4Ky&page=#{page_number}"))
-        root = Nokogiri::XML(groups_xml).root
+      root.xpath("n1:application_group").each do |application_group_xml|
+        application_group = Parsers::Xml::IrsReports::ApplicationGroup.new(application_group_xml)
 
-        count = root.xpath("n1:application_group").count
+        household = application_group_xml.xpath("n1:households/n1:household")[0]
+        household = Parsers::Xml::IrsReports::Household.new(household)
 
-        # root.xpath("n1:household").each do |household|
-        root.xpath("n1:application_group").each do |application_group_xml|
-          application_group = Parsers::Xml::IrsReports::ApplicationGroup.new(application_group_xml)
-
-          # Criteria
-          # Individual market + End date
-          # Assisted Vs Unassisted (elected aptc)
-
-          next if application_group.individual_policies.empty?
-          next unless application_group.has_renewal_policies?
-
-          # household_count = application_group.xpath("n1:households/n1:household").count
-          household = application_group_xml.xpath("n1:households/n1:household")[0]
-          household = Parsers::Xml::IrsReports::Household.new(household)
- 
-          if application_group.assisted?
-            if household.members.empty?
-              @single_ia.append_household(household, application_group)
-            elsif household.members.count < 6
-              @multiple_ia.append_household(household, application_group)
-            else
-              @super_multiple_ia.append_household(household, application_group)
-            end
-          else           
-            if household.members.empty?
-              @single_uqhp.append_household(household, application_group)
-            elsif household.members.count < 6
-              @multiple_uqhp.append_household(household, application_group)
-            else
-              @super_multiple_uqhp.append_household(household, application_group)
-            end
+        if household.members.empty?
+          @single.append_household(household, application_group)
+        else
+          if household.members.count < 6
+            @multiple.append_household(household, application_group)
+          else
+            @super_multiple.append_household(household, application_group)
           end
         end
-
-        puts "processed-----#{page_number*15}"
-        break if page_number == 10
-        page_number += 1
       end
-
-      # write_reports
     end
 
     def write_reports
-      @single_ia.book.write @single_ia.file
-      @multiple_ia.book.write @multiple_ia.file
-      @super_multiple_ia.book.write @super_multiple_ia.file
-
-      @single_uqhp.book.write @single_uqhp.file
-      @multiple_uqhp.book.write @multiple_uqhp.file
-      @super_multiple_uqhp.book.write @super_multiple_uqhp.file
+      @single.book.write @single.file
+      @multiple.book.write @multiple.file
+      @super_multiple.book.write @super_multiple.file
     end
   end
 end

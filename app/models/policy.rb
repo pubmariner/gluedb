@@ -64,9 +64,9 @@ class Policy
   scope :all_active_states,   where(:aasm_state.in => %w[submitted resubmitted effectuated])
   scope :all_inactive_states, where(:aasm_state.in => %w[canceled carrier_canceled terminated])
 
-  scope :individual_mkt, where(:employer_id => nil)
-  scope :uqhp_policies, where(:applied_aptc.in => ["0", "0.0", "0.00"])
-  scope :ia_policies, where(:applied_aptc.nin => ["0", "0.0", "0.00"])
+  scope :individual_market, where(:employer_id => nil)
+  scope :unassisted, where(:applied_aptc.in => ["0", "0.0", "0.00"])
+  scope :insurance_assisted, where(:applied_aptc.nin => ["0", "0.0", "0.00"])
 
   aasm do
     state :submitted, initial: true
