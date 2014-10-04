@@ -1,6 +1,11 @@
 module Parsers::Xml::Cv
   class AssistanceEligibility
     include NodeUtils
+    TAX_FILING_STATUS_MAP = {
+      "non filer" => "non_filer"
+      "tax dependent" => "tax_dependent"
+      "tax filer" => "tax_filer"
+    }
     def initialize(parser)
       @parser = parser
     end
@@ -9,18 +14,9 @@ module Parsers::Xml::Cv
       @parser.at_xpath('./ns1:is_primary_applicant', NAMESPACES).text.downcase == 'true'
     end
 
-    def tax_filing_status_urn
-      first_text('./ns1:tax_filing_status').to_s.parameterize("_")
-    end
-
     def tax_filing_status
-      tax_filing_status_urn.split('#').last
+      TAX_FILING_STATUS_MAP[first_text('./ns1:tax_filing_status')]
     end
-=begin
-non filer
-tax dependent
-tax filer
-=end
 
     def is_tax_filing_together
       @parser.at_xpath('./ns1:is_tax_filing_together', NAMESPACES).text.downcase == 'true'
