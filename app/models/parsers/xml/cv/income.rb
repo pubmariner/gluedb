@@ -16,6 +16,30 @@ module Parsers::Xml::Cv
     def type
       type_urn.split('#').last.parameterize("_")
     end
+=begin
+alimony and maintenance
+capital gains
+dividends
+estate and trust income
+farming or fishing income
+foreign income
+interest
+lump sum amount
+military pay
+net self employment income
+other
+pension/retirement benefits
+pensions/retirement benefits
+permanent worker's compensation
+prizes and awards
+rental or royalty income
+scholarship payments
+social security benefit
+supplemental security income
+tax-exempt interest
+unemployment insurance
+wages and salaries
+=end
 
     def frequency_urn
       @parser.at_xpath('./ns1:frequency', NAMESPACES).text
@@ -24,6 +48,15 @@ module Parsers::Xml::Cv
     def frequency
       frequency_urn.split('#').last.gsub("-", "_").parameterize("_")
     end
+=begin
+Frequencies to map:
+bi-weekly
+half yearly
+monthly
+quarterly
+weekly
+yearly
+=end
 
     def start_date
       first_date('./ns1:start_date')
