@@ -1,6 +1,32 @@
 module Parsers::Xml::Cv
   class Income
     include NodeUtils
+
+    TYPE_MAP = {
+      'alimony and maintenance' => 'alimony_and_maintenance'
+      'capital gains' => 'capital_gains'
+      'dividends' => 'dividend'
+      'estate and trust income' => 'estate_trust'
+      'farming or fishing income' => 'farming_and_fishing'
+      'foreign income' => 'foreign'
+      'interest' => 'interest'
+      'lump sum amount' => 'lump_sum_amount'
+      'military pay' => 'military'
+      'net self employment income' => 'net_self_employment'
+      'other' => 'other'
+      'pension/retirement benefits' => 'pension_retirement_benefits'
+      'pensions/retirement benefits' => 'pension_retirement_benefits'
+      "permanent worker's compensation" => 'permanent_workers_compensation'
+      'prizes and awards' => 'prizes_and_awards'
+      'rental or royalty income' => 'rental_and_royalty'
+      'scholarship payments' => 'scholorship_payments'
+      'social security benefit' => 'social_security_benefit'
+      'supplemental security income' => 'supplemental_security_income'
+      'tax-exempt interest' => 'tax_exempt_interest'
+      'unemployment insurance' => 'unemployment_insurance'
+      'wages and salaries' => 'wages_and_salaries'
+    }
+
     def initialize(parser)
       @parser = parser
     end
@@ -10,36 +36,8 @@ module Parsers::Xml::Cv
     end
 
     def type_urn
-      @parser.at_xpath('./ns1:type', NAMESPACES).text
+      TYPE_MAP[@parser.at_xpath('./ns1:type', NAMESPACES).text]
     end
-
-    def type
-      type_urn.split('#').last.parameterize("_")
-    end
-=begin
-alimony and maintenance
-capital gains
-dividends
-estate and trust income
-farming or fishing income
-foreign income
-interest
-lump sum amount
-military pay
-net self employment income
-other
-pension/retirement benefits
-pensions/retirement benefits
-permanent worker's compensation
-prizes and awards
-rental or royalty income
-scholarship payments
-social security benefit
-supplemental security income
-tax-exempt interest
-unemployment insurance
-wages and salaries
-=end
 
     def frequency_urn
       @parser.at_xpath('./ns1:frequency', NAMESPACES).text
