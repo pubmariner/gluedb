@@ -45,7 +45,7 @@ module Parsers::Xml::Cv
       results = []
 
       elements = @parser.xpath('./ns1:deductions/ns1:deduction', NAMESPACES)
-      elements.each { |i| results << Deductions.new(i) }
+      elements.each { |i| results << Deduction.new(i) }
 
       results.reject(&:empty?)
     end

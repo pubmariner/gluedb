@@ -5,28 +5,40 @@ module Parsers::Xml::Cv
     end
 
     def type_urn
-      @parser.at_xpath('./n1:type', NAMESPACES).text
+      @parser.at_xpath('./ns1:type', NAMESPACES).text
     end
 
     def type
-      income_type_urn.split('#').last
+      type_urn.split('#').last
     end
 
     def start_date
-      Date.parse(@parser.at_xpath('./n1:start_date', NAMESPACES).text).try(:strftime,"%Y%m%d")
+      begin
+        Date.parse(@parser.at_xpath('./ns1:start_date', NAMESPACES).text).try(:strftime,"%Y%m%d")
+      rescue
+        nil
+      end
     end
 
     def end_date
-      node = @parser.at_xpath('./n1:end_date', NAMESPACES)
-      (node.nil?) ? nil : Date.parse(node.text).try(:strftime,"%Y%m%d")
+      node = @parser.at_xpath('./ns1:end_date', NAMESPACES)
+      begin
+        (node.nil?) ? nil : Date.parse(node.text).try(:strftime,"%Y%m%d")
+      rescue
+        nil
+      end
     end
 
     def submitted_date
-      Date.parse(@parser.at_xpath('./n1:submitted_date', NAMESPACES).text).try(:strftime,"%Y%m%d")
+      begin
+      Date.parse(@parser.at_xpath('./ns1:submitted_date', NAMESPACES).text).try(:strftime,"%Y%m%d")
+      rescue
+        nil
+      end
     end
 
     def empty?
-      [amount,type,start_date,end_date].any?(&:blank?)
+      [type,start_date,end_date].any?(&:blank?)
     end
 
     def to_request

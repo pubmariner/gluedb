@@ -48,7 +48,7 @@ module Parsers::Xml::Cv
     end
 
     def id
-      @parser.at_xpath('./ns1:id', NAMESPACES).text
+      @parser.at_xpath('.//ns1:qhp_roles/ns1:qhp_role/ns1:id', NAMESPACES).text
     end
 
     def member_id
@@ -63,27 +63,27 @@ module Parsers::Xml::Cv
     #    at least not in CVs generated from Curam"
     #    -- Famous last words
     def gender
-      first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/gender").split("#").last
+      first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/ns1:gender").split("#").last
     end
 
     def dob
-      first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/dob")
+      first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/ns1:dob")
     end
 
     def ssn
-      first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/ssn")
+      first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/ns1:ssn")
     end
 
     def e_person_id
-      first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/e_person_id")
+      first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/ns1:e_person_id")
     end
 
     def e_concern_role_id
-      first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/e_concern_role_id")
+      first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/ns1:e_concern_role_id")
     end
 
     def aceds_id
-      first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/aceds_id")
+      first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/ns1:aceds_id")
     end
 
     def to_request

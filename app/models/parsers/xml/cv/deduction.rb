@@ -1,23 +1,25 @@
 module Parsers::Xml::Cv
   class Deduction
+    include NodeUtils
+
     def initialize(parser)
       @parser = parser
     end
 
     def dollar_amount
-      @parser.at_xpath('./n1:amount', NAMESPACES).text.to_f.round(2)
+      @parser.at_xpath('./ns1:amount', NAMESPACES).text.to_f.round(2)
     end
 
     def type_urn
-      @parser.at_xpath('./n1:type', NAMESPACES).text
+      @parser.at_xpath('./ns1:type', NAMESPACES).text
     end
 
     def type
-      income_type_urn.split('#').last
+      type_urn.split('#').last
     end
 
     def frequency_urn
-      @parser.at_xpath('./n1:frequency', NAMESPACES).text
+      @parser.at_xpath('./ns1:frequency', NAMESPACES).text
     end
 
     def frequency
@@ -25,16 +27,15 @@ module Parsers::Xml::Cv
     end
 
     def start_date
-      Date.parse(@parser.at_xpath('./n1:start_date', NAMESPACES).text).try(:strftime,"%Y%m%d")
+      first_date('./ns1:start_date')
     end
 
     def end_date
-      node = @parser.at_xpath('./n1:end_date', NAMESPACES)
-      (node.nil?) ? nil : Date.parse(node.text).try(:strftime,"%Y%m%d")
+      first_date('./ns1:end_date')
     end
 
     def submitted_date
-      Date.parse(@parser.at_xpath('./n1:submitted_date', NAMESPACES).text).try(:strftime,"%Y%m%d")
+      first_date('./ns1:submitted_date')
     end
 
     def amount_in_cents
@@ -42,7 +43,7 @@ module Parsers::Xml::Cv
     end
 
     def empty?
-      [amount,type,start_date,frequency].any?(&:blank?)
+      [type,start_date,frequency].any?(&:blank?)
     end
 
     def to_request

@@ -24,7 +24,7 @@ module Parsers::Xml::Cv
     end
 
     def submitted_date
-      node = at_xpath(@parser, './n1:submitted_date')
+      node = at_xpath(@parser, './ns1:submitted_date')
       (node.nil?)? nil : node.text
     end
     
@@ -38,7 +38,7 @@ module Parsers::Xml::Cv
     end
 
     def relationships
-      individuals.relationships.flat_map(&:to_request)
+      individuals.flat_map { |ind| ind.relationships.reject(&:empty?).map(&:to_request) }
     end
 
     def to_request
@@ -46,7 +46,7 @@ module Parsers::Xml::Cv
         consent_applicant_id: consent_applicant_id,
         e_case_id: e_case_id,
         primary_applicant_id: primary_applicant_id,
-        submission_date: submission_date,
+        submission_date: submitted_date,
         people: individuals.map(&:to_request),
         relationships: relationships
       }
