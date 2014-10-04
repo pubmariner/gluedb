@@ -1,6 +1,28 @@
 module Parsers::Xml::Cv
   class Relationship
     include NodeUtils
+
+    RELATIONSHIP_MAP = {
+      "is the aunt of" => "aunt_or_uncle",
+      "is the child of" => "child",
+      "is the cousin of" => "cousin",
+      "is the domestic partner of" => "life_partner",
+      "is the grandchild of" => "grandchild",
+      "is the grandparent of" => "grandparent",
+      "is the great grandparent of" => "" #TODO
+      "is the guardian of" => "guardian",
+      "is the nephew of" => "nephew_or_niece",
+      "is the niece of" => "nephew_or_niece",
+      "is the parent of" => "parent"
+      "is the person cared for by" => "" #TODO
+      "is the sibling of" => "sibling"
+      "is the spouse of" => "spouse"
+      "is the step child of" => "stepchild"
+      "is the step parent of" => "stepparent"
+      "is the step sibling of" => "sibling"
+      "is the uncle of" => "aunt_or_uncle"
+    }
+
     def initialize(parser)
       @parser = parser
     end
@@ -9,41 +31,16 @@ module Parsers::Xml::Cv
       first_text('./ns1:subject_individual')
     end
 
-    def relationship_urn
-      first_text('./ns1:relationship_uri')
-    end
-
     def relationship
-      relationship_urn.split('#').last
+      RELATIONSHIP_MAP[first_text('./ns1:relationship_uri')]
     end
-=begin
-is the aunt of
-is the child of
-is the cousin of
-is the domestic partner of
-is the grandchild of
-is the grandparent of
-is the great grandparent of
-is the guardian of
-is the nephew of
-is the niece of
-is the parent of
-is the person cared for by
-is the sibling of
-is the spouse of
-is the step child of
-is the step parent of
-is the step sibling of
-is the uncle of
-is unrelated to
-=end
 
     def object
       first_text('./ns1:object_individual')
     end
 
     def empty?
-      [subject, relationship_urn, object].any?(&:blank?)
+      [subject, relationship, object].any?(&:blank?)
     end
 
     def to_request

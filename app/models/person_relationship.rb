@@ -59,6 +59,7 @@ class PersonRelationship
     "life_partner" => "life_partner",
     "spouse" => "spouse",
     "other_relationship" => "other_relationship",
+    "cousin" => "cousin"
 
     #one directional
     "foster_child" => "guardian",
