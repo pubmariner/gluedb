@@ -15,7 +15,7 @@ module Parsers::Xml::Cv
     end
 
     def tax_filing_status
-      TAX_FILING_STATUS_MAP[first_text('./ns1:tax_filing_status')]
+      TAX_FILING_STATUS_MAP[first_text('./ns1:tax_filing_status').downcase]
     end
 
     def is_tax_filing_together
