@@ -1,5 +1,12 @@
 module Parsers::Xml::Cv
   class Individual
+
+    CITIZEN_STATUS_MAP = {
+      "u.s. citizen" => "us_citizen",
+      "alien lawfully present" => "alien_lawfully_present",
+      "not lawfully present in the u.s" => "not_lawfully_present_in_us"
+    }
+
     def initialize(parser)
       @parser = parser
     end
@@ -18,25 +25,11 @@ module Parsers::Xml::Cv
       (node.nil?)? nil : node.text.downcase == 'true'
     end
 
-    def citizen_status_urn
-      node = @parser.at_xpath('./ns1:citizen_status', NAMESPACES)
-      (node.nil?)? nil : node.text
-    end
 
     def citizen_status
-      status_map = {
-        "u.s. citizen" => "us_citizen",
-        "alien lawfully present" => "alien_lawfully_present"
-      }
-      urn = citizen_status_urn
-      cit_status = (urn.nil?) ? nil : urn.split('#').last
-      status_map[cit_status]
+      node = @parser.at_xpath('./ns1:citizen_status', NAMESPACES)
+      (node.nil?)? nil : CITIZEN_STATUS_MAP[node.text]
     end
-=begin
-alien lawfully present
-not lawfully present in the u.s
-u.s. citizen
-=end
 
     def is_incarcerated
       node = @parser.at_xpath('./ns1:is_incarcerated', NAMESPACES)
