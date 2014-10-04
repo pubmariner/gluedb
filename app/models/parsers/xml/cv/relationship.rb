@@ -41,7 +41,7 @@ module Parsers::Xml::Cv
     end
 
     def empty?
-      (([subject, relationship, object].any?(&:blank?)) || (subject_person == object_person))
+      (([subject, relationship, object].any?(&:blank?)) || (subject == object))
     end
 
     def to_request
