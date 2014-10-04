@@ -30,7 +30,14 @@ class RelationshipUpdate
     old_rels.each do |old_rel|
       subject_person.person_relationships.delete(old_rel)
     end
+
     subject_person.person_relationships << new_rel
     subject_person.save!
+
+    inverse = new_rel.inverse
+    if(inverse)
+      other_person.person_relationships << inverse
+      other_person.save!
+    end
   end
 end
