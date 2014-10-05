@@ -5,12 +5,10 @@ active_pols = Policy.where(Policy.active_as_of_expression(Date.new(2014, 12, 31)
 }))
 
 def create_me_a_group(sub, people)
-  ag = ApplicationGroup.new(
-    :e_case_id => SecureRandom.uuid.gsub("-", ""),
+  ApplicationGroup.create!(
     :primary_applicant_id => sub,
     :person_ids => people
   )
-  ag
 end
 
 def add_people_to_group(group, people_ids)
@@ -20,16 +18,16 @@ end
 
 
 active_pols.each do |pol|
-  subscriber_person = pol.subscriber.person.id
+  sub = pol.subscriber.person.id
   member_people = pol.enrollees.map { |en| en.person.id }
   ags = ApplicationGroup.where(
     :person_ids => {
-      "$elemMatch" => { "$in" => [subscriber_person]}
+      "$elemMatch" => { "$in" => [sub]}
     }
   )
   case ags.count
   when 0
-    application_group = create_me_a_group(sub, people)
+    application_group = create_me_a_group(sub, member_people)
     pol.application_group = ags.first
     pol.save!
   when 1
