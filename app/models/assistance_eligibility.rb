@@ -4,7 +4,7 @@ class AssistanceEligibility
 
   TAX_FILING_STATUS_TYPES = %W[tax_filer tax_dependent non_filer]
   
-  field :is_primary_applicant, type: Boolean
+  field :is_primary_applicant, type: Boolean, default: false
   # field :is_enrolled_for_coverage, type: Boolean  # Coverage or HH eligibility determination only
 
   field :tax_filing_status, type: String
