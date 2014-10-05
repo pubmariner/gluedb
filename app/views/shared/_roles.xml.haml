@@ -22,9 +22,15 @@
       - if policies.present?
         %n1:policies
           - policies.each do |policy|
-            %n1:policy= render 'shared/policy_link_type', policy: policy
+            %n1:policy= render 'shared/policy_link_type', policy: policy, member: member
       - if false
         %n1:exemptions=#todo
+      - if policies.count > 0
+        %n1:qhp_quotes
+          - policies.each do |policy|
+            - plan = (Caches::MongoidCache.lookup(Plan, policy.plan_id) { policy.plan })
+            - plan_2015 = plan.plan_for_2015
+            %n1:qhp_quote= render 'shared/plan_link_type', plan: plan_2015, rate: plan_2015.rate(Date.new(2015,1,1), Date.new(2015,1,1), member.dob)
 - if false #TODO
   %n1:responsible_party_roles
     %n1:responsible_party_role

@@ -76,4 +76,18 @@ class Plan
       ]
     }
   end
+
+  def plan_for_2015
+    return self
+    
+    split = hios_plan_id.split("-")
+    without_variant = split.first
+    variant = split.last
+    
+    found = HIOS_2015_MAP[without_variant]
+
+    return self if(found.nil?)
+
+    Plan.find_by_hios_id("#{found}-#{variant}")
+  end
 end
