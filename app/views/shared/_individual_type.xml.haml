@@ -12,7 +12,7 @@
 - if authority_member.is_state_resident.present?
   %n1:is_state_resident= authority_member.is_state_resident
 - if authority_member.citizen_status.present?
-  %n1:citizenship_status= "urn:openhbx:terms:v1:immigration_status#{authority_member.citizen_status}"
+  %n1:citizenship_status= "urn:openhbx:terms:v1:immigration_status##{authority_member.citizen_status}"
 - if authority_member.is_incarcerated.present?
   %n1:incarcerated_flag= authority_member.is_incarcerated
 - unless person.assistance_eligibilities.empty?
