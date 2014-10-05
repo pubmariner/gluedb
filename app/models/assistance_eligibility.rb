@@ -10,11 +10,11 @@ class AssistanceEligibility
   field :tax_filing_status, type: String
   field :is_tax_filing_together, type: Boolean
 
-  field :is_enrolled_for_es_coverage, type: Boolean
-  field :is_without_assistance, type: Boolean
+  field :is_enrolled_for_es_coverage, type: Boolean, default: false
+  field :is_without_assistance, type: Boolean, default: true
 
-  field :is_ia_eligible, type: Boolean
-  field :is_medicaid_chip_eligible, type: Boolean
+  field :is_ia_eligible, type: Boolean, default: false
+  field :is_medicaid_chip_eligible, type: Boolean, default: false
   field :submission_date, type: Date
 
   index({submission_date:  1})
