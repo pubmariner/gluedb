@@ -1,5 +1,6 @@
 module Parsers::Xml::Cv
   class Individual
+    include NodeUtils
 
     CITIZEN_STATUS_MAP = {
       "u.s. citizen" => "us_citizen",
@@ -9,11 +10,6 @@ module Parsers::Xml::Cv
 
     def initialize(parser)
       @parser = parser
-    end
-
-    def first_text(xpath)
-      node = @parser.at_xpath(xpath, NAMESPACES)
-      node.nil? ? nil : node.text
     end
 
     def person
@@ -71,7 +67,7 @@ module Parsers::Xml::Cv
     end
 
     def dob
-      first_text("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/ns1:dob")
+      first_date("./ns1:hbx_roles/ns1:qhp_roles/ns1:qhp_role/ns1:dob")
     end
 
     def ssn

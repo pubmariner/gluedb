@@ -27,7 +27,7 @@ module Parsers::Xml::Cv
     end
 
     def is_without_assistance
-      @parser.at_xpath('./ns1:is_without_assistance', NAMESPACES).text.downcase == 'yes'
+      !(@parser.at_xpath('./ns1:is_without_assistance', NAMESPACES).text.downcase == 'no')
     end
 
     def is_ia_eligible
@@ -62,7 +62,7 @@ module Parsers::Xml::Cv
     end
 
     def submitted_date
-      @parser.at_xpath('./ns1:submitted_date', NAMESPACES).try(:strftime,"%Y%m%d")
+      first_date('./ns1:submitted_date')
     end
 
     def to_request

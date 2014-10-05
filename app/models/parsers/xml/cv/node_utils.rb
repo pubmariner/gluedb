@@ -5,11 +5,18 @@ module Parsers::Xml::Cv
       node.nil? ? nil : node.text.strip
     end
 
+    def first_date_as_date(xpath)
+      text = first_text(xpath)
+      return nil if text.blank?
+      return nil if text.strip.starts_with?("0001")
+      Date.parse(text)
+    end
+
     def first_date(xpath)
       text = first_text(xpath)
       return nil if text.blank?
       return nil if text.strip.starts_with?("0001")
-      Date.parse(text).try(:strftime,"%Y%m%d")
+      Date.parse(text)
     end
   end
 end

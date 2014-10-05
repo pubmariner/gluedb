@@ -16,7 +16,9 @@ module Queries
         end
       end
       if (found_person.nil?)
-        found_people = Person.where({"members.dob" => options[:dob], "name_first" => options[:name_first], "name_last" => options[:name_last]})
+        name_first_regex = Regexp.compile(Regexp.escape(options[:name_first].to_s.strip.downcase), true)
+        name_last_regex = Regexp.compile(Regexp.escape(options[:name_last].to_s.strip.downcase), true)
+        found_people = Person.where({"members.dob" => options[:dob], "name_first" => name_first_regex, "name_last" => name_last_regex})
         found_person = more_than_one_is_none(found_people)
       end
       found_person
