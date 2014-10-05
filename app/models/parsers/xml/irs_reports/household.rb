@@ -7,6 +7,7 @@ module Parsers::Xml::IrsReports
       # parser = File.open(Rails.root.to_s + "/households.xml")
       # parser = Nokogiri::XML(parser)
       @root = data_xml #.root
+      # @root = parser.root
     end
 
     def primary
@@ -18,7 +19,7 @@ module Parsers::Xml::IrsReports
     end
 
     def dependents
-      members.select{|k,v| v != 'spouse'}
+      members.reject{|k,v| v == 'spouse'}
     end
 
     def root
@@ -44,7 +45,11 @@ module Parsers::Xml::IrsReports
     end
 
     def all_members
-      [primary] + spouse.keys + dependents.keys
+      ([] << primary) + spouse.keys + dependents.keys
+    end
+
+    def hh_size
+      all_members.compact.size
     end
 
     def member_policy_ids(app_group)
@@ -61,6 +66,10 @@ module Parsers::Xml::IrsReports
       end
 
       policy_ids
-    end  
+    end
+
+    def member_ids
+      all_members.map{|x| x.match(/\w+$/)[0]}
+    end
   end
 end

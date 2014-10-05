@@ -180,15 +180,15 @@ module CanonicalVocabulary
 
       def policy_details
         policy = [
-           @application_group.health_plan_2014,
-           @application_group.health_plan_2015,
+           @application_group.insurance_plan_2014("health"),
+           @application_group.insurance_plan_2015("health"),
            @application_group.health_plan_premium_2015
          ]
         # HP Premium After APTC 
         policy += nil if @report_type == "ia" 
         policy += [ 
-           @application_group.dental_plan_2014,
-           @application_group.dental_plan_2015,
+           @application_group.insurance_plan_2014("dental"),
+           @application_group.insurance_plan_2015("dental"),
            @application_group.dental_plan_premium_2015
         ]
       end
