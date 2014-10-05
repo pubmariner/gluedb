@@ -35,8 +35,17 @@ class AssistanceEligibility
     inclusion: { in: TAX_FILING_STATUS_TYPES, message: "%{value} is not a valid tax filing status" }, 
     allow_blank: true
 
-  def is_receiving_benefit
+  def is_receiving_benefit?
     #look in alt benefits...if any are in this year...return true
+
+    return_value = false
+
+    alternate_benefits.each do |alternate_benefit|
+      return_value = is_receiving_benefits_this_year?(alternate_benefit)
+      break if return_value
+    end
+
+    return return_value
   end
 
   def compute_yearwise(incomes_or_deductions)
@@ -105,6 +114,15 @@ class AssistanceEligibility
 
     # we have to add one to include last day of work. We multiply by working_days_in_year/365 to remove weekends.
     ((end_date_to_consider - start_date_to_consider + 1).to_i * (working_days_in_year/365)).to_i #actual days worked in 'year'
+  end
+
+  def is_receiving_benefits_this_year?(alternate_benefit)
+
+    alternate_benefit.start_date = Date.today.beginning_of_year if alternate_benefit.start_date.blank?
+
+    alternate_benefit.end_date = Date.today.end_of_year if alternate_benefit.end_date.blank?
+
+    (alternate_benefit.start_date.year..alternate_benefit.end_date.year).include? Date.today.year
   end
 
 
