@@ -50,7 +50,6 @@ end
   context "yearwise income computation" do
     it "should compute the income hash" do
       income_hash = @assistance_eligibility.compute_yearwise(@assistance_eligibility.incomes)
-      puts income_hash.inspect
       expect(((income_hash[2014]) - 5553600).abs).to be < 1000
     end
   end
@@ -58,8 +57,7 @@ end
   context "yearwise deductions computation" do
     it "should compute the deductions hash" do
       deduction_hash = @assistance_eligibility.compute_yearwise(@assistance_eligibility.deductions)
-      puts deduction_hash.inspect
-      expect((deduction_hash[2014]) - 470).to be < 1000
+      expect(((deduction_hash[2014]) - 470).abs).to be < 1000
     end
   end
 
