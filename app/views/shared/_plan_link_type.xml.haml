@@ -10,7 +10,7 @@
     %n1:effective_date= rate.rate_start_date.try(:strftime,"%Y%m%d")
     -if rate.rate_end_date.present?
       %n1:expire_date= rate.rate_end_date.try(:strftime,"%Y%m%d")
-    %n1:rate= rate.amount
+    %n1:rate= rate.amount.round(2)
     - if false
       %n1:rate_area
     - if false
