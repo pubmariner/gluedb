@@ -3,6 +3,8 @@
   %n1:primary_applicant_id= group.primary_applicant_id
 - if group.consent_applicant_id.present?
   %n1:consent_applicant_id= group.consent_applicant_id
+- if group.consent_renewal_year.present?
+  %n1:consent_renewal_year= group.consent_renewal_year
 - if group.e_case_id.present?
   %n1:e_case_id= group.e_case_id
 %n1:applicants

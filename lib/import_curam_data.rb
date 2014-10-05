@@ -96,6 +96,9 @@ class ImportCuramData
         :e_case_id => request[:e_case_id],
         primary_applicant_id: mapped_people[request[:primary_applicant_id]].id,
         submission_date: request[:submission_date],
+        consent_applicant_id: request[:consent_applicant_id],
+        consent_applicant_name: request[:consent_applicant_name],
+        consent_renewal_year: request[:consent_renewal_year],
         people: mapped_people.values
       })
     request[:relationships].each do |rel|
