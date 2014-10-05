@@ -3,10 +3,14 @@ active_pols = Policy.where(Policy.active_as_of_expression(Date.new(2014, 12, 31)
 
 no_match = 0
 too_many_matched = 0
+puts active_pols.count.to_s
 active_pols.map do |pol|
   subscriber_person = pol.subscriber.person.id
+  member_people = pol.enrollees.map { |en| en.person.id }
   ags = ApplicationGroup.where(
-    :person_ids => { "$in" => [subscriber_person] }
+    :person_ids => {
+      "$elemMatch" => { "$in" => member_people }
+    }
   )
   case ags.count
   when 1

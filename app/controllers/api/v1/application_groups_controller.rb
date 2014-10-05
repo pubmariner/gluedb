@@ -6,6 +6,9 @@ class Api::V1::ApplicationGroupsController < ApplicationController
   end
   
   def show
-    @group = ApplicationGroup.find(params[:id])
+    Caches::MongoidCache.with_cache_for(Plan, Carrier, Employer) do
+      @group = ApplicationGroup.find(params[:id])
+      render 'show'
+    end
   end
 end
