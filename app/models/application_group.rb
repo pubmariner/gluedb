@@ -8,8 +8,8 @@ class ApplicationGroup
   field :primary_applicant_id, type: String     # Person who authorized auto-renewal eligibility check
   field :consent_applicant_id, type: String     # Person who authorized auto-renewal eligibility check
   field :consent_applicant_name, type: String
-  field :consent_renewal_year, type: Integer   # Authorize auto-renewal elibility check through this year (CCYY format)
-  field :coverage_renewal_year, type: String
+  field :consent_renewal_year, type: Integer    # Authorize auto-renewal elibility check through this year (CCYY format)
+  field :coverage_renewal_year, type: String    # Temporary field to indicate whether IRS consent was granted
   field :submission_date, type: Date
 
   field :notice_generated, type: Boolean, default: true
