@@ -2,7 +2,7 @@ module Caches
   class MongoidCache
 
     def initialize(kls)
-      @records = kls.all.inject({}) do |accum, c|
+      @records = kls.unscoped.all.inject({}) do |accum, c|
         accum[c.id] = c
         accum
       end

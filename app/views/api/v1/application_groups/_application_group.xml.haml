@@ -3,11 +3,17 @@
   %n1:primary_applicant_id= group.primary_applicant_id
 - if group.consent_applicant_id.present?
   %n1:consent_applicant_id= group.consent_applicant_id
+- if group.consent_renewal_year.present?
+  %n1:consent_renewal_year= group.consent_renewal_year
 - if group.e_case_id.present?
   %n1:e_case_id= group.e_case_id
 %n1:applicants
   - group.people.each do |person|
     %n1:applicant= render 'shared/individual_type', person: person
+- if group.households.empty?
+  %n1:households
+    %n1:household
+      = render "shared/application_group_as_household", application_group: group
 - unless group.households.empty?
   %n1:households
     - group.households.each do |household|

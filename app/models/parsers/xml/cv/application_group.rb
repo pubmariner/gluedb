@@ -41,12 +41,24 @@ module Parsers::Xml::Cv
       individuals.flat_map { |ind| ind.relationships.reject(&:empty?).map(&:to_request) }
     end
 
+    def consent_applicant_name
+      node = @parser.at_xpath('./ns1:consent_applicant_name', NAMESPACES)
+      (node.nil?)? nil : node.text
+    end
+
+    def consent_renewal_year
+      node = @parser.at_xpath('./ns1:consent_renewal_year', NAMESPACES)
+      (node.nil?)? nil : node.text.to_i
+    end
+
     def to_request
       {
         consent_applicant_id: consent_applicant_id,
         e_case_id: e_case_id,
         primary_applicant_id: primary_applicant_id,
         submission_date: submitted_date,
+        consent_applicant_name: consent_applicant_name,
+        consent_renewal_year: consent_renewal_year,
         people: individuals.map(&:to_request),
         relationships: relationships
       }
