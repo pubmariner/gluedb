@@ -121,7 +121,8 @@ describe ImportCuramData do
       :is_incarcerated => is_incarcerated,
       :e_person_id => e_person_id,
       :e_concern_role_id => e_concern_role_id,
-      :aceds_id => aceds_id
+      :aceds_id => aceds_id,
+      :is_applicant => is_applicant
     ).and_return(qualification_update)
     expect(qualification_update).to receive(:save!)
     subject.execute(request)
@@ -178,11 +179,11 @@ describe ImportCuramData do
       expect(member_factory).to receive(:new).with({
         dob: "frank",
         ssn: ssn,
-        gender: gender#,
-        # citizen_status: citizen_status,
-        # is_state_resident: is_state_resident,
-        # is_incarcerated: is_incarcerated,
-        # is_applicant: is_applicant
+        gender: gender,
+        is_incarcerated: is_incarcerated,
+        is_state_resident: is_state_resident,
+        citizen_status: citizen_status,
+        is_applicant: is_applicant
       }).and_return(new_member)
       subject.execute(request)
     end
