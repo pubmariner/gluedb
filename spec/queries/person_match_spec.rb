@@ -1,13 +1,16 @@
 require 'rails_helper'
 
 describe 'matching a person' do
-  let(:person) { Person.new(name_last: last_name, name_first: first_name, members: [member]) }
+  let(:person) { Person.new(name_last: last_name, name_first: first_name, members: members, emails: emails) }
   let(:member) { Member.new(ssn: member_ssn, gender: 'male', dob: dob, hbx_member_id: member_id) }
+  let(:members) { [member] }
   let(:member_ssn) {'123456789' }
   let(:last_name) { 'Dirt' }
   let(:first_name) { 'Joe' }
   let(:member_id) { '123445554564577' }
   let(:dob) { Date.today.prev_year }
+  let(:emails) { [email] }
+  let(:email) { Email.new(email_type: 'home', email_address: "bigsacklunch@example.com") }
 
   before(:each) do
     person.save!
@@ -27,7 +30,7 @@ describe 'matching a person' do
     end
 
     context "when multiple people have the same ssn" do
-      let(:other_person) { Person.new(name_last: other_last_name, name_first: other_first_name, members: [member]) }
+      let(:other_person) { Person.new(name_last: other_last_name, name_first: other_first_name, members: members, emails: emails) }
       let(:other_member) { Member.new(ssn: member_ssn, gender: 'male', dob: Date.today.prev_year) }
       let(:other_last_name) { "Steve" }
       let(:other_first_name) { "Matt"}
@@ -69,6 +72,13 @@ describe 'matching a person' do
 
     it "should find the person" do
       expect(Queries::PersonMatch.find({ssn: "2342314123dsafadf", name_first: first_name, name_last: last_name, dob: dob})).to eq person
+    end
+  end
+
+  context 'when person has no members' do
+    let(:members) { [] }
+    it 'finds by name and email' do
+      expect(Queries::PersonMatch.find({ssn: "not in glue", name_first: first_name, name_last: last_name, dob: Date.today.prev_year.prev_year, email: email.email_address})).to eq person
     end
   end
 end
