@@ -25,10 +25,12 @@ module Queries
       end
 
       if(found_person.nil?)
-        name_first_regex = Regexp.compile(Regexp.escape(options[:name_first].to_s.strip.downcase), true)
-        name_last_regex = Regexp.compile(Regexp.escape(options[:name_last].to_s.strip.downcase), true)
-        found_people = Person.where({"name_first" => name_first_regex, "name_last" => name_last_regex, "emails.email_address" => options[:email]})
-        found_person = more_than_one_is_none(found_people)
+        if (!options[:email].blank?)
+          name_first_regex = Regexp.compile(Regexp.escape(options[:name_first].to_s.strip.downcase), true)
+          name_last_regex = Regexp.compile(Regexp.escape(options[:name_last].to_s.strip.downcase), true)
+          found_people = Person.where({"name_first" => name_first_regex, "name_last" => name_last_regex, "emails.email_address" => options[:email]})
+          found_person = more_than_one_is_none(found_people)
+        end
       end
       
       found_person
