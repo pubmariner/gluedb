@@ -23,6 +23,7 @@ class Carrier
 
   before_save :invalidate_find_caches
 
+  index({name: 1})
   index({hbx_carrier_id: 1})
   index({"carrier_profiles.fein" => 1})
 
