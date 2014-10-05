@@ -28,6 +28,9 @@ class Person
   index({name_last:  1})
   index({name_first: 1})
   index({name_first: 1, name_last:1})
+  index({name_first: 1, name_last:1, "members.dob"=> 1})
+  index({name_first: 1, name_last:1, "emails.email_address" => 1})
+  index({"emails.email_address" => 1})
 
   belongs_to :broker
   belongs_to :employer
@@ -68,7 +71,6 @@ class Person
   scope :all_with_multiple_members, exists({ :'members.1' => true })
 
   default_scope order_by(name_last: 1, name_first: 1)
-  index({name_last: 1, name_first: 1})
   #
   #
   embeds_many :assistance_eligibilities
