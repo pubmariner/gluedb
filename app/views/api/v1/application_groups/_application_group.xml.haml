@@ -8,6 +8,10 @@
 %n1:applicants
   - group.people.each do |person|
     %n1:applicant= render 'shared/individual_type', person: person
+- if group.households.empty?
+  %n1:households
+    %n1:household
+      = render "shared/application_group_as_household", application_group: group
 - unless group.households.empty?
   %n1:households
     - group.households.each do |household|

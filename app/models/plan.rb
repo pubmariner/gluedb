@@ -14,6 +14,8 @@ class Plan
   field :market_type, type: String
   field :ehb, as: :ehb_max_as_percent, type: BigDecimal, default: 0.0
 
+  index({ name: 1 })
+  index({ carrier_id: 1 })
   index({ hbx_plan_id: 1 }, { unique: true, name: "exchange_plan_id_index" })
 	index({ hios_plan_id: 1 }, { unique: false, name: "hios_plan_id_index" })
   index({ coverage_type: 1 })
