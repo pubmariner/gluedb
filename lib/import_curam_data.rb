@@ -15,7 +15,14 @@ class CuramPersonFactory
 end
 
 class ImportCuramData
-  def initialize(person_factory = CuramPersonFactory, app_group_repo = ApplicationGroup, person_finder = Queries::PersonMatch, app_group_factory = ApplicationGroup, relationship_factory = RelationshipUpdate, qualification_factory = QualificationUpdate, assistance_eligibilities_importer = AddEligibilities)
+  def initialize(person_factory = CuramPersonFactory, 
+    app_group_repo = ApplicationGroup, 
+    person_finder = Queries::PersonMatch, 
+    app_group_factory = ApplicationGroup, 
+    relationship_factory = RelationshipUpdate, 
+    qualification_factory = QualificationUpdate, 
+    assistance_eligibilities_importer = AddEligibilities,
+    member_factory = Member)
     @app_group_repo = app_group_repo
     @person_finder = person_finder
     @person_factory = person_factory
@@ -23,6 +30,7 @@ class ImportCuramData
     @relationship_factory = relationship_factory
     @qualification_factory = qualification_factory
     @assistance_eligibilities_importer = assistance_eligibilities_importer
+    @member_factory = member_factory
   end
 
   def qualified_member(person_properties, person)
@@ -49,6 +57,20 @@ class ImportCuramData
       if(person.nil?)
         person = @person_factory.create!(p_hash)
       end
+
+      if(person.members.length == 0)
+        person.members << @member_factory.new({
+            dob: p_hash[:dob],
+            ssn: p_hash[:ssn],
+            gender: p_hash[:gender]#,
+            # is_incarcerated: p_hash[:is_incarcerated],
+            # is_state_resident: p_hash[:is_state_resident],
+            # is_incarcerated: p_hash[:is_incarcerated],
+            # is_state_resident: p_hash[:is_state_resident],
+            # citizen_status: p_hash[:citizen_status]
+          })
+      end
+
       mapped_people[p_hash[:id]] = person
       
       member_id = qualified_member(p_hash, person).hbx_member_id
@@ -57,7 +79,6 @@ class ImportCuramData
           :member_id => member_id,
           :is_incarcerated => p_hash[:is_incarcerated],
           :is_state_resident => p_hash[:is_state_resident],
-          :citizen_status => p_hash[:citizen_status],
           :is_incarcerated => p_hash[:is_incarcerated],
           :is_state_resident => p_hash[:is_state_resident],
           :citizen_status => p_hash[:citizen_status],
@@ -69,6 +90,8 @@ class ImportCuramData
         person,
         Array(p_hash[:assistance_eligibilities])
       )
+
+      person.save!
     end
 
     @app_group_factory.create!({
@@ -88,5 +111,6 @@ class ImportCuramData
         raise rel.inspect
       end
     end
+
   end
 end

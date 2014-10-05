@@ -1,7 +1,10 @@
 require 'rails_helper'
 
 describe ImportCuramData do
-  subject { ImportCuramData.new(person_factory, app_group_repo, person_finder, app_group_factory, relationship_factory, qualification_factory, assistance_eligibilities_importer) }
+  subject { ImportCuramData.new(person_factory, app_group_repo, person_finder, app_group_factory, relationship_factory, qualification_factory, assistance_eligibilities_importer, member_factory) }
+  let(:member_factory) { double(new: new_member) }
+  let(:new_member) { double(hbx_member_id: '666') }
+  
   let(:app_group_repo) { double(find_by_case_id: app_group) }
   let(:app_group) { double(destroy: nil) }
   let(:person_finder) { 
@@ -12,7 +15,8 @@ describe ImportCuramData do
   }
   let(:person_factory) { double(create!: person)}
   let(:app_group_factory) { double(create!: nil)  }
-  let(:person) { double(:id => person_id, :members => [], :authority_member => authority_member) }
+  let(:person) { double(:id => person_id, :members => person_members, :authority_member => authority_member, save!: nil) }
+  let(:person_members) { [authority_member] }
   let(:app_group_properties) {
      {
       e_case_id: case_id,
@@ -43,7 +47,9 @@ describe ImportCuramData do
   let(:authority_member) { double(:hbx_member_id => member_id) }
   let(:child_authority) { double(:hbx_member_id => child_id) }
 
-  let(:child) { double(:id => child_id, :members => [], :authority_member => child_authority) }
+  let(:child) { double(:id => child_id, :members => child_members, :authority_member => child_authority, save!: nil) }
+  let(:child_members) { [child_authority] }
+  
   let(:child_properties) { { id: child_applicant_id } }
   let(:child_applicant_id) { "klsjdflkdf" }
   let(:child_id) { "a child id" }
@@ -54,6 +60,9 @@ describe ImportCuramData do
     {
       :id => applicant_id,
       :dob => "frank",
+      :ssn => ssn,
+      :gender => gender,
+      :is_applicant => is_applicant,
       :citizen_status => citizen_status,
       :is_state_resident => is_state_resident,
       :is_incarcerated => is_incarcerated,
@@ -63,6 +72,9 @@ describe ImportCuramData do
       :assistance_eligibilities => assistance_eligibilities
     }
   end
+  let(:ssn) { "12345678911"}
+  let(:gender) { "male" }
+  let(:is_applicant) { true }
 
   let(:qualification_factory) { double(:new => qualification_update) }
   let(:qualification_update) { double(:save! => nil) }
@@ -158,22 +170,33 @@ describe ImportCuramData do
       expect(app_group_factory).not_to receive(:create!)
       subject.execute(request)
     end
-
   end
 
-  # it "creates a new application group" do
-  #   expect(app_group_factory).to receive(:create).with(request)
-  #   subject.execute(request)
-  # end
+  context 'when person has no member' do
+    let(:person_members) { [] }
+    it 'creates a member' do
+      expect(member_factory).to receive(:new).with({
+        dob: "frank",
+        ssn: ssn,
+        gender: gender#,
+        # citizen_status: citizen_status,
+        # is_state_resident: is_state_resident,
+        # is_incarcerated: is_incarcerated,
+        # is_applicant: is_applicant
+      }).and_return(new_member)
+      subject.execute(request)
+    end
 
+    it 'new member is assigned to person' do
+      subject.execute(request)
+      expect(person.members).to include new_member
+    end
+  end
 
-  # it 'identifies or creates the people in the import'
-
-  # it 'places the proper members into a properly structured household'
-
-  # it 'creates the correct relationships'
-
-  # it 'assigns the right income, benefit, and deduction data'
+  it 'saves the person' do
+    expect(person).to receive(:save!)
+    subject.execute(request)
+  end
 end
 
 
