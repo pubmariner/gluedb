@@ -24,11 +24,16 @@ module Parsers::Xml::Cv
       first_text("./ns1:name/ns1:name_middle")
     end
 
+    def email
+      first_text("./ns1:emails/ns1:email/ns1:email_address")
+    end
+
     def to_request
       {
         :name_first => name_first,
         :name_last => name_last,
-        :name_middle => name_middle
+        :name_middle => name_middle,
+        :email => email
       }
     end
 
