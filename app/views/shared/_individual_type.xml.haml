@@ -6,12 +6,15 @@
 - if false #ignore -to be deprecated
   %n1:other_coverage
     %n1:id
-- if person.authority_member.is_state_resident.present?
-  %n1:is_state_resident= person.authority_member.is_state_resident
-- if person.authority_member.citizen_status.present?
-  %n1:citizenship_status= "urn:openhbx:terms:v1:immigration_status#{person.authority_member.citizen_status}"
-- if person.authority_member.is_incarcerated.present?
-  %n1:incarcerated_flag= person.authority_member.is_incarcerated
+- authority_member = person.authority_member
+- if authority_member.is_applicant.present?
+  %n1:is_applicant= authority_member.is_applicant
+- if authority_member.is_state_resident.present?
+  %n1:is_state_resident= authority_member.is_state_resident
+- if authority_member.citizen_status.present?
+  %n1:citizenship_status= "urn:openhbx:terms:v1:immigration_status#{authority_member.citizen_status}"
+- if authority_member.is_incarcerated.present?
+  %n1:incarcerated_flag= authority_member.is_incarcerated
 - unless person.assistance_eligibilities.empty?
   %n1:assistance_eligibilities
   - person.assistance_eligibilities.each do |assistance_eligibility|
