@@ -51,6 +51,11 @@ module Parsers::Xml::Cv
       (node.nil?)? nil : node.text.to_i
     end
 
+    def coverage_renewal_year
+      node = @parser.at_xpath('./ns1:coverage_renewal_year', NAMESPACES)
+      (node.nil?)? nil : node.text.to_i
+    end
+
     def to_request
       {
         consent_applicant_id: consent_applicant_id,
@@ -59,6 +64,7 @@ module Parsers::Xml::Cv
         submission_date: submitted_date,
         consent_applicant_name: consent_applicant_name,
         consent_renewal_year: consent_renewal_year,
+        coverage_renewal_year: coverage_renewal_year,
         people: individuals.map(&:to_request),
         relationships: relationships
       }

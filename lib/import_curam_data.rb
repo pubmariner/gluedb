@@ -99,6 +99,7 @@ class ImportCuramData
         consent_applicant_id: request[:consent_applicant_id],
         consent_applicant_name: request[:consent_applicant_name],
         consent_renewal_year: request[:consent_renewal_year],
+        coverage_renewal_year: request[:coverage_renewal_year],
         people: mapped_people.values
       })
     request[:relationships].each do |rel|
