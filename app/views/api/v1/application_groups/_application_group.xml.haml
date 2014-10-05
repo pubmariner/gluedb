@@ -38,7 +38,7 @@
 %n1:submitted_date= group.submission_date
 - if group.consent_renewal_year.present?
   %n1:coverage_renewal_year= group.consent_renewal_year
-%n1:active_flag
+%n1:active_flag= group.is_active
 - unless group.comments.empty?
   = render 'shared/comments', object: group
 = render 'shared/timestamp', record: group
