@@ -21,6 +21,10 @@ module Parsers::Xml::Cv
       (node.nil?)? nil : node.text.downcase == 'true'
     end
 
+    def is_applicant
+      node = @parser.at_xpath('./ns1:is_applicant', NAMESPACES)
+      (node.nil?)? nil : node.text.downcase == 'true'
+    end
 
     def citizen_status
       node = @parser.at_xpath('./ns1:citizen_status', NAMESPACES)
@@ -95,6 +99,7 @@ module Parsers::Xml::Cv
         :is_incarcerated => is_incarcerated,
         :citizen_status => citizen_status,
         :is_state_resident => is_state_resident,
+        :is_applicant => is_applicant,
         :id => id,
         :member_id => member_id,
         :ssn => ssn,
