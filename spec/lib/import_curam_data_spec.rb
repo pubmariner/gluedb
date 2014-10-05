@@ -25,12 +25,14 @@ describe ImportCuramData do
       submission_date: submission_date,
       consent_applicant_id: consent_applicant_id,
       consent_applicant_name: consent_applicant_name,
-      consent_renewal_year: consent_renewal_year
+      consent_renewal_year: consent_renewal_year,
+      coverage_renewal_year: coverage_renewal_year
      }
    }
   let(:consent_applicant_id) { '54321'}
   let(:consent_applicant_name) { 'George'}
   let(:consent_renewal_year) { 2006 }
+  let(:coverage_renewal_year) { 'did' }
   let(:submission_date) { Date.today }
   let(:person_id) { "abcde" }
   let(:case_id) { "1234" }
@@ -43,6 +45,7 @@ describe ImportCuramData do
       consent_applicant_id: consent_applicant_id,
       consent_applicant_name: consent_applicant_name,
       consent_renewal_year: consent_renewal_year,
+      coverage_renewal_year: coverage_renewal_year,
       people: [
        person_properties,
        child_properties
