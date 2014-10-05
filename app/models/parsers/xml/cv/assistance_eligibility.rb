@@ -2,8 +2,8 @@ module Parsers::Xml::Cv
   class AssistanceEligibility
     include NodeUtils
     TAX_FILING_STATUS_MAP = {
-      "non filer" => "non_filer"
-      "tax dependent" => "tax_dependent"
+      "non filer" => "non_filer",
+      "tax dependent" => "tax_dependent",
       "tax filer" => "tax_filer"
     }
     def initialize(parser)
@@ -38,7 +38,7 @@ module Parsers::Xml::Cv
       results = []
 
       elements = @parser.xpath('./ns1:incomes/ns1:income', NAMESPACES)
-      elements.each { |i| results << Income.new(i) }
+      elements.each { |i| results << Parsers::Xml::Cv::Income.new(i) }
 
       results.reject(&:empty?)
     end
@@ -47,7 +47,7 @@ module Parsers::Xml::Cv
       results = []
 
       elements = @parser.xpath('./ns1:deductions/ns1:deduction', NAMESPACES)
-      elements.each { |i| results << Deduction.new(i) }
+      elements.each { |i| results << Parsers::Xml::Cv::Deduction.new(i) }
 
       results.reject(&:empty?)
     end
@@ -56,7 +56,7 @@ module Parsers::Xml::Cv
       results = []
 
       elements = @parser.xpath('./ns1:alternative_benefits/ns1:alternative_benefit', NAMESPACES)
-      elements.each { |i| results << AlternativeBenefit.new(i) }
+      elements.each { |i| results << Parsers::Xml::Cv::AlternativeBenefit.new(i) }
 
       results.reject(&:empty?)
     end

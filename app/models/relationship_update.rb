@@ -36,8 +36,14 @@ class RelationshipUpdate
 
     inverse = new_rel.inverse
     if(inverse)
-      other_person.person_relationships << inverse
-      other_person.save!
+      old_rels = object_person.person_relationships.select do |rel|
+        rel.object_person_id == subject_person.id
+      end
+      old_rels.each do |old_rel|
+        subject_person.person_relationships.delete(old_rel)
+      end
+      object_person.person_relationships << inverse
+      object_person.save!
     end
   end
 end

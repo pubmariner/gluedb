@@ -12,11 +12,11 @@ class AssistanceEligibility
   field :tax_filing_status, type: String
   field :is_tax_filing_together, type: Boolean
 
-  field :is_enrolled_for_es_coverage, type: Boolean
-  field :is_without_assistance, type: Boolean
+  field :is_enrolled_for_es_coverage, type: Boolean, default: false
+  field :is_without_assistance, type: Boolean, default: true
 
-  field :is_ia_eligible, type: Boolean
-  field :is_medicaid_chip_eligible, type: Boolean
+  field :is_ia_eligible, type: Boolean, default: false
+  field :is_medicaid_chip_eligible, type: Boolean, default: false
   field :submission_date, type: Date
 
   index({submission_date:  1})
@@ -26,6 +26,10 @@ class AssistanceEligibility
   embeds_many :incomes
   embeds_many :deductions
   embeds_many :alternate_benefits
+
+  accepts_nested_attributes_for :incomes
+  accepts_nested_attributes_for :deductions
+  accepts_nested_attributes_for :alternate_benefits
 
   validates :tax_filing_status, 
     inclusion: { in: TAX_FILING_STATUS_TYPES, message: "%{value} is not a valid tax filing status" }, 

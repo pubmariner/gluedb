@@ -3,36 +3,36 @@ module Parsers::Xml::Cv
     include NodeUtils
 
     TYPE_MAP = {
-      'alimony and maintenance' => 'alimony_and_maintenance'
-      'capital gains' => 'capital_gains'
-      'dividends' => 'dividend'
-      'estate and trust income' => 'estate_trust'
-      'farming or fishing income' => 'farming_and_fishing'
-      'foreign income' => 'foreign'
-      'interest' => 'interest'
-      'lump sum amount' => 'lump_sum_amount'
-      'military pay' => 'military'
-      'net self employment income' => 'net_self_employment'
-      'other' => 'other'
-      'pension/retirement benefits' => 'pension_retirement_benefits'
-      'pensions/retirement benefits' => 'pension_retirement_benefits'
-      "permanent worker's compensation" => 'permanent_workers_compensation'
-      'prizes and awards' => 'prizes_and_awards'
-      'rental or royalty income' => 'rental_and_royalty'
-      'scholarship payments' => 'scholorship_payments'
-      'social security benefit' => 'social_security_benefit'
-      'supplemental security income' => 'supplemental_security_income'
-      'tax-exempt interest' => 'tax_exempt_interest'
-      'unemployment insurance' => 'unemployment_insurance'
+      'alimony and maintenance' => 'alimony_and_maintenance',
+      'capital gains' => 'capital_gains',
+      'dividends' => 'dividend',
+      'estate and trust income' => 'estate_trust',
+      'farming or fishing income' => 'farming_and_fishing',
+      'foreign income' => 'foreign',
+      'interest' => 'interest',
+      'lump sum amount' => 'lump_sum_amount',
+      'military pay' => 'military',
+      'net self employment income' => 'net_self_employment',
+      'other' => 'other',
+      'pension/retirement benefits' => 'pension_retirement_benefits',
+      'pensions/retirement benefits' => 'pension_retirement_benefits',
+      "permanent worker's compensation" => 'permanent_workers_compensation',
+      'prizes and awards' => 'prizes_and_awards',
+      'rental or royalty income' => 'rental_and_royalty',
+      'scholarship payments' => 'scholorship_payments',
+      'social security benefit' => 'social_security_benefit',
+      'supplemental security income' => 'supplemental_security_income',
+      'tax-exempt interest' => 'tax_exempt_interest',
+      'unemployment insurance' => 'unemployment_insurance',
       'wages and salaries' => 'wages_and_salaries'
     }
 
     FREQUENCY_MAP = {
-      'bi-weekly' => 'biweekly'
-      'half yearly' => 'half_yearly'
-      'monthly' => 'monthly'
-      'quarterly' => 'quarterly'
-      'weekly' => 'weekly'
+      'bi-weekly' => 'biweekly',
+      'half yearly' => 'half_yearly',
+      'monthly' => 'monthly',
+      'quarterly' => 'quarterly',
+      'weekly' => 'weekly',
       'yearly' => 'yearly'
     }
 
@@ -45,11 +45,13 @@ module Parsers::Xml::Cv
     end
 
     def type
-      TYPE_MAP[@parser.at_xpath('./ns1:type', NAMESPACES).text]
+      data = first_text('./ns1:type')
+      data.blank? ? nil : TYPE_MAP[data.downcase]
     end
 
     def frequency
-      FREQUENCY_MAP[@parser.at_xpath('./ns1:frequency', NAMESPACES).text]
+      data = first_text('./ns1:frequency')
+      data.blank? ? nil : FREQUENCY_MAP[data.downcase]
     end
 
     def start_date
@@ -69,7 +71,7 @@ module Parsers::Xml::Cv
     end
 
     def empty?
-      [dollar_amount,type,start_date,frequency].any?(&:blank?)
+      [dollar_amount,type,frequency].any?(&:blank?)
     end
 
     def to_request

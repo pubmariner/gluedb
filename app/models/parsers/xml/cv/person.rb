@@ -10,7 +10,10 @@ module Parsers::Xml::Cv
     end
 
     def name_first
-      first_text("./ns1:name/ns1:name_first")
+      data = first_text("./ns1:name/ns1:name_first")
+      return data unless data.blank?
+      full_name = first_text("./ns1:name/ns1:name_full")
+      full_name.blank? ? nil : full_name.strip.split(/\s+/).first
     end
 
     def name_last

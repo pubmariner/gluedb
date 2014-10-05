@@ -3,7 +3,7 @@ require 'rails_helper'
 describe ImportCuramData do
   subject { ImportCuramData.new(person_factory, app_group_repo, person_finder, app_group_factory, relationship_factory, qualification_factory, assistance_eligibilities_importer) }
   let(:app_group_repo) { double(find_by_case_id: app_group) }
-  let(:app_group) { double(destroy!: nil) }
+  let(:app_group) { double(destroy: nil) }
   let(:person_finder) { 
     finder = double
     allow(finder).to receive(:find).with(person_properties).and_return(person)
@@ -91,7 +91,7 @@ describe ImportCuramData do
 
   context 'when application group exists' do
     it "is deleted" do
-      expect(app_group).to receive(:destroy!)
+      expect(app_group).to receive(:destroy)
       subject.execute(request)
     end
   end

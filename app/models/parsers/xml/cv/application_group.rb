@@ -32,9 +32,9 @@ module Parsers::Xml::Cv
       results = []
 
       elements = @parser.xpath('./ns1:applicants/ns1:applicant', NAMESPACES)
-      elements.each { |e| results << Individual.new(e) }
+      elements.each { |e| results << Parsers::Xml::Cv::Individual.new(e) }
 
-      results
+      results.reject(&:empty?)
     end
 
     def relationships

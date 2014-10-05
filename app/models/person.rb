@@ -72,7 +72,7 @@ class Person
   #
   #
   embeds_many :assistance_eligibilities
-  accepts_nested_attributes_for :assistance_eligibilities, reject_if: proc { |attribs| attribs['date_determined'].blank? }, allow_destroy: true
+  accepts_nested_attributes_for :assistance_eligibilities, allow_destroy: true
 
   def update_attributes_with_delta(props = {})
     old_record = self.find(self.id)
