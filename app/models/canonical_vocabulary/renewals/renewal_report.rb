@@ -141,19 +141,27 @@ end
 				members_xml = Net::HTTP.get(URI.parse("#{CV_API_URL}people?ids[]=#{@application_group.applicant_ids.join("&ids[]=")}&user_token=zUzBsoTSKPbvXCQsB4Ky"))
         root = Nokogiri::XML(members_xml).root
         member_count = 0
+        individual_count = root.xpath("n1:individual").count
+
         primary_processed = false
+        # Household Address should be popoulated before member details
         root.xpath("n1:individual").each do |member|
           individual = Parsers::Xml::IrsReports::Individual.new(member)
-          # puts individual.id.inspect
-          # puts @application_group.primary_applicant_id.inspect
-
-          if individual.id == @application_group.primary_applicant_id
-          	@household_address = household_address(individual) if !household_address(individual).empty?
-            @member_details[:primary] = individual_details(individual)
+          break if !@household_address.empty? && primary_processed
+          if individual.id == @application_group.primary_applicant_id || individual_count = 1
+            @household_address = household_address(individual)
             primary_processed = true
           else
-            member_count += 1 
             @household_address = household_address(individual) if @household_address.empty?
+          end
+        end
+
+        root.xpath("n1:individual").each do |member|
+          individual = Parsers::Xml::IrsReports::Individual.new(member)
+          if individual.id == @application_group.primary_applicant_id || individual_count = 1
+            @member_details[:primary] = individual_details(individual)
+          else
+            member_count += 1 
             @member_details[:members] += individual_details(individual)
           end
         end
@@ -176,12 +184,14 @@ end
 
       def residency(member)
         if member.residency.blank?
-          return member.residency
-        else
-          return if @household_address.empty?
-          if @household_address[-2] == "DC"
+          return "No Status"if @household_address.empty?
+          if @household_address[-2].strip == "DC" ? 
             return "D.C. Resident"
+          else
+            return "Not a D.C Resident"
           end
+        else
+          return member.residency
         end
       end
 

@@ -5,7 +5,7 @@ module Parsers::Xml::IrsReports
 
     def initialize(data_xml = nil)
       
-      # xml_file = File.open(Rails.root.to_s + "/individual1.xml")
+      # xml_file = File.open(Rails.root.to_s + "/individual_address.xml")
       # # parser = Net::HTTP.get(URI.parse('http://localhost:3000/api/v1/people/53e6921beb899ad9ca014faf?user_token=1LGx9y5uvcsR-syqzTob'))
       # parser = Nokogiri::XML(xml_file)
       # @root = parser.root
@@ -82,9 +82,11 @@ module Parsers::Xml::IrsReports
 
     # Can we use is_state_resident flag?
     def residency
-      return unless addresses[0]
-      if addresses[0][:state] == "DC"
+      return if addresses[0].nil?
+      if addresses[0][:state].strip == "DC"
         return "D.C. Resident"
+      else
+        return "Not a D.C. Resident"
       end
     end
 
