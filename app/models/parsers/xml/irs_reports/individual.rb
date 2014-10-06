@@ -57,7 +57,7 @@ module Parsers::Xml::IrsReports
           state: ele.at_xpath('n1:state').text,
           postal_code: ele.at_xpath('n1:postal_code').text
         }
-        address.merge({address_2: ele.at_xpath('n1:address_2').text}) if ele.at_xpath('n1:address_2')
+        address.merge!({address_2: ele.at_xpath('n1:address_2').text}) if ele.at_xpath('n1:address_2')
         addresses << address
       end
       addresses
