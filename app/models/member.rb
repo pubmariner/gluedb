@@ -123,9 +123,9 @@ class Member
   end
 
   def can_be_quoted?
-    (citizen_status != "undocumented_immigrant") && \
-    (citizen_status != "not_lawfully_present_in_us") && \
-    (is_incarcerated == false)
+#    (citizen_status != "undocumented_immigrant") && \
+#    (citizen_status != "not_lawfully_present_in_us") && \
+    !is_incarcerated
   end
 
 protected
