@@ -132,7 +132,7 @@ module CanonicalVocabulary
 				@sheet.row(@row).concat data_set
 				@row += 1
 rescue Exception  => e
-  @sheet2.row(@row2).concat [application_group.integrated_case, e.inspect]
+  @sheet2.row(@row2).concat [application_group.id, application_group.integrated_case, e.inspect]
   @row2 += 1
 end
 			end
