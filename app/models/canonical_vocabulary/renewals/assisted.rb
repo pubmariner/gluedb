@@ -8,7 +8,7 @@ module CanonicalVocabulary
 			def initialize(type="single")
 			  @report_type = "ia"
 
-				@file  = "Manual Renewal (#{type.capitalize} QHP).xls"
+				@file  = "Manual Renewal (#{type.capitalize} IA).xls"
 				@book  = Spreadsheet::Workbook.new
 				@sheet = book.create_worksheet :name => 'Manual Renewal'
 

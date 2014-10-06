@@ -102,13 +102,18 @@ module CanonicalVocabulary
       	end
       end  
 
-      def append_household(household, application_group)
-				@household_address = nil
+      def append_household(application_group)
+        # puts "======================"
+        # puts application_group.primary_applicant_id.inspect
+ begin
+				@household_address = []
 				@member_details = {:members => []}
-        @household = household
+        # @household = household
         @application_group = application_group
 
 				populate_member_details
+        # puts @member_details.inspect
+
 
 				data_set  = [application_group.integrated_case, "10/10/2014"]
 				data_set += @member_details[:primary].slice!(0..1)
@@ -121,24 +126,36 @@ module CanonicalVocabulary
         data_set += ["10/10/2014"]
         data_set += policy_details
 
+        # puts @household_address.inspect
+        # puts policy_details.inspect
+
 				@sheet.row(@row).concat data_set
 				@row += 1
+rescue Exception  => e
+  @sheet2.row(@row2).concat [application_group.integrated_case, e.inspect]
+  @row2 += 1
+end
 			end
 
       def populate_member_details
-				members_xml = Net::HTTP.get(URI.parse("#{CV_API_URL}people?ids[]=#{@household.member_ids.join("&ids[]=")}&user_token=zUzBsoTSKPbvXCQsB4Ky"))
+				members_xml = Net::HTTP.get(URI.parse("#{CV_API_URL}people?ids[]=#{@application_group.applicant_ids.join("&ids[]=")}&user_token=zUzBsoTSKPbvXCQsB4Ky"))
         root = Nokogiri::XML(members_xml).root
         member_count = 0
-
+        primary_processed = false
         root.xpath("n1:individual").each do |member|
           individual = Parsers::Xml::IrsReports::Individual.new(member)
-          if individual.id == @household.primary
-          	@household_address = household_address(individual)
+          # puts individual.id.inspect
+          # puts @application_group.primary_applicant_id.inspect
+
+          if individual.id == @application_group.primary_applicant_id
+          	@household_address = household_address(individual) if !household_address(individual).empty?
             @member_details[:primary] = individual_details(individual)
-            next
+            primary_processed = true
+          else
+            member_count += 1 
+            @household_address = household_address(individual) if @household_address.empty?
+            @member_details[:members] += individual_details(individual)
           end
-          member_count += 1 
-          @member_details[:members] += individual_details(individual)
         end
 
         if @range
@@ -157,12 +174,23 @@ module CanonicalVocabulary
 				data
 			end
 
+      def residency(member)
+        if member.residency.blank?
+          return member.residency
+        else
+          return if @household_address.empty?
+          if @household_address[-2] == "DC"
+            return "D.C. Resident"
+          end
+        end
+      end
+
       def individual_details(member)
       	data = [
       		member.name_first,
       		member.name_last,
       		member.age,
-      	  member.residency,
+      	  residency(member),
       		member.citizenship
       	]
 
@@ -170,7 +198,7 @@ module CanonicalVocabulary
       		data += [
       			member.tax_status,
       			member.mec,
-      			@household.hh_size,
+      			@application_group.size,
       			member.projected_income
       		]
       	end
@@ -179,22 +207,30 @@ module CanonicalVocabulary
       end
 
       def policy_details
+        if @application_group.insurance_plan_2014("health").nil? && @application_group.insurance_plan_2014("dental").nil?
+          raise "No active health or dental policy"
+        end
+
         policy = [
-           @application_group.insurance_plan_2014("health"),
+           @application_group.insurance_plan_2014("health")[:plan],
            @application_group.insurance_plan_2015("health"),
            @application_group.health_plan_premium_2015
          ]
         # HP Premium After APTC 
-        policy += nil if @report_type == "ia" 
-        policy += [ 
-           @application_group.insurance_plan_2014("dental"),
-           @application_group.insurance_plan_2015("dental"),
-           @application_group.dental_plan_premium_2015
-        ]
+        policy += [nil] if @report_type == "ia" 
+
+        # dental_policy = @application_group.insurance_plan_2014("dental")
+        #   policy += [ 
+        #    dental_policy.blank? ? nil : dental_policy[:plan],
+        #    @application_group.insurance_plan_2015("dental"),
+        #    @application_group.dental_plan_premium_2015
+        #  ]
+        policy += [nil, nil, nil]
       end
 
-			def household_address(primary)
-      	address = primary.addresses[0]
+			def household_address(member)
+      	address = member.addresses[0]
+        return [] if address.nil?
       	[
 					address[:address_1],
 					address[:address_2],

@@ -1,22 +1,38 @@
 module Parsers::Xml::IrsReports
   class ApplicationGroup
     
-    attr_accessor :individual_policies, :individual_policy_holders
+    attr_accessor :individual_policies, :individual_policy_holders, :individual_policy_quotes, :individual_policies_details
 
     def initialize(parser = nil)
-      # parser = File.open(Rails.root.to_s + "/application_group.xml")
-      # parser = Nokogiri::XML(parser)
+      # parser = File.open(Rails.root.to_s + "/application_groups_quotes.xml")
+      # parser = Nokogiri::XML(parser).root
 
       @root = parser
       @individual_policies = []
       @individual_policy_holders = {}
-      @policies_details = {}
+      @individual_policy_quotes = {}
+      @individual_policies_details = {}
+
+      @health_plan_name_2015 = nil
+
       identify_indiv_policies
       policies_details
     end
 
+    def id
+      @root.at_xpath("n1:id").text
+    end
+
+    def primary_applicant_id
+      @root.at_xpath("n1:primary_applicant_id").text
+    end
+
+    def size
+      applicants.count
+    end
+
     def integrated_case
-      nil # @root.at_xpath("n1:e_case_id").text
+      @root.at_xpath("n1:e_case_id").text if @root.at_xpath("n1:e_case_id")
     end
 
     def irs_households
@@ -25,6 +41,10 @@ module Parsers::Xml::IrsReports
 
     def applicants
       @root.xpath("n1:applicants/n1:applicant")
+    end
+
+    def applicant_ids
+      @root.xpath("n1:applicants/n1:applicant").map { |e| e.at_xpath("n1:person/n1:id").text.match(/\w+$/)[0]}
     end
 
     def applicants_xml
@@ -40,61 +60,141 @@ module Parsers::Xml::IrsReports
         policies = []
         applicant.xpath("n1:hbx_roles/n1:qhp_roles/n1:qhp_role/n1:policies/n1:policy").each do |policy|
           next if policy.at_xpath("n1:employer")
+          if policy.at_xpath("n1:enrollees").nil?
+            begin_date = Date.strptime(policy.at_xpath("n1:enrollees/n1:enrollee/n1:begin_date").text,'%Y%m%d')
+            end_date = Date.strptime(policy.at_xpath("n1:enrollees/n1:enrollee/n1:end_date").text,'%Y%m%d') 
+            next if policy_inactive?(begin_date, end_date)
+          end
           @individual_policies << policy.at_xpath("n1:id").text
           policies << policy.at_xpath("n1:id").text
         end
+
+        quotes = {}
+        applicant.xpath("n1:hbx_roles/n1:qhp_roles/n1:qhp_role/n1:qhp_quotes/n1:qhp_quote").each do |quote|
+          coverage = quote.at_xpath("n1:coverage_type").text.split("#")[1]
+          quotes[coverage] = quote.at_xpath("n1:rates/n1:rate/n1:rate").text
+          if @health_plan_name_2015.blank? && coverage == "health"
+            @health_plan_name_2015 = health_plan_names_by_hios_2015(quote.at_xpath("n1:qhp_id").text.split("-")[0])
+          end
+        end
+
         @individual_policy_holders[applicant.at_xpath("n1:person/n1:id").text] = policies
+        @individual_policy_quotes[applicant.at_xpath("n1:person/n1:id").text] = quotes        
       end
     end
 
     def policies_details
        policy_ids = @individual_policies.map{|policy| policy.match(/\d+$/)[0]}.uniq
+       puts "policies...."
+       puts policy_ids.inspect
+       if policy_ids.count > 10
+          # raise "Have more than 10 active polices #{policy_ids.inspect}"
+       end
+
        policies_xml = Net::HTTP.get(URI.parse("http://localhost:3000/api/v1/policies?ids[]=#{policy_ids.join("&ids[]=")}&user_token=zUzBsoTSKPbvXCQsB4Ky"))
        root = Nokogiri::XML(policies_xml).root
-
        root.xpath("n1:policy").each do |policy|
           policy = Parsers::Xml::IrsReports::Policy.new(policy)
-          @policies_details[policy.id] = {
+          @individual_policies_details[policy.id] = {
              :plan => policy.plan,
              :begin_date => policy.start_date,
              :end_date => policy.end_date,
              :elected_aptc => policy.elected_aptc,
-             :coverage_type => policy.coverage_type
+             :coverage_type => policy.coverage_type,
+             :qhp_id => policy.qhp_number
           }
        end
     end
 
     def assisted?
-      @policies_details.each do |id, policy|
+      @individual_policies_details.each do |id, policy|
         return true if policy[:elected_aptc].to_i > 0
       end
       false
     end
 
-    def insurance_plan_2014(coverage)
-      @policies_details.each do |id, policy|
-        if policy[:coverage_type] == coverage && policy[:begin_date] < Date.parse("2015-01-01")
-          return policy[:plan]
-        end
-      end
-      nil
+    def policy_inactive?(begin_date, end_date)
+      return true if begin_date > Date.parse("2014-12-31")
+      return true if begin_date == end_date
+      return true if (!end_date.nil? && end_date < Date.parse("2014-12-31"))
+      false
     end
 
-    def insurance_plan_2015(coverage)
-      @policies_details.each do |id, policy|
-        if policy[:coverage_type] == coverage && policy[:begin_date] >= Date.parse("2015-01-01")
-          return policy[:plan]
+    def insurance_plan_2014(coverage)
+      now = Date.today
+      @individual_policies_details.each do |id, policy|
+        next if policy_inactive?(policy[:begin_date], policy[:end_date])
+
+        if policy[:coverage_type] == coverage && policy[:begin_date] < Date.parse("2015-01-01")
+          # if qhp_ids_2015plans.include?(policy[:qhp_id])
+          #   # puts "found match...."
+          #   raise "2015 policy mapping required for policy QHP ID #{policy[:qhp_id]}"
+          # end
+          return policy
         end
       end
       nil
     end
 
     def health_plan_premium_2015
-      nil
+      insurance_premium("health")
+    end
+
+    # {"http://localhost:3000/api/v1/people/53e68e78eb899ad9ca00002b"=>{"health/dental"=>"604.22"}} 
+    def insurance_premium(coverage)
+      amount = 0.0
+      @individual_policy_quotes.each do |individual, quote|
+        amount += quote[coverage].to_f
+      end
+      amount
+    end
+
+    def insurance_plan_2015(coverage)
+      @health_plan_name_2015
+    end
+
+    def premium_amount(qhp_id)
     end
 
     def dental_plan_premium_2015
-      nil
+      insurance_premium("dental")
+    end
+
+    def health_plan_names_by_hios_2015(hios_id)
+      hios_ids = {
+        "77422DC0060002" => "Aetna Bronze $20 Copay",
+        "77422DC0060004" => "Aetna Bronze Deductible Only HSA Elgible",
+        "77422DC0060005" => "Aetna Catastrophic 100%",
+        "77422DC0060006" => "Aetna Gold $5 Copay",
+        "77422DC0060010" => "Aetna Silver $5 Copay 2750",
+        "77422DC0060008" => "Aetna Silver $10 Copay",
+        "78079DC0160001" => "BlueCross BlueShield Preferred 500, A Multi-State Plan",
+        "78079DC0180001" => "BlueCross BlueShield Preferred 1500, A Multi-State Plan",
+        "78079DC0200001" => "BluePreferred HSA Bronze",
+        "78079DC0210001" => "BluePreferred Platinum $0",
+        "86052DC0400001" => "BlueChoice Silver $2,000",
+        "86052DC0400002" => "BlueChoice Gold $0",
+        "86052DC0400003" => "BlueChoice Gold $1,000",
+        "86052DC0400004" => "BlueChoice Young Adult $6,600",
+        "86052DC0410001" => "BlueChoice HSA Bronze $4,000",
+        "86052DC0410002" => "BlueChoice HSA Bronze $6,000",
+        "86052DC0410003" => "BlueChoice HSA Silver $1,300",
+        "86052DC0420001" => "BlueChoice Plus Bronze $5,500",
+        "86052DC0420002" => "BlueChoice Plus Silver $2,500",
+        "86052DC0430001" => "HealthyBlue Gold $1,500",
+        "86052DC0430002" => "HealthyBlue Platinum $0",
+        "94506DC0390001" => "KP DC Platinum 0/10/Dental/Ped Dental",
+        "94506DC0390002" => "KP DC Gold 0/20/Dental/Ped Dental",
+        "94506DC0390003" => "KP DC Gold 1000/20/Dental/Ped Dental",
+        "94506DC0390004" => "KP DC Silver 1500/30/Dental/Ped Dental",
+        "94506DC0390005" => "KP DC Silver 2500/30/Dental/Ped Dental",
+        "94506DC0390006" => "KP DC Silver 1750/25%/HSA/Dental/Ped Dental",
+        "94506DC0390007" => "KP DC Bronze 4500/50/Dental/Ped Dental",
+        "94506DC0390008" => "KP DC Catastrophic 6600/0/Dental/ Ped Dental",
+        "94506DC0390009" => "KP DC Bronze 4500/50/HSA/Dental/Ped Dental",
+        "94506DC0390010" => "KP DC Bronze 5000/30%/HSA/Dental/Ped Dental"
+      }
+      hios_ids[hios_id]
     end
   end
 end

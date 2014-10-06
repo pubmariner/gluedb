@@ -10,6 +10,7 @@ module CanonicalVocabulary
 				@file  = "Manual Renewal (#{type.capitalize} UQHP).xls"
 				@book  = Spreadsheet::Workbook.new
 				@sheet = book.create_worksheet :name => 'Manual Renewal'
+				@sheet2 = book.create_worksheet :name => 'Exceptions'
 
 				columns = UQHP_PRIMARY_COLUMNS
 				@range = nil
@@ -17,8 +18,10 @@ module CanonicalVocabulary
 				@range = 2..SUPER_LIMIT if type == "super"
 				columns += uqhp_member_columns(@range) if @range
 				@sheet.row(0).concat  columns + UQHP_POLICY_COLUMNS
+				@sheet2.row(0).concat  ["Integrated Case", "Exception"]
 
 				@row = 1
+				@row2=1
 			end
 		end
 	end
