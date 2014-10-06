@@ -18,7 +18,7 @@ module CanonicalVocabulary
 				@range = 2..SUPER_LIMIT if type == "super"
 				columns += uqhp_member_columns(@range) if @range
 				@sheet.row(0).concat  columns + UQHP_POLICY_COLUMNS
-				@sheet2.row(0).concat  ["Integrated Case", "Exception"]
+				@sheet2.row(0).concat  ["Application Group ID", "Integrated Case", "Exception"]
 
 				@row = 1
 				@row2=1
