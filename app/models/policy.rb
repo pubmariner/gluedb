@@ -36,6 +36,7 @@ class Policy
 
   embeds_many :enrollees
   accepts_nested_attributes_for :enrollees, reject_if: :all_blank, allow_destroy: true
+  index({ "enrollees.m_id" => 1 })
   index({ "enrollees.hbx_member_id" => 1 })
   index({ "enrollees.carrier_member_id" => 1})
   index({ "enrollees.carrier_policy_id" => 1})
