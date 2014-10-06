@@ -148,7 +148,7 @@ end
         root.xpath("n1:individual").each do |member|
           individual = Parsers::Xml::IrsReports::Individual.new(member)
           break unless @household_address.empty?
-          if individual.id == @application_group.primary_applicant_id || individual_count = 1
+          if individual.id == @application_group.primary_applicant_id || individual_count == 1
             @household_address = household_address(individual)
             # primary_processed = true
           # else
@@ -162,7 +162,7 @@ end
 
         root.xpath("n1:individual").each do |member|
           individual = Parsers::Xml::IrsReports::Individual.new(member)
-          if individual.id == @application_group.primary_applicant_id || individual_count = 1
+          if individual.id == @application_group.primary_applicant_id || individual_count == 1
             @member_details[:primary] = individual_details(individual)
           else
             member_count += 1 
