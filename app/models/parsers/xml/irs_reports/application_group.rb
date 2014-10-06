@@ -150,9 +150,6 @@ module Parsers::Xml::IrsReports
     end
 
     def future_plan_names_by_hios(hios_id, coverage)
-
-      puts hios_id.inspect
-
       hios_ids = {
           "health" => {
           "77422DC0060002" => "Aetna Bronze $20 Copay",
