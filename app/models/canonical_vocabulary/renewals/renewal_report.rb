@@ -207,25 +207,25 @@ end
       end
 
       def policy_details
-        if @application_group.insurance_plan_2014("health").nil? && @application_group.insurance_plan_2014("dental").nil?
+        if @application_group.current_insurance_plan("health").nil? && @application_group.current_insurance_plan("dental").nil?
           raise "No active health or dental policy"
         end
 
+        health_plan = @application_group.current_insurance_plan("health")
         policy = [
-           @application_group.insurance_plan_2014("health")[:plan],
-           @application_group.insurance_plan_2015("health"),
-           @application_group.health_plan_premium_2015
+           health_plan.nil? ? nil : health_plan[:plan],
+           @application_group.future_insurance_plan("health"),
+           @application_group.quoted_insurance_premium("health")
          ]
         # HP Premium After APTC 
         policy += [nil] if @report_type == "ia" 
 
-        # dental_policy = @application_group.insurance_plan_2014("dental")
-        #   policy += [ 
-        #    dental_policy.blank? ? nil : dental_policy[:plan],
-        #    @application_group.insurance_plan_2015("dental"),
-        #    @application_group.dental_plan_premium_2015
-        #  ]
-        policy += [nil, nil, nil]
+        dental_policy = @application_group.current_insurance_plan("dental")
+          policy += [ 
+           dental_policy.blank? ? nil : dental_policy[:plan],
+           @application_group.future_insurance_plan("dental"),
+           @application_group.quoted_insurance_premium("dental")
+         ]
       end
 
 			def household_address(member)

@@ -31,8 +31,8 @@ module CanonicalVocabulary
           serialize_groupids(ids)
           ids =[]
           puts "----processed #{current} application groups"
-        end
-        break if current == 150
+        end    
+        break if current == 5000
         current += 1
       end
 
@@ -42,7 +42,7 @@ module CanonicalVocabulary
     def serialize_groupids(group_ids)
       puts "processing......"
       puts group_ids.inspect
-      begin
+      # begin
         groups_xml = Net::HTTP.get(URI.parse("#{CV_API_URL}application_groups?ids[]=#{group_ids.join("&ids[]=")}&user_token=zUzBsoTSKPbvXCQsB4Ky"))
         root = Nokogiri::XML(groups_xml).root
         root.xpath("n1:application_group").each do |application_group_xml|
@@ -54,14 +54,17 @@ module CanonicalVocabulary
         if application_group.size == 1
           @single.append_household(application_group)
         else
-          application_group.size <= 6 ? @multiple.append_household(application_group) :
-          @super_multiple.append_household(application_group)
+          if application_group.size <= 6
+            @multiple.append_household(application_group)
+          else
+            @super_multiple.append_household(application_group)
+          end
         end
         end
 
-      rescue Exception  => e
-        @logger.info group_ids.join(",")
-      end
+      # rescue Exception  => e
+      #   @logger.info group_ids.join(",")
+      # end
     end
 
     def write_reports

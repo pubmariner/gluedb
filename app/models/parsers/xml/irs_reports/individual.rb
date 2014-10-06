@@ -42,7 +42,7 @@ module Parsers::Xml::IrsReports
     end
 
     def age
-      ((Time.now - dob.to_time)/(60*60*24*365)).floor
+      Ager.new(dob).age_as_of(Date.parse("2015-1-1"))
     end
 
     def mec
