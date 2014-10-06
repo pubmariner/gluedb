@@ -190,12 +190,12 @@ end
         if member.residency.blank?
           return "No Status"if @household_address.empty?
           if @household_address[-2].strip == "DC"
-            return "D.C. Resident"
+            "D.C. Resident"
           else
-            return "Not a D.C Resident"
+            "Not a D.C Resident"
           end
         else
-          return member.residency
+          member.residency
         end
       end
 
