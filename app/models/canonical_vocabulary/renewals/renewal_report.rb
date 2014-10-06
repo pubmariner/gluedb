@@ -143,17 +143,21 @@ end
         member_count = 0
         individual_count = root.xpath("n1:individual").count
 
-        primary_processed = false
+        # primary_processed = false
         # Household Address should be popoulated before member details
         root.xpath("n1:individual").each do |member|
           individual = Parsers::Xml::IrsReports::Individual.new(member)
-          break if !@household_address.empty? && primary_processed
+          break unless @household_address.empty?
           if individual.id == @application_group.primary_applicant_id || individual_count = 1
             @household_address = household_address(individual)
-            primary_processed = true
-          else
-            @household_address = household_address(individual) if @household_address.empty?
+            # primary_processed = true
+          # else
+          #   @household_address = household_address(individual) if @household_address.empty?
           end
+        end
+
+        if @household_address.empty?
+          raise "Primary Applicant Address Not Present"
         end
 
         root.xpath("n1:individual").each do |member|
@@ -185,7 +189,7 @@ end
       def residency(member)
         if member.residency.blank?
           return "No Status"if @household_address.empty?
-          if @household_address[-2].strip == "DC" ? 
+          if @household_address[-2].strip == "DC"
             return "D.C. Resident"
           else
             return "Not a D.C Resident"
