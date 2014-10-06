@@ -10,7 +10,7 @@ class Api::V1::ApplicationGroupsController < ApplicationController
 
     page_number = params[:page]
     page_number ||= 1
-    @groups = @groups.page(page_number).per(15)
+    @groups = @groups.page(page_number).per(30)
     peep_ids = @groups.inject([]) do |acc, ag|
       acc + ag.person_ids
     end

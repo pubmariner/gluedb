@@ -16,7 +16,7 @@
     = render 'shared/person', person: policy.responsible_party.person
 %n1:enrollment
   %n1:plan
-    = render 'shared/plan_link_type', plan: policy.plan
+    = render 'shared/plan_link_type', plan: policy.plan, rate: nil
   - if policy.market == 'individual'
     %n1:individual_market
       %n1:carrier_to_bill_flag= policy.carrier_to_bill
