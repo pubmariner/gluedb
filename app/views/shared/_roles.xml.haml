@@ -25,7 +25,7 @@
             %n1:policy= render 'shared/policy_link_type', policy: policy, member: member
       - if false
         %n1:exemptions=#todo
-      - if policies.count > 0
+      - if member.can_be_quoted? && (policies.count > 0) 
         %n1:qhp_quotes
           - policies.each do |policy|
             - plan = (Caches::MongoidCache.lookup(Plan, policy.plan_id) { policy.plan })

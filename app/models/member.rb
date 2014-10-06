@@ -122,6 +122,12 @@ class Member
     Queries::MemberByHbxIdQuery.new(member_id).execute
   end
 
+  def can_be_quoted?
+    (citizen_status != "undocumented_immigrant") && \
+    (citizen_status != "not_lawfully_present_in_us") && \
+    (is_incarcerated == false)
+  end
+
 protected
   def generate_hbx_member_id
     self.hbx_member_id = self.hbx_member_id || self._id.to_s
