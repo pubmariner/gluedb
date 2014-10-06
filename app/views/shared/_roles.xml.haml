@@ -30,9 +30,10 @@
           - policies.each do |policy|
             - plan = (Caches::MongoidCache.lookup(Plan, policy.plan_id) { policy.plan })
             - plan_2015 = plan.plan_for_2015
-            - rate = plan_2015.rate(Date.new(2015,1,1), Date.new(2015,1,1), member.dob)
-            - if !rate.nil?
-              %n1:qhp_quote= render 'shared/plan_link_type', plan: plan_2015, rate: rate
+            - if !plan_2015.blank?
+              - rate = plan_2015.rate(Date.new(2015,1,1), Date.new(2015,1,1), member.dob)
+              - if !rate.nil?
+                %n1:qhp_quote= render 'shared/plan_link_type', plan: plan_2015, rate: rate
 - if false #TODO
   %n1:responsible_party_roles
     %n1:responsible_party_role
