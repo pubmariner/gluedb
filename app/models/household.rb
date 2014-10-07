@@ -16,15 +16,16 @@ class Household
   field :max_aptc_in_cents, type: Integer, default: 0
   field :csr_percent, type: BigDecimal, default: 0.00   #values in DC: 0, .73, .87, .94
 
-  field :submission_date, type: Date
+  field :eligibility_status_code, type: String
+  field :eligibility_date, type: Date
   field :is_active, type: Boolean, default: true   # this Household active on the Exchange?
 
-  validates_presence_of :submission_date, :max_aptc_in_cents, :csr_percent
+  validates_presence_of :eligibility_date, :max_aptc_in_cents, :csr_percent
   validate :csr_as_percent
 
   index({e_pdc_id:  1})
   index({irs_group_id:  1})
-  index({submission_date:  1})
+  index({eligibility_date:  1})
 
 #  validates :rel, presence: true, inclusion: {in: %w( subscriber responsible_party spouse life_partner child ward )}
 
