@@ -20,7 +20,7 @@ module CanonicalVocabulary
 				columns += ia_member_columns(@range) if @range
 				@sheet.row(0).concat  columns + IA_POLICY_COLUMNS
 
-				@renewal_logger = Logger.new("#{Rails.root}/log/ia_renewals.log")
+				@renewal_logger = Logger.new("#{Rails.root}/log/ia_renewals_internal.log")
 
 				@row = 1
 			end
