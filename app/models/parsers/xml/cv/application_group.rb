@@ -48,12 +48,12 @@ module Parsers::Xml::Cv
 
     def consent_renewal_year
       node = @parser.at_xpath('./ns1:consent_renewal_year', NAMESPACES)
-      (node.nil?)? nil : node.text.to_i
+      (node.nil?)? 0 : node.text.to_i
     end
 
     def coverage_renewal_year
       node = @parser.at_xpath('./ns1:coverage_renewal_year', NAMESPACES)
-      (node.nil?)? nil : node.text.to_i
+      (node.nil?)? nil : node.text
     end
 
     def to_request
