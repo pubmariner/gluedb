@@ -54,7 +54,7 @@
               %n1:alternate_benefit
                 %n1:type= alternate_benefit.kind
                 %n1:start_date= alternate_benefit.start_date
-                %n1:= alternate_benefit.end_date
+                %n1:end_date= alternate_benefit.end_date
                 %n1:submitted_date= alternate_benefit.submission_date
 - unless person.comments.empty?
   = render 'shared/comments', object: person
