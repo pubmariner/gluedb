@@ -5,12 +5,12 @@ class ApplicationGroup
   field :e_case_id, type: Integer  # Eligibility system foreign key
   field :is_active, type: Boolean, default: true   # ApplicationGroup active on the Exchange?
 
-  field :primary_applicant_id, type: String     # Person who authorized auto-renewal eligibility check
-  field :consent_applicant_id, type: String     # Person who authorized auto-renewal eligibility check
+  field :primary_applicant_id, type: String     # Person responsible for this application group
+  field :consent_applicant_id, type: String     # Person who authorizes auto-renewal eligibility check
   field :consent_applicant_name, type: String
   field :consent_renewal_year, type: Integer    # Authorize auto-renewal elibility check through this year (CCYY format)
   field :coverage_renewal_year, type: String    # Temporary field to indicate whether IRS consent was granted
-  field :submission_date, type: Date
+  field :submission_date, type: Date            # Date application was created on authority system
 
   field :notice_generated, type: Boolean, default: true
   has_many :policies
