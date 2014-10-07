@@ -22,7 +22,7 @@ module CanonicalVocabulary
       current = 1
       ids = []
       limit = sheet.rows.count
-      @logger = Logger.new("#{Rails.root}/log/renewals.log")
+      @logger = Logger.new("#{Rails.root}/log/ia_renewals.log")
 
       sheet.each do |row|
         next if row[0] == "5431d396eb899ad6b2000510"
@@ -35,8 +35,7 @@ module CanonicalVocabulary
         break if current == 5000
         current += 1
       end
-
-      write_reports
+     write_reports
     end
 
     def serialize_groupids(group_ids)

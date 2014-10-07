@@ -53,7 +53,8 @@ module CanonicalVocabulary
 				"HP Premium After APTC",
 				"2014 Dental Plan",	
 				"2015 Dental Plan",
-				"2015 Dental Plan Premium",	
+				"2015 Dental Plan Premium",
+        "HH Total Income",	
 				"CSR Eligibility",
 				"IRS Consent"
 			]
@@ -120,7 +121,9 @@ module CanonicalVocabulary
           data_set += [nil] if @report_type == "ia"
           data_set += ["10/10/2014"]
           data_set += policy_details
-
+          if @report_type == "ia"
+            data_set += [@application_group.yearwise_incomes("2014"),nil, @application_group.irs_consent]
+          end
           @sheet.row(@row).concat data_set
           @row += 1         
         rescue Exception  => e
@@ -196,7 +199,7 @@ module CanonicalVocabulary
       			member.tax_status,
       			member.mec,
       			@application_group.size,
-      			member.projected_income
+      			member.yearwise_incomes("2014")
       		]
       	end
 

@@ -47,6 +47,14 @@ module Parsers::Xml::IrsReports
       @root.xpath("n1:applicants/n1:applicant").map { |e| e.at_xpath("n1:person/n1:id").text.match(/\w+$/)[0]}.uniq
     end
 
+    def yearwise_incomes(year)
+      incomes = {}
+      irs_households.xpath("n1:total_incomes/n1:total_income").each do |income|
+        incomes[income.at_xpath("n1:calendar_year").text] = income.at_xpath("n1:total_income").text
+      end
+      incomes[year]
+    end
+
     def applicants_xml
       applicants_xml = {}
       applicants.each do |applicant|
@@ -113,6 +121,10 @@ module Parsers::Xml::IrsReports
         end
       end
       assisted
+    end
+
+    def irs_consent
+      @root.at_xpath("n1:coverage_renewal_year").text
     end
 
     def policy_inactive?(begin_date, end_date)
@@ -203,10 +215,6 @@ module Parsers::Xml::IrsReports
           }
         } 
       hios_ids[coverage][hios_id]
-    end
-
-    def irs_consent
-      @root.at_xpath("n1:coverage_renewal_year").text
     end
   end
 end

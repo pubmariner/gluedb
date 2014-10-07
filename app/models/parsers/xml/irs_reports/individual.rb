@@ -45,9 +45,6 @@ module Parsers::Xml::IrsReports
       Ager.new(dob).age_as_of(Date.parse("2015-1-1"))
     end
 
-    def mec
-    end
-
     def addresses
       addresses = []
       @root.xpath("n1:person/n1:addresses/n1:address").each do |ele|
@@ -106,6 +103,32 @@ module Parsers::Xml::IrsReports
 
     def assistance_eligibility
       @root.xpath("n1:assistance_eligibilities/n1:assistance_eligibility")[0]
+    end
+
+    def mec
+
+      benefits = "No"
+      es_coverage = assistance_eligibility.at_xpath("n1:is_enrolled_for_es_coverage").text
+      if es_coverage == "true"
+        return "Yes"
+      end
+      assistance_eligibility.xpath("n1:alternate_benefits/n1:alternate_benefit").each do |benefit|
+        if Date.strptime(benefit.at_xpath("n1:end_date"), "%Y%m%d") <= Date.parse("2015-1-1")
+          benefits = "Yes"
+          break
+        end
+      end
+      return benefits  
+    end
+
+    def yearwise_incomes(year)
+
+      puts id.inspect
+      incomes = {}
+      assistance_eligibility.xpath("n1:total_incomes/n1:total_income").each do |income|
+        incomes[income.at_xpath("n1:calendar_year").text] = income.at_xpath("n1:total_income").text
+      end
+      incomes[year]
     end
 
     def tax_status
