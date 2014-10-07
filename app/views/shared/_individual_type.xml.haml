@@ -26,6 +26,11 @@
         %n1:is_without_assistance= assistance_eligibility.is_without_assistance
         %n1:is_ia_eligible= assistance_eligibility.is_ia_eligible
         %n1:is_medicaid_chip_eligible= assistance_eligibility.is_medicaid_chip_eligible
+        %n1:total_incomes
+          - assistance_eligibility.total_incomes_by_year.each do |k, v|
+            %n1:total_income
+              %n1:calendar_year=k
+              %n1:total_income=v
         - unless assistance_eligibility.incomes.empty?
           %n1:incomes
             - assistance_eligibility.incomes.each do |income|

@@ -95,6 +95,8 @@ class AssistanceEligibility
 
   end
 
+
+
   # The person may have not worked the entire year. This method computed the actual days worked.
   def compute_actual_days_worked(year, start_date, end_date)
 
@@ -125,6 +127,21 @@ class AssistanceEligibility
     (alternate_benefit.start_date.year..alternate_benefit.end_date.year).include? Date.today.year
   end
 
+  def total_incomes_by_year
+    incomes_by_year = compute_yearwise(incomes)
+    deductions_by_year = compute_yearwise(deductions)
 
+    years = incomes_by_year.keys | deductions_by_year.keys
+
+
+    total_incomes = {}
+
+    years.each do |y|
+      income_this_year = incomes_by_year[y] || 0
+      deductions_this_year = deductions_by_year[y] || 0
+      total_incomes[y] = (income_this_year - deductions_this_year) * 0.01
+    end
+    total_incomes
+  end
 
 end
