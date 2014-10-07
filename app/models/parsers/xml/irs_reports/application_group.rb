@@ -204,5 +204,9 @@ module Parsers::Xml::IrsReports
         } 
       hios_ids[coverage][hios_id]
     end
+
+    def irs_consent
+      @root.at_xpath("n1:coverage_renewal_year").text
+    end
   end
 end
