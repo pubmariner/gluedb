@@ -135,6 +135,10 @@ class Policy
 
   end
 
+  def canceled?
+    subscriber.canceled?
+  end
+
   def market
     employer.nil? ? 'individual' : 'shop'
   end
@@ -146,7 +150,7 @@ class Policy
   def enrollees_sans_subscriber
     enrollees.reject { |e| e.relationship_status_code == "self" }
   end
-  
+
   def has_responsible_person?
     !self.responsible_party_id.blank?
   end
@@ -387,7 +391,7 @@ class Policy
       ]
     }
   end
-  
+
   def active_enrollees
     enrollees.select { |e| e.coverage_status == 'active' }
   end

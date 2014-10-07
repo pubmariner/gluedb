@@ -23,5 +23,6 @@
 - unless households.comments.empty?
   = render 'shared/comments', object: household
 = render 'shared/timestamp', record: household
+%n1:status_code= household.eligibility_status_code
 %n1:submitted_date= household.submission_date
 %n1:active_flag= household.is_active
