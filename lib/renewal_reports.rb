@@ -7,8 +7,8 @@ class RenewalReports
     # puts "Generated assisted application groups spreadsheet"
     # generate_unassisted_groups
     # puts "Generated unassisted application groups spreadsheet"
-    # CanonicalVocabulary::RenewalSerializer.new("assisted").serialize("assisted_groupids.xls")
-    CanonicalVocabulary::RenewalSerializer.new("unassisted").serialize("unassisted_groupids.xls")
+    CanonicalVocabulary::RenewalSerializer.new("assisted").serialize("assisted_groupids.xls")
+#    CanonicalVocabulary::RenewalSerializer.new("unassisted").serialize("unassisted_groupids.xls")
   end
 
   def generate_excel(group_ids, file)
