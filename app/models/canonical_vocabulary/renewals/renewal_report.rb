@@ -103,38 +103,29 @@ module CanonicalVocabulary
       end  
 
       def append_household(application_group)
-        # puts "======================"
-        # puts application_group.primary_applicant_id.inspect
- begin
-				@household_address = []
-				@member_details = {:members => []}
-        # @household = household
-        @application_group = application_group
+        begin
+          @household_address = []
+          @member_details = {:members => []}
+          @application_group = application_group
 
-				populate_member_details
-        # puts @member_details.inspect
+          populate_member_details
 
+          data_set  = [application_group.integrated_case, "10/10/2014"]
+          data_set += @member_details[:primary].slice!(0..1)
+          data_set += @household_address
+          data_set += @member_details[:primary]
+          data_set += @member_details[:members]
 
-				data_set  = [application_group.integrated_case, "10/10/2014"]
-				data_set += @member_details[:primary].slice!(0..1)
-				data_set += @household_address
-        data_set += @member_details[:primary]
-        data_set += @member_details[:members]
+          # APTC
+          data_set += [nil] if @report_type == "ia"
+          data_set += ["10/10/2014"]
+          data_set += policy_details
 
-        # APTC
-        data_set += [nil] if @report_type == "ia"
-        data_set += ["10/10/2014"]
-        data_set += policy_details
-
-        # puts @household_address.inspect
-        # puts policy_details.inspect
-
-				@sheet.row(@row).concat data_set
-				@row += 1
-rescue Exception  => e
-  @sheet2.row(@row2).concat [application_group.id, application_group.integrated_case, e.inspect]
-  @row2 += 1
-end
+          @sheet.row(@row).concat data_set
+          @row += 1         
+        rescue Exception  => e
+          @renewal_logger.info "#{application_group.id.match(/\w+$/)},#{e.inspect}"
+        end
 			end
 
       def populate_member_details
@@ -150,9 +141,6 @@ end
           break unless @household_address.empty?
           if individual.id == @application_group.primary_applicant_id || individual_count == 1
             @household_address = household_address(individual)
-            # primary_processed = true
-          # else
-          #   @household_address = household_address(individual) if @household_address.empty?
           end
         end
 
@@ -182,18 +170,13 @@ end
 				5.times{ data << nil}
 				4.times{ data << nil} if @report_type == "ia"
 				data << nil
-
 				data
 			end
 
       def residency(member)
         if member.residency.blank?
           return "No Status"if @household_address.empty?
-          if @household_address[-2].strip == "DC"
-            "D.C. Resident"
-          else
-            "Not a D.C Resident"
-          end
+          @household_address[-2].strip == "DC" ? "D.C. Resident" : "Not a D.C Resident"
         else
           member.residency
         end

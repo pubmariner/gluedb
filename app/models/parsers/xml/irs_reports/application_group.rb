@@ -83,10 +83,8 @@ module Parsers::Xml::IrsReports
       end
     end
 
-    def policies_details
+    def policies_details     
        policy_ids = @individual_policies.map{|policy| policy.match(/\d+$/)[0]}.uniq
-       puts "policies...."
-       puts policy_ids.inspect
        if policy_ids.count > 10
           raise "Have more than 10 active polices #{policy_ids.inspect}"
        end
@@ -107,16 +105,20 @@ module Parsers::Xml::IrsReports
     end
 
     def assisted?
+      assisted = false
       @individual_policies_details.each do |id, policy|
-        return true if policy[:elected_aptc].to_i > 0
+        if policy[:elected_aptc].to_i > 0
+          assisted = true
+          break
+        end
       end
-      false
+      assisted
     end
 
     def policy_inactive?(begin_date, end_date)
-      return true if begin_date >= Date.parse("2015-1-1")
-      return true if begin_date == end_date
-      return true if (!end_date.nil? && end_date < Date.parse("2015-1-1"))
+      if begin_date >= Date.parse("2015-1-1") || begin_date == end_date || (!end_date.nil? && end_date < Date.parse("2015-1-1"))
+        return true
+      end
       false
     end
 
