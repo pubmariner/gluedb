@@ -4,7 +4,7 @@ module Parsers::Xml::IrsReports
     attr_accessor :individual_policies, :individual_policy_holders, :future_policy_quotes, :individual_policies_details
 
     def initialize(parser = nil)
-      # parser = File.open(Rails.root.to_s + "/application_groups_quotes.xml")
+      # parser = File.open(Rails.root.to_s + "/application_group_failed.xml")
       # parser = Nokogiri::XML(parser).root
 
       @root = parser
@@ -28,7 +28,7 @@ module Parsers::Xml::IrsReports
     end
 
     def size
-      applicants.count
+      applicant_ids.count
     end
 
     def integrated_case
@@ -44,7 +44,7 @@ module Parsers::Xml::IrsReports
     end
 
     def applicant_ids
-      @root.xpath("n1:applicants/n1:applicant").map { |e| e.at_xpath("n1:person/n1:id").text.match(/\w+$/)[0]}
+      @root.xpath("n1:applicants/n1:applicant").map { |e| e.at_xpath("n1:person/n1:id").text.match(/\w+$/)[0]}.uniq
     end
 
     def applicants_xml
