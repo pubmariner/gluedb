@@ -40,29 +40,23 @@ module CanonicalVocabulary
     end
 
     def serialize_groupids(group_ids)
-      puts "processing......"
-      puts group_ids.inspect
       begin
         groups_xml = Net::HTTP.get(URI.parse("#{CV_API_URL}application_groups?ids[]=#{group_ids.join("&ids[]=")}&user_token=zUzBsoTSKPbvXCQsB4Ky"))
         root = Nokogiri::XML(groups_xml).root
-        root.xpath("n1:application_group").each do |application_group_xml|
-        # parser = File.open(Rails.root.to_s + "/application_group.xml")
-        # application_group_xml = Nokogiri::XML(parser).root
-        application_group = Parsers::Xml::IrsReports::ApplicationGroup.new(application_group_xml)
-        # household = application_group_xml.xpath("n1:households/n1:household")[0]
-        # household = Parsers::Xml::IrsReports::Household.new(household)
-        if application_group.size == 1
-          @single.append_household(application_group)
-        else
-          if application_group.size <= 6
-            @multiple.append_household(application_group)
-          else
-            @super_multiple.append_household(application_group)
+          root.xpath("n1:application_group").each do |application_group_xml|
+            begin
+              application_group = Parsers::Xml::IrsReports::ApplicationGroup.new(application_group_xml)
+              if application_group.size == 1
+                @single.append_household(application_group)
+                next
+              end
+              application_group.size <= 6 ? @multiple.append_household(application_group) :
+                @super_multiple.append_household(application_group)
+            rescue Exception => e
+              @logger.info application_group_xml.at_xpath("n1:id").text.match(/\w+$/)[0]
+            end
           end
-        end
-        end
-
-      rescue Exception  => e
+      rescue Exception => e
         @logger.info group_ids.join(",")
       end
     end
