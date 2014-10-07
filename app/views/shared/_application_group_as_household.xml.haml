@@ -4,3 +4,8 @@
 %n1:primary_applicant_id= application_group.primary_applicant_id
 %n1:type= "PDC"
 %n1:size= application_group.people.count
+%n1:total_incomes
+  - application_group.total_incomes_by_year.each_pair do |k, v|
+    %n1:total_income
+      %n1:calendar_year=k
+      %n1:total_income=v

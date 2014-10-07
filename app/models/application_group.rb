@@ -69,4 +69,13 @@ class ApplicationGroup
   def self.find_by_case_id(case_id)
     where({"e_case_id" => case_id}).first
   end
+
+  def total_incomes_by_year
+    people.inject({}) do |acc, per|
+      p_incomes = per.assistance_eligibilities.inject({}) do |acc, ae|
+        acc.merge(ae.total_incomes_by_year) { |k, ov, nv| ov + nv }
+      end
+      acc.merge(p_incomes) { |k, ov, nv| ov + nv }
+    end
+  end
 end
