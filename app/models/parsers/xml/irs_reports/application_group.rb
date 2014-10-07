@@ -50,7 +50,8 @@ module Parsers::Xml::IrsReports
     def yearwise_incomes(year)
       incomes = {}
       irs_households.xpath("n1:total_incomes/n1:total_income").each do |income|
-        incomes[income.at_xpath("n1:calendar_year").text] = income.at_xpath("n1:total_income").text
+        amount = income.at_xpath("n1:total_income").text.to_f
+        incomes[income.at_xpath("n1:calendar_year").text] = sprintf("%.2f", amount)
       end
       incomes[year]
     end
