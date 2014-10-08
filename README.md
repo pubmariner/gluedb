@@ -3,7 +3,7 @@
 
 ##Project Setup
 
-###Setup the Rails project
+###Setup the Rails Project
 ```
 git clone https://github.com/dchbx/gluedb.git
 cd gluedb
