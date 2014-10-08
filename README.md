@@ -34,8 +34,7 @@ Start Mongodb Daemon
 mongod
 ```
 
-Get the mongodb dump (ask a team member)
-Go to the directory where the dump director is (one level above dump directory).
+Get the mongodb dump (ask a team member). Go to the directory where the dump director resides (i.e. one level above dump directory).
 ```
 mongorestore
 ```
