@@ -1,7 +1,7 @@
 #Gluedb
 
 
-##Project Setup
+##Setup
 
 ###Setup the Rails Project
 ```
@@ -21,7 +21,7 @@ Get a copy of fuip-dev-1.3.0 (ask a team member)
 
 ```
 cd fuip-dev-1.3.0/HTML/UI/
-bower
+bower install
 ```
 
 ###Setup Mongodb
