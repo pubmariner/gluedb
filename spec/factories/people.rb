@@ -5,7 +5,6 @@ FactoryGirl.define do
     name_middle 'X'
     sequence(:name_last) {|n| "Smith\##{n}" }
     name_sfx 'Jr'
-    application_group
 
     after(:create) do |p, evaluator|
       create_list(:member, 2, person: p)
