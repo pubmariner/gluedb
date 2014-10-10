@@ -1,0 +1,4 @@
+!!! XML
+%soap:Envelope{ "xmlns:soap" => "http://www.w3.org/2001/12/soap-envelope", "soap:encodingStyle" => "http://www.w3.org/2001/12/soap-encoding"}
+  %soap:Body
+    = render :template => "api/v1/people/index"

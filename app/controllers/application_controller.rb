@@ -41,4 +41,5 @@ class ApplicationController < ActionController::Base
       sign_in user, store: false
     end
   end
+
 end
