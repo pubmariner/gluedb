@@ -126,7 +126,17 @@ Gluedb::Application.routes.draw do
     collection do
       post 'upload_csv'
     end
-  end  
+  end
+
+  #routes for soap services
+  namespace :soap do
+    namespace :v1 do
+      wash_out :people
+      wash_out :policies
+    end
+  end
+
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
