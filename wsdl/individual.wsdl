@@ -54,7 +54,7 @@
   <wsdl:service name="IndividualService">
     <wsdl:port name="IndividualServicePort"
                binding="tns:IndividualRequestResponseSOAP11Binding">
-      <soap12:address location="http://10.83.85.127:8080/individuals.xml"/>
+      <soap12:address location="http://10.83.85.128/soap/individuals/get_by_hbx_id.xml"/>
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
