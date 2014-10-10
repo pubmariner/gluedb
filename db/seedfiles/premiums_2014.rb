@@ -1,10 +1,18 @@
 require 'roo'
 require 'spreadsheet'
 
-puts "Loading: 2015 Dental Premiums"
+# def clean_old_premiums
+#   Plan.collection.where.update({"$set" => {"premium_tables"=> []}}, {:multi => true})
+# end
+
+puts "Loading: 2014 Premiums"
 
 dates_by_sheet = [
-  Date.new(2015, 1, 1)..Date.new(2015, 12, 31),
+  Date.new(2014, 1, 1)..Date.new(2014, 12, 31),
+  Date.new(2014, 1, 1)..Date.new(2014, 3, 31),
+  Date.new(2014, 4, 1)..Date.new(2014, 6, 30),
+  Date.new(2014, 7, 1)..Date.new(2014, 9, 30),
+  Date.new(2014, 10, 1)..Date.new(2014, 12, 31)
 ]
 
 def import_spreadsheet(file_path, dates_by_sheet)
@@ -30,7 +38,7 @@ def import_spreadsheet(file_path, dates_by_sheet)
         premiums_to_add << premium
       end
 
-      (21..64).each do |age|
+      (21..63).each do |age|
         cost = plan_details[age.to_f]
         premium = PremiumTable.new
         premium.rate_start_date = dates_by_sheet[sheet_index].first
@@ -41,8 +49,8 @@ def import_spreadsheet(file_path, dates_by_sheet)
         premiums_to_add << premium
       end
 
-      (65..120).each do |age|
-        cost = plan_details["65+"]
+      (64..120).each do |age|
+        cost = plan_details["64 +"]
         premium = PremiumTable.new
         premium.rate_start_date = dates_by_sheet[sheet_index].first
         premium.rate_end_date = dates_by_sheet[sheet_index].last
@@ -52,7 +60,7 @@ def import_spreadsheet(file_path, dates_by_sheet)
         premiums_to_add << premium
       end
 
-      hios_id = plan_details['HIOS ID'].gsub(/[[:space:]]/,'')
+      hios_id = plan_details['Standard Component ID'].gsub(/[[:space:]]/,'')
       plans = Plan.where({:hios_plan_id => /#{hios_id}/})
       plans.to_a.each do |plan|
         plan.premium_tables.concat(premiums_to_add)
@@ -63,7 +71,9 @@ def import_spreadsheet(file_path, dates_by_sheet)
 end
 
 files = [
-  "./db/seedfiles/premium_tables/2015_Dental_QDP_Plan_and_Rate_Matrix.xls"
+  "./db/seedfiles/premium_tables/2014_DCHL_Rates_12_13_14_INDVandSHOPthruQ2.xlsx",
+  "./db/seedfiles/premium_tables/2014_DCHL_Rates_IVL_and_SHOP_Q1_thru_Q4.xlsx"
 ]
 
+# clean_old_premiums
 files.each { |f| import_spreadsheet(f, dates_by_sheet) }
