@@ -1,7 +1,7 @@
 require 'roo'
 require 'spreadsheet'
 
-puts "Loading: Premiums"
+puts "Loading: 2014 Dental Premiums"
 
 dates_by_sheet = [
   Date.new(2014, 1, 1)..Date.new(2014, 12, 31),
