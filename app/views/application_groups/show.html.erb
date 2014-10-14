@@ -6,25 +6,25 @@
       link_to('Application Groups', application_groups_path),
       @application_group.id
       # Person.find(pid).name_full
-    ] 
+    ]
   %>
 </div>
 <%= link_to 'Edit', edit_application_group_path(@application_group), class: 'btn btn-primary' %>
-<div class='col-md-12'> 
+<div class='col-md-12'>
   <h6>People</h6>
 
   <div class='panel-body'>
     <%= link_to('New Person', new_person_path(application_group_id: @application_group.id)) %>
     <ul class="list-unstyled">
 
-      <% @application_group.people.each do |person| %>
-        <li><%= link_to prepend_glyph_to_name(name_to_listing(person)), person_path(person) %>
-          <%= link_to('(Household)', application_group_household_path(@application_group.id, person.household.id)) %>
+      <% @application_group.households.each do |household| %>
+        <li>
+          <%= link_to('(Household)', application_group_household_path(@application_group.id, household.id)) %>
         </li>
 
       <% end %>
     </ul>
-    
+
   </div>
 
   <h6>Events</h6>
@@ -50,8 +50,6 @@
   </table>
 
   <dl class="dl-horizontal">
-    <dt><%= model_class.human_attribute_name(:aasm_state) %></dt>
-    <dd><%= @application_group.aasm_state.humanize %></dd>
 
     <dt><%= "Household(s)" %></dt>
     <% if @application_group.households.count == 0 %>
