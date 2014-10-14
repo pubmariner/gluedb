@@ -1,5 +1,7 @@
 class AddEligibilities
   def self.import!(person, aes)
+
+    puts "person.class.name #{person.class.name}"
     aes.each do |requested_eligibility|
       eligibility = AssistanceEligibility.new(requested_eligibility)   
       if person.assistance_eligibilities.any? { |e| e.submission_date == requested_eligibility[:submission_date]} 
