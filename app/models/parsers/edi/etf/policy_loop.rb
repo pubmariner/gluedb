@@ -74,6 +74,10 @@ module Parsers
             r[1] == "CE"
           end).blank?
         end
+
+        def canceled?
+          coverage_start == coverage_end
+        end
       end
     end
   end

@@ -1,4 +1,4 @@
-require 'active_support/core_ext/object/blank'
+require 'spec_helper'
 
 describe Parsers::Edi::PersonLoopValidator do
   let(:person_loop) { double(carrier_member_id: carrier_member_id)}
@@ -8,10 +8,9 @@ describe Parsers::Edi::PersonLoopValidator do
   context ' carrier member id is missing' do
     let(:carrier_member_id) { ' ' }
     it 'notifies listener of missing carrier member id' do
-      expect(listener).to receive(:missing_carrier_member_id)
+      expect(listener).to receive(:missing_carrier_member_id).with(person_loop)
       expect(validator.validate(person_loop, listener)).to eq false
     end
-
   end
 
   context 'carrier member id is present' do
