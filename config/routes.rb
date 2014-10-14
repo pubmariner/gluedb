@@ -42,6 +42,8 @@ Gluedb::Application.routes.draw do
   resources :edi_transaction_sets
   resources :edi_transmissions
 
+  resources :csv_transactions, :only => :show
+
   resources :enrollments do
     member do
       get :canonical_vocabulary

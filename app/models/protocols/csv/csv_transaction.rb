@@ -30,7 +30,7 @@ module Protocols::Csv
     end
 
     def aasm_state
-      "acknowledged"
+      rejected? ? "rejected" : "acknowledged"
     end
 
     def self.create_transaction(details)
