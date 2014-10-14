@@ -25,7 +25,7 @@ class CarefirstPolicyUpdatesController < ApplicationController
       body: @carefirst_policy_update[:body]
     }
 
-    UpdatePolicyStatus.new(Policy).execute(request_model, Listners::CarefirstPolicyUpdate.new(self))
+    UpdatePolicyStatus.new(Policy).execute(request_model, Listeners::CarefirstPolicyUpdate.new(self))
   end
 
   def respond_to_success
