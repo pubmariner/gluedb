@@ -34,12 +34,32 @@ class ApplicationController < ActionController::Base
   private
 
   def authenticate_user_from_token!
+
     user_token = params[:user_token].presence
     user = user_token && User.find_by_authentication_token(user_token.to_s)
 
     if user
       sign_in user, store: false
     end
+
   end
+
+  def authenticate_soap_request!(action)
+
+
+    if params.key? "user_token"
+      parans[:user_token] = params["user_token"]
+    else
+      params[:user_token] = params["Envelope"]["Body"][action]["user_token"]
+    end
+
+    if authenticate_user_from_token!.nil?
+      render :status => 403, :nothing => true
+      return false
+    end
+
+    return true
+  end
+
 
 end
