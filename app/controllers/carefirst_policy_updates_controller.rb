@@ -1,61 +1,5 @@
 class CarefirstPolicyUpdatesController < ApplicationController
 
-  class Listener
-    def initialize(controller)
-      @controller = controller
-      @errors = []
-    end
-
-    def non_authority_member(s_id)
-      @errors << "Member #{s_id} is not the authority member"
-    end
-
-    def begin_date_mismatch(details)
-      @errors << "Begin date does not match. Provided: #{details[:provided]}, Existing: #{details[:existing]}"
-    end
-
-    def policy_not_found(policy_id)
-      @errors << "Policy(#{policy_id}) not found."
-    end
-
-    def invalid_dates(dates)
-      @errors << "Invalid date combination: Begin-#{dates[:begin_date]}, End-#{dates[:end_date]}."
-    end
-
-    def policy_status_is_same
-      @errors << "Policy status is the same."
-    end
-    
-    def subscriber_id_mismatch(details)
-      @errors << "Subscriber ID does not match. Provided: #{details[:provided]}, Existing: #{details[:existing]}"
-    end
-      
-    def enrolled_count_mismatch(details)
-      @errors << "Enrolled Count does not match. Provided: #{details[:provided]}, Existing: #{details[:existing]}"
-    end
-
-    def plan_mismatch(details)
-      @errors << "Plan does not match. Provided: #{details[:provided]}, Existing: #{details[:existing]}"
-    end
-
-    def enrollee_end_date_is_different
-      @errors << "An enrollee's end date doesn't match the subscriber's"
-    end
-
-    def invalid_status(details)
-      @errors << "Invalid status: #{details[:provided]} must be one of: #{details[:allowed]}"
-    end
-
-    def fail
-      @controller.respond_to_failure(@errors)
-    end
-
-    def success
-      @controller.respond_to_success
-    end
-  end
-
-
   def create
     @carefirst_policy_update = params[:carefirst_policy_update]
 
@@ -73,10 +17,15 @@ class CarefirstPolicyUpdatesController < ApplicationController
       end_date: @carefirst_policy_update[:end_date],
       subscriber_id: @carefirst_policy_update[:subscriber_hbx_id],
       enrolled_count: @carefirst_policy_update[:enrolled_count],
-      hios_plan_id: @carefirst_policy_update[:hios_plan_id]
+      hios_plan_id: @carefirst_policy_update[:hios_plan_id],
+      file_name: @carefirst_policy_update[:file_name],
+      batch_id: @carefirst_policy_update[:batch_id],
+      batch_index: @carefirst_policy_update[:batch_index],
+      submitted_by: @carefirst_policy_update[:submitted_by],
+      body: @carefirst_policy_update[:body]
     }
 
-    UpdatePolicyStatus.new(Policy).execute(request_model, Listener.new(self))
+    UpdatePolicyStatus.new(Policy).execute(request_model, Listners::CarefirstPolicyUpdate.new(self))
   end
 
   def respond_to_success

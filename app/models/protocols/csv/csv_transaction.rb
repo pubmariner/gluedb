@@ -11,5 +11,9 @@ module Protocols::Csv
 
     # TODO: Use a regular set of fields as a hash instead?
     mount_uploader :body, EdiBody
+
+    def rejected?
+      error_list.any?
+    end
   end
 end
