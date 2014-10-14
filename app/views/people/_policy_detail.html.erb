@@ -46,7 +46,7 @@
 <%= render 'enrollment_detail', policy: p %>
 
 <h6>EDI Transactions</h6>
-<% t = p.transaction_set_enrollments %>
+<% t = p.transaction_list %>
 <%= render 'edi_transaction_table', transactions: t %>
 
 <h6>Premium Payments</h6>

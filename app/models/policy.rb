@@ -58,6 +58,8 @@ class Policy
               order: { submitted_at: :desc }
   has_many :premium_payments, order: { paid_at: 1 }
 
+  has_many :csv_transactions, :class_name => "Protocols::Csv::CsvTransaction"
+
   before_create :generate_enrollment_group_id
   before_save :invalidate_find_cache
   before_save :check_for_cancel_or_term
@@ -453,6 +455,10 @@ class Policy
 
   def self.find_by_id(the_id)
     Policy.where({:id => the_id}).first
+  end
+
+  def transaction_list
+    (transaction_set_enrollments + csv_transactions).sort_by(&:submitted_at).reverse
   end
 
 protected
