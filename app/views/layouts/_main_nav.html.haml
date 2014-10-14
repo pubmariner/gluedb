@@ -9,7 +9,7 @@
     .collapse.navbar-collapse#navbar-collapse-02
       %ul.nav.navbar-nav
         != active_menu_item("Dashboard", root_path, :dashboards)
-        != active_menu_item("Application Groups", application_groups_path, :application_groups)
+        != active_menu_item("Application Groups", application_groups_path, :application_groups) if can? :edit, @user
         != active_menu_item("People", people_path, :people)
         != active_menu_item("Employers", employers_path, :employers)
         != active_menu_item("Brokers", brokers_path, :brokers)
