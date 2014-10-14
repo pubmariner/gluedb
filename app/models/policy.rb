@@ -457,6 +457,10 @@ class Policy
     Policy.where({:id => the_id}).first
   end
 
+  def transaction_list
+    (transaction_set_enrollments + csv_transactions).sort_by(&:submitted_at).reverse
+  end
+
 protected
   def generate_enrollment_group_id
     self.eg_id = self.eg_id || self._id.to_s

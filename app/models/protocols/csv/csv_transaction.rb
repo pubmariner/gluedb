@@ -17,6 +17,22 @@ module Protocols::Csv
       error_list.any?
     end
 
+    def submitted_at
+      self.created_at
+    end
+
+    def transaction_kind
+      "CSV"
+    end
+
+    def ack_nak_processed_at
+      nil
+    end
+
+    def aasm_state
+      "acknowledged"
+    end
+
     def self.create_transaction(details)
       self.create!(details)
     end
