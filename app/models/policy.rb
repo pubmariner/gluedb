@@ -58,6 +58,8 @@ class Policy
               order: { submitted_at: :desc }
   has_many :premium_payments, order: { paid_at: 1 }
 
+  has_many :csv_transactions, :class_name => "Protocols::Csv::CsvTransaction"
+
   before_create :generate_enrollment_group_id
   before_save :invalidate_find_cache
   before_save :check_for_cancel_or_term
