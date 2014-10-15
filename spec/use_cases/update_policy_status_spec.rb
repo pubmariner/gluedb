@@ -62,7 +62,9 @@ describe UpdatePolicyStatus do
 
   before :each do
     allow(subscriber).to receive(:person).and_return(person)
-    allow(policy).to receive(:id).and_return(policy_guid)
+    if !policy.nil?
+      allow(policy).to receive(:id).and_return(policy_guid)
+    end
   end
 
 
@@ -176,6 +178,20 @@ describe UpdatePolicyStatus do
         )
         expect(listener).to receive(:fail)
 
+        subject.execute(request, listener)
+      end
+    end
+
+    context "when end_date is not provided" do
+      let(:requested_end_date) { nil }
+      it 'notifies the listener' do
+        expect(listener).to receive(:invalid_dates).with(
+          {
+            begin_date: request[:begin_date],
+            end_date: request[:end_date]
+          }
+        )
+        expect(listener).to receive(:fail)
         subject.execute(request, listener)
       end
     end

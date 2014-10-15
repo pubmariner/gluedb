@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 shared_examples "a responsible party query" do
   let(:first_name) { "A first name" }
@@ -13,8 +13,8 @@ shared_examples "a responsible party query" do
   }
 
   subject {
-    person.stub(:name_first) { first_name }
-    person.stub(:name_last) { last_name }
+    allow(person).to receive(:name_first).and_return(first_name)
+    allow(person).to receive(:name_last).and_return(last_name)
     Queries::ExistingResponsibleParty.new(person)
   }
 
