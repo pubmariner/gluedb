@@ -61,6 +61,8 @@ class Employer
   before_save :initialize_name_full
   before_save :invalidate_find_caches
 
+  scope :by_name, order_by(name: 1)
+
   def payment_transactions
     PremiumPayment.payment_transactions_for(self)
   end

@@ -3,9 +3,9 @@ class BrokersController < ApplicationController
     @q = params[:q]
 
     if params[:q].present?
-      @brokers = Broker.search(@q).page(params[:page]).per(12)
+      @brokers = Broker.by_name.search(@q).page(params[:page]).per(12)
     else
-      @brokers = Broker.page(params[:page]).per(12)
+      @brokers = Broker.by_name.page(params[:page]).per(12)
     end
 
     respond_to do |format|
@@ -16,7 +16,7 @@ class BrokersController < ApplicationController
 
   def show
 		@broker = Broker.find(params[:id])
-		@employers = @broker.employers
+		@employers = @broker.employers.by_name
 
 	  respond_to do |format|
 		  format.html # index.html.erb

@@ -37,7 +37,7 @@ class Broker
 
   before_save :initialize_name_full
 
-  default_scope order_by(name_last: 1, name_first: 1)
+  scope :by_name, order_by(name_last: 1, name_first: 1)
 
   def self.default_search_order
     [

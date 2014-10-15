@@ -27,7 +27,7 @@ class Carrier
   index({hbx_carrier_id: 1})
   index({"carrier_profiles.fein" => 1})
 
-  default_scope order_by(name: 1)
+  scope :by_name, order_by(name: 1)
 
   def invalidate_find_caches
     carrier_profiles.each do |c|
