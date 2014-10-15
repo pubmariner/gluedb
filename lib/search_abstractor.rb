@@ -38,10 +38,4 @@ module SearchAbstractor
     end
   end
 
-  class Authentication
-    def self.success?
-
-    end
-  end
-
 end
