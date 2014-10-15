@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Member do
   before(:each) do
@@ -14,11 +14,6 @@ describe Member do
           name_last: "Spade"
           )
   end
-
-  describe "validate associations" do
-    it { should be_embedded_in :person }
-  end
-
 
   describe "it should instantiate object" do
     let(:hbx_member_id) { "dc123243" }
@@ -83,31 +78,17 @@ describe Member do
 
   it "should be valid with a blank ssn" do
     subject.ssn = ""
-    subject.should be_valid
+    expect(subject).to be_valid
   end
 
   it "should be valid with a nil ssn" do
     subject.ssn = nil
-    subject.should be_valid
+    expect(subject).to be_valid
   end
 
   it "should be valid with a nil hbx_member_id" do
     subject.hbx_member_id = nil
-    subject.should be_valid
-  end
-
-  [ :hbx_member_id,
-#    :concern_role_id,
-    :import_source,
-    :imported_at,
-    :dob,
-    :ssn,
-    :gender,
-    :hlh,
-    :lui,
-    :person
-  ].each do |attribute|
-    it { should respond_to attribute }
+    expect(subject).to be_valid
   end
 
   describe 'setters' do

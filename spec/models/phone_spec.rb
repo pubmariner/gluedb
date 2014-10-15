@@ -1,14 +1,6 @@
 require 'spec_helper'
 
 describe Phone do
-  describe "validate associations" do
-	  it { should be_embedded_in :person }
-    it { should be_embedded_in :employer }
-  end
-
-  [:phone_type, :phone_number, :extension, :person, :employer].each do |attribute|
-    it { should respond_to attribute }
-  end
 
   describe 'validations' do
     describe 'phone type' do
