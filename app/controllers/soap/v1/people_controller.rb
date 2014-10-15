@@ -46,12 +46,12 @@ class Soap::V1::PeopleController < ApplicationController
 
     case action_name.to_s
       when "show"
-        unless  params["Envelope"]["Body"][action].key? "id"
+        unless  params["Envelope"]["Body"][action]["id"].present?
           render :status => :unprocessable_entity, :nothing => true
           return false
         end
       when "index"
-        unless  params["Envelope"]["Body"][action].key? "hbx_id"
+        unless  params["Envelope"]["Body"][action]["hbx_id"].present?
           render :status => :unprocessable_entity, :nothing => true
           return false
         end
