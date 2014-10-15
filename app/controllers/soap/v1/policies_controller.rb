@@ -44,18 +44,18 @@ class Soap::V1::PoliciesController < ApplicationController
   private
 
   def valid_params?(action)
-    @@logger.info "#{DateTime.now.to_s} class:#{self.class.name} method:#{__method__.to_s} action#{action}: params:#{params}"
+    @@logger.info "#{DateTime.now.to_s} class:#{self.class.name} method:#{__method__.to_s} action:#{action}: params:#{params}"
 
     case action.to_s
       when "show"
-        unless  params["Envelope"]["Body"][action].key? "id"
+        unless  params["Envelope"]["Body"][action]["id"].present?
           render :status => :unprocessable_entity, :nothing => true
           return false
         end
       when "index"
-        unless  params["Envelope"]["Body"][action].key? "enrollment_group_id"
-          render :status => :unprocessable_entity, :nothing => true
-          return false
+        unless  params["Envelope"]["Body"][action]["enrollment_group_id"].present?
+            render :status => :unprocessable_entity, :nothing => true
+            return false
         end
     end
 
