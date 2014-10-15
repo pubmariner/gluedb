@@ -55,7 +55,11 @@ class UpdatePolicyStatus
     end
 
     if(request[:status] == 'carrier_terminated')
-      if(request[:begin_date] == request[:end_date])
+      if (request[:begin_date] == request[:end_date])
+        listener.invalid_dates({begin_date: request[:begin_date], end_date: request[:end_date]})
+        failed = true
+      end
+      if (request[:end_date].blank?)
         listener.invalid_dates({begin_date: request[:begin_date], end_date: request[:end_date]})
         failed = true
       end
