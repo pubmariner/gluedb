@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Parsers::Edi::Etf::EtfLoop do
   let(:etf) { Parsers::Edi::Etf::EtfLoop.new(raw_etf_loop) }
@@ -42,12 +42,12 @@ describe Parsers::Edi::Etf::EtfLoop do
     let(:raw_etf_loop) { {"L2000s" => [ not_subscriber, subscriber]} }
 
     it 'returns true if any person loop is a cancellation or termination' do
-      etf.stub(:people) { [ double(cancellation_or_termination?: false) ] }
+      allow(etf).to receive(:people).and_return([ double(:cancellation_or_termination? => false) ])
       expect(etf.cancellation_or_termination?).to eq false
     end
 
     it 'returns false if no person loop is a cancellation_or_termination' do
-      etf.stub(:people) { [ double(cancellation_or_termination?: true) ] }
+      allow(etf).to receive(:people).and_return([ double(:cancellation_or_termination? => true) ])
       expect(etf.cancellation_or_termination?).to eq true
     end
   end
