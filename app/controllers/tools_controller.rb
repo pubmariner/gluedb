@@ -1,6 +1,6 @@
 class ToolsController < ApplicationController
   def premium_calc
-    @carriers = Carrier.all
+    @carriers = Carrier.by_name
   end
 
 end

@@ -15,7 +15,7 @@ module Queries
     end
 
     def execute
-      Person.where(query)
+      Person.unscoped.where(query)
     end
   end
 end

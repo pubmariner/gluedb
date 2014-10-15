@@ -6,6 +6,8 @@ module Protocols::Csv
     field :file_name, type: String
     field :submitted_by, type: String
 
+    index({:batch_id => 1, :file_name => 1})
+
     belongs_to :carrier, :index => true
 
     has_many :csv_transactions, :class_name => "Protocols::Csv::CsvTransaction"

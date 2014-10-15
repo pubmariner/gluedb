@@ -73,7 +73,7 @@ class Person
   scope :all_under_or_equal_age, ->(age) {gte(:'members.dob' => (Date.today - age.years))}
   scope :all_with_multiple_members, exists({ :'members.1' => true })
 
-  default_scope order_by(name_last: 1, name_first: 1)
+  scope :by_name, order_by(name_last: 1, name_first: 1)
   #
   #
   embeds_many :assistance_eligibilities

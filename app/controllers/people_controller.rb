@@ -11,9 +11,9 @@ class PeopleController < ApplicationController
     @qd = params[:qd]
 
     if params[:q].present?
-      @people = Person.search(@q, @qf, @qd).page(params[:page]).per(15)
+      @people = Person.by_name.search(@q, @qf, @qd).page(params[:page]).per(15)
     else
-      @people = Person.page(params[:page]).per(15)
+      @people = Person.by_name.page(params[:page]).per(15)
     end
 
     respond_to do |format|
