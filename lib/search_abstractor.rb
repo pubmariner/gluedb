@@ -1,8 +1,13 @@
 module SearchAbstractor
 
-  class People
+
+  class PeopleSearch
 
     def self.search(params)
+
+      @@logger = Logger.new("#{Rails.root}/log/soap.log")
+
+      @@logger.info "#{DateTime.now.to_s} class:#{self.class.name} method:#{__method__.to_s} params:#{params}"
 
       clean_hbx_member_id = Regexp.new(Regexp.escape(params[:hbx_id].to_s))
 
@@ -20,9 +25,14 @@ module SearchAbstractor
     end
   end
 
-  class Policies
+  class PoliciesSearch
 
     def self.search(params)
+
+      @@logger = Logger.new("#{Rails.root}/log/soap.log")
+
+      @@logger.info "#{DateTime.now.to_s} class:#{self.class.name} method:#{__method__.to_s} params:#{params}"
+
       clean_eg_id = Regexp.new(Regexp.escape(params[:enrollment_group_id].to_s))
 
       search = {"eg_id" => clean_eg_id}
