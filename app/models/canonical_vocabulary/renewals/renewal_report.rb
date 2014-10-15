@@ -140,7 +140,7 @@ module CanonicalVocabulary
 
         individuals = individual_elements.map { |i| Parsers::Xml::IrsReports::Individual.new(i) }
 
-        primary = individuals.detect { |i| (individual.id == @application_group.primary_applicant_id || individuals.count == 1) }
+        primary = individuals.detect { |i| (i.id == @application_group.primary_applicant_id || individuals.count == 1) }
         @household_address = household_address(primary)
 
         if @household_address.empty?
