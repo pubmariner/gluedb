@@ -5,7 +5,7 @@ module Queries
     end
 
     def execute
-      Person.unscoped.where({
+      Person.where({
         "responsible_parties.0" => { "$exists" => true }
       }.merge(name_match_expression).merge(additional_match_expressions)).first
     end
