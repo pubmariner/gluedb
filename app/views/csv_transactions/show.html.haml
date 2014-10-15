@@ -1,0 +1,43 @@
+- model_class = Protocols::Csv::CsvTransaction
+- t '.title', :default => model_class.model_name.human.titleize.pluralize
+.page-header
+  = render 'shared/breadcrumb', crumbs: ["CSV Transactions", @csv_transaction.id]
+
+.row
+  .col-md-5
+    .row
+      %dl.dl-horizontal
+        -if @csv_transaction.csv_transmission.carrier.present?
+          %dt= model_class.human_attribute_name(:carrier)
+          %dd= dd_value(@csv_transaction.csv_transmission.carrier.name)
+        %dt= model_class.human_attribute_name(:policy_id)
+        %dd= dd_value(@csv_transaction.policy_id)
+        %dt= model_class.human_attribute_name(:batch_id)
+        %dd= dd_value(@csv_transaction.csv_transmission.batch_id)
+        %dt= model_class.human_attribute_name(:file_name)
+        %dd= dd_value(@csv_transaction.csv_transmission.file_name)
+        %dt= model_class.human_attribute_name(:batch_index)
+        %dd= dd_value(@csv_transaction.batch_index)
+        %dt= model_class.human_attribute_name(:submitted_at)
+        %dd= @csv_transaction.submitted_at.strftime("%m-%d-%Y %H:%M:%S%z") if @csv_transaction.submitted_at.present?
+        - if !@csv_transaction.rejected?
+          %dt= model_class.human_attribute_name(:status)
+          %dd= dd_value(@csv_transaction.aasm_state)
+
+  .col-md-7
+    .panel.panel-default
+      .panel-heading
+        %h3.panel-title
+          %span.fui-document
+            &nbsp;
+          CSV Data
+      .panel-body
+        %pre= @csv_transaction.body.read
+
+- if @csv_transaction.rejected?
+  .row
+    .col-md-5
+      %h4 Rejected
+      %ul
+        - @csv_transaction.error_list.each do |err|
+          %li= err

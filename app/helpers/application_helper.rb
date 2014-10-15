@@ -98,4 +98,8 @@ module ApplicationHelper
     "?commentable=" + cmtble.comments.metadata.inverse_class_name +
     "&commentable_id=" + cmtble.id
   end
+
+  def dd_value(val)
+    val.blank? ? "&nbsp;" : val
+  end
 end
