@@ -54,7 +54,7 @@ class ApplicationController < ActionController::Base
     end
 
     if authenticate_user_from_token!.nil?
-      render :status => 403, :nothing => true
+      render :status => 401, :nothing => true
       return false
     end
 
