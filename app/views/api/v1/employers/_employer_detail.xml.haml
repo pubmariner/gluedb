@@ -19,7 +19,7 @@
   - employer.elected_plans.each do |elected_plan|
     - plan = elected_plan.plan
     %n1:plan
-      = render 'shared/identity', id: nil
+      = render 'shared/identity', id: elected_plan.id
       %n1:qhp_id= elected_plan.qhp_id
       %n1:name= elected_plan.plan_name
       %n1:is_dental_only_flag= plan.coverage_type == 'dental'
@@ -37,7 +37,7 @@
   - 1.times do
     %n1:contact
       = render 'shared/person', person: employer
-- if false
-  %n1:version
+- if employer.notes.present?
+  %n1:notes= employer.notes
 - if employer.notes.present?
   %n1:notes= employer.notes

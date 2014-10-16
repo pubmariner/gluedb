@@ -3,9 +3,6 @@
   = render 'shared/person', person: person
 = render 'shared/relationships', person: person
 = render 'shared/roles', person: person
-- if false #ignore -to be deprecated
-  %n1:other_coverage
-    %n1:id
 - authority_member = person.authority_member
 - if authority_member.is_applicant.present?
   %n1:is_applicant= authority_member.is_applicant
