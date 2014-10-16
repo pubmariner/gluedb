@@ -2,15 +2,15 @@ require "spreadsheet"
 module CanonicalVocabulary
 	module Renewals
 
-      class PolicyProjection
-        attr_reader :current, :future_plan_name, :quoted_premium
-        def initialize(app_group, coverage_type)
-          @coverage_type = coverage_type
-          current = app_group.current_insurance_plan(coverage_type)
-          future_plan_name = app_group.future_insurance_plan(coverage_type)
-          quoted_premium = app_group.quoted_insurance_premium(coverage_type)
-        end
+    class PolicyProjection
+      attr_reader :current, :future_plan_name, :quoted_premium
+      def initialize(app_group, coverage_type)
+        @coverage_type = coverage_type
+        @current = app_group.current_insurance_plan(coverage_type)
+        @future_plan_name = app_group.future_insurance_plan(coverage_type)
+        @quoted_premium = app_group.quoted_insurance_premium(coverage_type)
       end
+    end
 
 		class RenewalReport
 
@@ -76,7 +76,7 @@ module CanonicalVocabulary
       end
 
       def append_integrated_case_number
-        @data_set << application_group.integrated_case
+        @data_set << @application_group.integrated_case
       end
 
       def append_name_of(member)
@@ -106,7 +106,7 @@ module CanonicalVocabulary
       end
 
       def append_policy(policy)
-        @data_set << policy.current.nil? ? nil : policy.current[:plan]
+        @data_set << (policy.current.nil? ? nil : policy.current[:plan])
         @data_set << policy.future_plan_name
         @data_set << policy.quoted_premium
       end
