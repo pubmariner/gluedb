@@ -1,18 +1,6 @@
 require 'rails_helper'
 
 describe Person do
-  describe "validate associations" do
-	  it { should belong_to :household }
-	  it { should embed_many :members }
-	  it { should embed_many :addresses }
-	  it { should embed_many :emails }
-	  it { should embed_many :phones }
-	  it { should embed_many :responsible_parties }
-
-	  it { should accept_nested_attributes_for(:addresses) }
-  end
-
-
   describe "instantiates object." do
 		it "sets and gets all basic model fields" do
       psn = Person.new(

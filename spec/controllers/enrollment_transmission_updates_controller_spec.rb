@@ -10,14 +10,13 @@ describe EnrollmentTransmissionUpdatesController do
       }
     }
 
-    let(:etu_double) { double("enrollment_transmission_update") }
+    let(:etu_double) { double({ :save => true }) }
 
     before :each do
        user = double('user')
-       request.env['warden'].stub :authenticate! => user
-       controller.stub :current_user => user
-       EnrollmentTransmissionUpdate.stub(:new).and_return(etu_double)
-       etu_double.stub(:save)
+       allow(request.env['warden']).to receive(:authenticate!).and_return(user)
+       allow(controller).to receive(:current_user).and_return(user)
+       allow(EnrollmentTransmissionUpdate).to receive(:new).and_return(etu_double)
     end
 
     it "instantiates and saves a new EnrollmentTransmissionUpdate" do

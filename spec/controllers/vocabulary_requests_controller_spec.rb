@@ -7,7 +7,7 @@ describe VocabularyRequestsController do
   describe 'GET new' do
 
     before {
-      VocabularyRequest.stub(:new).and_return(mock_vr)
+      allow(VocabularyRequest).to receive(:new).and_return(mock_vr)
       get :new
     }
 
@@ -24,8 +24,8 @@ describe VocabularyRequestsController do
     describe 'with valid data' do
 
       before {
-        VocabularyRequest.stub(:new).and_return(mock_vr)
-        mock_vr.stub(:save).and_return true
+        allow(VocabularyRequest).to receive(:new).and_return(mock_vr)
+        allow(mock_vr).to receive(:save).and_return(true)
         post :create
       }
 
@@ -36,8 +36,8 @@ describe VocabularyRequestsController do
 
     describe 'with invalid data' do
       before {
-        VocabularyRequest.stub(:new).and_return(mock_vr)
-        mock_vr.stub(:save).and_return false
+        allow(VocabularyRequest).to receive(:new).and_return(mock_vr)
+        allow(mock_vr).to receive(:save).and_return(false)
         post :create
       }
 

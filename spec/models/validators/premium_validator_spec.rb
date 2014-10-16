@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Validators::PremiumValidator do
   subject(:validator) { Validators::PremiumValidator.new(change_request, plan, listener) }
@@ -9,11 +9,11 @@ describe Validators::PremiumValidator do
 
   context 'premium does not match plan premium' do
     before do
-      plan.stub(:premium_for_enrollee) { double(amount: 22.0) }
+      allow(plan).to receive(:premium_for_enrollee).and_return(double(amount: 22.0))
 
-      change_request.stub(:enrollees) do
+      allow(change_request).to receive(:enrollees).and_return(
         [ double(premium_amount: 666.66, name: 'Name') ]
-      end
+      )
     end
     it 'notifies the listener' do
       expect(listener).to receive(:enrollee_has_incorrect_premium).with({name: 'Name', provided: 666.66, expected: 22.0})
@@ -23,10 +23,10 @@ describe Validators::PremiumValidator do
 
   context 'premium matches plan premium' do
     before do
-      plan.stub(:premium_for_enrollee) { double(amount: 22.0) }
-      change_request.stub(:enrollees) do
+      allow(plan).to receive(:premium_for_enrollee).and_return(double(amount: 22.0))
+      allow(change_request).to receive(:enrollees).and_return(
         [ double(premium_amount: 22.0, name: 'Name') ]
-      end
+      )
     end
     it 'does not notify the listener' do
       expect(listener).not_to receive(:enrollee_has_incorrect_premium)
@@ -40,8 +40,8 @@ describe Validators::PremiumValidator do
       5.times { enrollees << double(age: 40, premium_amount: 22.0) }
       enrollees << youngest
 
-      plan.stub(:premium_for_enrollee) { double(amount: 22.0) }
-      change_request.stub(:enrollees) { enrollees }
+      allow(plan).to receive(:premium_for_enrollee).and_return(double(amount: 22.0))
+      allow(change_request).to receive(:enrollees).and_return(enrollees)
     end
 
     context 'and youngest isnt free' do

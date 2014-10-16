@@ -14,15 +14,6 @@ describe Address do
     end
   end
 
-  describe "validate associations" do
-    it { should be_embedded_in :person }
-    it { should be_embedded_in :employer }
-  end
-
-  [:address_type, :address_1, :address_2, :city, :state, :zip, :person, :employer].each do |attribute|
-    it { should respond_to attribute }
-  end
-
   describe 'validations' do
     describe 'presence' do
       [:address_1, :city, :state, :zip].each do |missing|

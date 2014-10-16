@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 def expect_address_to_change(person, request)
   expect(person.addresses.first.address_type).to eq request.to_hash[:type]
@@ -63,7 +63,7 @@ describe ChangeMemberAddress do
   end
 
   before do
-    policy.stub(:subscriber) { target_enrollee }
+    allow(policy).to receive(:subscriber).and_return(target_enrollee)
     allow(eligible_policies).to receive(:each).and_yield(policy)
     allow(eligible_policies).to receive(:each_affected_group).and_yield(policy, [target_enrollee], [target_enrollee])
     person.addresses << address
@@ -109,7 +109,7 @@ describe ChangeMemberAddress do
 
     context 'person is NOT a subscriber' do
       before do 
-        target_enrollee.stub(:subscriber?) { false }
+        allow(target_enrollee).to receive(:subscriber?).and_return(false)
         allow(eligible_policies).to receive(:each_affected_group).and_yield(policy, [target_enrollee], [target_enrollee, other_enrollee])
       end
       it 'does not change their address' do
@@ -200,7 +200,7 @@ describe ChangeMemberAddress do
   context "when the member has no active policies" do
     let(:eligible_policies) { double(:empty? => true, too_many_health_policies?: false, too_many_dental_policies?: false) }
     before do 
-      eligible_policies.stub(:each_affected_group) { nil }
+      allow(eligible_policies).to receive(:each_affected_group).and_return(nil)
     end
 
     it 'changes the address' do

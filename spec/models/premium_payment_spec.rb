@@ -1,17 +1,6 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe PremiumPayment do
-  describe "validate associations" do
-	  it { should belong_to :employer }
-	  it { should belong_to :carrier }
-	  it { should belong_to :policy }
-	  it { should belong_to :transaction_set_premium_payment }
-  end
-
-  describe "validate indexes" do
-  	it { should have_index_for(paid_at: 1) }
-  end
-
   p = Policy.create!(eg_id: "yut321")
   c = Carrier.create!(name: "acme health")
 
@@ -33,25 +22,25 @@ describe PremiumPayment do
 
   describe "properly instantiates object." do
 		it "sets and gets all basic model fields" do
-			pp.payment_amount_in_cents.should == 42713
-			pp.paid_at.should == "20140310".to_date
-			pp.hbx_payment_type.should == "INTPREM"
-			pp.hbx_member_id.should == "525987"
-			pp.hbx_policy_id.should == "3099617286944718848"
-			pp.hios_plan_id.should == "78079DC0230008-01"
-			pp.hbx_carrier_id.should == "999999999"
-			pp.employer_id.should == "010569723"
+			expect(pp.payment_amount_in_cents).to eql(42713)
+			expect(pp.paid_at).to eql("20140310".to_date)
+			expect(pp.hbx_payment_type).to eql("INTPREM")
+			expect(pp.hbx_member_id).to eql("525987")
+			expect(pp.hbx_policy_id).to eql("3099617286944718848")
+			expect(pp.hios_plan_id).to eql("78079DC0230008-01")
+			expect(pp.hbx_carrier_id).to eql("999999999")
+			expect(pp.employer_id).to eql("010569723")
 		end
 
 		it "generates start and end date from range" do
-			pp.coverage_start_date.should == "20140401".to_date
-			pp.coverage_end_date.should == "20140430".to_date
+			expect(pp.coverage_start_date).to eql("20140401".to_date)
+			expect(pp.coverage_end_date).to eql("20140430".to_date)
 		end
 	end
 
 	describe "instance methods" do
 		it "payment_in_dollars should return premium amount in currency format" do
-			pp.payment_amount_in_dollars.should == 427.13
+			expect(pp.payment_amount_in_dollars).to eql(427.13)
 		end
 	end
 
