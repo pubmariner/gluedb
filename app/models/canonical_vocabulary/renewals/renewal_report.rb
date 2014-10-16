@@ -1,6 +1,17 @@
 require "spreadsheet"
 module CanonicalVocabulary
 	module Renewals
+
+      class PolicyProjection
+        attr_reader :current, :future_plan_name, :quoted_premium
+        def initialize(app_group, coverage_type)
+          @coverage_type = coverage_type
+          current = app_group.current_insurance_plan(coverage_type)
+          future_plan_name = app_group.future_insurance_plan(coverage_type)
+          quoted_premium = app_group.quoted_insurance_premium(coverage_type)
+        end
+      end
+
 		class RenewalReport
 
       MULTIPLE_LIMIT = 6
@@ -10,124 +21,139 @@ module CanonicalVocabulary
       
       def append_household(application_group)
         begin
-          @household_address = []
-          @member_details = {:members => []}
           @application_group = application_group
 
-          populate_member_details
+          individuals = find_many_individuals_by_id(@application_group.applicant_ids)
+          @primary = individuals.detect { |i| (i.id == @application_group.primary_applicant_id || individuals.count == 1) }
+          raise "Primary Applicant Address Not Present" if @primary.addresses[0].nil?
 
-          data_set  = [application_group.integrated_case, "10/10/2014"]
-          data_set += @member_details[:primary].slice!(0..1) #last and first name
-          data_set += @household_address
-          data_set += @member_details[:primary]
-          data_set += @member_details[:members]
+          @other_members = individuals.reject { |i| i == @primary }
 
-          # APTC
-          data_set += [nil] if @report_type == "ia"
-          data_set += ["10/10/2014"]
-          data_set += policy_details
-          if @report_type == "ia"
-            data_set += [@application_group.yearwise_incomes("2014"),nil, @application_group.irs_consent]
+          dental = PolicyProjection.new(@application_group, "dental")
+          health = PolicyProjection.new(@application_group, "health")
+
+          if health.current.nil? && dental.current.nil?
+            raise "No active health or dental policy"
           end
-          @sheet.row(@row).concat data_set
+
+          @data_set = []
+          append_integrated_case_number
+          append_notice_date
+          append_primary_details
+          @other_members.each { |m| append_individual }
+          num_blank_members.times { append_blank_member }
+          append_aptc if @report_type == "ia"
+          append_response_date
+          append_policy(health)
+          append_post_aptc_premium if @report_type == "ia"
+          append_policy(dental)
+          append_financials if @report_type == "ia"
+
+          @sheet.row(@row).concat @data_set
           @row += 1         
         rescue Exception  => e
           @renewal_logger.info "#{application_group.id.match(/\w+$/)},#{e.inspect}"
         end
       end
 
-      def populate_member_details
-        members_xml = Net::HTTP.get(URI.parse("#{CV_API_URL}people?ids[]=#{@application_group.applicant_ids.join("&ids[]=")}&user_token=zUzBsoTSKPbvXCQsB4Ky"))
-        individual_elements = Nokogiri::XML(members_xml).root.xpath("n1:individual")
-
-        # primary_processed = false
-        # Household Address should be popoulated before member details
-
-        individuals = individual_elements.map { |i| Parsers::Xml::IrsReports::Individual.new(i) }
-
-        primary = individuals.detect { |i| (i.id == @application_group.primary_applicant_id || individuals.count == 1) }
-        @household_address = household_address(primary)
-
-        if @household_address.empty?
-          raise "Primary Applicant Address Not Present"
-        end
-
-        @member_details[:primary] = individual_details(primary)
-        other_members = individuals.reject { |i| i == primary }
-        @member_details[:members] = other_members.inject([]) { |result, i| result += individual_details(i) }
-
-        return if @range.nil?
-        (@range.count - other_members.count).times{ @member_details[:members] += fill_blank_member}
-      end
-
-      def policy_details
-        if @application_group.current_insurance_plan("health").nil? && @application_group.current_insurance_plan("dental").nil?
-          raise "No active health or dental policy"
-        end
-
-        health_plan = @application_group.current_insurance_plan("health")
-        policy = [
-          health_plan.nil? ? nil : health_plan[:plan],
-          @application_group.future_insurance_plan("health"),
-          @application_group.quoted_insurance_premium("health")
-        ]
-        # HP Premium After APTC 
-        policy += [nil] if @report_type == "ia" 
-        dental_policy = @application_group.current_insurance_plan("dental")
-        policy += [ 
-          dental_policy.blank? ? nil : dental_policy[:plan],
-          @application_group.future_insurance_plan("dental"),
-          @application_group.quoted_insurance_premium("dental")
-        ]
-      end
-
       private
 
-      def individual_details(member)
-        data = [
-          member.name_first,
-          member.name_last,
-          member.age,
-          residency(member),
-          member.citizenship
-        ]
-
-        if @report_type == "ia"
-          data += [
-            member.tax_status,
-            member.mec,
-            @application_group.size,
-            member.yearwise_incomes("2014")
-          ]
-        end
-
-        data << member.incarcerated
-      end
-
-      def household_address(member)
-        address = member.addresses[0]
-        return [] if address.nil?
-        [
-          address[:address_1],
-          address[:address_2],
-          address[:apt],
-          address[:city],
-          address[:state],
-          address[:postal_code]
-        ]
+      def find_many_individuals_by_id(ids)
+        members_xml = Net::HTTP.get(URI.parse("#{CV_API_URL}people?ids[]=#{ids.join("&ids[]=")}&user_token=zUzBsoTSKPbvXCQsB4Ky"))
+        individual_elements = Nokogiri::XML(members_xml).root.xpath("n1:individual")
+        individual_elements.map { |i| Parsers::Xml::IrsReports::Individual.new(i) }
       end
 
       def residency(member)
         member.residency unless member.residency.blank?
-        return "No Status"if @household_address.empty?
-        @household_address[-2].strip == "DC" ? "D.C. Resident" : "Not a D.C Resident"
+        return "No Status" if @primary.addresses[0].nil?
+        @primary.addresses[0][:state].strip == "DC" ? "D.C. Resident" : "Not a D.C Resident"
       end
 
-      def fill_blank_member
-        data = []
-        6.times{ data << nil}
-        4.times{ data << nil} if @report_type == "ia"
-        data
+      def append_blank_member
+        6.times{ append_blank }
+        4.times{ append_blank } if @report_type == "ia"
+      end
+
+      def append_integrated_case_number
+        @data_set << application_group.integrated_case
+      end
+
+      def append_name_of(member)
+        @data_set << member.name_first
+        @data_set << member.name_last
+      end
+
+      def append_notice_date
+        @data_set << "10/10/2014" #DATE_OF_NOTICE
+      end
+
+      def append_address_of(member)
+        @data_set << member.addresses[0][:address_1]
+        @data_set << member.addresses[0][:address_2]
+        @data_set << member.addresses[0][:apt]
+        @data_set << member.addresses[0][:city]
+        @data_set << member.addresses[0][:state]
+        @data_set << member.addresses[0][:postal_code]
+      end
+
+      def append_aptc
+        append_blank 
+      end
+
+      def append_response_date
+        @data_set << "10/10/2014"
+      end
+
+      def append_policy(policy)
+        @data_set << policy.current.nil? ? nil : policy.current[:plan]
+        @data_set << policy.future_plan_name
+        @data_set << policy.quoted_premium
+      end
+
+      def append_post_aptc_premium
+        append_blank  
+      end
+
+      def append_financials
+        @data_set << @application_group.yearwise_incomes("2014")
+        append_blank 
+        @data_set << @application_group.irs_consent
+      end
+
+      def num_blank_members
+        return 0 if @range.nil?
+        @range.count - @other_members.count
+      end
+
+      def append_individual(individual)
+        append_name_of(individual)
+        append_other_details(individual)
+      end
+
+      def append_primary_details
+        append_name_of(@primary)
+        append_address_of(@primary)
+        other_details_for(@primary)
+      end
+
+      def other_details_for(individual)
+        @data_set << individual.age
+        @data_set << residency(individual)
+        @data_set << individual.citizenship
+
+        if @report_type == "ia"
+          @data_set << individual.tax_status
+          @data_set << individual.mec
+          @data_set << @application_group.size
+          @data_set << individual.yearwise_incomes("2014")
+        end
+
+        @data_set << individual.incarcerated
+      end
+
+      def append_blank
+        @data_set << nil
       end
     end
   end
