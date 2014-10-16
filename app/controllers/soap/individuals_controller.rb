@@ -1,7 +1,7 @@
 class Soap::IndividualsController < ApplicationController
   skip_before_filter :authenticate_user_from_token!
   skip_before_filter :authenticate_me!
-  protect_from_forgery :except => [:get_by_hbx_id]
+  protect_from_forgery :except => [:get_by_hbx_id, :wsdl]
 
   SOAP_NS = {
     :soap => 'http://www.w3.org/2001/12/soap-envelope',
@@ -24,6 +24,10 @@ class Soap::IndividualsController < ApplicationController
     respond_to do |format|
       format.xml { render 'index' }
     end
+  end
+
+  def wsdl
+    render action: 'wsdl', :content_type => "text/xml", :formats => [:xml]
   end
 
   def fail_authentication(user_token)

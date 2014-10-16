@@ -190,6 +190,7 @@ Gluedb::Application.routes.draw do
     resources :individuals, :only => [] do
       collection do
         post 'get_by_hbx_id'
+        get 'wsdl'
       end
     end
   end
