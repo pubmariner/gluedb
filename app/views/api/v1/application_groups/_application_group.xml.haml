@@ -12,7 +12,7 @@
 %n1:applicants
   - group.person_ids.each do |p_id|
     %n1:applicant= render 'shared/individual_type', person: (Caches::CustomCache.lookup(Person, "ag_lookup", p_id) { Person.find(p_id) })
-- if group.households.empty?
+- if group.households.empty? # fake household
   %n1:households
     %n1:household
       = render "shared/application_group_as_household", application_group: group
