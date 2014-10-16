@@ -21,9 +21,7 @@ class Soap::IndividualsController < ApplicationController
       return
     end
     @people = Person.where('members.hbx_member_id' => hbx_id)
-    respond_to do |format|
-      format.xml { render 'index' }
-    end
+    render 'index', :content_type => "text/xml"
   end
 
   def wsdl
