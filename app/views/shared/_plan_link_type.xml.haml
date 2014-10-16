@@ -1,4 +1,4 @@
-= render 'shared/identity', id: nil
+= render 'shared/identity', id: nil #plan.id?
 %n1:qhp_id= plan.hios_plan_id
 %n1:name= plan.name
 %n1:is_dental_only_flag= (plan.coverage_type == 'dental')
