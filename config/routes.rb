@@ -199,6 +199,8 @@ Gluedb::Application.routes.draw do
     namespace :v1 do
       wash_out :people
       wash_out :policies
+      wash_out :application_groups
+      wash_out :employers
     end
   end
 
