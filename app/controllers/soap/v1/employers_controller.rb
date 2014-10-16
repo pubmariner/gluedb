@@ -7,7 +7,6 @@ class Soap::V1::EmployersController < ApplicationController
   skip_before_filter :authenticate_user_from_token!
   skip_before_filter :authenticate_me!
   protect_from_forgery :except => [:get_by_hbx_id]
-  before_filter :prepend_view_paths, :only=>[:index, :show]
 
   soap_service namespace: 'http://www.w3.org/2001/12/soap-envelope'
 
@@ -67,12 +66,5 @@ class Soap::V1::EmployersController < ApplicationController
 
   end
 
-  def prepend_view_paths
-    prepend_view_path "#{Rails.root}/app/views/api/v1/employers"
-
-    @@logger.info "#{DateTime.now.to_s} class:#{self.class.name} method:#{__method__.to_s} view_paths:#{view_paths.inspect}"
-
-
-  end
 
 end
