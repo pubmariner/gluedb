@@ -24,7 +24,7 @@
           - policies.each do |policy|
             %n1:policy= render 'shared/policy_link_type', policy: policy, member: member
       - if false
-        %n1:exemptions=#todo
+        %n1:exemptions
           %n1:kind= "urn:openhbx:terms:v1:exemption#"
           %n1:certificate_number
           %n1:start_date
