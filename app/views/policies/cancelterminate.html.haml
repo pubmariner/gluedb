@@ -46,7 +46,7 @@
       .row
         .col-md-2
           .form_actions
-            = f.submit 'Cancel / Terminate', class: 'btn btn-inverse', confirm: 'WARNING: This action will end coverage for the selected individuals. Are you sure you want to continue?'
+            = f.submit 'Cancel / Terminate', class: 'btn btn-inverse', confirm: 'WARNING: This action will end coverage for the selected individuals. Clicking OK will send a transmission to the Carrier. Are you sure you want to continue?'
         .col-md-2
           = f.label "Transmit?"
           = f.check_box :transmit, checked: true
