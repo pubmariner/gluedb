@@ -77,13 +77,13 @@ module Parsers::Xml::IrsReports
           @individual_policies << policy.at_xpath("n1:id").text
           policies << policy.at_xpath("n1:id").text
         end
-
         quotes = {}
         applicant.xpath("n1:hbx_roles/n1:qhp_roles/n1:qhp_role/n1:qhp_quotes/n1:qhp_quote").each do |quote|
           coverage = quote.at_xpath("n1:coverage_type").text.split("#")[1]
           quotes[coverage] = quote.at_xpath("n1:rates/n1:rate/n1:rate").text
           if @future_plans[coverage].blank?
-            @future_plans[coverage] = future_plan_names_by_hios(quote.at_xpath("n1:qhp_id").text.split("-")[0], coverage)
+            hios_id = quote.at_xpath("n1:qhp_id").text.split("-")[0]
+            @future_plans[coverage] = future_plan_names_by_hios(hios_id, coverage)
           end
         end
 
@@ -93,35 +93,33 @@ module Parsers::Xml::IrsReports
     end
 
     def policies_details     
-       policy_ids = @individual_policies.map{|policy| policy.match(/\d+$/)[0]}.uniq
-       if policy_ids.count > 10
-          raise "Have more than 10 active polices #{policy_ids.inspect}"
-       end
+      policy_ids = @individual_policies.map{|policy| policy.match(/\d+$/)[0]}.uniq
+      if policy_ids.count > 10
+        raise "Have more than 10 active polices #{policy_ids.inspect}"
+      end
 
-       policies_xml = Net::HTTP.get(URI.parse("http://localhost:3000/api/v1/policies?ids[]=#{policy_ids.join("&ids[]=")}&user_token=zUzBsoTSKPbvXCQsB4Ky"))
-       root = Nokogiri::XML(policies_xml).root
-       root.xpath("n1:policy").each do |policy|
-          policy = Parsers::Xml::IrsReports::Policy.new(policy)
-          @individual_policies_details[policy.id] = {
-             :plan => policy.plan,
-             :begin_date => policy.start_date,
-             :end_date => policy.end_date,
-             :elected_aptc => policy.elected_aptc,
-             :coverage_type => policy.coverage_type,
-             :qhp_id => policy.qhp_number
-          }
-       end
+      policies_xml = Net::HTTP.get(URI.parse("http://localhost:3000/api/v1/policies?ids[]=#{policy_ids.join("&ids[]=")}&user_token=zUzBsoTSKPbvXCQsB4Ky"))
+      root = Nokogiri::XML(policies_xml).root
+      root.xpath("n1:policy").each do |policy|
+        policy = Parsers::Xml::IrsReports::Policy.new(policy)
+        @individual_policies_details[policy.id] = {
+          :plan => policy.plan,
+          :begin_date => policy.start_date,
+          :end_date => policy.end_date,
+          :elected_aptc => policy.elected_aptc,
+          :coverage_type => policy.coverage_type,
+          :qhp_id => policy.qhp_number
+        }
+      end
     end
 
     def assisted?
       assisted = false
       @individual_policies_details.each do |id, policy|
-        if policy[:elected_aptc].to_i > 0
-          assisted = true
-          break
-        end
+        next if policy[:elected_aptc].to_i <= 0
+        assisted = true; break
       end
-      assisted
+      return assisted
     end
 
     def irs_consent
@@ -129,10 +127,11 @@ module Parsers::Xml::IrsReports
     end
 
     def policy_inactive?(begin_date, end_date)
+      policy_active = false
       if begin_date >= Date.parse("2015-1-1") || begin_date == end_date || (!end_date.nil? && end_date < Date.parse("2015-1-1"))
-        return true
+        policy_active = true
       end
-      false
+      return policy_active
     end
 
     def current_insurance_plan(coverage)
@@ -158,10 +157,8 @@ module Parsers::Xml::IrsReports
     # {"http://localhost:3000/api/v1/people/53e68e78eb899ad9ca00002b"=>{"health/dental"=>"604.22"}} 
     def quoted_insurance_premium(coverage)
       amount = 0.0
-      @future_policy_quotes.each do |individual, quote|
-        amount += quote[coverage].to_f
-      end
-      amount
+      @future_policy_quotes.each{|individual, quote| amount += quote[coverage].to_f}
+      return amount
     end
 
     def future_plan_names_by_hios(hios_id, coverage)
