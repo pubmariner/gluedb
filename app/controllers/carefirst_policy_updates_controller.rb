@@ -12,7 +12,7 @@ class CarefirstPolicyUpdatesController < ApplicationController
 
     request_model = {
       carrier_id: Carrier.where(:abbrev => "GHMSI").first.id,
-      policy_id: @carefirst_policy_update[:policy_hbx_id],
+      policy_id: @carefirst_policy_update[:glue_policy_id],
       status: status_map[@carefirst_policy_update[:status]],
       begin_date: @carefirst_policy_update[:begin_date],
       end_date: @carefirst_policy_update[:end_date],
