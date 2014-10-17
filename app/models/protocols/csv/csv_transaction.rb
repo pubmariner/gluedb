@@ -22,7 +22,7 @@ module Protocols::Csv
     end
 
     def transaction_kind
-      "CSV"
+      "CSV Import"
     end
 
     def ack_nak_processed_at
