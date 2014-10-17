@@ -1,4 +1,7 @@
 !!! XML
-%soap:Envelope{ "xmlns:soap" => "http://www.w3.org/2001/12/soap-envelope", "soap:encodingStyle" => "http://www.w3.org/2001/12/soap-encoding"}
+%soap:Envelope{ "xmlns:soap" => "http://schemas.xmlsoap.org/soap/envelope/" }
   %soap:Body
-    = render :template => "api/v1/people/index"
+    %n1:individuals{"xmlns:n1" => "http://openhbx.org/api/terms/1.0", "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation" => "http://openhbx.org/api/terms/1.0 " + root_url + "schemas/individual.xsd"}
+      - @people.each do |person|
+        %n1:individual
+          = render 'shared/individual_type', person: person

@@ -679,13 +679,7 @@
 					<xs:complexContent>
 						<xs:restriction base="ServiceBodyType">
 							<xs:sequence>
-								<xs:element name="individuals">
-									<xs:complexType>
-										<xs:sequence>
-											<xs:element ref="individual" minOccurs="0" maxOccurs="unbounded"/>
-										</xs:sequence>
-									</xs:complexType>
-								</xs:element>
+								<xs:element ref="individuals"/>
 							</xs:sequence>
 						</xs:restriction>
 					</xs:complexContent>
@@ -1393,4 +1387,11 @@
 			<xs:enumeration value="urn:openhbx:terms:v1:individual_deduction#reservists_performing_artists_and_fee_basis_government_official_expenses"/>
 		</xs:restriction>
 	</xs:simpleType>
+	<xs:element name="individuals">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="individual" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
 </xs:schema>

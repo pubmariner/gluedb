@@ -12,7 +12,7 @@ class Soap::IndividualsController < ApplicationController
     in_req = get_soap_body
     user_token = get_user_token(in_req)
     if fail_authentication(user_token)
-      render :status => 403, :nothing => true
+      render :status => 401, :nothing => true
       return
     end
     hbx_id = get_hbx_id(in_req)

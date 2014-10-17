@@ -54,16 +54,40 @@ module CanonicalVocabulary
       end
     end
 
-    def initialize_assisted
-      @single = CanonicalVocabulary::Renewals::Assisted.new('single')
-      @multiple = CanonicalVocabulary::Renewals::Assisted.new('multiple')
-      @super_multiple = CanonicalVocabulary::Renewals::Assisted.new('super')
+    def initialize_assisted 
+      @single = CanonicalVocabulary::Renewals::Assisted.new({ 
+        file: "Manual Renewal Single IA).xls",
+        log_file: "ia_renewals_internal.log",
+        other_members: 0
+        })
+      @multiple = CanonicalVocabulary::Renewals::Assisted.new({ 
+        file: "Manual Renewal Multiple IA).xls",
+        log_file: "ia_renewals_internal.log",
+        other_members: 5
+        })
+      @super_multiple = CanonicalVocabulary::Renewals::Assisted.new({ 
+        file: "Manual Renewal Super IA).xls",
+        log_file: "ia_renewals_internal.log",
+        other_members: 8
+        })
     end
 
     def initialize_unassisted
-      @single = CanonicalVocabulary::Renewals::Unassisted.new('single')
-      @multiple = CanonicalVocabulary::Renewals::Unassisted.new('multiple')
-      @super_multiple = CanonicalVocabulary::Renewals::Unassisted.new('super')
+      @single = CanonicalVocabulary::Renewals::Unassisted.new({ 
+        file: "Manual Renewal Single UQHP).xls",
+        log_file: "uqhp_renewals_internal.log",
+        other_members: 0
+        })
+      @multiple = CanonicalVocabulary::Renewals::Unassisted.new({ 
+        file: "Manual Renewal Multiple UQHP).xls",
+        log_file: "uqhp_renewals_internal.log",
+        other_members: 5
+        })
+      @super_multiple = CanonicalVocabulary::Renewals::Unassisted.new({ 
+        file: "Manual Renewal Super UQHP).xls",
+        log_file: "uqhp_renewals_internal.log",
+        other_members: 8
+        })
     end
 
     def write_reports

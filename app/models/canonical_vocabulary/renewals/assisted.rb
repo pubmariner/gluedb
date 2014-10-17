@@ -3,7 +3,7 @@ module CanonicalVocabulary
   module Renewals
     class Assisted < RenewalReport
 
-      IA_PRIMARY_COLUMNS = [
+      PRIMARY_COLUMNS = [
         "IC Number",
         "Date of Notice", 
         "Primary First",
@@ -24,7 +24,7 @@ module CanonicalVocabulary
         "Incarcerated 1"
       ]
 
-      IA_POLICY_COLUMNS = [   
+      POLICY_COLUMNS = [   
         "APTC",
         "Response Date",
         "2014 Health Plan", 
@@ -40,29 +40,10 @@ module CanonicalVocabulary
       ]
       
       attr_accessor :book, :file
-      
-      def initialize(type="single")
-        @report_type = "ia"
-        
-        @file  = "Manual Renewal (#{type.capitalize} IA).xls"
-        @book  = Spreadsheet::Workbook.new
-        @sheet = book.create_worksheet :name => 'Manual Renewal'
-        
-        columns = IA_PRIMARY_COLUMNS
-        @range = nil
-        @range = 2..MULTIPLE_LIMIT if type == "multiple"
-        @range = 2..SUPER_LIMIT if type == "super"
-        
-        columns += member_columns(@range) if @range
-        @sheet.row(0).concat  columns + IA_POLICY_COLUMNS
-        
-        @renewal_logger = Logger.new("#{Rails.root}/log/ia_renewals_internal.log")        
-        @row = 1
-      end
 
       # Repeated for each IA household member
-      def member_columns(range)
-        range.inject([]) do |columns, n|
+      def member_columns(limit)
+        (2..(limit+1)).inject([]) do |columns, n|
           columns += [
             "P#{n} First",
             "P#{n} Last",
@@ -76,6 +57,49 @@ module CanonicalVocabulary
             "Incarcerated #{n}"
           ]
         end
+      end
+
+      def build_report
+        builder = RenewalReportRowBuilder.new
+
+        builder.append_integrated_case_number
+        builder.append_notice_date
+        builder.append_name_of(@primary)
+        builder.append_address_of(@primary)
+        builder.append_age_of(@primary)
+        builder.append_residency_of(@primary)
+        builder.append_citizenship_of(@primary)
+        builder.append_tax_status_of(@primary)
+        builder.append_mec_of(@primary)
+        builder.append_app_group_size
+        builder.append_yearwise_income_of(@primary)
+        builder.append_incarcerated(@primary)
+
+        @other_members.each do  |m|  
+          builder.append_name_of(individual)
+          builder.append_age_of(individual)
+          builder.append_residency_of(individual)
+          builder.append_citizenship_of(individual)
+          builder.append_tax_status_of(individual)
+          builder.append_mec_of(individual)
+          builder.append_app_group_size
+          builder.append_yearwise_income_of(individual)
+          builder.append_incarcerated(individual)
+        end
+
+        num_blank_members.times do 
+          6.times{ builder.append_blank }
+          4.times{ builder.append_blank }
+        end
+
+        builder.append_aptc
+        builder.append_response_date
+        builder.append_policy(@health)
+        builder.append_post_aptc_premium
+        builder.append_policy(@dental)
+        builder.append_financials
+        @sheet.row(@row).concat builder.data_set
+        @row += 1 
       end
     end
   end
