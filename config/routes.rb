@@ -130,7 +130,24 @@ Gluedb::Application.routes.draw do
     end
   end
 
+  namespace :soap do
+    resources :individuals, :only => [] do
+      collection do
+        post 'get_by_hbx_id'
+        get 'wsdl'
+      end
+    end
+  end
 
+  #routes for soap services
+  namespace :soap do
+    namespace :v1 do
+      wash_out :people
+      wash_out :policies
+      wash_out :application_groups
+      wash_out :employers
+    end
+  end
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
@@ -184,26 +201,5 @@ Gluedb::Application.routes.draw do
   # This is a legacy wild controller route that's not recommended for RESTful applications.
   # Note: This route will make all actions in every controller accessible via GET requests.
   # match ':controller(/:action(/:id))(.:format)'
-
-
-  namespace :soap do
-    resources :individuals, :only => [] do
-      collection do
-        post 'get_by_hbx_id'
-        get 'wsdl'
-      end
-    end
-  end
-
-  #routes for soap services
-  namespace :soap do
-    namespace :v1 do
-      wash_out :people
-      wash_out :policies
-      wash_out :application_groups
-      wash_out :employers
-    end
-  end
-
 
 end
