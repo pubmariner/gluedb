@@ -13,23 +13,14 @@ module CanonicalVocabulary
     end
 
 		class RenewalReport
-
-      MULTIPLE_PEOPLE_LIMIT = 6
-      SUPER_PEOPLE_LIMIT = 9
-
+      
       CV_API_URL = "http://localhost:3000/api/v1/"
 
       def initialize(options)
         @book  = Spreadsheet::Workbook.new
         @sheet = book.create_worksheet :name => 'Manual Renewal'
-        
-        columns = PRIMARY_COLUMNS
-        @other_members_limit = option[:other_members]
-        columns += member_columns(@other_members_limit)
-
-        @sheet.row(0).concat  columns + POLICY_COLUMNS
-        @file  = options[:file]
         @renewal_logger = Logger.new("#{Rails.root}/log/#{options[:log_file]}")
+        @file  = options[:file]
         @row = 1
       end
       
