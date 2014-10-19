@@ -106,6 +106,7 @@ Gluedb::Application.routes.draw do
 
   namespace :api, :defaults => { :format => 'xml' } do
     namespace :v1 do
+      resources :events, :only => [:create]
       resources :people, :only => [:show, :index]
       resources :employers, :only => [:show, :index]
       resources :policies, :only => [:show, :index]

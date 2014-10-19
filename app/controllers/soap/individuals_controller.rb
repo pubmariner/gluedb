@@ -40,12 +40,12 @@ class Soap::IndividualsController < ApplicationController
 
   def get_user_token(xml_body)
     node = (xml_body.xpath("//user_token", SOAP_NS) | xml_body.xpath("//cv_soap:user_token", SOAP_NS)) .first
-    node.blank? ? nil : node.text
+    MayBlank.new(node).text.value
   end
 
   def get_hbx_id(xml_body)
     node = (xml_body.xpath("//hbx_id", SOAP_NS) | xml_body.xpath("//cv_soap:hbx_id", SOAP_NS)).first
-    node.blank? ? nil : node.text
+    MayBlank.new(node).text.value
   end
 
   def get_soap_body
