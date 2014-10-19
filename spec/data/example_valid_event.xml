@@ -6,7 +6,7 @@
   <header>
     <hbx_id>DC0</hbx_id>
     <submitted_timestamp>2014-03-07T12:00:00Z</submitted_timestamp>
-    <authorization></authorization>
+    <authorization>usr_token</authorization>
     <message_id>msg_id</message_id>
     <originating_service>orig_serv</originating_service>
   </header>
