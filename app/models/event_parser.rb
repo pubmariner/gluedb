@@ -35,6 +35,10 @@ class EventParser
   def message_body
   end
 
+  def user_token
+    Maybe.new(message_headers)[:headers]["authorization"].value
+  end
+
   def message_headers
     mesg_headers = {:headers => {}}
     set_headers_from(@event.xpath("//cv:event", XML_NS), mesg_headers)
