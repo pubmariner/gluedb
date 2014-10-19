@@ -1,0 +1,14 @@
+<?xml version='1.0'?>
+<employer_request
+  xmlns="http://openhbx.org/api/terms/1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://openhbx.org/api/terms/1.0 ../../schemas/vocabulary.xsd">
+  <header>
+    <hbx_id>DC0</hbx_id>
+    <submitted_timestamp>2014-03-07T12:00:00Z</submitted_timestamp>
+    <authorization></authorization>
+  </header>
+  <request>
+    <request_name>urn:openhbx:requests:v1:employers#by_id</request_name>
+  </request>
+</employer_request>

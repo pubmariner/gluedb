@@ -1,0 +1,19 @@
+<?xml version='1.0'?>
+<employer_employee_event
+  xmlns="http://openhbx.org/api/terms/1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://openhbx.org/api/terms/1.0 ../../schemas/vocabulary.xsd">
+  <header>
+    <hbx_id>DC0</hbx_id>
+    <submitted_timestamp>2014-03-07T12:00:00Z</submitted_timestamp>
+    <authorization></authorization>
+    <message_id>msg_id</message_id>
+    <originating_service>orig_serv</originating_service>
+  </header>
+  <event>
+    <event_name>urn:openhbx:events:v1:employers_employees#qhp_selected</event_name>
+    <qualifying_reason></qualifying_reason>
+    <employer_uri></employer_uri>
+    <enrollment_group_uri></enrollment_group_uri>
+  </event>
+</employer_employee_event>
