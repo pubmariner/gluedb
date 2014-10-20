@@ -54,13 +54,13 @@ module CanonicalVocabulary
       end
 
       def build_report
-        builder = RenewalReportRowBuilder.new
+        builder = RenewalReportRowBuilder.new(@application_group, @primary)
 
         builder.append_integrated_case_number
-        builder.append_notice_date
+        builder.append_notice_date("10/10/2014")
 
         builder.append_name_of(@primary)
-        builder.append_address_of(@primary)
+        builder.append_household_address
         builder.append_age_of(@primary)
         builder.append_residency_of(@primary)
         builder.append_citizenship_of(@primary)
@@ -78,7 +78,7 @@ module CanonicalVocabulary
           6.times{ builder.append_blank }
         end
 
-        builder.append_response_date
+        builder.append_response_date("10/10/2014")
         builder.append_policy(@health)
         builder.append_policy(@dental)
         @sheet.row(@row).concat builder.data_set
