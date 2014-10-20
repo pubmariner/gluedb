@@ -32,9 +32,6 @@ class EventParser
     @event.xpath("//cv:event/cv:event_name", XML_NS).first.text
   end
 
-  def message_body
-  end
-
   def user_token
     Maybe.new(message_headers)[:headers]["authorization"].value
   end
@@ -60,9 +57,9 @@ class EventParser
 
   def message_body
     body_node = @event.xpath("//cv:event/cv:body", XML_NS).first
-    return nil unless body_node
+    return "" unless body_node
     body_root_node = body_node.children.detect { |cn| cn.element? }
-    return nil unless body_root_node
+    return "" unless body_root_node
     body_root_node.canonicalize
   end
 
