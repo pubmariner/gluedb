@@ -11,7 +11,8 @@ module CanonicalVocabulary::Renewals
     let(:current) { {plan: double} }
     let(:notice_date) { double }
     let(:addresses) { [ address ] }
-    let(:address) { {address_1: 'Wilson Building', address_2: 'K Street', apt: 'Suite 100', city: 'Washington DC', state: 'DC', postal_code: '20002'} }
+    let(:address) { {address_1: 'Wilson Building', address_2: 'K Street', apt: 'Suite 100', city: 'Washington DC', state: state, postal_code: '20002'} }
+    let(:state) { 'DC'}
     let(:response_date) { double }
     let(:aptc) { nil }
     let(:post_aptc_premium) { nil }
@@ -88,36 +89,31 @@ module CanonicalVocabulary::Renewals
       end
     end
 
-    context 'when there is no residency or address' do
+    context 'residency status not available' do 
       let(:member) { double(residency: nil)}
-      let(:primary) { double(addresses: addresses)}
-      let(:addresses) {[address]}
-      let(:address) { nil }
-      it 'appends no status' do
-        subject.append_residency_of(member)
-        expect(subject.data_set).to include "No Status" 
-      end
-    end
 
-    context 'when there is no residency but address is present' do
-      let(:member) { double(residency: nil)}
-      let(:primary) { double(addresses: addresses)}
-      let(:addresses) {[address]}
-      let(:address) { {address_1: 'Wilson Building', address_2: 'K Street', apt: 'Suite 100', city: 'Washington DC', state: 'DC', postal_code: '20002'} }
-      it 'appends dc resident if address belongs to dc' do
-        subject.append_residency_of(member)
-        expect(subject.data_set).to include "D.C. Resident" 
+      context 'when both address' do
+        let(:address) { nil }
+        it 'appends no status' do
+          subject.append_residency_of(member)
+          expect(subject.data_set).to include "No Status" 
+        end
       end
-    end
 
-    context 'when there is no residency but address is present' do
-      let(:member) { double(residency: nil)}
-      let(:primary) { double(addresses: addresses)}
-      let(:addresses) {[address]}
-      let(:address) { {address_1: 'Highland Drive', address_2: 'Lee Street', apt: 'Suite 100', city: 'Richmond', state: 'VA', postal_code: '20002'} }
-      it 'appends non dc resident if address is outside of dc' do
-        subject.append_residency_of(member)
-        expect(subject.data_set).to include "Not a D.C Resident"  
+      context 'when D.C address present' do
+        let(:state) { 'DC' }
+        it 'appends dc resident if address belongs to dc' do
+          subject.append_residency_of(member)
+          expect(subject.data_set).to include "D.C. Resident" 
+        end
+      end
+
+      context 'when non D.C address present' do
+        let(:state) { 'VA' }
+        it 'appends non dc resident if address is outside of dc' do
+          subject.append_residency_of(member)
+          expect(subject.data_set).to include "Not a D.C Resident"  
+        end
       end
     end
 
