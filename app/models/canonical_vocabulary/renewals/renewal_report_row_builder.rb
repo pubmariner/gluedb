@@ -49,7 +49,7 @@ module CanonicalVocabulary
       end
 
       def append_financials
-        @data_set << @application_group.yearwise_incomes("2014")
+        @data_set << @application_group.yearly_income("2014")
         append_blank 
         @data_set << @application_group.irs_consent
       end

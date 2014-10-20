@@ -6,16 +6,13 @@ module Parsers::Xml::IrsReports
     def initialize(parser = nil)
       # parser = File.open(Rails.root.to_s + "/application_group_failed.xml")
       # parser = Nokogiri::XML(parser).root
-
       @root = parser
       @individual_policies = []
       @individual_policy_holders = {}
       @future_policy_quotes = {}
       @individual_policies_details = {}
-
       @future_plans = {}
-
-      identify_indiv_policies
+      populate_individual_policies
       policies_details
     end
 
@@ -25,6 +22,10 @@ module Parsers::Xml::IrsReports
 
     def primary_applicant_id
       @root.at_xpath("n1:primary_applicant_id").text
+    end
+
+    def applicant_ids
+      @root.xpath("n1:applicants/n1:applicant").map { |e| e.at_xpath("n1:person/n1:id").text.match(/\w+$/)[0]}.uniq
     end
 
     def size
@@ -43,53 +44,73 @@ module Parsers::Xml::IrsReports
       @root.xpath("n1:applicants/n1:applicant")
     end
 
-    def applicant_ids
-      @root.xpath("n1:applicants/n1:applicant").map { |e| e.at_xpath("n1:person/n1:id").text.match(/\w+$/)[0]}.uniq
-    end
-
-    def yearwise_incomes(year)
-      incomes = {}
-      irs_households.xpath("n1:total_incomes/n1:total_income").each do |income|
-        amount = income.at_xpath("n1:total_income").text.to_f
-        incomes[income.at_xpath("n1:calendar_year").text] = sprintf("%.2f", amount)
+    def yearly_income(year)
+      yearly_income = irs_households.xpath("n1:total_incomes/n1:total_income").detect do |income| 
+        income.at_xpath("n1:calendar_year").text == year 
       end
-      incomes[year]
+      return 0 if yearly_income.nil?
+      amount = yearly_income.at_xpath("n1:total_income").text.to_f
+      sprintf("%.2f", amount)
     end
 
-    def applicants_xml
-      applicants_xml = {}
+    def irs_consent
+      @root.at_xpath("n1:coverage_renewal_year").text if @root.at_xpath("n1:coverage_renewal_year")
+    end
+
+    def is_policy_active?(begin_date, end_date)
+      return false if begin_date == end_date
+      (begin_date < Date.parse("2015-1-1") && (end_date.nil? || end_date >= Date.parse("2015-1-1"))) ? true : false
+    end
+
+    def current_insurance_plan(coverage)
+      @individual_policies_details.detect do |id, policy|
+        is_policy_active?(policy[:begin_date], policy[:end_date]) && policy[:coverage_type] == coverage
+      end
+    end
+
+    def future_insurance_plan(coverage)
+      @future_plans[coverage]
+    end
+
+    def quoted_insurance_premium(coverage)
+      amount = 0.0
+      @future_policy_quotes.each{|individual, quote| amount += quote[coverage].to_f}
+      return amount
+    end
+
+    def populate_individual_policies
       applicants.each do |applicant|
-        applicants_xml[applicant.at_xpath("n1:person/n1:id").text] = applicant
+        populate_policy_holders(applicant)
+        populate_policy_quotes(applicant)
       end
-      applicants_xml
     end
 
-    def identify_indiv_policies
-      applicants_xml.each do |app_id, applicant|
-        policies = []
-        applicant.xpath("n1:hbx_roles/n1:qhp_roles/n1:qhp_role/n1:policies/n1:policy").each do |policy|
-          next if policy.at_xpath("n1:employer")
-          if policy.at_xpath("n1:enrollees").nil?
-            begin_date = Date.strptime(policy.at_xpath("n1:enrollees/n1:enrollee/n1:begin_date").text,'%Y%m%d')
-            end_date = Date.strptime(policy.at_xpath("n1:enrollees/n1:enrollee/n1:end_date").text,'%Y%m%d') 
-            next if policy_inactive?(begin_date, end_date)
-          end
-          @individual_policies << policy.at_xpath("n1:id").text
-          policies << policy.at_xpath("n1:id").text
+    def populate_policy_holders(applicant)
+      policies = []
+      applicant.xpath("n1:hbx_roles/n1:qhp_roles/n1:qhp_role/n1:policies/n1:policy").each do |policy|
+        next if policy.at_xpath("n1:employer")
+        if policy.at_xpath("n1:enrollees").nil?
+          begin_date = Date.strptime(policy.at_xpath("n1:enrollees/n1:enrollee/n1:begin_date").text,'%Y%m%d')
+          end_date = Date.strptime(policy.at_xpath("n1:enrollees/n1:enrollee/n1:end_date").text,'%Y%m%d') 
+          next unless is_policy_active?(begin_date, end_date)
         end
-        quotes = {}
-        applicant.xpath("n1:hbx_roles/n1:qhp_roles/n1:qhp_role/n1:qhp_quotes/n1:qhp_quote").each do |quote|
-          coverage = quote.at_xpath("n1:coverage_type").text.split("#")[1]
-          quotes[coverage] = quote.at_xpath("n1:rates/n1:rate/n1:rate").text
-          if @future_plans[coverage].blank?
-            hios_id = quote.at_xpath("n1:qhp_id").text.split("-")[0]
-            @future_plans[coverage] = future_plan_names_by_hios(hios_id, coverage)
-          end
-        end
-
-        @individual_policy_holders[applicant.at_xpath("n1:person/n1:id").text] = policies
-        @future_policy_quotes[applicant.at_xpath("n1:person/n1:id").text] = quotes        
+        @individual_policies << policy.at_xpath("n1:id").text
+        policies << policy.at_xpath("n1:id").text
       end
+      @individual_policy_holders[applicant.at_xpath("n1:person/n1:id").text] = policies
+    end
+
+    def populate_policy_quotes(applicant)
+      quotes = {}
+      applicant.xpath("n1:hbx_roles/n1:qhp_roles/n1:qhp_role/n1:qhp_quotes/n1:qhp_quote").each do |quote|
+        coverage = quote.at_xpath("n1:coverage_type").text.split("#")[1]
+        quotes[coverage] = quote.at_xpath("n1:rates/n1:rate/n1:rate").text
+        if @future_plans[coverage].blank?
+          hios_id = quote.at_xpath("n1:qhp_id").text.split("-")[0]
+          @future_plans[coverage] = future_plan_names_by_hios(hios_id, coverage)
+        end
+      end
+      @future_policy_quotes[applicant.at_xpath("n1:person/n1:id").text] = quotes  
     end
 
     def policies_details     
@@ -114,52 +135,11 @@ module Parsers::Xml::IrsReports
     end
 
     def assisted?
-      assisted = false
-      @individual_policies_details.each do |id, policy|
-        next if policy[:elected_aptc].to_i <= 0
-        assisted = true; break
-      end
-      return assisted
+      assisted_policy = @individual_policies_details.detect{|id, policy| policy[:elected_aptc].to_i > 0}
+      assisted_policy.nil? ? false : true
     end
 
-    def irs_consent
-      @root.at_xpath("n1:coverage_renewal_year").text
-    end
-
-    def policy_inactive?(begin_date, end_date)
-      policy_active = false
-      if begin_date >= Date.parse("2015-1-1") || begin_date == end_date || (!end_date.nil? && end_date < Date.parse("2015-1-1"))
-        policy_active = true
-      end
-      return policy_active
-    end
-
-    def current_insurance_plan(coverage)
-      now = Date.today
-      @individual_policies_details.each do |id, policy|
-        next if policy_inactive?(policy[:begin_date], policy[:end_date])
-        if policy[:coverage_type] == coverage
-          # && policy[:begin_date] < Date.parse("2015-01-01")
-          # if qhp_ids_2015plans.include?(policy[:qhp_id])
-          #   # puts "found match...."
-          #   raise "2015 policy mapping required for policy QHP ID #{policy[:qhp_id]}"
-          # end
-          return policy
-        end
-      end
-      nil
-    end
-
-    def future_insurance_plan(coverage)
-      @future_plans[coverage]
-    end
-
-    # {"http://localhost:3000/api/v1/people/53e68e78eb899ad9ca00002b"=>{"health/dental"=>"604.22"}} 
-    def quoted_insurance_premium(coverage)
-      amount = 0.0
-      @future_policy_quotes.each{|individual, quote| amount += quote[coverage].to_f}
-      return amount
-    end
+    private
 
     def future_plan_names_by_hios(hios_id, coverage)
       hios_ids = {
