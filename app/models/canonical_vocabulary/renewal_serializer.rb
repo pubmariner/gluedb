@@ -6,19 +6,18 @@ module CanonicalVocabulary
     CV_API_URL = "http://localhost:3000/api/v1/"
 
     def initialize(report_type)
-      @report_type = report_type
       report_type == "assisted" ? initialize_assisted : initialize_unassisted
+      @logger = Logger.new("#{Rails.root}/log/#{report_type}_renewals.log")
     end
 
     def serialize(file_name)
-      sheet = Spreadsheet.open("#{Rails.root.to_s}/#{file_name}").worksheet(0)
+      worksheet = Spreadsheet.open("#{Rails.root.to_s}/#{file_name}").worksheet(0)
       current = 1
       ids = []
-      limit = sheet.rows.count
-      @logger = Logger.new("#{Rails.root}/log/#{@report_type}_renewals.log")
+      limit = worksheet.rows.count
 
-      sheet.each do |row|
-        ids << row[0]
+      worksheet.each do |row|
+        ids << row[0] 
         if ids.size == 5 || current == limit
           serialize_groupids(ids)
           ids =[]
@@ -32,9 +31,9 @@ module CanonicalVocabulary
       begin
         groups_xml = Net::HTTP.get(URI.parse("#{CV_API_URL}application_groups?ids[]=#{group_ids.join("&ids[]=")}&user_token=zUzBsoTSKPbvXCQsB4Ky"))
         root = Nokogiri::XML(groups_xml).root
-          root.xpath("n1:application_group").each do |application_group_xml|
-            process_application_group(application_group_xml)
-          end
+        root.xpath("n1:application_group").each do |application_group_xml|
+          process_application_group(application_group_xml)
+        end
       rescue Exception => e
         @logger.info group_ids.join(",")
       end

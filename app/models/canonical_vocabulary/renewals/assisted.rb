@@ -41,6 +41,14 @@ module CanonicalVocabulary
       
       attr_accessor :book, :file
 
+      def initialize(options)
+        super
+        columns = PRIMARY_COLUMNS
+        @other_members_limit = options[:other_members]
+        columns += member_columns(@other_members_limit)
+        @sheet.row(0).concat  columns + POLICY_COLUMNS
+      end
+
       # Repeated for each IA household member
       def member_columns(limit)
         (2..(limit+1)).inject([]) do |columns, n|

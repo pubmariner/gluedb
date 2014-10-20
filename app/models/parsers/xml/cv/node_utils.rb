@@ -1,8 +1,7 @@
 module Parsers::Xml::Cv
   module NodeUtils
     def first_text(xpath)
-      node = @parser.at_xpath(xpath, NAMESPACES)
-      node.nil? ? nil : node.text.strip
+      Maybe.new(@parser).at_xpath(xpath, NAMESPACES).text.strip.value
     end
 
     def first_date_as_date(xpath)
