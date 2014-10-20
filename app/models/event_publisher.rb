@@ -12,7 +12,8 @@ class EventPublisher
       event_routes.each do |er|
         ex = er.resolve_exchange(chan)
         ex.publish(parsed_event.message_body, parsed_event.message_headers.merge({
-          :routing_key => er.routing_key
+          :routing_key => er.routing_key,
+          :persistent => true
         }))
       end
     end

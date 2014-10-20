@@ -3,9 +3,14 @@ class EventNotification < DocumentValidator
 
   attr_reader :event_publisher
 
-  def initialize(doc, s = Schemas::OpenHbx.get, e_pubber = EventPublisher.new)
+  def initialize(doc, s = Schemas::OpenHbx.get, e_pubber = EventPublisher.new, e_parser = EventParser)
     super(doc, s)
     @event_publisher = e_pubber
+    @event_parser = e_parser.new(doc)
+  end
+
+  def user_token
+    @event_parser.user_token
   end
 
   def save

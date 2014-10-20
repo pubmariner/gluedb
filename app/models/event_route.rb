@@ -12,7 +12,7 @@ class EventRoute
     if "default" == self.exchange_kind.to_s.downcase
       return channel.default_exchange
     end
-    channel.send(*[self.exchange_kind.to_s, self.exchange_name.to_s])
+    channel.send(*[self.exchange_kind.to_s, self.exchange_name.to_s, {:durable => true}])
   end
 
   def self.from_amqp_uri(uri)
