@@ -7,7 +7,6 @@ class Soap::V1::EmployersController < ApplicationController
   skip_before_filter :authenticate_user_from_token!
   skip_before_filter :authenticate_me!
   protect_from_forgery :except => [:get_by_hbx_id]
-  before_filter :prepend_view_paths, :only=>[:index, :show]
 
   soap_service namespace: 'http://www.w3.org/2001/12/soap-envelope'
 
@@ -22,7 +21,7 @@ class Soap::V1::EmployersController < ApplicationController
     @employers = SearchAbstractor::EmployersSearch.search(params)
 
     Caches::MongoidCache.with_cache_for(Carrier) do
-      @employers_xml = render_to_string "index"
+      @employers_xml = render_to_string "api/v1/employers/index"
     end
 
     @@logger.info "#{DateTime.now.to_s} class:#{self.class.name} method:#{__method__.to_s} @employers_xml:#{@employers_xml.inspect}"
@@ -40,7 +39,7 @@ class Soap::V1::EmployersController < ApplicationController
     @employer = Employer.find(params[:id])
     @@logger.info "#{DateTime.now.to_s} class:#{self.class.name} method:#{__method__.to_s} @employer:#{@employer.inspect}"
 
-    @employer_xml = render_to_string "show"
+    @employer_xml = render_to_string "api/v1/employers/show"
 
     render :soap => @employer_xml
   end
@@ -67,8 +66,5 @@ class Soap::V1::EmployersController < ApplicationController
 
   end
 
-  def prepend_view_paths
-    prepend_view_path "#{Rails.root}/app/views/api/v1/"
-  end
 
 end
