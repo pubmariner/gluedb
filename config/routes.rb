@@ -138,6 +138,12 @@ Gluedb::Application.routes.draw do
         get 'wsdl'
       end
     end
+    resources :policies, :only => [] do
+      collection do
+        post 'get_by_policy_id'
+        get 'wsdl'
+      end
+    end
   end
 
   #routes for soap services
