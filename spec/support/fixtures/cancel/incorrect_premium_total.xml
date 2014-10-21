@@ -16,6 +16,7 @@
 					<con:name_last>Person</con:name_last>
 				</con:person>
 				<ins:exchange_member_id>1111111</ins:exchange_member_id>
+				<ins:individual_relationship_code>Self</ins:individual_relationship_code>
 				<ins:DOB>19610101</ins:DOB>
 				<ins:coverage>
 					<ins:premium_amount>398.24</ins:premium_amount>
@@ -28,6 +29,7 @@
 					<con:name_last>Person</con:name_last>
 				</con:person>
 				<ins:exchange_member_id>2222222</ins:exchange_member_id>
+				<ins:individual_relationship_code>Child</ins:individual_relationship_code>
 				<ins:DOB>19610101</ins:DOB>
 				<ins:coverage>
 					<ins:premium_amount>398.24</ins:premium_amount>

@@ -46,5 +46,9 @@ module Parsers::Xml::Enrollment
     def hbx_member_id
       @parser.at_xpath('./ins:exchange_member_id', NAMESPACES).text
     end
+
+    def rel_code
+      @parser.at_xpath('./ins:individual_relationship_code', NAMESPACES).text.downcase
+    end
   end
 end
