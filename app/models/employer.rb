@@ -13,13 +13,20 @@ class Employer
   field :hbx_id, as: :hbx_organization_id, type: String
   field :fein, type: String
   field :sic_code, type: String
+
+  # moved
   field :open_enrollment_start, type: Date
   field :open_enrollment_end, type: Date
   field :plan_year_start, type: Date
   field :plan_year_end, type: Date
-  field :aasm_state, type: String
   field :fte_count, type: Integer
   field :pte_count, type: Integer
+  belongs_to :broker, counter_cache: true, index: true
+  embeds_many :elected_plans
+  ######
+  has_many :plan_years
+
+  field :aasm_state, type: String
   field :msp_count, as: :medicare_secondary_payer_count, type: Integer
   field :notes, type: String
   field :dba, type: String
@@ -33,18 +40,16 @@ class Employer
   field :name_full, type: String
   field :alternate_name, type: String, default: ""
 
-	index({ hbx_id: 1 })
-	index({ fein: 1 })
+  index({ hbx_id: 1 })
+  index({ fein: 1 })
 
   has_many :employees, class_name: 'Person', order: {name_last: 1, name_first: 1}
   has_many :premium_payments, order: { paid_at: 1 }
-  belongs_to :broker, counter_cache: true, index: true
   has_and_belongs_to_many :carriers, order: { name: 1 }
   has_and_belongs_to_many :plans, order: { name: 1, hios_plan_id: 1 }
 
   has_many :policies
 
-  embeds_many :elected_plans
   index({"elected_plans.carrier_employer_group_id" => 1})
   index({"elected_plans.hbx_plan_id" => 1})
   index({"elected_plans.qhp_id" => 1})
@@ -70,10 +75,10 @@ class Employer
     PremiumPayment.payment_transactions_for(self)
   end
 
-  def associate_all_carriers_and_plans_and_brokers
-    self.policies.each { |pol| self.carriers << pol.carrier; self.brokers << pol.broker; self.plans << pol.plan }
-    save!
-  end
+  # def associate_all_carriers_and_plans_and_brokers
+  #   self.policies.each { |pol| self.carriers << pol.carrier; self.brokers << pol.broker; self.plans << pol.plan }
+  #   save!
+  # end
 
   aasm do
     state :registered, initial: true
