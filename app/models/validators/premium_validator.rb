@@ -10,8 +10,8 @@ module Validators
     def validate
       valid = true
       enrollees = @change_request.enrollees
-      extractor = FreeEnrolleeExtractor.new(5)
-      free_enrollees = extractor.extract_from!(enrollees)
+      extractor = FreeEnrolleeExtractor.new
+      free_enrollees = extractor.extract_free_from(enrollees)
       free_enrollees.each do |e|
         provided = e.premium_amount.round(2)
         expected = 0
@@ -21,6 +21,7 @@ module Validators
         end
       end
 
+      enrollees.reject! { |e| free_enrollees.include?(e) }
       enrollees.each do |e|
         found_premium = @plan.premium_for_enrollee(e)
         if(found_premium.nil?)

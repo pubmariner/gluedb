@@ -10,6 +10,7 @@
 					<con:name_first>Example</con:name_first>
 					<con:name_last>Person</con:name_last>
 				</con:person>
+				<ins:individual_relationship_code>Self</ins:individual_relationship_code>
 				<ins:DOB>19610101</ins:DOB>
 				<ins:coverage>
 					<ins:premium_amount>398.24</ins:premium_amount>
