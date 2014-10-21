@@ -29,7 +29,7 @@ XMLCODE
     end
 
     def osb_host
-      "http://dhsdcasesbsoaappuat01.dhs.dc.gov:8001"
+      ExchangeInformation.osb_host
     end
   end
 end
