@@ -144,6 +144,18 @@ Gluedb::Application.routes.draw do
         get 'wsdl'
       end
     end
+    resources :application_groups, :only => [] do
+      collection do
+        post 'get_by_application_group_id'
+        get 'wsdl'
+      end
+    end
+    resources :employers, :only => [] do
+      collection do
+        post 'get_by_employer_id'
+        get 'wsdl'
+      end
+    end
   end
 
   #routes for soap services
