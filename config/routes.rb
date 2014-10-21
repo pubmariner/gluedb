@@ -156,6 +156,15 @@ Gluedb::Application.routes.draw do
     end
   end
 
+  namespace :proxies do
+    namespace :curam do
+      resources :retrieve_demographics, :only => [:show]
+    end
+    namespace :connecture do
+      resources :enrollment_details, :only => [:show]
+    end
+  end
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
