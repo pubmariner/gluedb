@@ -9,23 +9,23 @@ module Parsers::Xml::Reports
       @policy.at_xpath("n1:id").text
     end
 
-    def individual?
+    def individual_market?
       @policy.at_xpath("n1:employer").nil? ? true : false
     end
 
     def begin_date
-      node = @policy.at_xpath("n1:enrollees/n1:enrollee/n1:begin_date")
-      node.nil? ? nil : date_formatter(node.text)
+      node = @policy.at_xpath("n1:enrollees/n1:enrollee/n1:benefit/n1:begin_date")
+      (node.nil? ? nil : date_formatter(node.text))
     end
 
     def end_date
-      node = @policy.at_xpath("n1:enrollees/n1:enrollee/n1:end_date")
+      node = @policy.at_xpath("n1:enrollees/n1:enrollee/n1:benefit/n1:end_date")
       node.nil? ? nil : date_formatter(node.text)
     end
 
-    def active?
-      return false if begin_date == end_date
-      (begin_date < renewal_start && (end_date.nil? || end_date >= renewal_start)) ? true : false
+    def state
+      return 'inactive' if begin_date == end_date
+      (begin_date < renewal_start && (end_date.nil? || end_date >= renewal_start)) ? 'active' : 'inactive'
     end
 
     private

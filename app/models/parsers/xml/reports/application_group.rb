@@ -80,7 +80,7 @@ module Parsers::Xml::Reports
       individual_policies = []
       applicant_link.policies.each do |policy| 
         policy_link = PolicyLinkType.new(policy)
-        if policy_link.individual? && policy_link.active?
+        if policy_link.individual_market? && policy_link.state == 'active'
           individual_policies << policy_link.id
         end
       end
