@@ -1,17 +1,18 @@
 module Parsers::Xml::IrsReports
   class ApplicationGroup
     
-    attr_accessor :individual_policies, :individual_policy_holders, :future_policy_quotes, :individual_policies_details
+    attr_reader :individual_policy_holders
+
+    RENEWAL_DATE = Date.parse("2015-1-1")
 
     def initialize(parser = nil)
-      # parser = File.open(Rails.root.to_s + "/application_group_failed.xml")
+      # parser = File.open(Rails.root.to_s + "/sample_xmls/application_group_address.xml")
       # parser = Nokogiri::XML(parser).root
       @root = parser
-      @individual_policies = []
       @individual_policy_holders = {}
-      @future_policy_quotes = {}
-      @individual_policies_details = {}
-      @future_plans = {}
+      @quotes_for_applicants = {}
+      @future_plans_by_coverage = {}
+      @policy_details = {}
       populate_individual_policies
       policies_details
     end
@@ -24,106 +25,87 @@ module Parsers::Xml::IrsReports
       @root.at_xpath("n1:primary_applicant_id").text
     end
 
-    def applicant_ids
-      @root.xpath("n1:applicants/n1:applicant").map { |e| e.at_xpath("n1:person/n1:id").text.match(/\w+$/)[0]}.uniq
-    end
-
+    # TODO: need to confirm applicants can't have duplicates
     def size
-      applicant_ids.count
+      @root.xpath("n1:applicants/n1:applicant").count
     end
 
     def integrated_case
-      @root.at_xpath("n1:e_case_id").text if @root.at_xpath("n1:e_case_id")
+      node = @root.at_xpath("n1:e_case_id")
+      node.nil? ? nil : @root.at_xpath("n1:e_case_id").text 
     end
 
     def irs_households
     	@root.xpath("n1:households/n1:household")
     end
 
-    def applicants
-      @root.xpath("n1:applicants/n1:applicant")
-    end
-
     def yearly_income(year)
-      yearly_income = irs_households.xpath("n1:total_incomes/n1:total_income").detect do |income| 
-        income.at_xpath("n1:calendar_year").text == year 
-      end
-      return 0 if yearly_income.nil?
-      amount = yearly_income.at_xpath("n1:total_income").text.to_f
-      sprintf("%.2f", amount)
+      incomes = irs_households.xpath("n1:total_incomes/n1:total_income")
+      income = incomes.detect{|income| income.at_xpath("n1:calendar_year").text == year }
+      income.nil? ? 0.0 : sprintf("%.2f", income.at_xpath("n1:total_income").text.to_f)
     end
 
     def irs_consent
-      @root.at_xpath("n1:coverage_renewal_year").text if @root.at_xpath("n1:coverage_renewal_year")
+      node = @root.at_xpath("n1:coverage_renewal_year")
+      node.nil? ? nil : @root.at_xpath("n1:coverage_renewal_year").text
     end
-
-    def is_policy_active?(begin_date, end_date)
-      return false if begin_date == end_date
-      (begin_date < Date.parse("2015-1-1") && (end_date.nil? || end_date >= Date.parse("2015-1-1"))) ? true : false
-    end
-
+    
     def current_insurance_plan(coverage)
-      @individual_policies_details.detect do |id, policy|
-        is_policy_active?(policy[:begin_date], policy[:end_date]) && policy[:coverage_type] == coverage
-      end
+      @policy_details.detect{|id, policy| policy[:coverage_type] == coverage }
     end
 
     def future_insurance_plan(coverage)
-      @future_plans[coverage]
+      @future_plans_by_coverage[coverage]
+    end
+    
+    def quoted_insurance_premium(coverage)
+      @quotes_for_applicants.values.inject(0.0) do |premium, quote| 
+        premium + quote[coverage].to_f
+      end
     end
 
-    def quoted_insurance_premium(coverage)
-      amount = 0.0
-      @future_policy_quotes.each{|individual, quote| amount += quote[coverage].to_f}
-      return amount
+    def individual_policies
+      @individual_policy_holders.values.flatten.uniq
     end
 
     def populate_individual_policies
-      applicants.each do |applicant|
-        populate_policy_holders(applicant)
-        populate_policy_quotes(applicant)
+      @root.xpath("n1:applicants/n1:applicant").each do |applicant|
+        applicant_link = ApplicantLinkType.new(applicant)
+        calc_individual_policies(applicant_link)
+        calc_policy_quotes(applicant_link)
       end
     end
 
-    def populate_policy_holders(applicant)
-      policies = []
-      applicant.xpath("n1:hbx_roles/n1:qhp_roles/n1:qhp_role/n1:policies/n1:policy").each do |policy|
-        next if policy.at_xpath("n1:employer")
-        if policy.at_xpath("n1:enrollees").nil?
-          begin_date = Date.strptime(policy.at_xpath("n1:enrollees/n1:enrollee/n1:begin_date").text,'%Y%m%d')
-          end_date = Date.strptime(policy.at_xpath("n1:enrollees/n1:enrollee/n1:end_date").text,'%Y%m%d') 
-          next unless is_policy_active?(begin_date, end_date)
+    def calc_individual_policies(applicant_link)
+      individual_policies = []
+      applicant_link.policies.each do |policy| 
+        policy_link = PolicyLinkType.new(policy)
+        if policy_link.individual? && policy_link.active?
+          individual_policies << policy_link.id
         end
-        @individual_policies << policy.at_xpath("n1:id").text
-        policies << policy.at_xpath("n1:id").text
       end
-      @individual_policy_holders[applicant.at_xpath("n1:person/n1:id").text] = policies
+      @individual_policy_holders[applicant_link.person_id] = individual_policies.uniq
     end
 
-    def populate_policy_quotes(applicant)
+    def calc_policy_quotes(applicant_link)
       quotes = {}
-      applicant.xpath("n1:hbx_roles/n1:qhp_roles/n1:qhp_role/n1:qhp_quotes/n1:qhp_quote").each do |quote|
-        coverage = quote.at_xpath("n1:coverage_type").text.split("#")[1]
-        quotes[coverage] = quote.at_xpath("n1:rates/n1:rate/n1:rate").text
-        if @future_plans[coverage].blank?
-          hios_id = quote.at_xpath("n1:qhp_id").text.split("-")[0]
-          @future_plans[coverage] = future_plan_names_by_hios(hios_id, coverage)
-        end
+      applicant_link.qhp_quotes.each do |quote|
+        quote_link = QuoteLinkType.new(quote)
+        coverage = quote_link.coverage_type
+        next if @future_plans_by_coverage[coverage]       
+        quotes[coverage] = quote_link.rate
+        @future_plans_by_coverage[coverage] = quote_link.qhp_id
       end
-      @future_policy_quotes[applicant.at_xpath("n1:person/n1:id").text] = quotes  
+      @quotes_for_applicants[applicant_link.person_id] = quotes
     end
 
     def policies_details     
-      policy_ids = @individual_policies.map{|policy| policy.match(/\d+$/)[0]}.uniq
-      if policy_ids.count > 10
-        raise "Have more than 10 active polices #{policy_ids.inspect}"
-      end
-
+      policy_ids = individual_policies.map{|policy| policy.match(/\d+$/)[0]}
       policies_xml = Net::HTTP.get(URI.parse("http://localhost:3000/api/v1/policies?ids[]=#{policy_ids.join("&ids[]=")}&user_token=zUzBsoTSKPbvXCQsB4Ky"))
       root = Nokogiri::XML(policies_xml).root
       root.xpath("n1:policy").each do |policy|
         policy = Parsers::Xml::IrsReports::Policy.new(policy)
-        @individual_policies_details[policy.id] = {
+        @policy_details[policy.id] = {
           :plan => policy.plan,
           :begin_date => policy.start_date,
           :end_date => policy.end_date,
@@ -132,67 +114,6 @@ module Parsers::Xml::IrsReports
           :qhp_id => policy.qhp_number
         }
       end
-    end
-
-    def assisted?
-      assisted_policy = @individual_policies_details.detect{|id, policy| policy[:elected_aptc].to_i > 0}
-      assisted_policy.nil? ? false : true
-    end
-
-    private
-
-    def future_plan_names_by_hios(hios_id, coverage)
-      hios_ids = {
-          "health" => {
-          "77422DC0060002" => "Aetna Bronze $20 Copay",
-          "77422DC0060004" => "Aetna Bronze Deductible Only HSA Elgible",
-          "77422DC0060005" => "Aetna Catastrophic 100%",
-          "77422DC0060006" => "Aetna Gold $5 Copay",
-          "77422DC0060010" => "Aetna Silver $5 Copay 2750",
-          "77422DC0060008" => "Aetna Silver $10 Copay",
-          "78079DC0160001" => "BlueCross BlueShield Preferred 500, A Multi-State Plan",
-          "78079DC0180001" => "BlueCross BlueShield Preferred 1500, A Multi-State Plan",
-          "78079DC0200001" => "BluePreferred HSA Bronze",
-          "78079DC0210001" => "BluePreferred Platinum $0",
-          "86052DC0400001" => "BlueChoice Silver $2,000",
-          "86052DC0400002" => "BlueChoice Gold $0",
-          "86052DC0400003" => "BlueChoice Gold $1,000",
-          "86052DC0400004" => "BlueChoice Young Adult $6,600",
-          "86052DC0410001" => "BlueChoice HSA Bronze $4,000",
-          "86052DC0410002" => "BlueChoice HSA Bronze $6,000",
-          "86052DC0410003" => "BlueChoice HSA Silver $1,300",
-          "86052DC0420001" => "BlueChoice Plus Bronze $5,500",
-          "86052DC0420002" => "BlueChoice Plus Silver $2,500",
-          "86052DC0430001" => "HealthyBlue Gold $1,500",
-          "86052DC0430002" => "HealthyBlue Platinum $0",
-          "94506DC0390001" => "KP DC Platinum 0/10/Dental/Ped Dental",
-          "94506DC0390002" => "KP DC Gold 0/20/Dental/Ped Dental",
-          "94506DC0390003" => "KP DC Gold 1000/20/Dental/Ped Dental",
-          "94506DC0390004" => "KP DC Silver 1500/30/Dental/Ped Dental",
-          "94506DC0390005" => "KP DC Silver 2500/30/Dental/Ped Dental",
-          "94506DC0390006" => "KP DC Silver 1750/25%/HSA/Dental/Ped Dental",
-          "94506DC0390007" => "KP DC Bronze 4500/50/Dental/Ped Dental",
-          "94506DC0390008" => "KP DC Catastrophic 6600/0/Dental/ Ped Dental",
-          "94506DC0390009" => "KP DC Bronze 4500/50/HSA/Dental/Ped Dental",
-          "94506DC0390010" => "KP DC Bronze 5000/30%/HSA/Dental/Ped Dental"
-          },
-          "dental" => {
-            "78079DC0320002" => "BlueDental Preferred - Low Option",
-            "95051DC0020003" => "BESTOne Dental Advantage-High",  
-            "95051DC0020004" => "BESTOne Dental Plus-High",  
-            "95051DC0020005" => "BESTOne Dental Plus-Low",  
-            "95051DC0020006" => "BESTOne Dental Basic-Low",  
-            "81334DC0010004" => "Delta Dental Individual & Family Delta Dental PPO Preferred Plan for Families", 
-            "81334DC0010006" => "Delta Dental Individual & Family Delta Dental PPO Basic Plan for Families",  
-            "81334DC0030004" => "Delta Dental Individual & Family DeltaCare USA Preferred Plan for Families",  
-            "81334DC0030006" => "Delta Dental Individual & Family DeltaCare USA Basic Plan for Families",  
-            "92479DC0010002" => "Select Plan",  
-            "92479DC0020002" => "Access PPO",  
-            "96156DC0010004" => "Dentegra Dental PPO Family Preferred Plan",  
-            "96156DC0010006" => "Dentegra Dental PPO Family Basic Plan"
-          }
-        } 
-      hios_ids[coverage][hios_id]
     end
   end
 end
