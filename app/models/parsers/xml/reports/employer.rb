@@ -1,4 +1,4 @@
-module Parsers::Xml::IrsReports
+module Parsers::Xml::Reports
   class Employer
 
     def initialize(xml_file=nil)

@@ -41,7 +41,7 @@ module CanonicalVocabulary
 
     def process_application_group(application_group_xml)
       begin
-        application_group = Parsers::Xml::IrsReports::ApplicationGroup.new(application_group_xml)
+        application_group = Parsers::Xml::Reports::ApplicationGroup.new(application_group_xml)
         if application_group.size == 1
           @single.append_household(application_group)
         else
