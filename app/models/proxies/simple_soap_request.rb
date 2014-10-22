@@ -1,3 +1,4 @@
+# TODO: MOVE OUT OF GLUE
 module Proxies
   class SimpleSoapRequest
     def self.request(en_id)

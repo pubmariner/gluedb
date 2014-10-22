@@ -168,6 +168,7 @@ Gluedb::Application.routes.draw do
     end
   end
 
+  # TODO: REMOVE FROM GLUE
   namespace :proxies do
     namespace :curam do
       resources :retrieve_demographics, :only => [:show]
