@@ -109,7 +109,7 @@ module CanonicalVocabulary
       def find_many_individuals_by_id(ids)
         members_xml = Net::HTTP.get(URI.parse("#{CV_API_URL}people?ids[]=#{ids.join("&ids[]=")}&user_token=zUzBsoTSKPbvXCQsB4Ky"))
         individual_elements = Nokogiri::XML(members_xml).root.xpath("n1:individual")
-        individual_elements.map { |i| Parsers::Xml::IrsReports::Individual.new(i) }
+        individual_elements.map { |i| Parsers::Xml::Reports::Individual.new(i) }
       end
 
       def num_blank_members

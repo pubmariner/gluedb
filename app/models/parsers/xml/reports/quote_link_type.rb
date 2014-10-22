@@ -1,4 +1,4 @@
-module Parsers::Xml::IrsReports
+module Parsers::Xml::Reports
   class QuoteLinkType
 
     def initialize(quote)

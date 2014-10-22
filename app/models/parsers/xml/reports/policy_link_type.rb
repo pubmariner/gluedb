@@ -1,4 +1,4 @@
-module Parsers::Xml::IrsReports
+module Parsers::Xml::Reports
   class PolicyLinkType
 
     def initialize(policy)

@@ -10,21 +10,12 @@ module CanonicalVocabulary
       "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
       "xmlns:n1"  => "urn:us:gov:treasury:irs:msg:sbmpolicylevelenrollment"
     }
-
-    def initialize
-    end
     
     def serialize
       builder.to_xml
     end
-    
-    # "54130692d2b38ba144000da9" 05, 4
-    # "54104bbad2b38bdbc0000105" 25, 4
-    # "54130b48d2b38ba14400d904" 02, 4
-    # "53e912f1eb899ad2e4001ec9" 03, 2
-    
+
     def builder
-      # Application Group ID: 53e690a3eb899ad9ca00d28d
       Nokogiri::XML::Builder.new do |xml|
         xml['n1'].HealthExchange(NS) do
           xml.SubmissionYr 1000
@@ -32,8 +23,9 @@ module CanonicalVocabulary
           xml.ApplicableCoverageYr 1000
           xml.IndividualExchange do |xml|
             xml.HealthExchangeId "00.AA*.000.000.000"
-            group_xml = Net::HTTP.get(URI.parse("#{CV_API_URL}application_groups/53e691aeeb899ad9ca012939?user_token=zUzBsoTSKPbvXCQsB4Ky"))
-            @app_group = Parsers::Xml::IrsReports::ApplicationGroup.new(group_xml)
+            group_xml = Net::HTTP.get(URI.parse("#{CV_API_URL}application_groups/5431b03feb899a49e0000004?user_token=zUzBsoTSKPbvXCQsB4Ky"))
+            app_group_xml = Nokogiri::XML(group_xml).root
+            @app_group = Parsers::Xml::Reports::ApplicationGroup.new(app_group_xml)
             next if @app_group.individual_policies.empty?
             serialize_irs_household_grp(xml)
           end
@@ -56,7 +48,6 @@ module CanonicalVocabulary
       @individual_policies.uniq.each do |policy|
         xml.InsurancePolicy do |xml|
           xml.InsuranceCoverage do |xml|
-
             xml.ApplicableCoverageMonthNum 1
             xml.QHPPolicyNum "00000000000000000000000000000000000000000000000000"
             xml.QHPId policy.qhp_id
@@ -67,67 +58,74 @@ module CanonicalVocabulary
             xml.PolicyCoverageEndDt date_formatter(policy.end_date)
             xml.TotalQHPMonthlyPremiumAmt policy.total_monthly_premium
             xml.APTCPaymentAmt policy.household_aptc
-
-            policy.individuals.each do |individual_xml|
-              xml.CoveredIndividual do |xml|
-                xml.InsuredPerson do |xml|
-                  individual = Parsers::Xml::IrsReports::Individual.new(individual_xml.at_xpath("n1:individual"))
-                  serialize_name_ssn_dob(xml, individual)
-                end
-                xml.CoverageStartDt date_formatter(individual_xml.at_xpath("n1:benefit/n1:begin_date").text)
-                if individual_xml.at_xpath("n1:benefit/n1:end_date")
-                  end_date = individual_xml.at_xpath("n1:benefit/n1:end_date").text
-                end
-                xml.CoverageEndDt date_formatter(end_date)
-              end
-            end
+            serialize_policy_individuals(xml, policy)
           end
         end
       end
     end
-    
-    def serialize_taxhousehold(xml, household=nil)
-      household = Parsers::Xml::IrsReports::Household.new(household)
+
+    def serialize_policy_individuals(xml, policy)
+      policy.individuals.each do |individual_xml|
+        xml.CoveredIndividual do |xml|
+          xml.InsuredPerson do |xml|
+            individual = Parsers::Xml::Reports::Individual.new(individual_xml.at_xpath("n1:individual"))
+            serialize_name_ssn_dob(xml, individual)
+          end
+          xml.CoverageStartDt date_formatter(individual_xml.at_xpath("n1:benefit/n1:begin_date").text)
+          if individual_xml.at_xpath("n1:benefit/n1:end_date")
+            end_date = individual_xml.at_xpath("n1:benefit/n1:end_date").text
+          end
+          xml.CoverageEndDt date_formatter(end_date)
+        end
+      end
+    end
+
+    def serialize_taxhousehold(xml, household=nil)       
+      household = Parsers::Xml::Reports::Household.new(household)
       xml.TaxHousehold do |xml|
         xml.TaxHouseholdCoverage do |xml|
           xml.ApplicableCoverageMonthNum 1
           xml.Household do |xml|
-            applicants_xml = @app_group.applicants_xml
-            primary_xml = applicants_xml[household.primary]
-            individual = Parsers::Xml::IrsReports::Individual.new(primary_xml)
-            serialize_individual(xml, individual)
-            serialize_members = Proc.new do |xml, members|
-              members.each do |key, val|
-                applicant_xml = applicants_xml[key]
-                individual = Parsers::Xml::IrsReports::Individual.new(applicant_xml)
-                serialize_individual(xml, individual, val.camelcase)
-              end
-            end
-            serialize_members.call(xml, household.spouse)
-            serialize_members.call(xml, household.dependents)
+            serialize_household_members(xml, household)
             serialize_associated_policies(xml, household)
           end
         end
       end
     end
+
+    def serialize_household_members(xml, household)
+      applicants_xml = @app_group.applicants_xml
+      primary_xml = applicants_xml[household.primary]
+      individual = Parsers::Xml::Reports::Individual.new(primary_xml)
+      serialize_individual(xml, individual)
+
+      serialize_members = Proc.new do |xml, members|
+        members.each do |key, val|
+          applicant_xml = applicants_xml[key]
+          individual = Parsers::Xml::Reports::Individual.new(applicant_xml)
+          serialize_individual(xml, individual, val.camelcase)
+        end
+      end
+
+      serialize_members.call(xml, household.spouse)
+      serialize_members.call(xml, household.dependents)     
+    end
     
     def serialize_associated_policies(xml, household)
       policies = []
-      household.all_members.each do |member|
-        policies << @app_group.individual_policy_holders[member]
-      end
-      
+      household.all_members.each{|member| policies << @app_group.individual_policy_holders[member]}
+
       policy_ids = []
       policies.flatten.uniq.each do |policy|
         if @app_group.individual_policies.include?(policy)
           policy_ids << policy.match(/\d+$/)[0]
         end
       end
-      
+
       policies_xml = Net::HTTP.get(URI.parse("#{CV_API_URL}policies?ids[]=#{policy_ids.join("&ids[]=")}&user_token=zUzBsoTSKPbvXCQsB4Ky"))
       parser = Nokogiri::XML(policies_xml).root
       parser.xpath("n1:policy").each do |policy_xml|
-        policy = Parsers::Xml::IrsReports::Policy.new(policy_xml)
+        policy = Parsers::Xml::Reports::Policy.new(policy_xml)
         serialize_policy(xml, policy)
         @individual_policies << policy
       end
@@ -148,16 +146,12 @@ module CanonicalVocabulary
       xml.send("#{relation}Grp") do |xml|
         xml.send(relation) do |xml|
           serialize_name_ssn_dob(xml, individual)
-          if relation == "Primary"
-            individual.addresses.each do |address|
-              serialize_address(xml, address)
-            end
-          end
+          next unless relation == "Primary"
+          individual.addresses.each{|address| serialize_address(xml, address)}
         end
-        
         individual.employers.each do |employer_url|
           employer_xml = Net::HTTP.get(URI.parse("#{employer_url}?user_token=zUzBsoTSKPbvXCQsB4Ky"))
-          employer = Parsers::Xml::IrsReports::Employer.new(employer_xml)
+          employer = Parsers::Xml::Reports::Employer.new(employer_xml)
           serialize_employer(xml, employer)
         end
       end
@@ -169,8 +163,7 @@ module CanonicalVocabulary
         xml.PersonMiddleName individual.name_middle
         xml.PersonLastName individual.name_last
         xml.SuffixName individual.name_suffix
-      end
-      
+      end   
       xml.SSN individual.ssn
       xml.BirthDt individual.dob
     end
@@ -182,11 +175,8 @@ module CanonicalVocabulary
           xml.BusinessNameLine1 employer.name
           xml.BusinessNameLine2
         end
-        
         xml.BusinessAddressGrp do |xml|
-          employer.addresses.each do |address|
-            serialize_address(xml, address)     
-          end
+          employer.addresses.each{|address| serialize_address(xml, address)}
         end
         xml.MECStatusInd "Y"
       end
@@ -202,7 +192,6 @@ module CanonicalVocabulary
         xml.USZIPExtensionCd "0000"
       end			
     end
-
 
     def date_formatter(date)
        return if date.nil?

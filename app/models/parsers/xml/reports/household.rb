@@ -1,6 +1,6 @@
 require 'net/http'
 
-module Parsers::Xml::IrsReports
+module Parsers::Xml::Reports
   class Household
     
     def initialize(data_xml = nil)      

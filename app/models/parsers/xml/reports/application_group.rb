@@ -1,4 +1,4 @@
-module Parsers::Xml::IrsReports
+module Parsers::Xml::Reports
   class ApplicationGroup
     
     attr_reader :individual_policy_holders
@@ -104,7 +104,7 @@ module Parsers::Xml::IrsReports
       policies_xml = Net::HTTP.get(URI.parse("http://localhost:3000/api/v1/policies?ids[]=#{policy_ids.join("&ids[]=")}&user_token=zUzBsoTSKPbvXCQsB4Ky"))
       root = Nokogiri::XML(policies_xml).root
       root.xpath("n1:policy").each do |policy|
-        policy = Parsers::Xml::IrsReports::Policy.new(policy)
+        policy = Parsers::Xml::Reports::Policy.new(policy)
         @policy_details[policy.id] = {
           :plan => policy.plan,
           :begin_date => policy.start_date,
