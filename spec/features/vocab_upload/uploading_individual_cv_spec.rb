@@ -86,20 +86,6 @@ feature 'uploading individual CV' do
     expect(page).to have_content 'Upload failed.'
   end
 
-  scenario 'sixth not free' do
-    visit new_vocab_upload_path
-
-    choose 'Initial Enrollment'
-
-    file_path = Rails.root + "spec/support/fixtures/individual_enrollment/sixth_not_free.xml"
-    attach_file('vocab_upload_vocab', file_path)
-
-    click_button "Upload"
-
-    expect(page).to have_content 'premium_amount is incorrect'
-    expect(page).to have_content 'Upload failed.'
-  end
-
   feature 'Handling premium not found error' do
     given(:premium) { nil }
     scenario 'premium table is not in the system' do

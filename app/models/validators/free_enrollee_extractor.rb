@@ -1,15 +1,20 @@
 module Validators
   class FreeEnrolleeExtractor
-    def initialize(ceiling)
-      @ceiling = ceiling
+    def initialize
+      @ceiling = 3
     end
 
-    def extract_from!(enrollees)
-      return [] if(enrollees.count <= 5)
-      how_many_free = enrollees.count - 5
+    def extract_free_from(collection)
+      enrollees = Collections::Enrollees.new(collection)
 
-      sorted = sort_by_oldest(enrollees)
-      sorted.pop(how_many_free)
+      children = enrollees.children
+      if(children.count > @ceiling)
+        sorted = sort_by_oldest(children.to_a)
+        sorted.shift(children.count - @ceiling)
+        Collections::Enrollees.new(sorted).within_age_range(0...21).to_a
+      else
+        []
+      end
     end
 
     def sort_by_oldest(enrollees)

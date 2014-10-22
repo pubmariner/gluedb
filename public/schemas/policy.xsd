@@ -304,13 +304,7 @@
 					<xs:complexContent>
 						<xs:restriction base="ServiceBodyType">
 							<xs:sequence>
-								<xs:element name="policies">
-									<xs:complexType>
-										<xs:sequence>
-											<xs:element ref="policy" minOccurs="0" maxOccurs="unbounded"/>
-										</xs:sequence>
-									</xs:complexType>
-								</xs:element>
+								<xs:element ref="policies"/>
 							</xs:sequence>
 						</xs:restriction>
 					</xs:complexContent>
@@ -391,4 +385,11 @@
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:element name="policy_state" type="PolicyStateNameType"/>
+	<xs:element name="policies">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="policy" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
 </xs:schema>

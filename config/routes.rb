@@ -138,6 +138,24 @@ Gluedb::Application.routes.draw do
         get 'wsdl'
       end
     end
+    resources :policies, :only => [] do
+      collection do
+        post 'get_by_policy_id'
+        get 'wsdl'
+      end
+    end
+    resources :application_groups, :only => [] do
+      collection do
+        post 'get_by_application_group_id'
+        get 'wsdl'
+      end
+    end
+    resources :employers, :only => [] do
+      collection do
+        post 'get_by_employer_id'
+        get 'wsdl'
+      end
+    end
   end
 
   #routes for soap services
@@ -147,6 +165,15 @@ Gluedb::Application.routes.draw do
       wash_out :policies
       wash_out :application_groups
       wash_out :employers
+    end
+  end
+
+  namespace :proxies do
+    namespace :curam do
+      resources :retrieve_demographics, :only => [:show]
+    end
+    namespace :connecture do
+      resources :enrollment_details, :only => [:show]
     end
   end
 

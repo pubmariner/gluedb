@@ -8,7 +8,7 @@ class ExchangeInformation
 
   include Singleton
 
-  REQUIRED_KEYS = ['receiver_id']
+  REQUIRED_KEYS = ['receiver_id', 'osb_host']
 
   # TODO: I have a feeling we may be using this pattern
   #       A LOT.  Look into extracting it if we repeat.
@@ -29,7 +29,15 @@ class ExchangeInformation
     @config['receiver_id']
   end
 
+  def osb_host
+    @config['osb_host']
+  end
+
   def self.receiver_id
     self.instance.receiver_id
+  end
+
+  def self.osb_host
+    self.instance.osb_host
   end
 end
