@@ -4,7 +4,7 @@ class ElectedPlan
   include Mongoid::Paranoia
 
   include MergingModel
-  embedded_in :employer
+  embedded_in :plan_year
 
   field :carrier_employer_group_id, type: String
   field :carrier_policy_number, type: String
