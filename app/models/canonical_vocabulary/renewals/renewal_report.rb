@@ -81,7 +81,7 @@ module CanonicalVocabulary
       def setup(application_group)
         @application_group = application_group
 
-        individuals = find_many_individuals_by_id(@application_group.applicant_ids)
+        individuals = find_many_individuals_by_id(@application_group.applicant_person_ids)
         @primary = individuals.detect { |i| (i.id == @application_group.primary_applicant_id || individuals.count == 1) }
         raise "Primary Applicant Address Not Present" if @primary.addresses[0].nil?
 

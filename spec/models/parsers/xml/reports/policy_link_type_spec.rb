@@ -19,7 +19,7 @@ module Parsers::Xml::Reports
       expect(subject.id).to eq 'http://localhost:3000/api/v1/policies/8461'
     end
 
-    context 'individual market' do
+    context '#individual_market' do
       context 'when employer not present' do
         let(:employer) { nil }
         it 'should return true' do
@@ -38,7 +38,7 @@ module Parsers::Xml::Reports
       end
     end              
 
-    context 'begin date' do
+    context '#begin_date' do
       context 'when not present' do
         let(:begin_date) { nil }
         it 'should return nil' do
@@ -57,7 +57,7 @@ module Parsers::Xml::Reports
       end
     end
 
-    context 'end date' do
+    context '#end_date' do
       context 'when not present' do
         let(:end_date) { nil }
         it 'should return nil' do
@@ -76,7 +76,7 @@ module Parsers::Xml::Reports
       end
     end
 
-    context 'policy state' do
+    context '#state' do
       context 'when begin date and end dates are same' do
         let(:end_date) { "<n1:end_date>20140301</n1:end_date>" }
         it 'should return inactive' do

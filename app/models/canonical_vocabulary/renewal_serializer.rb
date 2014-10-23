@@ -6,23 +6,17 @@ module CanonicalVocabulary
     CV_API_URL = "http://localhost:3000/api/v1/"
 
     def initialize(report_type)
-      report_type == "assisted" ? initialize_assisted : initialize_unassisted
+      (report_type == "assisted" ? initialize_assisted : initialize_unassisted)
       @logger = Logger.new("#{Rails.root}/log/#{report_type}_renewals.log")
     end
 
     def serialize(file_name)
       worksheet = Spreadsheet.open("#{Rails.root.to_s}/#{file_name}").worksheet(0)
-      current = 1
-      ids = []
-      limit = worksheet.rows.count
-
-      worksheet.each do |row|
-        ids << row[0] 
-        if ids.size == 5 || current == limit
-          serialize_groupids(ids)
-          ids =[]
-        end
-        current += 1
+      count = 0 
+      worksheet.rows[1..10].in_groups_of(5, false) do |group_ids| 
+        serialize_groupids(group_ids)
+        count += 1
+        puts "--------processed--#{count * 5}"
       end
       write_reports
     end
@@ -58,17 +52,17 @@ module CanonicalVocabulary
         file: "Manual Renewal Single IA).xls",
         log_file: "ia_renewals_internal.log",
         other_members: 0
-        })
+      })
       @multiple = CanonicalVocabulary::Renewals::Assisted.new({ 
         file: "Manual Renewal Multiple IA).xls",
         log_file: "ia_renewals_internal.log",
         other_members: 5
-        })
+      })
       @super_multiple = CanonicalVocabulary::Renewals::Assisted.new({ 
         file: "Manual Renewal Super IA).xls",
         log_file: "ia_renewals_internal.log",
         other_members: 8
-        })
+      })
     end
 
     def initialize_unassisted
@@ -76,17 +70,17 @@ module CanonicalVocabulary
         file: "Manual Renewal Single UQHP).xls",
         log_file: "uqhp_renewals_internal.log",
         other_members: 0
-        })
+      })
       @multiple = CanonicalVocabulary::Renewals::Unassisted.new({ 
         file: "Manual Renewal Multiple UQHP).xls",
         log_file: "uqhp_renewals_internal.log",
         other_members: 5
-        })
+      })
       @super_multiple = CanonicalVocabulary::Renewals::Unassisted.new({ 
         file: "Manual Renewal Super UQHP).xls",
         log_file: "uqhp_renewals_internal.log",
         other_members: 8
-        })
+      })
     end
 
     def write_reports

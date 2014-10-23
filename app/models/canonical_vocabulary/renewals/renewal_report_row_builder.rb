@@ -39,7 +39,7 @@ module CanonicalVocabulary
       end
 
       def append_policy(policy)
-        @data_set << (policy.current.nil? ? nil : policy.current[:plan])
+        @data_set << (policy.current.nil? ? nil : policy.current[1][:plan])
         @data_set << policy.future_plan_name
         @data_set << policy.quoted_premium
       end

@@ -83,7 +83,7 @@ module CanonicalVocabulary
         builder.append_yearwise_income_of(@primary)
         builder.append_incarcerated(@primary)
 
-        @other_members.each do  |m|  
+        @other_members.each do |individual|  
           builder.append_name_of(individual)
           builder.append_age_of(individual)
           builder.append_residency_of(individual)
