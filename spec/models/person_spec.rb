@@ -127,14 +127,14 @@ describe Person do
       q = Person.find p
       q.name_first = "Bones"
       q.members.first.gender = "male"
-      q.addresses.first.address_type = "mailing"
+      q.addresses.first.address_type = "billing"
       q.addresses.last.state = "CA"
 
       delta = q.changes_with_embedded
       expect(delta[:person].first[:name_first][:from]).to eq("Leonard")
       expect(delta[:person].first[:name_first][:to]).to eq("Bones")
 
-      expect(delta[:addresses].first[:address_type][:to]).to eq("mailing")
+      expect(delta[:addresses].first[:address_type][:to]).to eq("billing")
       expect(delta[:addresses].last[:state][:to]).to eq("CA")
 
       expect(delta[:members].first[:gender][:to]).to eq("male")

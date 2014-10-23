@@ -1,10 +1,6 @@
 = render 'shared/identity', id: api_v1_person_url(person.id)
 %n1:name
   = render 'shared/name', object: person
-- if false #TODO
-  %n1:job_title
-- if false #TODO
-  %n1:department
 - unless person.addresses.empty?
   %n1:addresses
     - person.addresses.each do |address|
@@ -17,5 +13,4 @@
   %n1:phones
     - person.phones.each do |phone|
       = render 'shared/phone', phone: phone
-%n1:active_flag= person.is_active
 = render 'shared/timestamp', record: person

@@ -22,14 +22,16 @@ class Employer
   field :pte_count, type: Integer
   field :msp_count, as: :medicare_secondary_payer_count, type: Integer
   field :notes, type: String
+  field :dba, type: String
   field :is_active, type: Boolean, default: true
 
-  field :name_pfx, type: String, default: ""
-  field :name_first, type: String
+  field :name_pfx, as: :prefix, type: String, default: ""
+  field :name_first, as: :given_name, type: String
   field :name_middle, type: String, default: ""
-  field :name_last, type: String
-  field :name_sfx, type: String, default: ""
+  field :name_last, as: :surname, type: String
+  field :name_sfx, as: :suffix, type: String, default: ""
   field :name_full, type: String
+  field :alternate_name, type: String, default: ""
 
 	index({ hbx_id: 1 })
 	index({ fein: 1 })

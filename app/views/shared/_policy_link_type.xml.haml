@@ -1,18 +1,8 @@
 = render 'shared/identity', id: api_v1_policy_url(policy.id)
-- if policy.broker.present?
-  %n1:broker= render 'shared/broker_link_type', broker: policy.broker
 - plan = (Caches::MongoidCache.lookup(Plan, policy.plan_id) { policy.plan })
-- enrollee = policy.enrollee_for_member_id(member.hbx_member_id)
-- rate_period_date = nil
-- if policy.market == 'individual'
-  - rate_period_date = enrollee.coverage_start
-- elsif policy.market == 'shop'
-  - rate_period_date = policy.employer.plan_year_start
-%n1:plan= render 'shared/plan_link_type', plan: plan, rate: plan.rate(rate_period_date, enrollee.coverage_start, member.dob)
-%n1:enrollees
-  - policy.enrollees.each do |enrollee|
-    %n1:enrollee= render 'shared/enrollee_link_type', enrollee: enrollee
-- if policy.employer.present?
-  %n1:employer= render 'shared/employer_link_type', employer: policy.employer
+%n1:plan_name= plan.name
+%n1:hbx_plan_id= plan.hbx_plan_id
+%n1:hois_id= plan.hios_plan_id
+%n1:market= "urn:openhbx:terms:v1:aca_marketplace##{plan.market_type}"
 %n1:policy_state= "urn:openhbx:terms:v1:policy_state##{policy.aasm_state}"
 = render 'shared/timestamp', record: policy

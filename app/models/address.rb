@@ -4,15 +4,20 @@ class Address
 
   include MergingModel
 
-  TYPES = %W(home work mailing)
+  TYPES = %W(home work billing)
 
   field :address_type, type: String
   field :address_1, type: String
   field :address_2, type: String, default: ""
+  field :address_3, type: String, default: ""
   field :city, type: String
   field :county, type: String
   field :state, type: String
+  field :location_state_code, type: String
   field :zip, type: String
+  field :zip_extension, type: String
+  field :country_name, type: String, default: ""
+  field :full_text, type: String
 
   validates_inclusion_of :address_type, in: TYPES, message: "Invalid type"
 
@@ -23,8 +28,13 @@ class Address
   embedded_in :person, :inverse_of => :addresses
   embedded_in :employer, :inverse_of => :addresses
   embedded_in :broker, :inverse_of => :addresses
+  # embeds_one :location
 
   before_save :clean_fields
+
+  def location
+    nil #todo
+  end
 
   def clean_fields
     attrs_to_clean = [:address_type, :address_1, :address_2, :city, :state, :zip]

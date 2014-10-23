@@ -1,7 +1,7 @@
 %n1:phone
-  %n1:phone_type= "urn:openhbx:terms:v1:phone_type##{phone.phone_type}"
+  %n1:type= "urn:openhbx:terms:v1:phone_type##{phone.phone_type}"
   %n1:phone_number= phone.phone_number
   - if phone.extension.present?
     %n1:extension= phone.extension
-  - if phone.preferred.present?
-    %n1:preferred= phone.preferred
+  - if phone.is_preferred.present?
+    %n1:preferred= phone.is_preferred
