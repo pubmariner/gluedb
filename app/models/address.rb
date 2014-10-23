@@ -70,6 +70,17 @@ class Address
     "home" == self.address_type.downcase
   end
 
+  def self.make(data)
+    address = Address.new
+    address.address_type = data[:type]
+    address.address_1 = data[:street1]
+    address.address_2 = data[:street2]
+    address.city = data[:city]
+    address.state = data[:state]
+    address.zip = data[:zip]
+    address
+  end
+
   private
 
   def safe_downcase(val)

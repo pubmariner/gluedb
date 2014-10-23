@@ -26,7 +26,7 @@ CSV.foreach(gid_file, headers: true) do |row|
   if emp
     c_hash.each_pair do |k,v|
     if !record["#{k}_01"].blank?
-      emp.update_elected_plans(c_hash[k], record["#{k}_01"])
+      emp.update_all_elected_plans(c_hash[k], record["#{k}_01"])
       emp.touch
     end
     end

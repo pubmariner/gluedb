@@ -165,40 +165,6 @@ class Employer
     end
   end
 
-  def self.create_from_group_file(m_employer)
-    found_employer = Employer.find_for_fein(m_employer.fein)
-    if found_employer.nil?
-      m_employer.save!
-    else
-      found_employer.merge_without_blanking(m_employer,
-        :name,
-        :hbx_id,
-        :fein,
-        :sic_code,
-        :open_enrollment_start,
-        :open_enrollment_end,
-        :plan_year_start,
-        :plan_year_end,
-        :aasm_state,
-        :fte_count,
-        :pte_count,
-        :msp_count,
-        :notes
-        )
-
-      m_employer.addresses.each { |a| found_employer.merge_address(a) }
-      m_employer.emails.each { |e| found_employer.merge_email(e) }
-      m_employer.phones.each { |p| found_employer.merge_phone(p) }
-
-      EmployerElectedPlansMerger.merge(found_employer, m_employer)
-
-      found_employer.carriers = (found_employer.carriers + m_employer.carriers).uniq
-      found_employer.broker = m_employer.broker
-
-      found_employer.save!
-    end
-  end
-
   def merge_address(m_address)
     unless (self.addresses.any? { |p| p.match(m_address) })
       self.addresses << m_address
@@ -217,8 +183,32 @@ class Employer
     end
   end
 
-  def update_elected_plans(carrier, g_id)
-    matching_plans = self.elected_plans.select { |p| p.carrier_id == carrier._id }
+  def merge_plan_year(incoming)
+    existing = self.plan_years.detect { |py| py.match(incoming) }
+    if(existing)
+      existing.merge_without_blanking(incoming,
+        :open_enrollment_start,
+        :open_enrollment_end,
+        :start_date,
+        :end_date,
+        :fte_count,
+        :pte_count
+      )
+      EmployerElectedPlansMerger.merge(existing, incoming)
+      update_carriers(existing)
+    else
+      self.plan_years << incoming
+    end
+  end
+
+  def update_carriers(existing)
+    incoming_carriers = existing.elected_plans.map { |ep| ep.plan.carrier }
+    self.carriers = (self.carriers + incoming_carriers).uniq
+  end
+
+  def update_all_elected_plans(carrier, g_id)
+    e_plans = self.plan_years.map { |py| py.elected_plans }.flatten
+    matching_plans = e_plans.select { |p| p.carrier_id == carrier._id }
     matching_plans.each do |mp|
       mp.carrier_employer_group_id = g_id
     end
@@ -230,6 +220,16 @@ class Employer
 
   def initialize_name_full
     self.name_full = full_name
+  end
+
+  def self.make(data)
+    employer = Employer.new
+    employer.name = data[:name]
+    employer.fein = data[:fein]
+    employer.hbx_id = data[:hbx_id]
+    employer.sic_code = data[:sic_code]
+    employer.notes = data[:notes] 
+    employer 
   end
 
   class << self
