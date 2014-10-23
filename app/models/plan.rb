@@ -13,6 +13,7 @@ class Plan
   field :metal_level, type: String
   field :market_type, type: String
   field :ehb, as: :ehb_max_as_percent, type: BigDecimal, default: 0.0
+  field :year, type: Integer
 
   index({ name: 1 })
   index({ carrier_id: 1 })
@@ -41,6 +42,15 @@ class Plan
   def invalidate_find_cache
     Rails.cache.delete("Plan/find/hios_plan_id.#{self.hios_plan_id}")
     true
+  end
+
+  def self.find_by_hios_id_and_year(h_id, year)
+    Rails.cache.fetch("Plan/find/hios_plan_id.#{h_id}.#{year}") do
+      Plan.where(
+        :hios_plan_id => h_id,
+        :year => year
+      ).first
+    end
   end
 
   def self.find_by_hios_id(h_id)
