@@ -110,8 +110,8 @@ module Parsers
         else
           plan_year = coverage_start.year
         end
-
-        plan = Plan.find_by_hios_id_and_year(policy_loop.hios_id, plan_year)
+        
+        plan = @import_cache.lookup_plan(policy_loop.hios_id, plan_year)
 
         policy = nil
 
