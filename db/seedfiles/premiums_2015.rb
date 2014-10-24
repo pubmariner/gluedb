@@ -2,13 +2,13 @@ require 'roo'
 require 'spreadsheet'
 
 puts "Loading: 2015 Premiums"
-
+YEAR = 2015
 dates_by_sheet = [
-  Date.new(2015, 1, 1)..Date.new(2015, 12, 31),
-  Date.new(2015, 1, 1)..Date.new(2015, 3, 31),
-  Date.new(2015, 4, 1)..Date.new(2015, 6, 30),
-  Date.new(2015, 7, 1)..Date.new(2015, 9, 30),
-  Date.new(2015, 10, 1)..Date.new(2015, 12, 31)
+  Date.new(YEAR, 1, 1)..Date.new(YEAR, 12, 31),
+  Date.new(YEAR, 1, 1)..Date.new(YEAR, 3, 31),
+  Date.new(YEAR, 4, 1)..Date.new(YEAR, 6, 30),
+  Date.new(YEAR, 7, 1)..Date.new(YEAR, 9, 30),
+  Date.new(YEAR, 10, 1)..Date.new(YEAR, 12, 31)
 ]
 
 def import_spreadsheet(file_path, dates_by_sheet)
@@ -57,7 +57,7 @@ def import_spreadsheet(file_path, dates_by_sheet)
       end
 
       hios_id = plan_details['Standard Component ID'].gsub(/[[:space:]]/,'')
-      plans = Plan.where({:hios_plan_id => /#{hios_id}/})
+      plans = Plan.where({:hios_plan_id => /#{hios_id}/, :year => YEAR})
       plans.to_a.each do |plan|
         plan.premium_tables.concat(premiums_to_add)
         plan.save!
