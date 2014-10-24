@@ -61,9 +61,7 @@ class EmployerRequest
     end
 
     xml.plans.each do |plan_data|
-      # TODO
-      # raise plan_data.qhp_id
-      plan = Plan.find_by_hios_id(plan_data.qhp_id)#, Date.parse(request[:plan_year_start]).year)
+      plan = Plan.find_by_hios_id_and_year(plan_data.qhp_id, Date.parse(request[:plan_year_start]).year)
       if plan.nil?
         raise plan_data.qhp_id.inspect 
       else
