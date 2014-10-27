@@ -57,8 +57,17 @@ module Parsers
           loops
         end
 
-        def gender_code
-          @gender_code ||= @loop["L2100A"]["DMG"][3]
+        def demographic_loop
+          @loop["L2100A"]["DMG"]
+        end
+
+        def gender
+          @gender ||= demographic_loop[3]
+        end
+
+        def date_of_birth
+          @dob ||= demographic_loop[2]
+          ((@dob.blank?) ? nil : @dob )
         end
 
         def relationship
@@ -73,12 +82,17 @@ module Parsers
           @responsible_party ||= !(@loop["L2100F"].blank? && @loop["L2100G"].blank?)
         end
 
+        def street_lines
+          @loop["L2100A"]["N3"]
+        end
+
         def street1
-          @loop["L2100A"]["N3"][1]
+          street_lines[1]
         end
 
         def street2
-          @loop["L2100A"]["N3"][2]
+          result = street_lines[2]
+          ((result.blank?) ? nil : result)
         end
 
         def city
@@ -94,7 +108,8 @@ module Parsers
         end
 
         def name_prefix
-          @loop["L2100A"]["NM1"][6]
+          result = @loop["L2100A"]["NM1"][6]
+          ((result.blank?) ? nil : result)
         end
 
         def name_first
@@ -106,15 +121,23 @@ module Parsers
         end
 
         def name_middle
-          @loop["L2100A"]["NM1"][5]
+          result = @loop["L2100A"]["NM1"][5]
+          ((result.blank?) ? nil : result)
         end
 
         def name_suffix
-          @loop["L2100A"]["NM1"][7]
+          result = @loop["L2100A"]["NM1"][7]
+          ((result.blank?) ? nil : result)
         end
 
         def name_loop
           @loop["L2100A"]["NM1"]
+        end
+
+        def ssn
+          result = @loop["L2100A"]["NM1"][9]
+          return nil if result.blank? || result.length < 9
+          result
         end
 
         def reporting_catergories
