@@ -66,7 +66,7 @@ module Parsers
                 :zip => @person_loop.zip
               )
             if new_address.valid?
-              new_person.send(merge_method(:address), new_address)
+              new_person.update_address(new_address)
             end
           end
 
@@ -76,14 +76,14 @@ module Parsers
               :email_address => @email.downcase
             )
             new_person.merge_email(new_email)
-            new_person.send(merge_method(:email), new_email)
+            new_person.update_email(new_email)
           end
           unless @phone.blank?
             new_phone = Phone.new(
               :phone_type => "home",
               :phone_number => @phone
             )
-            new_person.send(merge_method(:phone), new_phone)
+            new_person.update_phone(new_phone)
           end
 
 
@@ -136,11 +136,6 @@ module Parsers
           }
           result = gender_codes[code.strip]
           result.nil? ? "unknown" : result
-        end
-
-        def merge_method(m_type)
-#          (@person_loop.change_type == :change) ? "update_#{m_type}".to_sym : "merge_#{m_type}".to_sym
-          "update_#{m_type}"
         end
       end
     end
