@@ -9,9 +9,10 @@ describe Parsers::Edi::Etf::PersonLoop do
         "N3" => ['', street1, street2, ''],
         'N4' => ['', city, state, zip],
         'NM1' => ['', '', '', name_last, name_first, name_middle, name_prefix, name_suffix, '', ssn],
-        'DMG' => ['', '', dob, gender]
+        'DMG' => ['', '', dob, gender],
       },
-      'REFs' => [['', '17', member_id ]]
+      'REFs' => [['', '17', member_id ]],
+      'INS' => ['', '', '', change_type]
     }
   end
 
@@ -29,6 +30,7 @@ describe Parsers::Edi::Etf::PersonLoop do
   let(:ssn) { '11111111111'}
   let(:gender) { 'M' }
   let(:dob) { '1970-01-01'}
+  let(:change_type) { '001' }
 
   describe 'policy_loops' do
     let(:raw_policy_loop) { Hash.new }
@@ -174,6 +176,30 @@ describe Parsers::Edi::Etf::PersonLoop do
       let(:dob) { ' ' }
       it 'returns nil' do
         expect(person_loop.date_of_birth).to be_nil
+      end
+    end
+  end
+
+  describe 'change type' do
+
+    context 'when change' do
+      let(:change_type) { '001' }
+      it 'returns change' do
+        expect(person_loop.change_type).to eq :change
+      end
+    end
+
+    context 'when stop' do
+      let(:change_type) { '024' }
+      it 'returns stop' do
+        expect(person_loop.change_type).to eq :stop
+      end
+    end
+
+    context 'when anything else' do
+      let(:change_type) { ' ' }
+      it 'returns add' do
+        expect(person_loop.change_type).to eq :add
       end
     end
   end

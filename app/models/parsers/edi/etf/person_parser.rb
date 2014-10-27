@@ -124,7 +124,6 @@ module Parsers
         end
 
         def parse_all
-          @change_type = determine_change_type(@raw_loop)
           parse_contact
         end
 
@@ -139,19 +138,8 @@ module Parsers
           result.nil? ? "unknown" : result
         end
 
-        def determine_change_type(l2000)
-          case l2000["INS"][3]
-          when "001"
-            :change
-          when "024"
-            :stop
-          else
-            :add
-          end
-        end
-
         def merge_method(m_type)
-#          (@change_type == "change") ? "update_#{m_type}".to_sym : "merge_#{m_type}".to_sym
+#          (@person_loop.change_type == :change) ? "update_#{m_type}".to_sym : "merge_#{m_type}".to_sym
           "update_#{m_type}"
         end
       end

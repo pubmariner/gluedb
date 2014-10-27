@@ -140,6 +140,17 @@ module Parsers
           result
         end
 
+        def change_type
+          case @loop["INS"][3]
+          when "001"
+            :change
+          when "024"
+            :stop
+          else
+            :add
+          end
+        end
+
         def reporting_catergories
           Etf::ReportingCatergories.new(@loop["L2700s"])
         end
