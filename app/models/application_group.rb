@@ -6,8 +6,8 @@ class ApplicationGroup
   field :is_active, type: Boolean, default: true   # ApplicationGroup active on the Exchange?
 
   field :primary_applicant_id, type: String     # Person responsible for this application group
-  field :renewal_consent_applicant_id, type: String     # Person who authorizes auto-renewal eligibility check
-  field :renewal_consent_through_year, type: Integer    # Authorize auto-renewal elibility check through this year (CCYY format)
+  field :consent_applicant_id, type: String     # Person who authorizes auto-renewal eligibility check renewal_consent_applicant_id
+  field :consent_renewal_year, type: Integer    # Authorize auto-renewal elibility check through this year (CCYY format) renewal_consent_through_year
   field :submission_date, type: Date            # Date application was created on authority system
 
   field :notice_generated, type: Boolean, default: true

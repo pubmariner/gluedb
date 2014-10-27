@@ -27,8 +27,8 @@
   %n1:person_health
     %n1:tobacco_user= authority_member.hlh
 %n1:application_group_id= api_v1_application_group_url(person.application_groups.first.id)
-- if authority_member.is_coverage_applicant.present?
-  %n1:is_coverage_applicant= authority_member.is_coverage_applicant
+- if authority_member.is_applicant.present?
+  %n1:is_coverage_applicant= authority_member.is_applicant
 - if authority_member.is_incarcerated.present?
   %n1:incarcerated_flag= authority_member.is_incarcerated
 - unless person.assistance_eligibilities.empty?

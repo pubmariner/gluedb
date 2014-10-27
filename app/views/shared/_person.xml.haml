@@ -1,6 +1,10 @@
 = render 'shared/identity', id: api_v1_person_url(person.id)
-%n1:name
+%n1:person_name
   = render 'shared/name', object: person
+- if person.job_title.present?
+  %n1:job_title= person.job_title
+- if person.department.present?
+  %n1:department= person.department
 - unless person.addresses.empty?
   %n1:addresses
     - person.addresses.each do |address|

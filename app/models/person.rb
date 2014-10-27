@@ -8,14 +8,16 @@ class Person
 
   attr_accessor :relationship
 
-  field :name_pfx, as: :prefix, type: String, default: ""
-  field :name_first, as: :given_name, type: String
+  field :name_pfx, type: String, default: ""
+  field :name_first, type: String
   field :name_middle, type: String, default: ""
-  field :name_last, as: :surname, type: String
-  field :name_sfx, as: :suffix, type: String, default: ""
+  field :name_last, type: String
+  field :name_sfx, type: String, default: ""
   field :name_full, type: String
   field :alternate_name, type: String, default: ""
   field :updated_by, type: String, default: "system_service"
+  field :job_title, type: String, default: ""
+  field :department, type: String, default: ""
   field :is_active, type: Boolean, default: true
 
   field :authority_member_id, type: String, default: nil

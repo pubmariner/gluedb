@@ -46,7 +46,7 @@ class Member
   field :citizen_status, type: String, default: 'us_citizen'
   field :is_state_resident, type: Boolean, default: true
   field :is_incarcerated, type: Boolean, default: false
-  field :is_coverage_applicant, type: Boolean, default: true
+  field :is_applicant, type: Boolean, default: true
 
   field :hlh, as: :tobacco_use_code, type: String, default: "unknown"
   field :lui, as: :language_code, type: String
