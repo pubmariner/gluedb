@@ -76,6 +76,7 @@ class Income
       end_date: income_data[:end_date],
       is_projected: income_data[:is_projected],
       submission_date: income_data[:submission_date])
+
   end
 
 end

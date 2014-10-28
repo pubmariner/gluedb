@@ -5,66 +5,82 @@ module CanonicalVocabulary
 
     CV_API_URL = "http://localhost:3000/api/v1/"
 
-    def initialize(type="assisted")
-      if type == "assisted"
-        @single = CanonicalVocabulary::Renewals::Assisted.new('single')
-        @multiple = CanonicalVocabulary::Renewals::Assisted.new('multiple')
-        @super_multiple = CanonicalVocabulary::Renewals::Assisted.new('super')
-      else
-        @single = CanonicalVocabulary::Renewals::Unassisted.new('single')
-        @multiple = CanonicalVocabulary::Renewals::Unassisted.new('multiple')
-        @super_multiple = CanonicalVocabulary::Renewals::Unassisted.new('super')
-      end
+    def initialize(report_type)
+      (report_type == "assisted" ? initialize_assisted : initialize_unassisted)
+      @logger = Logger.new("#{Rails.root}/log/#{report_type}_renewals.log")
     end
 
-    def serialize(file)
-      sheet = Spreadsheet.open("#{Rails.root.to_s}/#{file}").worksheet(0)
-      current = 1
-      ids = []
-      limit = sheet.rows.count
-      @logger = Logger.new("#{Rails.root}/log/renewals.log")
-
-      sheet.each do |row|
-        next if row[0] == "5431d396eb899ad6b2000510"
-        ids << row[0]
-        if ids.size == 5 || current == limit
-          serialize_groupids(ids)
-          ids =[]
-          puts "----processed #{current} application groups"
-        end    
-        break if current == 5000
-        current += 1
+    def serialize(file_name)
+      worksheet = Spreadsheet.open("#{Rails.root.to_s}/#{file_name}").worksheet(0)
+      count = 0 
+      worksheet.rows[1..10].in_groups_of(5, false) do |group_ids| 
+        serialize_groupids(group_ids)
+        count += 1
+        puts "--------processed--#{count * 5}"
       end
-
       write_reports
     end
 
     def serialize_groupids(group_ids)
-      puts "processing......"
-      puts group_ids.inspect
       begin
         groups_xml = Net::HTTP.get(URI.parse("#{CV_API_URL}application_groups?ids[]=#{group_ids.join("&ids[]=")}&user_token=zUzBsoTSKPbvXCQsB4Ky"))
         root = Nokogiri::XML(groups_xml).root
         root.xpath("n1:application_group").each do |application_group_xml|
-        # parser = File.open(Rails.root.to_s + "/application_group.xml")
-        # application_group_xml = Nokogiri::XML(parser).root
-        application_group = Parsers::Xml::IrsReports::ApplicationGroup.new(application_group_xml)
-        # household = application_group_xml.xpath("n1:households/n1:household")[0]
-        # household = Parsers::Xml::IrsReports::Household.new(household)
+          process_application_group(application_group_xml)
+        end
+      rescue Exception => e
+        @logger.info group_ids.join(",")
+      end
+    end
+
+    def process_application_group(application_group_xml)
+      begin
+        application_group = Parsers::Xml::Reports::ApplicationGroup.new(application_group_xml)
         if application_group.size == 1
           @single.append_household(application_group)
         else
-          if application_group.size <= 6
-            @multiple.append_household(application_group)
-          else
-            @super_multiple.append_household(application_group)
-          end
+          application_group.size <= 6 ? @multiple.append_household(application_group) :
+          @super_multiple.append_household(application_group)
         end
-        end
-
-      rescue Exception  => e
-        @logger.info group_ids.join(",")
+      rescue Exception => e
+        @logger.info application_group_xml.at_xpath("n1:id").text.match(/\w+$/)[0]
       end
+    end
+
+    def initialize_assisted 
+      @single = CanonicalVocabulary::Renewals::Assisted.new({ 
+        file: "Manual Renewal Single IA).xls",
+        log_file: "ia_renewals_internal.log",
+        other_members: 0
+      })
+      @multiple = CanonicalVocabulary::Renewals::Assisted.new({ 
+        file: "Manual Renewal Multiple IA).xls",
+        log_file: "ia_renewals_internal.log",
+        other_members: 5
+      })
+      @super_multiple = CanonicalVocabulary::Renewals::Assisted.new({ 
+        file: "Manual Renewal Super IA).xls",
+        log_file: "ia_renewals_internal.log",
+        other_members: 8
+      })
+    end
+
+    def initialize_unassisted
+      @single = CanonicalVocabulary::Renewals::Unassisted.new({ 
+        file: "Manual Renewal Single UQHP).xls",
+        log_file: "uqhp_renewals_internal.log",
+        other_members: 0
+      })
+      @multiple = CanonicalVocabulary::Renewals::Unassisted.new({ 
+        file: "Manual Renewal Multiple UQHP).xls",
+        log_file: "uqhp_renewals_internal.log",
+        other_members: 5
+      })
+      @super_multiple = CanonicalVocabulary::Renewals::Unassisted.new({ 
+        file: "Manual Renewal Super UQHP).xls",
+        log_file: "uqhp_renewals_internal.log",
+        other_members: 8
+      })
     end
 
     def write_reports

@@ -1,7 +1,7 @@
 require 'roo'
 require 'spreadsheet'
 
-puts "Loading: Premiums"
+puts "Loading: 2015 Dental Premiums"
 
 dates_by_sheet = [
   Date.new(2015, 1, 1)..Date.new(2015, 12, 31),
@@ -42,7 +42,7 @@ def import_spreadsheet(file_path, dates_by_sheet)
       end
 
       (65..120).each do |age|
-        cost = plan_details["64 +"]
+        cost = plan_details["65+"]
         premium = PremiumTable.new
         premium.rate_start_date = dates_by_sheet[sheet_index].first
         premium.rate_end_date = dates_by_sheet[sheet_index].last

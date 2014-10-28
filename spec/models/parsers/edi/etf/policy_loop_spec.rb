@@ -122,4 +122,26 @@ describe Parsers::Edi::Etf::PolicyLoop do
       expect(policy_loop.hios_id).to eq hios_id
     end
   end
+
+  describe '#canceled?' do
+    context 'when start and end date are equal' do
+      let(:start_date) { '19800101'}
+      let(:end_date) { start_date }
+      let(:start_date_qualifier) { '348' }
+      let(:end_date_qualifier) { '349' }
+      let(:raw_loop) do 
+        {
+          "DTPs" => [
+            ['', start_date_qualifier, '', start_date],
+            ['', end_date_qualifier, '', end_date]
+          ]
+        } 
+      end
+      let(:policy_loop) { Parsers::Edi::Etf::PolicyLoop.new(raw_loop) }
+
+      it 'is a cancel' do 
+        expect(policy_loop.canceled?).to eq true
+      end
+    end
+  end
 end

@@ -1,16 +1,7 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Policy do
   subject(:policy) { build(:policy) }
-
-  it { should have_index_for(eg_id: 1) }
-
-  describe "associations" do
-	  it { should belong_to :employer }
-	  it { should belong_to :carrier }
-	  it { should belong_to :broker }
-	  it { should belong_to :plan }
-  end
 
   [
     :eg_id,
@@ -147,7 +138,7 @@ describe Policy do
     context 'enrollee with member id exists' do
       before { policy.enrollees << enrollee }
       it 'calls enrollees merge_enrollee' do
-        enrollee.stub(:merge_enrollee)
+        allow(enrollee).to receive(:merge_enrollee)
         policy.merge_enrollee(enrollee, :stop)
         expect(enrollee).to have_received(:merge_enrollee)
       end
@@ -285,7 +276,7 @@ describe Policy do
     before { policy.enrollees = [ subscriber ] }
 
     context 'subscriber is canceled' do
-      before { subscriber.stub(:canceled?) { true }}
+      before { allow(subscriber).to receive(:canceled?).and_return(true) }
       it 'sets policy as canceled' do
         policy.check_for_cancel_or_term
         expect(policy.aasm_state).to eq 'canceled'
@@ -293,7 +284,7 @@ describe Policy do
     end
 
     context 'subscriber is terminated' do
-      before { subscriber.stub(:terminated?) { true }}
+      before { allow(subscriber).to receive(:terminated?).and_return(true) }
       it 'sets policy as terminated' do
         policy.check_for_cancel_or_term
         expect(policy.aasm_state).to eq 'terminated'

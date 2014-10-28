@@ -6,7 +6,7 @@ describe DashboardsController do
   describe 'GET index' do
     it "should have a table of transactions" do
       get :index
-      assigns( :transactions ).should_not be_nil
+      expect(assigns( :transactions )).not_to be_nil
     end
   end
 end

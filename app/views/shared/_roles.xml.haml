@@ -24,8 +24,13 @@
           - policies.each do |policy|
             %n1:policy= render 'shared/policy_link_type', policy: policy, member: member
       - if false
-        %n1:exemptions=#todo
-      - if member.can_be_quoted? && (policies.count > 0) 
+        %n1:exemptions
+          %n1:kind= "urn:openhbx:terms:v1:exemption#"
+          %n1:certificate_number
+          %n1:start_date
+          - if false
+            %n1:end_date
+      - if member.can_be_quoted? && (policies.count > 0)
         %n1:qhp_quotes
           - policies.each do |policy|
             - enrollee = policy.enrollee_for_member_id(member.hbx_member_id)

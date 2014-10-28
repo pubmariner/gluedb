@@ -107,7 +107,7 @@ class Member
   def merge_member(m_member)
     merge_without_blanking(
       m_member,
-      :concern_role_id,
+      :e_concern_role_id,
       :dob,
       :gender,
       :ssn,

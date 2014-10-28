@@ -10,10 +10,14 @@ class UpdatePolicyStatus
 
     failed = false
 
+    result_keys = [:carrier_id, :file_name, :submitted_by, :batch_id, :batch_index, :body]
+
+    failure_data = request.select { |k, _| result_keys.include?(k) }
+
     if(policy.nil?)
       listener.policy_not_found(request[:policy_id])
       failed = true
-      listener.fail
+      listener.fail(failure_data)
       return
     end
 
@@ -51,7 +55,11 @@ class UpdatePolicyStatus
     end
 
     if(request[:status] == 'carrier_terminated')
-      if(request[:begin_date] == request[:end_date])
+      if (request[:begin_date] == request[:end_date])
+        listener.invalid_dates({begin_date: request[:begin_date], end_date: request[:end_date]})
+        failed = true
+      end
+      if (request[:end_date].blank?)
         listener.invalid_dates({begin_date: request[:begin_date], end_date: request[:end_date]})
         failed = true
       end
@@ -89,7 +97,7 @@ class UpdatePolicyStatus
     end
 
     if(failed)
-      listener.fail
+      listener.fail(failure_data.merge({:policy_id => policy.id}))
       return
     end
 
@@ -128,7 +136,7 @@ class UpdatePolicyStatus
 
     policy.aasm_state = request[:status]
     policy.save
-    listener.success
+    listener.success(failure_data.merge({:policy_id => policy.id}))
   end
 
 end

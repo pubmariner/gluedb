@@ -24,6 +24,7 @@ group :development, :assets do
   gem 'less-rails-bootstrap', '3.2.0', :group => :test
   gem 'designmodo-flatuipro-rails', '~> 1.3.0.0.branch', :group => :test
   gem 'font-awesome-rails', '4.2.0.0'
+  gem "rails_best_practices"
 end
 
 group :test do
@@ -35,6 +36,7 @@ group :test do
   gem 'factory_girl_rails'
   gem 'database_cleaner', '1.3.0'
   gem 'ci_reporter', '2.0.0'
+  gem 'savon', '2.7'
 end
 
 group :production do
@@ -54,3 +56,4 @@ gem 'cancancan', '~> 1.9'
 gem 'oj'
 gem 'roo'
 gem 'bh'
+gem 'wash_out' #the soap service gem

@@ -96,8 +96,11 @@ module Parsers
       def found_carrier_member_id(id)
       end
 
-      def missing_carrier_member_id
-        @errors << "Missing Carrier Member ID."
+      def missing_carrier_member_id(person_loop)
+        policy_loop = person_loop.policy_loops.first
+        if(!policy_loop.canceled?)
+          @errors << "Missing Carrier Member ID."
+        end
       end
 
       def found_carrier_policy_id(id)

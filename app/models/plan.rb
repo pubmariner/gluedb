@@ -24,7 +24,7 @@ class Plan
   index({ "premium_tables.age" => 1 })
   index({ "premium_tables.rate_start_date" => 1 })
   index({ "premium_tables.rate_end_date" => 1 })
-	    
+
   validates_inclusion_of :coverage_type, in: ["health", "dental"]
 #  validates_inclusion_of :market_type, in: ["individual", "shop"]
 
@@ -36,7 +36,7 @@ class Plan
 
   before_save :invalidate_find_cache
 
-#  default_scope order_by(name: 1)
+  scope :by_name, order_by(name: 1, hios_plan_id: 1)
 
   def invalidate_find_cache
     Rails.cache.delete("Plan/find/hios_plan_id.#{self.hios_plan_id}")
@@ -80,10 +80,10 @@ class Plan
   HIOS_2015_MAP = {
     "77422DC0060001" => "77422DC0060002",
     "77422DC0060003" => "77422DC0060002",
-    "77422DC0060004" => "77422DC0060004",
-    "77422DC0060005" => "77422DC0060005",
-    "77422DC0060006" => "77422DC0060006",
-    "77422DC0060007" => "77422DC0060010",
+#    "77422DC0060004" => "77422DC0060004",
+#    "77422DC0060005" => "77422DC0060005",
+#    "77422DC0060006" => "77422DC0060006",
+    "77422DC0060007" => "77422DC0060008",
     "77422DC0060009" => "77422DC0060008",
     "78079DC0210001" => "78079DC0210001" }
 #    "77422DC0060002" => "77422DC0060002",

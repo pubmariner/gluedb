@@ -22,6 +22,7 @@ class Employer
   field :pte_count, type: Integer
   field :msp_count, as: :medicare_secondary_payer_count, type: Integer
   field :notes, type: String
+  field :is_active, type: Boolean, default: true
 
   field :name_pfx, type: String, default: ""
   field :name_first, type: String
@@ -60,6 +61,8 @@ class Employer
 
   before_save :initialize_name_full
   before_save :invalidate_find_caches
+
+  scope :by_name, order_by(name: 1)
 
   def payment_transactions
     PremiumPayment.payment_transactions_for(self)

@@ -18,7 +18,7 @@ class ElectedPlan
 
   belongs_to :carrier
 
-  default_scope order_by(carrier_name: 1, plan_name: 1)
+  scope :by_name, order_by(carrier_name: 1, plan_name: 1)
 
   def compare_value
     [self.carrier_id, self.qhp_id]

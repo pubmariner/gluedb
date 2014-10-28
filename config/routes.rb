@@ -42,6 +42,8 @@ Gluedb::Application.routes.draw do
   resources :edi_transaction_sets
   resources :edi_transmissions
 
+  resources :csv_transactions, :only => :show
+
   resources :enrollments do
     member do
       get :canonical_vocabulary
@@ -104,6 +106,7 @@ Gluedb::Application.routes.draw do
 
   namespace :api, :defaults => { :format => 'xml' } do
     namespace :v1 do
+      resources :events, :only => [:create]
       resources :people, :only => [:show, :index]
       resources :employers, :only => [:show, :index]
       resources :policies, :only => [:show, :index]
@@ -126,7 +129,45 @@ Gluedb::Application.routes.draw do
     collection do
       post 'upload_csv'
     end
-  end  
+  end
+
+  namespace :soap do
+    resources :individuals, :only => [] do
+      collection do
+        post 'get_by_hbx_id'
+        get 'wsdl'
+      end
+    end
+    resources :policies, :only => [] do
+      collection do
+        post 'get_by_policy_id'
+        get 'wsdl'
+      end
+    end
+    resources :application_groups, :only => [] do
+      collection do
+        post 'get_by_application_group_id'
+        get 'wsdl'
+      end
+    end
+    resources :employers, :only => [] do
+      collection do
+        post 'get_by_employer_id'
+        get 'wsdl'
+      end
+    end
+  end
+
+  #routes for soap services
+  namespace :soap do
+    namespace :v1 do
+      wash_out :people
+      wash_out :policies
+      wash_out :application_groups
+      wash_out :employers
+    end
+  end
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
@@ -179,4 +220,5 @@ Gluedb::Application.routes.draw do
   # This is a legacy wild controller route that's not recommended for RESTful applications.
   # Note: This route will make all actions in every controller accessible via GET requests.
   # match ':controller(/:action(/:id))(.:format)'
+
 end

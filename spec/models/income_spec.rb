@@ -5,7 +5,7 @@ describe Income do
 
   let(:attributes) do
     {
-      amount_in_cents: 1234,
+      amount_in_cents: 1235,
       kind: 'dividend',
       frequency: 'biweekly',
       start_date: Date.today,
@@ -23,14 +23,15 @@ describe Income do
 
   it 'can be made from an income request model' do
     request = {
-      amount_in_dollars: 12.34,
-      kind: 'wages_and_salaries',
+      amount: 12.35,
+      kind: 'dividend',
       frequency: 'biweekly',
       start_date: Date.today,
-      end_date: Date.today + 10,
+      end_date: Date.today,
       is_projected: true,
       submission_date: Date.today
     }
+
     expect(Income.from_income_request(request)).to be_same_as subject
   end
 

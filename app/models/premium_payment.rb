@@ -22,8 +22,6 @@ class PremiumPayment
 
 	before_create :parse_coverage_period
 
-  default_scope order_by(paid_at: -1)
-
   def self.payment_transactions_for(employer)
     c = Carrier.all.inject({}) do |acc, item|
       acc[item.id] = item
@@ -35,8 +33,8 @@ class PremiumPayment
           }},
         {"$group" =>{
             "_id" => {
-            "carrier" => "$carrier_id",
-            "paid_at" => "$paid_at"},
+            "paid_at" => "$paid_at",
+            "carrier" => "$carrier_id"},
             "transaction_set_premium_payment" => {"$addToSet" =>"$transaction_set_premium_payment_id"},
             "payment_amount" => { "$sum" => "$pmt_amt" }
           }}

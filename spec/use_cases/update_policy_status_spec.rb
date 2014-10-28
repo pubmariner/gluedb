@@ -11,7 +11,11 @@ describe UpdatePolicyStatus do
   let(:subscriber_coverage_status) { 'active' }
   let(:subscriber_coverage_start) { Date.today.prev_month }
   let(:subscriber_coverage_end) { nil }
-
+  let(:carrier_id) { double }
+  let(:submitted_by) { double }
+  let(:batch_id) { double }
+  let(:file_name) { double }
+  let(:body) { double }
 
   let(:plan) { Plan.new(hios_plan_id: hios_plan_id) }
   let(:hios_plan_id) { '123456789-01'}
@@ -22,17 +26,32 @@ describe UpdatePolicyStatus do
 
   let(:listener) { double(policy_not_found: nil, invalid_dates: nil, policy_status_is_same: nil, fail: nil, success: nil, enrollee_end_date_is_different: nil) }
 
+  let(:policy_guid) { "kjslkjdfef" }
+
   let(:request) do
     {
-      policy_id: '1234',
+      policy_id: "1234",
       status: requested_status,
       begin_date: requested_begin_date,
       end_date: requested_end_date,
       subscriber_id: requested_subscriber_id,
       enrolled_count: requested_enrollee_count,
       hios_plan_id: requested_hios_plan_id
-    }
+    }.merge(failure_details.except(:policy_id))
   end
+
+  let(:failure_details) {
+    {
+      submitted_by: submitted_by,
+      batch_id: batch_id,
+      file_name: file_name,
+      carrier_id: carrier_id,
+      policy_id: policy_guid,
+      body: body
+    }
+  }
+
+  let(:success_details) { failure_details }
 
   let(:requested_status) { 'carrier_terminated' }
   let(:requested_begin_date) { Date.today.prev_month }
@@ -43,6 +62,9 @@ describe UpdatePolicyStatus do
 
   before :each do
     allow(subscriber).to receive(:person).and_return(person)
+    if !policy.nil?
+      allow(policy).to receive(:id).and_return(policy_guid)
+    end
   end
 
 
@@ -63,7 +85,7 @@ describe UpdatePolicyStatus do
   end
 
   it 'notifies listener of success' do
-    expect(listener).to receive(:success)
+    expect(listener).to receive(:success).with(success_details)
     subject.execute(request, listener)
   end
 
@@ -78,10 +100,12 @@ describe UpdatePolicyStatus do
 
   context 'policy is not found' do
     let(:policy) { nil }
+    let(:non_policy_failure_details) {
+      failure_details.except(:policy_id)
+    }
     it 'notifies a listener' do
       expect(listener).to receive(:policy_not_found).with(request[:policy_id])
-      expect(listener).to receive(:fail)
-
+      expect(listener).to receive(:fail).with(non_policy_failure_details)
       subject.execute(request, listener)
     end
   end
@@ -91,7 +115,7 @@ describe UpdatePolicyStatus do
     let(:requested_subscriber_id) { '9999'}
     it 'notifies listener' do
       expect(listener).to receive(:subscriber_id_mismatch).with({provided: requested_subscriber_id, existing: subscriber_id})
-      expect(listener).to receive(:fail)
+      expect(listener).to receive(:fail).with(failure_details)
       subject.execute(request, listener)
     end
   end
@@ -154,6 +178,20 @@ describe UpdatePolicyStatus do
         )
         expect(listener).to receive(:fail)
 
+        subject.execute(request, listener)
+      end
+    end
+
+    context "when end_date is not provided" do
+      let(:requested_end_date) { nil }
+      it 'notifies the listener' do
+        expect(listener).to receive(:invalid_dates).with(
+          {
+            begin_date: request[:begin_date],
+            end_date: request[:end_date]
+          }
+        )
+        expect(listener).to receive(:fail)
         subject.execute(request, listener)
       end
     end
@@ -285,7 +323,7 @@ describe UpdatePolicyStatus do
             coverage_status: subscriber_coverage_status,
             coverage_start: subscriber_coverage_start,
             coverage_end: subscriber_coverage_end.prev_month
-            ) 
+          ) 
         end
 
         let(:enrollees) {[ subscriber, other_enrollee ]}

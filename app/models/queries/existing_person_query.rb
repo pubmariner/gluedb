@@ -9,7 +9,7 @@ module Queries
     end
 
     def find
-      people = Person.where({"members.ssn" => @ssn})
+      people = Person.unscoped.where({"members.ssn" => @ssn})
       return nil if people.empty?
 
       member = matching_members_of(people).first

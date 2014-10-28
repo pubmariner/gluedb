@@ -1,14 +1,6 @@
 require 'spec_helper'
 
 describe Email do
-  describe "validate associations" do
-	  it { should be_embedded_in :person }
-    it { should be_embedded_in :employer }
-  end
-
-  [:email_type, :email_address, :person, :employer].each do |attribute|
-    it { should respond_to attribute }
-  end
 
   describe 'validations' do
     describe 'email type' do

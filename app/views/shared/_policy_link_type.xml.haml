@@ -8,7 +8,7 @@
   - rate_period_date = enrollee.coverage_start
 - elsif policy.market == 'shop'
   - rate_period_date = policy.employer.plan_year_start
-%n1:plan= render 'shared/plan_link_type', plan: plan, rate: plan.rate(rate_period_date, enrollee.coverage_start, member.dob) 
+%n1:plan= render 'shared/plan_link_type', plan: plan, rate: plan.rate(rate_period_date, enrollee.coverage_start, member.dob)
 %n1:enrollees
   - policy.enrollees.each do |enrollee|
     %n1:enrollee= render 'shared/enrollee_link_type', enrollee: enrollee

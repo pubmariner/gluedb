@@ -73,7 +73,7 @@ class Person
   scope :all_under_or_equal_age, ->(age) {gte(:'members.dob' => (Date.today - age.years))}
   scope :all_with_multiple_members, exists({ :'members.1' => true })
 
-  default_scope order_by(name_last: 1, name_first: 1)
+  scope :by_name, order_by(name_last: 1, name_first: 1)
   #
   #
   embeds_many :assistance_eligibilities
@@ -335,11 +335,10 @@ class Person
   end
 
   def employee_roles
-    policies_through_employer = policies.select { |p| !p.employer_id.nil? }
-
+    policies_through_employer = policies.select { |p| !p.employer_id.nil? && !p.canceled? }
     enrollees = []
     policies_through_employer.each do |p|
-      enrollees << p.enrollees.detect { |e| e.m_id == authority_member_id }
+        enrollees << p.enrollees.detect { |e| self.members.map(&:hbx_member_id).include?(e.m_id) }
     end
     enrollees
   end

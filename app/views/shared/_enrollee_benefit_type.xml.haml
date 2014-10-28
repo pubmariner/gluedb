@@ -7,4 +7,4 @@
 -if enrollee.c_id.present?
   %n1:carrier_assigned_enrollee_id= enrollee.c_id
 - if false
-  %n1:coverage_level
+  %n1:coverage_level="urn:openhbx:terms:v1:coverage_level##{"coverage_level"}" #todo

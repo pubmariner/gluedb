@@ -5,9 +5,9 @@ class PlansController < ApplicationController
     @qd = params[:qd]
 
     if params[:q].present?
-      @plans = Plan.search(@q, @qf, @qd).page(params[:page]).per(15)
+      @plans = Plan.by_name.search(@q, @qf, @qd).page(params[:page]).per(15)
     else
-      @plans = Plan.page(params[:page]).per(15)
+      @plans = Plan.by_name.page(params[:page]).per(15)
     end
   end
 

@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe ChangeEffectiveDate do
   subject(:change_effective_date) { ChangeEffectiveDate.new(transmitter, policy_repo) }
@@ -48,7 +48,7 @@ describe ChangeEffectiveDate do
 
   before do
     enrollees.each do |enrollee|
-      enrollee.stub(:member) { double(dob: Date.new(1980,02,01)) }
+      allow(enrollee).to receive(:member).and_return(double(dob: Date.new(1980,02,01)))
     end
   end
 

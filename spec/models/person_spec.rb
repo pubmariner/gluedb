@@ -1,18 +1,6 @@
 require 'rails_helper'
 
 describe Person do
-  describe "validate associations" do
-	  it { should belong_to :household }
-	  it { should embed_many :members }
-	  it { should embed_many :addresses }
-	  it { should embed_many :emails }
-	  it { should embed_many :phones }
-	  it { should embed_many :responsible_parties }
-
-	  it { should accept_nested_attributes_for(:addresses) }
-  end
-
-
   describe "instantiates object." do
 		it "sets and gets all basic model fields" do
       psn = Person.new(
@@ -22,11 +10,11 @@ describe Person do
         name_last: "Jingle-Himer",
         name_sfx: "Sr"
       )
-      psn.name_pfx.should == "Mr"
-      psn.name_first.should == "John"
-      psn.name_middle.should == "Jacob"
-      psn.name_last.should == "Jingle-Himer"
-      psn.name_sfx.should == "Sr"
+      expect(psn.name_pfx).to eql("Mr")
+      expect(psn.name_first).to eql("John")
+      expect(psn.name_middle).to eql("Jacob")
+      expect(psn.name_last).to eql("Jingle-Himer")
+      expect(psn.name_sfx).to eql("Sr")
     end
   end
 
@@ -91,11 +79,11 @@ describe Person do
         lui: @mbr_language
       )
       m = psn.members.first
-      m.hbx_member_id.should == mbr_id
-      m.dob.strftime("%m/%d/%Y").should == @date1.strftime("%m/%d/%Y")
-      m.gender.should == @mbr_sex
-      m.tobacco_use_code.should == @mbr_tobacco
-      m.lui.should == @mbr_language
+      expect(m.hbx_member_id).to eql(mbr_id)
+      expect(m.dob.strftime("%m/%d/%Y")).to eql(@date1.strftime("%m/%d/%Y"))
+      expect(m.gender).to eql(@mbr_sex)
+      expect(m.tobacco_use_code).to eql(@mbr_tobacco)
+      expect(m.lui).to eql(@mbr_language)
 
     end
   end

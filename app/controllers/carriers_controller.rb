@@ -1,6 +1,6 @@
 class CarriersController < ApplicationController
   def index
-	  @carriers = Carrier.all
+	  @carriers = Carrier.by_name
 
     respond_to do |format|
 	    format.html # index.html.erb
@@ -10,7 +10,7 @@ class CarriersController < ApplicationController
 
   def show
 		@carrier = Carrier.find(params[:id])
-		@plans = @carrier.plans.ascending(:name, :hios_plan_id)
+		@plans = @carrier.plans.by_name
 
 	  respond_to do |format|
 		  format.html # index.html.erb
@@ -20,7 +20,7 @@ class CarriersController < ApplicationController
 
   def show_plans
     @carrier = Carrier.find(params[:carrier_id])
-    @plans = @carrier.plans.only(:name,:hios_plan_id).ascending(:name, :hios_plan_id)
+    @plans = @carrier.plans.only(:name,:hios_plan_id).by_name
 
     render json: @plans
   end
