@@ -8,9 +8,7 @@ class ExchangeInformation
 
   include Singleton
 
-  REQUIRED_KEYS = [
-    'receiver_id', 'invalid_argument_queue', 'processing_failure_queue'
-    ]
+  REQUIRED_KEYS = ['receiver_id']
 
   # TODO: I have a feeling we may be using this pattern
   #       A LOT.  Look into extracting it if we repeat.
@@ -31,23 +29,7 @@ class ExchangeInformation
     @config['receiver_id']
   end
 
-  def invalid_argument_queue
-    @config['invalid_argument_queue']
-  end
-
-  def processing_failure_queue
-    @config['processing_failure_queue']
-  end
-
   def self.receiver_id
     self.instance.receiver_id
-  end
-
-  def self.invalid_argument_queue
-    self.instance.invalid_argument_queue
-  end
-
-  def self.processing_failure_queue
-    self.instance.processing_failure_queue
   end
 end
