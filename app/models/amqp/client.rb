@@ -1,3 +1,5 @@
+require 'timeout'
+
 module Amqp
   class Client
     attr_reader :channel, :queue
@@ -38,7 +40,7 @@ module Amqp
         },
         :original_payload => payload
       }
-      @channel.default_exchange.publish(error_message.to_json, error_properties(@processing_failed_queue, properties))
+      @channel.default_exchange.publish(error_message.to_json, error_properties(@processing_failed_queue, delivery_info, properties))
       channel.acknowledge(delivery_info.delivery_tag, false)
     end
 
@@ -47,7 +49,7 @@ module Amqp
         :errors => @argument_errors,
         :original_payload => payload
       }
-      @channel.default_exchange.publish(error_message.to_json, error_properties(@bad_argument_queue, properties))
+      @channel.default_exchange.publish(error_message.to_json, error_properties(@bad_argument_queue, delivery_info, properties))
       channel.acknowledge(delivery_info.delivery_tag, false)
     end
 
@@ -83,20 +85,31 @@ module Amqp
       end
     end
 
-    def error_properties(error_routing_key, properties)
+    def error_properties(error_routing_key, delivery_info, properties)
       new_properties = properties.to_hash.dup
       new_headers = new_properties[:headers] || {}
-      new_headers[:previous_routing_key] = properties[:routing_key]
+      new_headers[:previous_routing_key] = delivery_info.routing_key
       new_properties[:routing_key] = error_routing_key
       new_properties
     end
 
-    def redelivery_properties(existing_retry_count, properties)
+    def redelivery_properties(existing_retry_count, delivery_info, properties)
       new_properties = properties.to_hash.dup
       new_headers = new_properties[:headers] || {}
       new_headers["x-redelivery-count"] = existing_retry_count + 1
       new_properties[:headers] = new_headers
+      new_properties[:routing_key] = delivery_info.routing_key
       new_properties
+    end
+
+    def request(properties, payload)
+      temp_queue = channel.queue("", :exclusive => true)
+      channel.publish(payload, properties.merge({ :reply_to => temp_queue.name }))
+      delivery_info, properties, payload = Timeout::timeout(5) do
+        temp_queue.pop({})
+      end
+      temp_queue.delete
+      delivery_info, properties, payload
     end
   end
 end
