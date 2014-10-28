@@ -17,7 +17,7 @@ class Plan
 
   index({ name: 1 })
   index({ carrier_id: 1 })
-  index({ hbx_plan_id: 1 }, { unique: true, name: "exchange_plan_id_index" })
+  index({ hbx_plan_id: 1 }, { name: "exchange_plan_id_index" })
 	index({ hios_plan_id: 1 }, { unique: false, name: "hios_plan_id_index" })
   index({ coverage_type: 1 })
   index({ metal_level: 1 })
@@ -28,7 +28,6 @@ class Plan
 
   validates_inclusion_of :coverage_type, in: ["health", "dental"]
 #  validates_inclusion_of :market_type, in: ["individual", "shop"]
-
 
 	belongs_to :carrier, index: true
   has_many :policies, :inverse_of => :plan
@@ -41,6 +40,7 @@ class Plan
 
   def invalidate_find_cache
     Rails.cache.delete("Plan/find/hios_plan_id.#{self.hios_plan_id}")
+    Rails.cache.delete("Plan/find/hios_plan_id.#{self.hios_plan_id}.#{self.year}")
     true
   end
 
