@@ -49,12 +49,13 @@ module Parsers::Xml::Reports
       addresses = []
       @root.xpath("n1:person/n1:addresses/n1:address").each do |ele|
         address = {
+          address_type: ele.at_xpath('n1:address_type').text,
           address_1: ele.at_xpath('n1:address_1').text,
           city: ele.at_xpath('n1:city').text,
           state: ele.at_xpath('n1:state').text,
           postal_code: ele.at_xpath('n1:postal_code').text
         }
-        address.merge!({address_2: ele.at_xpath('n1:address_2').text}) if ele.at_xpath('n1:address_2')
+        address.merge!({address_2: (ele.at_xpath('n1:address_2').text if ele.at_xpath('n1:address_2'))})
         addresses << address
       end
       addresses

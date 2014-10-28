@@ -29,4 +29,19 @@ class UpdatePersonRequest
     
     request
   end
+
+
+  def self.from_cv(payload)
+    parser = Nokogiri::XML(payload)
+    individual = Parsers::Xml::Reports::individual.new(parser.root)
+
+    request = {
+      person_id: individual.id,
+      current_user: 'trey.evans@dc.gov',
+      addresses: []
+    }
+
+    request[:addresses] = individual.addressses
+    request
+  end
 end
