@@ -249,20 +249,30 @@ class Policy
 
   def self.find_by_subkeys(eg_id, c_id, h_id)
     Rails.cache.fetch("Policy/find/subkeys.#{eg_id}.#{c_id}.#{h_id}") do
-      Policy.where(
+      plans = Plan.where(hios_plan_id: h_id)
+      plan_ids = plans.map(&:_id)
+
+      policies = Policy.where(
         {
           :eg_id => eg_id,
           :carrier_id => c_id,
-          :plan_id => h_id
-        }).first
+          :plan_id => {
+            '$in' => plan_ids
+          }
+        })
+      if(policies.count > 1)
+        raise "More than one policy that match subkeys: eg_id=#{eg_id}, carrier_id=#{c_id}, plan_ids=#{plan_ids}"
+      end
+      policies.first
     end
   end
 
   def self.find_or_update_policy(m_enrollment)
+    plan = Plan.find(m_enrollment.plan_id)
     found_enrollment = self.find_by_subkeys(
       m_enrollment.enrollment_group_id,
       m_enrollment.carrier_id,
-      m_enrollment.plan_id
+      plan.hios_plan_id
     )
     if found_enrollment
       found_enrollment.responsible_party_id = m_enrollment.responsible_party_id

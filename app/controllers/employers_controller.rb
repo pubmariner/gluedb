@@ -24,8 +24,8 @@ class EmployersController < ApplicationController
     @employer = Employer.find(params[:id])
     @premium_payments = @employer.payment_transactions.group_by{ |p| p["_id"]["paid_at"]}.sort
 
-    @elected_plans = @employer.elected_plans.by_name
-
+    @plan_years = @employer.plan_years
+    
     if params[:q_person].present?
       @employees = @employer.employees.search(@q_person, @qf_person, @qd_person).page(params[:employee_page]).per(12)
     else
