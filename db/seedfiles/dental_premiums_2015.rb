@@ -63,7 +63,7 @@ def import_spreadsheet(file_path, dates_by_sheet)
 end
 
 files = [
-  "./db/seedfiles/premium_tables/2015_Dental_QDP_Plan_and_Rate_Matrix.xls"
+  "./db/seedfiles/premium_tables/2015_dental.xls"
 ]
 
 files.each { |f| import_spreadsheet(f, dates_by_sheet) }
