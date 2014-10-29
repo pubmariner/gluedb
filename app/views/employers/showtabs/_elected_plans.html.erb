@@ -1,9 +1,32 @@
-<div class="tab-pane" id="elected_plans">
+<div class="tab-pane" id="plan_year_<%=plan_year.start_date.year%>">
+  <div id="info">
+    <dl class="dl-horizontal">
+      <dt><%= PlanYear.human_attribute_name(:open_enrollment_start) %></dt>
+      <dd><%= plan_year.open_enrollment_start %></dd>
+      <dt><%= PlanYear.human_attribute_name(:open_enrollment_end) %></dt>
+      <dd><%= plan_year.open_enrollment_end %></dd>
+      <dt><%= PlanYear.human_attribute_name(:start_date) %></dt>
+      <dd><%= plan_year.start_date %></dd>
+      <dt><%= PlanYear.human_attribute_name(:end_date) %></dt>
+      <dd><%= plan_year.end_date %></dd>
+      <dt><%= PlanYear.human_attribute_name(:fte_count) %></dt>
+      <dd><%= plan_year.fte_count %></dd>
+      <dt><%= PlanYear.human_attribute_name(:pte_count) %></dt>
+      <dd><%= plan_year.pte_count %></dd>
+      <dt>Broker</dt>
+      <% if plan_year.broker.nil? %>
+        <dd></dd>
+      <% else %>
+        <dd><%= link_to(plan_year.broker.name_full, plan_year.broker) %></dd>
+      <% end %>
+
+    </dl>
+  </div>
   <div id="plans">
     <% if @employer.carriers.count <= 0 %>
       <p> No Elected Plans Found! </p>
     <% elsif @employer.carriers.count == 1 %>
-      <%= render "employers/showtabs/elected_plans_table", elected_plans: @elected_plans %>
+      <%= render "employers/showtabs/elected_plans_table", elected_plans: plan_year.elected_plans.elected_plans %>
     <% else %>
       <div class="row">
         <div class="col-md-12">
@@ -15,7 +38,7 @@
           <div class="tab-content">
             <% @employer.carriers.each_with_index do |carrier, index| %>
               <div class="tab-pane <%= 'active' if index==0 %>" id="<%= carrier.id %>">
-                <%= render "employers/showtabs/elected_plans_table", elected_plans: @elected_plans.select { |p| p.carrier_id == carrier.id } %>
+                <%= render "employers/showtabs/elected_plans_table", elected_plans: plan_year.elected_plans.select { |p| p.carrier_id == carrier.id } %>
               </div>
             <% end %>
           </div>

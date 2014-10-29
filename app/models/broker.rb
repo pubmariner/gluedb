@@ -18,7 +18,12 @@ class Broker
 
   has_many :policies, order: {name_last: 1, name_first: 1}
   has_many :people
+
+  ####move
   has_many :employers
+  #####
+  has_many :plan_years
+  
   has_and_belongs_to_many :carriers
 
   embeds_many :addresses
