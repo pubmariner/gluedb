@@ -7,6 +7,8 @@ class Soap::SoapController < ApplicationController
   }
   protect_from_forgery :except => [:wsdl]
 
+  @@logger = Logger.new("#{Rails.root}/log/soap.log")
+
   def get_user_token(xml_body)
     node = (xml_body.xpath("//user_token", SOAP_NS) | xml_body.xpath("//cv_soap:user_token", SOAP_NS)) .first
     MayBlank.new(node).text.value

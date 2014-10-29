@@ -158,15 +158,6 @@ Gluedb::Application.routes.draw do
     end
   end
 
-  #routes for soap services
-  namespace :soap do
-    namespace :v1 do
-      wash_out :people
-      wash_out :policies
-      wash_out :application_groups
-      wash_out :employers
-    end
-  end
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
