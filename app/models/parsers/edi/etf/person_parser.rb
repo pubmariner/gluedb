@@ -60,12 +60,12 @@ module Parsers
           end
           prefix = @person_loop.name_prefix
           if !prefix.blank?
-            @name_pfx = prefix
+            @name_prefix = prefix
           end
 
           suffix = @person_loop.name_suffix
           if !suffix.blank?
-            @name_sfx = suffix
+            @name_suffix= suffix
           end
           if !@person_loop.name_loop[9].blank?
             if @person_loop.name_loop[9].length > 8
