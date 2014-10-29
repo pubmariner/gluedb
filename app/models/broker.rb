@@ -93,6 +93,15 @@ class Broker
     end
   end
 
+  def self.find_or_create_without_merge(m_broker)
+    found_broker = Broker.find_by_npn(m_broker.npn)
+    if found_broker.nil?
+      m_broker.save!
+      return m_broker
+    end
+    found_broker
+  end
+
   def self.find_by_npn(number)
     if(number.blank?)
       return nil
