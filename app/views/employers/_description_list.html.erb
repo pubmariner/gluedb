@@ -10,6 +10,18 @@
       <dd><%= @employer.aasm_state.humanize %></dd>
       <dt><%= model_class.human_attribute_name(:sic_code) %></dt>
       <dd><%= @employer.sic_code %></dd>
+      <dt><%= model_class.human_attribute_name(:open_enrollment_start) %></dt>
+      <dd><%= @employer.open_enrollment_start %></dd>
+      <dt><%= model_class.human_attribute_name(:open_enrollment_end) %></dt>
+      <dd><%= @employer.open_enrollment_end %></dd>
+      <dt><%= model_class.human_attribute_name(:plan_year_start) %></dt>
+      <dd><%= @employer.plan_year_start %></dd>
+      <dt><%= model_class.human_attribute_name(:plan_year_end) %></dt>
+      <dd><%= @employer.plan_year_end %></dd>
+      <dt><%= model_class.human_attribute_name(:fte_count) %></dt>
+      <dd><%= @employer.fte_count %></dd>
+      <dt><%= model_class.human_attribute_name(:pte_count) %></dt>
+      <dd><%= @employer.pte_count %></dd>
       <dt><%= model_class.human_attribute_name(:msp_count) %></dt>
       <dd><%= @employer.msp_count %></dd>
 
@@ -20,6 +32,22 @@
       <% @employer.carriers.each do |c| %>
         <dd><%= link_to c.name, carrier_path(c) %></dd>
       <% end %>
+
+      <dt><%= "Plan(s)" %></dt>
+      <% if @employer.plans.count == 0 %>
+        <dd></dd>
+      <% end %>
+      <% @employer.plans.each do |p| %>
+        <dd><%= link_to p.name, carrier_path(p.carrier) %></dd>
+      <% end %>
+
+      <dt>Broker</dt>
+      <% if @employer.broker.nil? %>
+        <dd></dd>
+      <% else %>
+        <dd><%= link_to(@employer.broker.name_full, @employer.broker) %></dd>
+      <% end %>
+
     </dl>
   </div>
 </div>

@@ -5,8 +5,8 @@ module Parsers
         @listener = listener
       end
 
-      def by_hios_id_and_year(hios_id, year)
-        plan = Plan.find_by_hios_id_and_year(hios_id, year)
+      def by_hios_id(hios_id)
+        plan = Plan.find_by_hios_id(hios_id)
         if(plan)
           @listener.plan_found(plan)
           plan

@@ -2,10 +2,9 @@ module Parsers
   module Edi
     class ImportCache
       def initialize
-        @plan_cache = Hash.new
-        Plan.all.each do |p|
-          @plan_cache[p.year] ||= {}
-          @plan_cache[p.year][p.hios_plan_id] = p 
+        @hios_cache = Plan.all.inject({}) do |acc, p|
+          acc[p.hios_plan_id] = p
+          acc
         end
         @carrier_fein_cache = Carrier.all.inject({}) do |acc, c|
           c.carrier_profiles.each do |c_prof|
@@ -15,8 +14,8 @@ module Parsers
         end
       end
 
-      def lookup_plan(h_id, year)
-        @plan_cache[year][h_id]
+      def lookup_hios(h_id)
+        @hios_cache[h_id]
       end
 
       def lookup_carrier_fein(c_fein)

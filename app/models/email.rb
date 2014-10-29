@@ -32,11 +32,4 @@ class Email
       :email_address
     )
   end
-
-  def self.make(data)
-    email = Email.new
-    email.email_type = data[:email_type]
-    email.email_address = data[:email_address]
-    email
-  end
 end

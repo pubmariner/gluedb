@@ -10,11 +10,6 @@ module Parsers::Xml::Enrollment
       @plan.at_xpath('./pln:plan/pln:hios_plan_id', @namespaces).text
     end
 
-    def plan_year
-      subscriber = Parsers::Xml::Enrollment::IndividualEnrollee.new(@enrollment_group.xpath('./ins:subscriber', @namespaces))
-      Date.parse(subscriber.rate_period_date).year
-    end
-
     def premium_amount_total
       @plan.at_xpath('./ins:premium_amount_total', @namespaces).text.to_f
     end

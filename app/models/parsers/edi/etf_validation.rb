@@ -108,19 +108,7 @@ module Parsers
           if pol_loop.empty?
             log_error(:etf_loop, "has no valid plan")
           else
-            plan_year = nil
-            coverage_start = Date.parse(pol_loop.coverage_start)
-            if(is_shop?)
-              employer_loop = Etf::EmployerLoop.new(@etf_loop["L1000A"]["N1"])
-              employer = Employer.find_for_fein(employer_loop.fein)
-              plan_year = PlanYear.where({
-                :employer_id => employer.id,
-                :start_date => { "$lte" => coverage_start }
-              }).order_by(&:start_date).last.year
-            else
-              plan_year = coverage_start.year
-            end
-            plan = @import_cache.lookup_plan(pol_loop.hios_id, plan_year)
+            plan = @import_cache.lookup_hios(pol_loop.hios_id)
             if plan.blank?
               log_error(:etf_loop, "has no valid plan")
             end
@@ -129,7 +117,7 @@ module Parsers
       end
 
       def no_bogus_broker
-        broker_loop = Etf::BrokerLoop.new(@etf_loop["L1000C"])
+        broker_loop = Etf::BrokerLoop.new(etf_loop["L1000C"])
         return true if !broker_loop.valid?
         found_broker = Broker.find_by_npn(broker_loop.npn)
         if found_broker.nil?
@@ -138,10 +126,6 @@ module Parsers
       end
 
       private
-
-      def is_shop?
-        !(@etf_loop["L1000A"]["N1"][2] == "DC0")
-      end
 
       def tsf_exists?(target_loop, label)
         target_loop["L2700s"].any? do |lth|
