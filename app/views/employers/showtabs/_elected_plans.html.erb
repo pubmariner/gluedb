@@ -26,7 +26,7 @@
     <% if @employer.carriers.count <= 0 %>
       <p> No Elected Plans Found! </p>
     <% elsif @employer.carriers.count == 1 %>
-      <%= render "employers/showtabs/elected_plans_table", elected_plans: plan_year.elected_plans.elected_plans %>
+      <%= render "employers/showtabs/elected_plans_table", elected_plans: plan_year.elected_plans %>
     <% else %>
       <div class="row">
         <div class="col-md-12">
