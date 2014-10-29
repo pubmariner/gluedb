@@ -22,17 +22,13 @@
       <div class="col-md-12">
         <ul class="nav nav-tabs nav-append-content">
           <li class="active"><a href="#employees">Employees</a></li>
-          <% @plan_years.each do |py| %>
-            <li class=""><a href="#plan_year_<%=py.start_date.year%>">Plan Year <%= py.start_date.year %></a></li>
-          <% end %>          
+          <li class=""><a href="#elected_plans">Elected Plans</a></li>
           <li class=""><a href="#payments">Payments</a></li>
         </ul>
         <div class="tab-content">
           <%= render "employers/showtabs/employees" %>
 
-          <% @plan_years.each do |py| %>
-            <%= render('employers/showtabs/elected_plans', plan_year: py) %>
-          <% end %>
+          <%= render 'employers/showtabs/elected_plans' %>
 
           <%= render 'employers/showtabs/payments' %>
         </div>

@@ -4,10 +4,9 @@ class ElectedPlan
   include Mongoid::Paranoia
 
   include MergingModel
-  embedded_in :plan_year
+  embedded_in :employer
 
   field :carrier_employer_group_id, type: String
-  
   field :carrier_policy_number, type: String
   field :coverage_type, type: String
   field :qhp_id, as: :hios_plan_id, type: String
@@ -26,7 +25,7 @@ class ElectedPlan
   end
 
   def plan
-    Plan.find_by_hios_id_and_year(qhp_id, plan_year.start_date.year)
+    Plan.find_by_hios_id(qhp_id)
   end
 
 end

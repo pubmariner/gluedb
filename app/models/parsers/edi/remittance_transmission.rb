@@ -55,11 +55,11 @@ module Parsers
       def persist_payment_entry(l2000, carrier, transaction)
         individual_name = Remittance::IndividualName.new(l2000["L2100"])
 
-        policy = Policy.find_by_subkeys(individual_name.enrollment_group_id, carrier._id, individual_name.hios_plan_id)
+        plan = @import_cache.lookup_hios(individual_name.hios_plan_id)
+        policy = Policy.find_by_subkeys(individual_name.enrollment_group_id, carrier._id, plan._id)
         unless policy
-          policy = Policy.find_by_sub_and_plan(individual_name.enrollment_group_id, individual_name.hios_plan_id)
+          policy = Policy.find_by_sub_and_plan(individual_name.enrollment_group_id, plan._id)
         end
-        
         return(nil) if policy.nil?
 
         l2000["L2300s"].each do |l2300|

@@ -87,36 +87,20 @@ module Parsers
         carrier ||= @carrier
 
         # Employer
-        employer = nil
+        employer_id = nil
         if(etf.is_shop?)
           employer_loop = Etf::EmployerLoop.new(etf.employer_loop)
-          employer = persist_employer(employer_loop, carrier._id)
-
-          if(employer.nil?)
-            raise("Unknown employer ID: #{employer_loop.id_qualifier} #{employer_loop.fein}")
-          end
+          employer_id = persist_employer_get_id(employer_loop, carrier._id)
         end
 
         #Policy
         policy_loop = etf.subscriber_loop.policy_loops.first
-        plan_year = nil
-
-        coverage_start = Date.parse(policy_loop.coverage_start)
-        if(etf.is_shop?)
-          plan_year = PlanYear.where({
-            :employer_id => employer.id,
-            :start_date => { "$lte" => coverage_start }
-          }).order_by(&:start_date).last.year
-        else
-          plan_year = coverage_start.year
-        end
-        
-        plan = @import_cache.lookup_plan(policy_loop.hios_id, plan_year)
+        plan = @import_cache.lookup_hios(policy_loop.hios_id)
 
         policy = nil
 
         if etf.is_shop? && is_carrier_maintenance?(etf, edi_transmission)
-          policy = Policy.find_by_subkeys(policy_loop.eg_id, carrier._id, policy_loop.hios_id)
+          policy = Policy.find_by_subkeys(policy_loop.eg_id, carrier._id, plan._id)
 
           if policy
             edi_transmission.save!
@@ -126,12 +110,12 @@ module Parsers
           broker_id = persist_broker_get_id(etf_loop)
 
           if(plan)
-            policy = persist_policy(etf, carrier._id, plan._id, policy_loop.eg_id, employer._id, responsible_party_id, broker_id)
+            policy = persist_policy(etf, carrier._id, plan._id, policy_loop.eg_id, employer_id, responsible_party_id, broker_id)
 
             if policy
               edi_transmission.save!
 
-              persist_people(etf_loop, employer._id)
+              persist_people(etf_loop, employer_id)
 #              Etf::ApplicationGroupParser.new(etf.people).persist!
             end
           end
@@ -139,7 +123,7 @@ module Parsers
 
         #persist transaction
         policy_id = (policy.nil?) ? nil : policy._id
-        persist_edi_transactions(etf_loop, policy_id, carrier._id, employer._id, edi_transmission)
+        persist_edi_transactions(etf_loop, policy_id, carrier._id, employer_id, edi_transmission)
       end
 
       # FIXME: pull sep reason
@@ -192,7 +176,11 @@ module Parsers
       def persist_responsible_party_get_id(etf_loop)
         rp_loop = responsible_party_loop(etf_loop["L2000s"])
         return(nil) if rp_loop.blank?
+#        begin
           Etf::ResponsiblePartyParser.parse_persist_and_return_id(rp_loop)
+#        rescue
+#         raise rp_loop.to_s
+#        end
       end
 
       def responsible_party_loop(all_l2000s)
@@ -215,7 +203,7 @@ module Parsers
         broker._id
       end
 
-      def persist_employer(employer_loop, carrier_id)
+      def persist_employer_get_id(employer_loop, carrier_id)
         employer = nil
 
         if employer_loop.specified_as_group?
@@ -228,7 +216,11 @@ module Parsers
           employer = Employer.find_or_create_employer_by_fein(new_employer)
         end
 
-        employer
+        begin
+          employer._id
+        rescue
+          raise("Unknown employer ID: #{employer_loop.id_qualifier} #{employer_loop.fein}")
+        end
       end
 
       def persist_people(etf_loop, employer_id)

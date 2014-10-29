@@ -36,13 +36,6 @@ class Phone
     super filter_non_numbers(value)
   end
 
-  def self.make(data)
-    phone = Phone.new
-    phone.phone_type = data[:phone_type]
-    phone.phone_number = data[:phone_number]
-    phone
-  end
-
 private
   def filter_non_numbers(str)
     str.gsub(/\D/,'') if str.present?

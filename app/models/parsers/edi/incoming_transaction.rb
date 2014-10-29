@@ -11,30 +11,14 @@ module Parsers
 
         subscriber_policy_loop = etf.subscriber_loop.policy_loops.first
         find_plan = FindPlan.new(incoming_transaction)
-
-        plan_year = nil
-
-        coverage_start = Date.parse(subscriber_policy_loop.coverage_start)
-        if(etf.is_shop?)
-          employer_loop = Etf::EmployerLoop.new(etf.employer_loop)
-          employer = Employer.find_for_fein(employer_loop.fein)
-
-          plan_year = PlanYear.where({
-            :employer_id => employer.id,
-            :start_date => { "$lte" => coverage_start }
-          }).order_by(&:start_date).last.year
-        else
-          plan_year = Date.parse(subscriber_policy_loop.coverage_start).year
-        end
-
-        plan = find_plan.by_hios_id_and_year(subscriber_policy_loop.hios_id, plan_year)
+        plan = find_plan.by_hios_id(subscriber_policy_loop.hios_id)
 
         if(carrier && plan)
           find_policy = FindPolicy.new(incoming_transaction)
           policy = find_policy.by_subkeys({
             :eg_id => subscriber_policy_loop.eg_id,
             :carrier_id => carrier._id,
-            :hios_plan_id => subscriber_policy_loop.hios_id
+            :plan_id => plan._id
           })
         end
 
