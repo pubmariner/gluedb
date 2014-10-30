@@ -17,7 +17,7 @@ class AssistanceEligibility
 
   field :is_ia_eligible, type: Boolean, default: false
   field :is_medicaid_chip_eligible, type: Boolean, default: false
-  field :submission_date, as: :submitted_date, type: Date
+  field :submission_date, type: Date
 
   index({submission_date:  1})
 
