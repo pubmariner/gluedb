@@ -13,8 +13,8 @@
   - if address.zip_extension
     %n1:location_postal_extension_code= address.zip_extension
   - if address.country_name.present?
-    %n1:country_name= address.country_name
-  %n1:country_code= 'US'
+    %n1:location_country_name= address.country_name
+  %n1:location_country_code= 'US'
   - if address.full_text.present?
     %n1:address_full_text= address.full_text
   - if address.location.present?

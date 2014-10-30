@@ -1,4 +1,4 @@
-= render 'shared/identity', id: api_v1_policy_url(policy.id)
+= render 'shared/identity', id: api_v1_policy_url(policy.id), obj: policy
 - plan = (Caches::MongoidCache.lookup(Plan, policy.plan_id) { policy.plan })
 %n1:plan_name= plan.name
 %n1:hbx_plan_id= plan.hbx_plan_id

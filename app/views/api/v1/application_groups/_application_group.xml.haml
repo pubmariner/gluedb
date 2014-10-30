@@ -1,15 +1,16 @@
-= render 'shared/identity', id: api_v1_application_group_url(group.id)
-- if group.e_case_id.present?
-  %n1:e_case_id= group.e_case_id
+= render 'shared/identity', id: api_v1_application_group_url(group.id), obj: group
+%n1:applicants
+  - group.person_ids.each do |p_id|
+    %n1:applicant= render 'shared/individual_type', person: (Caches::CustomCache.lookup(Person, "ag_lookup", p_id) { Person.find(p_id) })
 - if group.primary_applicant_id.present?
   %n1:primary_applicant_id= group.primary_applicant_id
+    %n1:id= api_v1_application_group_url(group.primary_applicant_id)
+- if group.e_case_id.present?
+  %n1:e_case_id= group.e_case_id
 - if group.consent_applicant_id.present?
   %n1:renewal_consent_applicant_id= group.consent_applicant_id
 - if group.consent_renewal_year.present?
   %n1:renewal_consent_through_year= group.consent_renewal_year
-%n1:applicants
-  - group.person_ids.each do |p_id|
-    %n1:applicant= render 'shared/individual_type', person: (Caches::CustomCache.lookup(Person, "ag_lookup", p_id) { Person.find(p_id) })
 - if group.households.empty? # fake household
   %n1:households
     %n1:household
