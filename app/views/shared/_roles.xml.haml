@@ -1,33 +1,64 @@
 %n1:hbx_roles
   - if person.authority_member_id.present?
+    %n1:authority_qhp_role_id= person.authority_member_id
+  %n1:qhp_roles
     - member = person.authority_member
-  %n1:hbx_role="urn:openhbx:terms:v1:approval_type##{member.hbx_role}"
-  - if member.e_person_id.present?
-    %n1:e_person_id= member.e_person_id #URI
-  - if member.e_concern_role_id.present?
-    %n1:e_concern_role_id= member.e_concern_role_id #URI
-  - if member.aceds_id.present?
-    %n1:aceds_id= member.aceds_id #URI
-  - if member.e_pdc_id.present?
-    %n1:e_pdc_id= member.e_pdc_id #URI
-  - if person.employee_roles.present?
-    %n1:employee_sponsored_roles
-      - person.employee_roles.each do |enrollee|
-        %n1:employee_sponsored_role
-          %n1:employer= render 'shared/employer_link_type', employer: enrollee.policy.employer
-          %n1:employment_status= "urn:openhbx:terms:v1:employment_status##{enrollee.employment_status_code}"
-          - if enrollee.coverage_start.present?
-            %n1:eligibility_start_date= enrollee.coverage_start.try(:strftime,"%Y%m%d")
-          - if enrollee.coverage_end.present?
-            %n1:eligibility_end_date= enrollee.coverage_end.try(:strftime,"%Y%m%d")
-          - if false #todo
-            %n1:employment_termination_date= enrollee.employment_termination_date.try(:strftime,"%Y%m%d")
-  - policies = member.policies
-  - if policies.present?
-    %n1:policies
-      - policies.each do |policy|
-        %n1:policy= render 'shared/policy_link_type', policy: policy, member: member
-  %n1:is_active= person.is_active
-  - unless person.comments.empty?
-    = render 'shared/comments', object: person
-  = render 'shared/timestamp', record: person
+    %n1:qhp_role
+      %n1:id= member.hbx_member_id
+      - if member.e_person_id.present?
+        %n1:e_person_id= member.e_person_id
+      - if member.e_concern_role_id.present?
+        %n1:e_concern_role_id= member.e_concern_role_id
+      - if member.aceds_id.present?
+        %n1:aceds_id= member.aceds_id
+      %n1:gender= "urn:dc0:terms:gender##{member.gender}"
+      %n1:dob= member.dob.try(:strftime,"%Y%m%d")
+      - if member.ssn.present?
+        %n1:ssn= member.ssn
+      %n1:tobacco_user= member.hlh.downcase
+      - if member.lui.present?
+        %n1:language= member.lui
+      - policies = member.policies
+      - if policies.present?
+        %n1:policies
+          - policies.each do |policy|
+            %n1:policy= render 'shared/policy_link_type', policy: policy, member: member
+      - if false
+        %n1:exemptions
+          %n1:kind= "urn:openhbx:terms:v1:exemption#"
+          %n1:certificate_number
+          %n1:start_date
+          - if false
+            %n1:end_date
+      - if member.can_be_quoted? && (policies.count > 0)
+        %n1:qhp_quotes
+          - policies.each do |policy|
+            - enrollee = policy.enrollee_for_member_id(member.hbx_member_id)
+            - next if enrollee.blank?
+            - next if (!enrollee.coverage_end.blank?) && (enrollee.coverage_end < Date.new(2015, 1, 1))
+            - plan = (Caches::MongoidCache.lookup(Plan, policy.plan_id) { policy.plan })
+            - plan_2015 = plan.plan_for_2015
+            - if !plan_2015.blank?
+              - rate = plan_2015.rate(Date.new(2015,1,1), Date.new(2015,1,1), member.dob)
+              - if !rate.nil?
+                %n1:qhp_quote= render 'shared/plan_link_type', plan: plan_2015, rate: rate
+- if false #TODO
+  %n1:responsible_party_roles
+    %n1:responsible_party_role
+      %n1:id
+- if false #TODO
+  %n1:medicaid_roles
+    %n1:medicaid_role
+      %n1:id
+- if person.employee_roles.present?
+  %n1:employee_roles
+    - person.employee_roles.each do |enrollee|
+      %n1:employee_role
+        %n1:employer= render 'shared/employer_link_type', employer: enrollee.policy.employer
+        %n1:employment_status= "urn:openhbx:terms:v1:employment_status##{enrollee.employment_status_code}"
+        - if enrollee.coverage_start.present?
+          %n1:eligibility_start_date= enrollee.coverage_start.try(:strftime,"%Y%m%d")
+        - if enrollee.coverage_end.present?
+          %n1:eligibility_end_date= enrollee.coverage_end.try(:strftime,"%Y%m%d")
+        - if false #todo
+          %n1:employment_termination_date= enrollee.employment_termination_date.try(:strftime,"%Y%m%d")

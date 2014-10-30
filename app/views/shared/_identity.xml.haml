@@ -1,7 +1,6 @@
 %n1:id= id
-- if obj.class == "Person"
-  %n1:is_authoratative= obj.is_authoratative?
-  %n1:alias_ids
-  - person.members.each do |member|
-    %n1:alias_id
-      = render 'shared/identity', id: api_v1_people_url(hbx_id:member.hbx_member_id)
+%n1:hbx_id= 'urn:openhbx:terms:v1:hbx_cms_name#dc0'
+- if false
+  %n1:hbx_fein
+- if false
+  %n1:rating_area

@@ -1,16 +1,17 @@
-= render 'shared/identity', id: api_v1_application_group_url(group.id), obj: group
+= render 'shared/identity', id: api_v1_application_group_url(group.id)
+- if group.primary_applicant_id.present?
+  %n1:primary_applicant_id= group.primary_applicant_id
+- if group.consent_applicant_id.present?
+  %n1:consent_applicant_id= group.consent_applicant_id
+- if group.consent_renewal_year.present?
+  %n1:consent_renewal_year= group.consent_renewal_year
+- if group.coverage_renewal_year.present?
+  %n1:coverage_renewal_year= group.coverage_renewal_year
+- if group.e_case_id.present?
+  %n1:e_case_id= group.e_case_id
 %n1:applicants
   - group.person_ids.each do |p_id|
     %n1:applicant= render 'shared/individual_type', person: (Caches::CustomCache.lookup(Person, "ag_lookup", p_id) { Person.find(p_id) })
-- if group.primary_applicant_id.present?
-  %n1:primary_applicant_id= group.primary_applicant_id
-    %n1:id= api_v1_application_group_url(group.primary_applicant_id)
-- if group.e_case_id.present?
-  %n1:e_case_id= group.e_case_id
-- if group.consent_applicant_id.present?
-  %n1:renewal_consent_applicant_id= group.consent_applicant_id
-- if group.consent_renewal_year.present?
-  %n1:renewal_consent_through_year= group.consent_renewal_year
 - if group.households.empty? # fake household
   %n1:households
     %n1:household
@@ -20,7 +21,7 @@
     - group.households.each do |household|
       %n1:household
         = render 'shared/household_type', household: household
-- if false # TODO
+- if false # no sep info yet
   %n1:qualifying_life_events
     - group.special_enrollment_periods.each do |sep|
       %n1:qualifying_life_event
@@ -43,8 +44,7 @@
           %n1:notes
       = render 'shared/timestamp', record: sep
 %n1:submitted_date= group.submission_date
-- if group.is_active.present?
-  %n1:active_flag= group.is_active
+%n1:active_flag= group.is_active
 - unless group.comments.empty?
   = render 'shared/comments', object: group
 = render 'shared/timestamp', record: group

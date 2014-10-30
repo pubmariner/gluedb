@@ -1,12 +1,6 @@
-%n1:person_surname= object.name_last
-%n1:person_given_name= object.name_first
-- if object.name_middle.present?
-  %n1:person_middle_name= object.name_middle
-- if object.name_full.present?
-  %n1:person_full_name= object.name_full
-- if object.name_pfx.present?
-  %n1:person_name_prefix_text= object.name_pfx
-- if object.name_sfx.present?
-  %n1:person_name_suffix_text= object.name_sfx
-- if object.alternate_name.present?
-  %n1:person_alternate_name= object.alternate_name
+%n1:name_prefix= object.name_pfx
+%n1:name_first= object.name_first
+%n1:name_middle= object.name_middle
+%n1:name_last= object.name_last
+%n1:name_suffix= object.name_sfx
+%n1:name_full= object.name_full
