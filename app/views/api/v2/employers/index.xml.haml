@@ -1,0 +1,4 @@
+%n1:employers{"xmlns:n1" => "http://openhbx.org/api/terms/1.0", "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation" => "http://openhbx.org/api/terms/1.0 employer.xsd"}
+  - @employers.each do |employer|
+    %n1:employer
+      = render 'api/v1/employers/employer_detail', employer: employer

@@ -1,0 +1,18 @@
+= render 'shared/identity', id: nil
+%n1:name= broker.name_full
+- if false
+  %n1:dba
+- if false
+  %n1:display_name
+- if false
+  %n1:fein
+- if false
+  %n1:website
+- if broker.npn.present? # ?
+  %n1:extended_attributes
+    %n1:npn_id= broker.npn
+    - if false
+      %n1:tpa
+        %n1:tpa_name
+        %n1:tpa_fien
+= render 'shared/timestamp', record: broker

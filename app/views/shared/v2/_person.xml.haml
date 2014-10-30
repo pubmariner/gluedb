@@ -1,0 +1,20 @@
+= render 'shared/identity', id: api_v1_person_url(person.id), obj: person
+%n1:person_name
+  = render 'shared/name', object: person
+- if person.job_title.present?
+  %n1:job_title= person.job_title
+- if person.department.present?
+  %n1:department= person.department
+- unless person.addresses.empty?
+  %n1:addresses
+    - person.addresses.each do |address|
+      = render 'shared/address', address: address
+- unless person.emails.empty?
+  %n1:emails
+    - person.emails.each do |email|
+      = render 'shared/email', email: email
+- unless person.phones.empty?
+  %n1:phones
+    - person.phones.each do |phone|
+      = render 'shared/phone', phone: phone
+= render 'shared/timestamp', record: person

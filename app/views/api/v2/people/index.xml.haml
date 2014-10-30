@@ -1,0 +1,4 @@
+%n1:individuals{"xmlns:n1" => "http://openhbx.org/api/terms/1.0", "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation" => "http://openhbx.org/api/terms/1.0 individual.xsd"}
+  - @people.each do |person|
+    %n1:individual
+      = render 'shared/individual_type', person: person

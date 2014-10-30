@@ -1,0 +1,28 @@
+= render 'shared/identity', id: api_v1_household_url(household.id)
+-if household.irs_group_id.present?
+  %n1:irs_group_id= household.irs_group_id
+-if household.e_pdc_id.present?
+  %n1:e_pdc_id= household.e_pdc_id
+%n1:primary_applicant_id= household.primary_applicant_id
+%n1:type= household.kind
+%n1:size= household.people.count
+%n1:head_of_household= render 'shared/individual_link_type', person: household.head_of_household
+- members = household.people.reject { |p| p == household.head_of_household }
+- unless members.empty?
+  %n1:household_members
+    - members.each do |member|
+      %n1:household_member
+        = render 'shared/individual_link_type', person: member #qhp_participant_flag?
+- if household.total_income.present?
+  %n1:total_incomes
+    %n1:total_income= household.total_income
+- if household.csr_percent.present?
+  %n1:csr_percent= household.csr_percent
+- if household.max_aptc_in_cents.present?
+  %n1:maximum_aptc= household.max_aptc_in_cents_in_dollars
+- unless households.comments.empty?
+  = render 'shared/comments', object: household
+= render 'shared/timestamp', record: household
+%n1:status_code= household.eligibility_status_code
+%n1:submitted_date= household.submission_date
+%n1:active_flag= household.is_active
