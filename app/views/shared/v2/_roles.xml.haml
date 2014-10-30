@@ -14,7 +14,7 @@
     %n1:employee_sponsored_roles
       - person.employee_roles.each do |enrollee|
         %n1:employee_sponsored_role
-          %n1:employer= render 'shared/employer_link_type', employer: enrollee.policy.employer
+          %n1:employer= render 'shared/v2/employer_link_type', employer: enrollee.policy.employer
           %n1:employment_status= "urn:openhbx:terms:v1:employment_status##{enrollee.employment_status_code}"
           - if enrollee.coverage_start.present?
             %n1:eligibility_start_date= enrollee.coverage_start.try(:strftime,"%Y%m%d")
@@ -26,8 +26,8 @@
   - if policies.present?
     %n1:policies
       - policies.each do |policy|
-        %n1:policy= render 'shared/policy_link_type', policy: policy, member: member
+        %n1:policy= render 'shared/v2/policy_link_type', policy: policy, member: member
   %n1:is_active= person.is_active
   - unless person.comments.empty?
-    = render 'shared/comments', object: person
-  = render 'shared/timestamp', record: person
+    = render 'shared/v2/comments', object: person
+  = render 'shared/v2/timestamp', record: person

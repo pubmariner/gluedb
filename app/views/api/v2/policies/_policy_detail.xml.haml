@@ -1,22 +1,22 @@
-= render 'shared/identity', id: api_v1_policy_url(policy.id)
+= render 'shared/v2/identity', id: api_v1_policy_url(policy.id)
 - broker = policy.broker
 - if broker.present?
-  = render 'shared/broker_link_type', broker: policy.broker
+  = render 'shared/v2/broker_link_type', broker: policy.broker
 %n1:enrollees
   %n1:subscriber
-    = render 'shared/enrollee', enrollee: policy.subscriber
+    = render 'shared/v2/enrollee', enrollee: policy.subscriber
   - members = policy.enrollees_sans_subscriber
   - if members.present?
     %n1:members
       - members.each do |enrollee|
         %n1:member
-          = render 'shared/enrollee', enrollee: enrollee
+          = render 'shared/v2/enrollee', enrollee: enrollee
 - if policy.responsible_party.present?
   %n1:responsible_party
-    = render 'shared/person', person: policy.responsible_party.person
+    = render 'shared/v2/person', person: policy.responsible_party.person
 %n1:enrollment
   %n1:plan
-    = render 'shared/plan_link_type', plan: policy.plan, rate: nil
+    = render 'shared/v2/plan_link_type', plan: policy.plan, rate: nil
   - if policy.market == 'individual'
     %n1:individual_market
       %n1:carrier_to_bill_flag= policy.carrier_to_bill
@@ -26,10 +26,10 @@
       %n1:other_payment_amount
   - elsif policy.market == 'shop'
     %n1:shop_market
-      %n1:employer_link= render 'shared/employer_link_type', employer: policy.employer
+      %n1:employer_link= render 'shared/v2/employer_link_type', employer: policy.employer
       %n1:total_employer_responsible_amount= policy.tot_emp_res_amt
   %n1:premium_amount_total= policy.pre_amt_tot
   %n1:total_responsible_amount= policy.tot_res_amt
 %n1:policy_state= "urn:openhbx:terms:v1:policy_state##{policy.aasm_state}"
 %n1:request_submitted_timestamp
-= render 'shared/timestamp', record: policy
+= render 'shared/v2/timestamp', record: policy

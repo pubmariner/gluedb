@@ -1,10 +1,10 @@
-= render 'shared/identity', id: api_v1_people_url(hbx_id: person.authority_member_id), obj: person
+= render 'shared/v2/identity', id: api_v1_people_url(hbx_id: person.authority_member_id), obj: person
 - if person.application_group_id.present?
-  %n1:application_group_id= render 'shared/identity', id: api_v1_application_group_url(person.application_group_id), obj: nil
+  %n1:application_group_id= render 'shared/v2/identity', id: api_v1_application_group_url(person.application_group_id), obj: nil
 - if false #TODO
   %n1:tax_household_id
 %n1:person
-  = render 'shared/person', person: person
+  = render 'shared/v2/person', person: person
 
 
 
@@ -16,12 +16,12 @@
   %n1:aliases
     - person.members.each do |member|
       %n1:alias
-        = render 'shared/identity', id: api_v1_people_url(hbx_id:member.hbx_member_id), obj: person
+        = render 'shared/v2/identity', id: api_v1_people_url(hbx_id:member.hbx_member_id), obj: person
         %n1:is_authoritative= member.authority?
 
-= render 'shared/relationships', person: person
-= render 'shared/person_demographics', member: person.authority_member
-= render 'shared/roles', person: person
+= render 'shared/v2/relationships', person: person
+= render 'shared/v2/person_demographics', member: person.authority_member
+= render 'shared/v2/roles', person: person
 - unless person.responsible_parties.empty?
   %n1:responsible_party_roles
     - person.responsible_parties.each do |responsible_party|
@@ -32,7 +32,7 @@
         - if policies.present?
           %n1:policies
             - policies.each do |policy|
-              %n1:policy= render 'shared/policy_link_type', policy: policy, member: member
+              %n1:policy= render 'shared/v2/policy_link_type', policy: policy, member: member
 - if authority_member.hlh.present?
   %n1:person_health
     %n1:tobacco_user= authority_member.hlh
@@ -93,5 +93,5 @@
         %n1:submission_date=assistance_eligibility.submission_date
 %n1:is_active= person.is_active
 - unless person.comments.empty?
-  = render 'shared/comments', object: person
-= render 'shared/timestamp', record: person
+  = render 'shared/v2/comments', object: person
+= render 'shared/v2/timestamp', record: person

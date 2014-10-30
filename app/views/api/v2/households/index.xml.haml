@@ -1,3 +1,3 @@
 %n1:households{"xmlns:n1" => "http://openhbx.org/api/terms/1.0", "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation" => "http://openhbx.org/api/terms/1.0 individual.xsd"}
   - @households.each do |household|
-    %n1:household= render 'shared/household_type', household: household
+    %n1:household= render 'shared/v2/household_type', household: household

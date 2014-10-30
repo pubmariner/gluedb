@@ -1,7 +1,7 @@
-= render 'shared/identity', id: api_v1_application_group_url(group.id), obj: group
+= render 'shared/v2/identity', id: api_v1_application_group_url(group.id), obj: group
 %n1:applicants
   - group.person_ids.each do |p_id|
-    %n1:applicant= render 'shared/individual_type', person: (Caches::CustomCache.lookup(Person, "ag_lookup", p_id) { Person.find(p_id) })
+    %n1:applicant= render 'shared/v2/individual_type', person: (Caches::CustomCache.lookup(Person, "ag_lookup", p_id) { Person.find(p_id) })
 - if group.primary_applicant_id.present?
   %n1:primary_applicant_id
     %n1:id= api_v1_application_group_url(group.primary_applicant_id)
@@ -14,17 +14,17 @@
 - if group.households.empty? # fake household
   %n1:households
     %n1:household
-      = render "shared/application_group_as_household", application_group: group
+      = render "shared/v2/application_group_as_household", application_group: group
 - unless group.households.empty?
   %n1:households
     - group.households.each do |household|
       %n1:household
-        = render 'shared/household_type', household: household
+        = render 'shared/v2/household_type', household: household
 - if false # TODO
   %n1:qualifying_life_events
     - group.special_enrollment_periods.each do |sep|
       %n1:qualifying_life_event
-        = render 'shared/identity', id: sep.id
+        = render 'shared/v2/identity', id: sep.id
         %n1:kind= "urn:dc0:terms:v1:qualifying_life_event##{sep.reason}"
         %n1:event_date= #TODO
         - if false
@@ -41,10 +41,10 @@
             %n1:notes
         - if false
           %n1:notes
-      = render 'shared/timestamp', record: sep
+      = render 'shared/v2/timestamp', record: sep
 %n1:submitted_date= group.submission_date
 - if group.is_active.present?
   %n1:active_flag= group.is_active
 - unless group.comments.empty?
-  = render 'shared/comments', object: group
-= render 'shared/timestamp', record: group
+  = render 'shared/v2/comments', object: group
+= render 'shared/v2/timestamp', record: group

@@ -1,4 +1,4 @@
-= render 'shared/identity', id: nil
+= render 'shared/v2/identity', id: nil
 %n1:name= broker.name_full
 - if false
   %n1:dba
@@ -15,4 +15,4 @@
       %n1:tpa
         %n1:tpa_name
         %n1:tpa_fien
-= render 'shared/timestamp', record: broker
+= render 'shared/v2/timestamp', record: broker

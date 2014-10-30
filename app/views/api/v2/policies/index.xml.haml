@@ -1,4 +1,4 @@
 %n1:policies{"xmlns:n1" => "http://openhbx.org/api/terms/1.0", "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation" => "http://openhbx.org/api/terms/1.0 policy.xsd"}
   - @policies.each do |policy|
     %n1:policy
-      = render 'api/v1/policies/policy_detail', policy: policy
+      = render 'api/v2/policies/policy_detail', policy: policy

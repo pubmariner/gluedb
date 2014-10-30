@@ -1,4 +1,4 @@
-= render 'shared/identity', id: api_v1_employer_url(employer.id)
+= render 'shared/v2/identity', id: api_v1_employer_url(employer.id)
 %n1:name= employer.name
 - if false
   %n1:dba
@@ -6,7 +6,7 @@
 - if employer.sic_code.present?
   %n1:sic_code= employer.sic_code
 - if employer.broker.present?
-  %n1:broker= render 'shared/broker_link_type', broker: employer.broker
+  %n1:broker= render 'shared/v2/broker_link_type', broker: employer.broker
 %n1:fte_count= employer.fte_count
 %n1:pte_count= employer.pte_count
 %n1:open_enrollment_start= employer.open_enrollment_start.try(:strftime,"%Y%m%d")
@@ -19,11 +19,11 @@
   - employer.elected_plans.each do |elected_plan|
     - plan = elected_plan.plan
     %n1:plan
-      = render 'shared/identity', id: elected_plan.id
+      = render 'shared/v2/identity', id: elected_plan.id
       %n1:qhp_id= elected_plan.qhp_id
       %n1:name= elected_plan.plan_name
       %n1:is_dental_only_flag= plan.coverage_type == 'dental'
-      %n1:carrier= render 'shared/carrier_link_type', carrier: carrier_cache[elected_plan.carrier_id]
+      %n1:carrier= render 'shared/v2/carrier_link_type', carrier: carrier_cache[elected_plan.carrier_id]
       %n1:coverage_type= "urn:openhbx:terms:v1:benefit_coverage##{plan.coverage_type}"
       %n1:metal_level= "urn:openhbx:terms:v1:plan_metal_level##{plan.metal_level.downcase}"
       - if plan.market_type.present?
@@ -36,7 +36,7 @@
 %n1:contacts
   - 1.times do
     %n1:contact
-      = render 'shared/person', person: employer
+      = render 'shared/v2/person', person: employer
 - if employer.notes.present?
   %n1:notes= employer.notes
 - if employer.notes.present?
