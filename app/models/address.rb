@@ -4,7 +4,7 @@ class Address
 
   include MergingModel
 
-  TYPES = %W(home work billing)
+  TYPES = %W(home work mailing)
 
   field :address_type, type: String
   field :address_1, type: String
