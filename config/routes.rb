@@ -95,6 +95,7 @@ Gluedb::Application.routes.draw do
   resources :carriers do
     resources :plans
     get :show_plans
+    get :plan_years
     post :calculate_premium, on: :collection
   end
 

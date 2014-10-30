@@ -20,9 +20,13 @@ class CarriersController < ApplicationController
 
   def show_plans
     @carrier = Carrier.find(params[:carrier_id])
-    @plans = @carrier.plans.only(:name,:hios_plan_id).by_name
+    @plans = @carrier.plans.where({year: params[:plan_year]})
+    render json: @plans.only(:name,:hios_plan_id).by_name
+  end
 
-    render json: @plans
+  def plan_years
+    years = Plan.all.distinct('year')
+    render json: years.sort.reverse
   end
 
   def calculate_premium

@@ -20,7 +20,17 @@
               <%= label_tag "Select Carrier" %>
             </div>
             <div class="col-sm-3">
-              <%= select_tag "Carriers", options_from_collection_for_select(@carriers, "id", "name"), prompt: "Nothing Selected", class: "select select-primary", data: { toggle: "select"} =%>
+              <%= select_tag "carriers", options_from_collection_for_select(@carriers, "id", "name"), prompt: "Nothing Selected", class: "select select-primary", data: { toggle: "select"} =%>
+            </div>
+          </div>
+
+          <div class="row">
+            <br>
+            <div class="col-sm-2 text-center">
+              <%= label_tag "Select Plan Year"%>
+            </div>
+            <div class="col-sm-3">
+              <%= select_tag "plan-years", {prompt: "Nothing Selected"}, class: "select select-primary" =%>
             </div>
           </div>
 
@@ -30,7 +40,7 @@
               <%= label_tag "Select Plan"%>
             </div>
             <div class="col-sm-3">
-              <%= select_tag "Plans", {}  ,class: "select select-primary" =%>
+              <%= select_tag "plans", {}  ,class: "select select-primary" =%>
             </div>
           </div>
           <br>
