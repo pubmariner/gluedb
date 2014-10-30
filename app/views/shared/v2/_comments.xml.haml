@@ -1,0 +1,7 @@
+%n1:comments
+    - object.comments.each do |comment|
+      %n1:commment
+        %n1:content= comment.content
+        %n1:author= comment.author
+        %n1:date= comment.date
+        %n1:is_priority= comment.is_priority

@@ -6,10 +6,8 @@ class ApplicationGroup
   field :is_active, type: Boolean, default: true   # ApplicationGroup active on the Exchange?
 
   field :primary_applicant_id, type: String     # Person responsible for this application group
-  field :consent_applicant_id, type: String     # Person who authorizes auto-renewal eligibility check
-  field :consent_applicant_name, type: String
-  field :consent_renewal_year, type: Integer    # Authorize auto-renewal elibility check through this year (CCYY format)
-  field :coverage_renewal_year, type: String    # Temporary field to indicate whether IRS consent was granted
+  field :consent_applicant_id, type: String     # Person who authorizes auto-renewal eligibility check renewal_consent_applicant_id
+  field :consent_renewal_year, type: Integer    # Authorize auto-renewal elibility check through this year (CCYY format) renewal_consent_through_year
   field :submission_date, type: Date            # Date application was created on authority system
 
   field :notice_generated, type: Boolean, default: true
@@ -24,7 +22,7 @@ class ApplicationGroup
   index({submission_date:  1})
 
   # TODO: An application can have only one kind of each Household active, except UQHP, where >1 may be active
-  # Create validation for this rule 
+  # Create validation for this rule
   has_and_belongs_to_many :people, :inverse_of => nil
   index({:person_ids => 1})
 
@@ -60,7 +58,7 @@ class ApplicationGroup
 
   def people_relationship_map
     map = Hash.new
-    people.each do |person|      
+    people.each do |person|
       map[person] = person_relationships.detect { |r| r.object_person == person.id }.relationship_kind
     end
     map

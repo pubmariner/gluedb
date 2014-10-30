@@ -1,0 +1,8 @@
+= render 'shared/v2/identity', id: api_v1_policy_url(policy.id), obj: policy
+- plan = (Caches::MongoidCache.lookup(Plan, policy.plan_id) { policy.plan })
+%n1:plan_name= plan.name
+%n1:hbx_plan_id= plan.hbx_plan_id
+%n1:hois_id= plan.hios_plan_id
+%n1:market= "urn:openhbx:terms:v1:aca_marketplace##{plan.market_type}"
+%n1:policy_state= "urn:openhbx:terms:v1:policy_state##{policy.aasm_state}"
+= render 'shared/v2/timestamp', record: policy

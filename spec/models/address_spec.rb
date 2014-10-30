@@ -33,7 +33,7 @@ describe Address do
         end
       end
 
-      ['home', 'work', 'mailing'].each do |type|
+      ['home', 'work', 'billing'].each do |type|
         context('when ' + type) do
           before { address.address_type = type}
           it 'is valid' do
