@@ -3,7 +3,7 @@ puts "Loading Employers"
 # Employer.collection.drop
 require 'csv'
 
-Employer.collection.where.update_all({"$set" => {"elected_plans"=> []}})
+PlanYear.collection.where.delete_all
 glob_pat = File.join(File.dirname(__FILE__), "employer_groups", "*.xml")
 
 Dir.glob(glob_pat).each do |f|
