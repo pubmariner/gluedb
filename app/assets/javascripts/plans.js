@@ -5,6 +5,8 @@ $(document).ready(function() {
   $('#carriers').change(function(e) {    
     $('#plans').prop('disabled', true);
     $('#plan-years').prop('disabled', false);
+    $('#plans').empty();
+    $('#plan-years').empty();
     var id = $('#carriers').val();
     $.getJSON('/carriers/'+ id +'/plan_years', function(data) {
       $.each(data, function(key, value) {
