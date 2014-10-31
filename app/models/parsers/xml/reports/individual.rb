@@ -14,7 +14,8 @@ module Parsers::Xml::Reports
     end
 
     def id
-      @root.at_xpath("n1:person/n1:id").text.match(/\w+$/)[0] 
+      person_id = @root.at_xpath("n1:person/n1:id").text
+      person_id.match(/\w+$/)[0]
     end
 
     def name_first
@@ -38,7 +39,8 @@ module Parsers::Xml::Reports
     end
 
     def dob
-      Date.parse(@root.at_xpath("n1:hbx_roles/n1:qhp_roles/n1:qhp_role/n1:dob").text)
+      date_of_birth = @root.at_xpath("n1:hbx_roles/n1:qhp_roles/n1:qhp_role/n1:dob").text
+      return Date.parse(date_of_birth)
     end
 
     def age
@@ -62,26 +64,23 @@ module Parsers::Xml::Reports
     end
 
     def employers
-      employers = []
-      @root.xpath("n1:hbx_roles/n1:employee_roles/n1:employee_role").each do |ele|
-         employers << ele.at_xpath('n1:employer/n1:id').text
+      @root.xpath("n1:hbx_roles/n1:employee_roles/n1:employee_role").inject([]) do |employers, ele|
+        employers << ele.at_xpath('n1:employer/n1:id').text
       end
-      employers
     end
 
     def incarcerated
-      return "No" if @root.at_xpath("n1:incarcerated_flag").nil?
-      @root.at_xpath("n1:incarcerated_flag").text == "false" ? "No" : "Yes"
+      incarcerated = @root.at_xpath("n1:incarcerated_flag")
+      incarcerated && incarcerated.text == 'true' ? 'Yes' : 'No'
     end
 
     def projected_income
       nil # @root.at_xpath("n1:financial/n1:incomes/n1:income/n1:amount").text
     end
 
-    # Can we use is_state_resident flag?
     def residency
       return if addresses[0].nil?
-      addresses[0][:state].strip == "DC" ? "D.C. Resident" : "Not a D.C. Resident"
+      addresses[0][:state].strip == 'DC' ? 'D.C. Resident' : 'Not a D.C. Resident'
     end
 
     def citizenship
@@ -104,25 +103,26 @@ module Parsers::Xml::Reports
     end
 
     def mec
-      benefits = "No"
+      benefits = 'No'
       es_coverage = assistance_eligibility.at_xpath("n1:is_enrolled_for_es_coverage").text
-      if es_coverage == "true"
-        return "Yes"
-      end
+      return 'Yes' if es_coverage == 'true'
       assistance_eligibility.xpath("n1:alternate_benefits/n1:alternate_benefit").each do |benefit|
         if Date.strptime(benefit.at_xpath("n1:end_date"), "%Y%m%d") <= Date.parse("2015-1-1")
-          benefits = "Yes"
+          benefits = 'Yes'
           break
         end
       end
-      return benefits  
+      return benefits
+    end
+
+    def income_amt(income)
+      amount = income.at_xpath("n1:total_income").text.to_f
+      printf("%.2f", amount)
     end
 
     def yearwise_incomes(year)
-      incomes = {}
-      assistance_eligibility.xpath("n1:total_incomes/n1:total_income").each do |income|
-        amount = income.at_xpath("n1:total_income").text.to_f
-        incomes[income.at_xpath("n1:calendar_year").text] = sprintf("%.2f", amount)
+      incomes = assistance_eligibility.xpath("n1:total_incomes/n1:total_income").inject({}) do |incomes, income|
+        incomes[income.at_xpath("n1:calendar_year").text] = income_amt(income)
       end
       incomes[year]
     end
@@ -131,27 +131,26 @@ module Parsers::Xml::Reports
       tax_status = assistance_eligibility.at_xpath("n1:tax_filing_status").text
 
       case tax_status
-      when "non_filer"
-        "Non-filer"
-      when "tax_dependent"
-        "Tax Dependent"
-      when "tax_filer"
-        if relationships.detect{|relationship| ["spouse","life partner"].include?(relationship)}
-          tax_filing_together? ? "Married Filing Jointly" : "Married Filing Separately"
-        else
-          "Single" 
-        end
+      when 'non_filer'
+        'Non-filer'
+      when 'tax_dependent'
+        'Tax Dependent'
+      when 'tax_filer'
+         tax_filer_status
       else
       end
     end
 
+    def tax_filer_status
+      relationship = relationships.detect{|relationship| ['spouse', 'life partner'].include?(relationship)}
+      return 'Single' if relationship.blank?
+      tax_filing_together? ? 'Married Filing Jointly' : 'Married Filing Separately'
+    end
+
     def relationships
-      return [] if @root.at_xpath("n1:relationships/n1:relationship/n1:relationship_uri").nil?
-      relationships = []
-      @root.xpath("n1:relationships/n1:relationship").each do |relation|
+      @root.xpath("n1:relationships/n1:relationship").inject([]) do |relationships, relation|
         relationships << relation.at_xpath("n1:relationship_uri").text.split("#")[1]
       end
-      relationships
     end
 
     def tax_filing_together?
@@ -159,33 +158,20 @@ module Parsers::Xml::Reports
     end
 
     def policies
-      policies = []
-      @root.xpath("n1:hbx_roles/n1:qhp_roles/n1:qhp_role/n1:policies/n1:policy").each do |policy|
-        policies << policy
-      end
-      policies
+      @root.xpath("n1:hbx_roles/n1:qhp_roles/n1:qhp_role/n1:policies/n1:policy")
+    end
+
+    def plan_by_coverage_type(type)
+      policy = policies.detect{|policy| policy.at_xpath("n1:plan/n1:coverage_type").text.split("#")[1] == type}
+      policy.at_xpath("n1:plan/n1:name").text if policy
     end
 
     def health_plan
-      if policy = policy_by_type("health")
-        policy.at_xpath("n1:plan/n1:name").text
-      end
+      plan_by_coverage_type("health")
     end
 
     def dental_plan
-      if policy = policy_by_type("dental")
-        policy.at_xpath("n1:plan/n1:name").text
-      end
+      plan_by_coverage_type("dental")
     end
-
-    private
-
-    def policy_by_type(type)
-      policies.each do |policy|
-        coverage = policy.at_xpath("n1:plan/n1:coverage_type").text
-        return policy if coverage.split("#")[1] == type
-      end
-      nil
-    end        
   end
 end
