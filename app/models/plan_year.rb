@@ -1,7 +1,7 @@
 class PlanYear
   include Mongoid::Document
   include Mongoid::Timestamps
-  include Mongoid::Versioning
+#  include Mongoid::Versioning
   include MergingModel
 
   field :start_date, type: Date
@@ -36,11 +36,12 @@ class PlanYear
     plan_year.broker = Broker.find_by_npn(data[:broker_npn])
     plan_year.fte_count = data[:fte_count]
     plan_year.pte_count = data[:pte_count]
+    e_plans = []
 
     data[:plans].each do |plan_data|
       plan = Plan.find_by_hios_id_and_year(plan_data[:qhp_id], plan_year.start_date.year)
       raise plan_data[:qhp_id].inspect if plan.nil?
-      plan_year.elected_plans << ElectedPlan.new(
+      e_plans << ElectedPlan.new(
         :carrier_id => plan.carrier_id,
         :qhp_id => plan_data[:qhp_id],
         :coverage_type => plan_data[:coverage_type],
@@ -52,7 +53,7 @@ class PlanYear
         :carrier_employer_group_id => plan_data[:group_id]
       )
     end
-    
+    plan_year.elected_plans.concat(e_plans)
     plan_year
   end
 

@@ -1,7 +1,7 @@
 class ElectedPlan
   include Mongoid::Document
   include Mongoid::Timestamps
-  include Mongoid::Paranoia
+#  include Mongoid::Paranoia
 
   include MergingModel
   embedded_in :plan_year

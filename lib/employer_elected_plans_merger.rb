@@ -21,6 +21,7 @@ module EmployerElectedPlansMerger
           :original_effective_date,
           :renewal_effective_date)
       end
+      existing_plan.touch
     end
     existing.save!
   end

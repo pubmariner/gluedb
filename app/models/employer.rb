@@ -45,7 +45,7 @@ class Employer
 
   has_many :employees, class_name: 'Person', order: {name_last: 1, name_first: 1}
   has_many :premium_payments, order: { paid_at: 1 }
-  has_and_belongs_to_many :carriers, order: { name: 1 }
+  has_and_belongs_to_many :carriers, order: { name: 1 }, inverse_of: nil
   has_and_belongs_to_many :plans, order: { name: 1, hios_plan_id: 1 }
 
   has_many :policies
@@ -203,8 +203,8 @@ class Employer
   end
 
   def update_carriers(existing)
-    incoming_carriers = existing.elected_plans.map { |ep| ep.plan.carrier }
-    self.carriers = (self.carriers + incoming_carriers).uniq
+    incoming_carriers = existing.elected_plans.map { |ep| ep.plan.carrier_id }
+    self.carrier_ids = (self.carrier_ids.to_a + incoming_carriers).uniq
   end
 
   def update_all_elected_plans(carrier, g_id)
