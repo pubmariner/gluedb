@@ -1,0 +1,15 @@
+- person = enrollee.person
+%n1:individual
+  = render 'shared/v2/identity', id: api_v1_person_url(person.id)
+  %n1:person
+    = render 'shared/v2/person', person: person
+  = render 'shared/v2/relationships', person: person
+  = render 'shared/v2/roles', person: person
+  - if false
+    %n1:other_coverage
+  = render 'shared/v2/timestamp', record: person
+%n1:employment_status= "urn:openhbx:terms:v1:employment_status##{enrollee.emp_stat}"
+%n1:physically_disabled_flag= enrollee.ds
+- if enrollee.ben_stat.present?
+  %n1:benefit_status= "urn:openhbx:terms:v1:benefit_status##{enrollee.ben_stat}"
+%n1:benefit= render 'shared/v2/enrollee_benefit_type', enrollee: enrollee

@@ -8,12 +8,13 @@ class Broker
   extend Mongorder
 
   field :b_type, type: String
-  field :name_pfx, type: String, default: ""
-  field :name_first, type: String
+  field :name_pfx, as: :prefix, type: String, default: ""
+  field :name_first, as: :given_name, type: String
   field :name_middle, type: String, default: ""
-  field :name_last, type: String
-  field :name_sfx, type: String, default: ""
+  field :name_last, as: :surname, type: String
+  field :name_sfx, as: :suffix, type: String, default: ""
   field :name_full, type: String
+  field :alternate_name, type: String, default: ""
   field :npn, type: String
 
   has_many :policies, order: {name_last: 1, name_first: 1}

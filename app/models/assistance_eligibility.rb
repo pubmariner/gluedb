@@ -5,7 +5,7 @@ class AssistanceEligibility
   include Mongoid::Timestamps
 
   TAX_FILING_STATUS_TYPES = %W(tax_filer tax_dependent non_filer)
-  
+
   field :is_primary_applicant, type: Boolean, default: false
   # field :is_enrolled_for_coverage, type: Boolean  # Coverage or HH eligibility determination only
 
@@ -31,8 +31,8 @@ class AssistanceEligibility
   accepts_nested_attributes_for :deductions
   accepts_nested_attributes_for :alternate_benefits
 
-  validates :tax_filing_status, 
-    inclusion: { in: TAX_FILING_STATUS_TYPES, message: "%{value} is not a valid tax filing status" }, 
+  validates :tax_filing_status,
+    inclusion: { in: TAX_FILING_STATUS_TYPES, message: "%{value} is not a valid tax filing status" },
     allow_blank: true
 
   def is_receiving_benefit?

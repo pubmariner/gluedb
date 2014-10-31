@@ -14,7 +14,10 @@ class Person
   field :name_last, type: String
   field :name_sfx, type: String, default: ""
   field :name_full, type: String
+  field :alternate_name, type: String, default: ""
   field :updated_by, type: String, default: "system_service"
+  field :job_title, type: String, default: ""
+  field :department, type: String, default: ""
   field :is_active, type: Boolean, default: true
 
   field :authority_member_id, type: String, default: nil
@@ -95,6 +98,10 @@ class Person
 
     # Then we proceed normally
     self.update_attributes(props)
+  end
+
+  def is_authoritative?
+    self.members.any?{|m| m.authority?}
   end
 
   def is_authority_member?(m_id)

@@ -1,0 +1,5 @@
+%n1:employment_status
+%n1:hbx_uri= person_url(employee, format: :xml)
+%n1:hbx_id= employee.authority_member_id
+%n1:eligibility_start_date= employee.employer.open_enrollment_start.try(:strftime,"%Y%m%d")
+%n1:eligibility_end_date= employee.employer.open_enrollment_end.try(:strftime,"%Y%m%d")

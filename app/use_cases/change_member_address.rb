@@ -23,13 +23,13 @@ class ChangeMemberAddress
       listener.no_such_person({:person_id => request[:person_id]})
       return false
     end
-    
+
     new_address = @address_repo.new(
-      address_type: request[:type], 
-      address_1: request[:address1], 
-      address_2: request[:address2], 
-      city: request[:city], 
-      state: request[:state], 
+      address_type: request[:type],
+      address_1: request[:address1],
+      address_2: request[:address2],
+      city: request[:city],
+      state: request[:state],
       zip: request[:zip]
     )
 
@@ -67,11 +67,11 @@ class ChangeMemberAddress
 
   def commit(request)
     new_address = @address_repo.new(
-      address_type: request[:type], 
-      address_1: request[:address1], 
-      address_2: request[:address2], 
-      city: request[:city], 
-      state: request[:state], 
+      address_type: request[:type],
+      address_1: request[:address1],
+      address_2: request[:address2],
+      city: request[:city],
+      state: request[:state],
       zip: request[:zip]
     )
 
@@ -110,7 +110,7 @@ class ChangeMemberAddress
       person.update_address(Address.new(new_address.attributes))
     end
   end
-  
+
   def count_policies_by_coverage_type(policies, type)
     count = 0
     policies.count do |policy|

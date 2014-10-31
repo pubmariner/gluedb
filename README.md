@@ -1,5 +1,5 @@
 #Gluedb
-
+*This document is intended for the internal development team.*
 
 ##Setup
 

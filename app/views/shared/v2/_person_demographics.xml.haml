@@ -1,0 +1,22 @@
+%n1:person_demographics
+  - if member.ssn.present?
+    %n1:ssn= member.ssn
+  %n1:sex= member.gender
+  %n1:birth_date= member.dob.try(:strftime,"%Y%m%d")
+  - if member.death_date.present?
+    %n1:death_date= member.death_date
+  - if member.lui.present?
+    %n1:language_code= member.lui
+  - if member.ethnicity.present?
+    %n1:ethnicity= member.ethnicity
+  - if member.race.present?
+    %n1:race= member.race
+  - if member.birth_location.present?
+    %n1:birth_location= member.birth_location
+  - if member.marital_status.present?
+    %n1:marital_status= member.marital_status
+  - if member.citizen_status.present?
+    %n1:citizenship_status= member.citizen_status
+  - if member.is_state_resident.present?
+    %n1:is_state_resident= member.is_state_resident
+= render 'shared/timestamp', record: member

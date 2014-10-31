@@ -114,6 +114,15 @@ Gluedb::Application.routes.draw do
       resources :households, :only => [:show, :index]
       resources :irs_reports, :only => [:index]
     end
+    namespace :v2 do
+      resources :events, :only => [:create]
+      resources :people, :only => [:show, :index]
+      resources :employers, :only => [:show, :index]
+      resources :policies, :only => [:show, :index]
+      resources :application_groups, :only => [:show, :index]
+      resources :households, :only => [:show, :index]
+      resources :irs_reports, :only => [:index]
+    end
   end
 
   resources :special_enrollment_periods, only: [:new, :create]
