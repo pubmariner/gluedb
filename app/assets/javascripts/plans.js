@@ -10,20 +10,21 @@ $(document).ready(function() {
       $.each(data, function(key, value) {
         $('#plan-years').append($('<option/>').attr("value", value).text(value));
       });
+      get_carrier_plans();
       $("#plan-years").select2({dropdownCssClass: 'show-select-search'});
     });
   })
 
   $('#plan-years').change(function(e) {
+    get_carrier_plans();
+  });
+
+  var get_carrier_plans = function() {
+    var carrier_id = $('#carriers').val();
+    var year = $('#plan-years').val();
     $('#plans').prop('disabled', false);
     $( "option[value|='']" ).remove();
     $(".btn[value='Calculate']").attr('class','btn btn-primary');
-    var carrier_id = $('#carriers').val();
-    var year = $('#plan-years').val();
-    get_carrier_plans(carrier_id, year)
-  });
-
-  var get_carrier_plans = function( carrier_id, year) {
     $.getJSON('/carriers/'+ carrier_id +'/show_plans',{plan_year: year}, function(data) {
       $('#plans').empty();
       $.each(data, function(key, value) {

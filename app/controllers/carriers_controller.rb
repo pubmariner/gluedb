@@ -30,7 +30,7 @@ class CarriersController < ApplicationController
   end
 
   def calculate_premium
-    plan = Plan.find(params[:Plans])
+    plan = Plan.find(params[:plans])
     rate_period_date = DateTime.strptime(params[:rate_period_date], '%m/%d/%Y')
     benefit_begin_date = DateTime.strptime(params[:benefit_begin_date], '%m/%d/%Y')
     birth_date = DateTime.strptime(params[:birth_date], '%m/%d/%Y')
