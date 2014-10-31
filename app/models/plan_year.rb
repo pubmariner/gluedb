@@ -14,6 +14,17 @@ class PlanYear
   belongs_to :employer
   belongs_to :broker
 
+  index({:employer_id => 1})
+  index({:broker_id => 1})
+  index({:start_date => 1})
+  index({:end_date => 1})
+  index({:employer_id => 1, :start_date => 1, :end_date => 1})
+  index({:start_date => 1, :end_date => 1})
+  index({:employer_id => 1, :open_enrollment_start => 1, :open_enrollment_end => 1})
+  index({:open_enrollment_start => 1, :open_enrollment_end => 1})
+  index({:open_enrollment_start => 1})
+  index({:open_enrollment_end => 1})
+
   embeds_many :elected_plans
 
   def self.make(data)
@@ -43,6 +54,16 @@ class PlanYear
     end
     
     plan_year
+  end
+
+  def update_group_ids(carrier_id, g_id)
+    plans_to_update = self.elected_plans.select do |ep|
+      ep.carrier_id == carrier_id
+    end
+    plans_to_update.each do |ep|
+      ep.carrier_employer_group_id = g_id
+      ep.touch
+    end
   end
 
   def match(other)
