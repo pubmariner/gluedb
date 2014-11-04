@@ -179,6 +179,9 @@ class Policy
     end
   end
 
+  def latest_transaction_date
+    (transaction_set_enrollments + csv_transactions).sort_by(&:submitted_at).last.submitted_at
+  end
 
   def edi_transaction_sets
     Protocols::X12::TransactionSetEnrollment.where({"policy_id" => self._id})

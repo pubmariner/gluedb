@@ -3,7 +3,7 @@ describe UpdatePolicyStatus do
   subject { UpdatePolicyStatus.new(policy_repo) }
 
   let(:policy_repo) { double(find_by_id: policy) }
-  let(:policy) { Policy.new(aasm_state: current_status, plan: plan, enrollees: enrollees) }
+  let(:policy) { Policy.new(aasm_state: current_status, plan: plan, enrollees: enrollees, transaction_set_enrollments: transactions) }
   let(:subscriber) { Enrollee.new(m_id: subscriber_id, relationship_status_code: 'self', coverage_status: subscriber_coverage_status, coverage_start: Date.today.prev_month ) }
   let(:subscriber_id) { '4321'}
   let(:person) { double(:is_authority_member? => true) }
@@ -19,6 +19,7 @@ describe UpdatePolicyStatus do
 
   let(:plan) { Plan.new(hios_plan_id: hios_plan_id) }
   let(:hios_plan_id) { '123456789-01'}
+  let(:transactions) { [] }
 
   let(:enrollees) { [subscriber] }
   let(:current_status) { 'effectuated' }
@@ -36,7 +37,8 @@ describe UpdatePolicyStatus do
       end_date: requested_end_date,
       subscriber_id: requested_subscriber_id,
       enrolled_count: requested_enrollee_count,
-      hios_plan_id: requested_hios_plan_id
+      hios_plan_id: requested_hios_plan_id,
+      attestation_date: request_attestation_date
     }.merge(failure_details.except(:policy_id))
   end
 
@@ -51,8 +53,10 @@ describe UpdatePolicyStatus do
     }
   }
 
-  let(:success_details) { failure_details }
+  let(:latest_transaction_date) { nil }
 
+  let(:success_details) { failure_details }
+  let(:request_attestation_date) { Date.today.to_s }
   let(:requested_status) { 'carrier_terminated' }
   let(:requested_begin_date) { Date.today.prev_month }
   let(:requested_end_date) { Date.today }
@@ -64,6 +68,7 @@ describe UpdatePolicyStatus do
     allow(subscriber).to receive(:person).and_return(person)
     if !policy.nil?
       allow(policy).to receive(:id).and_return(policy_guid)
+      allow(policy).to receive(:latest_transaction_date).and_return(latest_transaction_date)
     end
   end
 
@@ -72,6 +77,27 @@ describe UpdatePolicyStatus do
     expect(policy_repo).to receive(:find_by_id).with(request[:policy_id])
     expect(listener).not_to receive(:policy_not_found).with(request[:policy_id])
     subject.execute(request, listener)
+  end
+
+  context 'policy has no attestation_date' do
+    let(:request_attestation_date) { nil }
+
+    it "should fail and notify the listener" do
+      expect(listener).to receive(:invalid_attestation_date).with({ :attestation_date => request_attestation_date })
+      expect(listener).to receive(:fail)
+      subject.execute(request, listener)
+    end
+  end
+
+  context 'policy has enrollment transaction after attestation date' do
+    let(:request_attestation_date) { Date.today.prev_month.to_s }
+    let(:latest_transaction_date) { Date.today }
+
+    it 'should fail to update' do
+      expect(listener).to receive(:transaction_after_attestation).with(policy.latest_transaction_date, request[:attestation_date])
+      expect(listener).to receive(:fail)
+      subject.execute(request, listener)
+    end
   end
 
   it 'changes the policy status' do
@@ -232,14 +258,14 @@ describe UpdatePolicyStatus do
       let(:requested_end_date) { Date.today.prev_month }
 
       it 'sets all enrollee\'s end date' do
-        subject.execute(request, listener)  
+        subject.execute(request, listener)
 
         enrollees.each do |e|
           expect(e.coverage_end).to eq requested_end_date
         end
       end
 
-      it 'updates enrollee status' do 
+      it 'updates enrollee status' do
         subject.execute(request, listener)
 
         enrollees.each do |e|
@@ -260,14 +286,14 @@ describe UpdatePolicyStatus do
       let(:requested_end_date) { Date.today }
 
       it 'sets all enrollee\'s end date' do
-        subject.execute(request, listener)  
+        subject.execute(request, listener)
 
         enrollees.each do |e|
           expect(e.coverage_end).to eq requested_end_date
         end
       end
 
-      it 'updates enrollee status' do 
+      it 'updates enrollee status' do
         subject.execute(request, listener)
 
         enrollees.each do |e|
@@ -296,14 +322,14 @@ describe UpdatePolicyStatus do
 
 
       it 'sets enrollee\'s end date' do
-        subject.execute(request, listener)  
+        subject.execute(request, listener)
 
         enrollees.each do |e|
           expect(e.coverage_end).to eq requested_end_date
         end
       end
 
-      it 'updates enrollee status' do 
+      it 'updates enrollee status' do
         subject.execute(request, listener)
 
         enrollees.each do |e|
@@ -323,7 +349,7 @@ describe UpdatePolicyStatus do
             coverage_status: subscriber_coverage_status,
             coverage_start: subscriber_coverage_start,
             coverage_end: subscriber_coverage_end.prev_month
-          ) 
+          )
         end
 
         let(:enrollees) {[ subscriber, other_enrollee ]}
@@ -345,14 +371,14 @@ describe UpdatePolicyStatus do
       let(:requested_end_date) { Date.today }
 
       it 'sets enrollee\'s end date' do
-        subject.execute(request, listener)  
+        subject.execute(request, listener)
 
         enrollees.each do |e|
           expect(e.coverage_end).to eq requested_end_date
         end
       end
 
-      it 'updates enrollee status' do 
+      it 'updates enrollee status' do
         subject.execute(request, listener)
 
         enrollees.each do |e|
@@ -382,14 +408,14 @@ describe UpdatePolicyStatus do
 
 
       it 'sets enrollee\'s end date' do
-        subject.execute(request, listener)  
+        subject.execute(request, listener)
 
         enrollees.each do |e|
           expect(e.coverage_end).to eq requested_end_date
         end
       end
 
-      it 'updates enrollee status' do 
+      it 'updates enrollee status' do
         subject.execute(request, listener)
 
         enrollees.each do |e|
@@ -410,14 +436,14 @@ describe UpdatePolicyStatus do
       let(:requested_end_date) { Date.today.prev_month }
 
       it 'sets enrollee\'s end date' do
-        subject.execute(request, listener)  
+        subject.execute(request, listener)
 
         enrollees.each do |e|
           expect(e.coverage_end).to eq requested_end_date
         end
       end
 
-      it 'updates enrollee status' do 
+      it 'updates enrollee status' do
         subject.execute(request, listener)
 
         enrollees.each do |e|
