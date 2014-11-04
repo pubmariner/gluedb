@@ -23,6 +23,7 @@ class CarefirstPolicyUpdatesController < ApplicationController
       batch_id: @carefirst_policy_update[:batch_id],
       batch_index: @carefirst_policy_update[:batch_index],
       submitted_by: @carefirst_policy_update[:submitted_by],
+      attestation_date: @carefirst_policy_update[:attestation_date],
       body: @carefirst_policy_update[:body]
     }
 

@@ -16,13 +16,27 @@ class UpdatePolicyStatus
 
     if(policy.nil?)
       listener.policy_not_found(request[:policy_id])
-      failed = true
       listener.fail(failure_data)
       return
     end
 
+    attestation_date = (Maybe.new(request[:attestation_date]).fmap do |val|
+      Date.parse(val) rescue nil
+    end).value
+
     subscriber = policy.subscriber
     sub_person = subscriber.person
+
+    if attestation_date.blank?
+      listener.invalid_attestation_date({:attestation_date => request[:attestation_date]})
+      listener.fail(failure_data)
+      return
+    end
+
+    if ((!policy.latest_transaction_date.blank?) && policy.latest_transaction_date > attestation_date)
+      listener.transaction_after_attestation(policy.latest_transaction_date, request[:attestation_date])
+      failed = true
+    end
 
     if(policy.subscriber.m_id != request[:subscriber_id])
       listener.subscriber_id_mismatch({provided: request[:subscriber_id], existing: policy.subscriber.m_id})
@@ -51,7 +65,7 @@ class UpdatePolicyStatus
 
     if(!request[:end_date].nil? && request[:end_date] < request[:begin_date])
       listener.invalid_dates({begin_date: request[:begin_date], end_date: request[:end_date]})
-      failed = true 
+      failed = true
     end
 
     if(request[:status] == 'carrier_terminated')
