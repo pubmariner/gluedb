@@ -1,7 +1,10 @@
+=begin
 require 'rails_helper'
 require 'savon'
 
+
 describe Soap::V1::ApplicationGroupsController do
+
 
   before(:all) do
     @client = Savon::Client.new(wsdl: "http://localhost:3000/soap/v1/application_groups/wsdl?user_token=zUzBsoTSKPbvXCQsB4Ky")
@@ -77,3 +80,4 @@ describe Soap::V1::ApplicationGroupsController do
   end
 
 end
+=end
