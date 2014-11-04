@@ -32,7 +32,7 @@ describe EventParser do
     end
 
     it "should parse the correct message_body" do
-      expect(subject.message_body).to eql nil
+      expect(subject.message_body).to be_blank
     end
   end
 end
