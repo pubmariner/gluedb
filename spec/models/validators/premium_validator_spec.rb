@@ -12,7 +12,7 @@ describe Validators::PremiumValidator do
       allow(plan).to receive(:premium_for_enrollee).and_return(double(amount: 22.0))
 
       allow(change_request).to receive(:enrollees).and_return(
-        [ double(premium_amount: 666.66, name: 'Name') ]
+        [ double(premium_amount: 666.66, name: 'Name', rel_code: 'self') ]
       )
     end
     it 'notifies the listener' do
@@ -25,7 +25,7 @@ describe Validators::PremiumValidator do
     before do
       allow(plan).to receive(:premium_for_enrollee).and_return(double(amount: 22.0))
       allow(change_request).to receive(:enrollees).and_return(
-        [ double(premium_amount: 22.0, name: 'Name') ]
+        [ double(premium_amount: 22.0, name: 'Name', rel_code: 'self') ]
       )
     end
     it 'does not notify the listener' do
@@ -37,7 +37,8 @@ describe Validators::PremiumValidator do
   context 'when there are >5 enrollees' do
     before do
       enrollees = []
-      5.times { enrollees << double(age: 40, premium_amount: 22.0) }
+      enrollees << double(age: 40, premium_amount: 22.0, rel_code: 'self')
+      3.times { enrollees << double(age: 14, premium_amount: 22.0, rel_code: 'child') }
       enrollees << youngest
 
       allow(plan).to receive(:premium_for_enrollee).and_return(double(amount: 22.0))
@@ -45,7 +46,7 @@ describe Validators::PremiumValidator do
     end
 
     context 'and youngest isnt free' do
-      let(:youngest) { double(age: 1, premium_amount: 22.0, name: 'Name') }
+      let(:youngest) { double(age: 1, premium_amount: 22.0, name: 'Name', rel_code: 'child') }
       it 'notifies listener that the premium is incorrect' do
         expect(listener).to receive(:enrollee_has_incorrect_premium).with({name: 'Name', provided: 22.0, expected: 0})
         expect(validator.validate).to eq false
@@ -53,7 +54,7 @@ describe Validators::PremiumValidator do
     end
 
     context 'and youngest is free' do
-      let(:youngest) { double(age: 1, premium_amount: 0.0, name: 'Name') }
+      let(:youngest) { double(age: 1, premium_amount: 0.0, name: 'Name', rel_code: 'child') }
       it 'does NOT notifies listener that the premium is incorrect' do
         expect(listener).not_to receive(:enrollee_has_incorrect_premium)
         expect(validator.validate).to eq true

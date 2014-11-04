@@ -12,7 +12,11 @@ module Parsers::Xml::Enrollment
 
     def plan_year
       subscriber = Parsers::Xml::Enrollment::IndividualEnrollee.new(@enrollment_group.xpath('./ins:subscriber', @namespaces))
+      begin
       Date.parse(subscriber.rate_period_date).year
+      rescue
+        subscriber.rate_period_date.year
+      end
     end
 
     def premium_amount_total

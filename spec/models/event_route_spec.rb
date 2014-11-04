@@ -28,7 +28,7 @@ describe EventRoute do
 
     it "should resolve the correct exchange" do
       channel = double
-      allow(channel).to receive(:topic).with(exchange_name).and_return(topic_exchange)
+      allow(channel).to receive(:topic).with(exchange_name, {:durable => true}).and_return(topic_exchange)
       expect(subject.resolve_exchange(channel)).to eql(topic_exchange)
     end
   end
@@ -66,7 +66,7 @@ describe EventRoute, "populated from a url" do
 
     it "should resolve the correct exchange" do
       channel = double
-      allow(channel).to receive(:topic).with(exchange_name).and_return(topic_exchange)
+      allow(channel).to receive(:topic).with(exchange_name, {:durable => true}).and_return(topic_exchange)
       expect(subject.resolve_exchange(channel)).to eql(topic_exchange)
     end
 

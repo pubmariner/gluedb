@@ -24,7 +24,8 @@ describe Parsers::Edi::FindPolicy do
         carrier_id: '1234',
         hios_plan_id: '1234'
       }
-      policy = Policy.create(eg_id: subkeys[:eg_id], carrier_id: subkeys[:carrier_id], hios_plan_id: subkeys[:hios_plan_id])
+      plan = Plan.create!(:coverage_type => "health", :carrier_id => subkeys[:carrier_id], hios_plan_id: subkeys[:carrier_id], name: "da plan")
+      policy = Policy.create(eg_id: subkeys[:eg_id], carrier_id: subkeys[:carrier_id], plan: plan)
 
       listener = double
       find_policy = Parsers::Edi::FindPolicy.new(listener)
