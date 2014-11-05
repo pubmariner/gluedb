@@ -36,23 +36,23 @@ module Parsers::Xml::Reports
     end
 
     def build_person_details
-      @person_details = element_builder(@root.at_xpath("n1:person"))
+      @person_details = extract_elements(@root.at_xpath("n1:person"))
     end
 
     def person_demographics
-      @demographics = element_builder(@root.at_xpath("n1:person_demographics"))
+      @demographics = extract_elements(@root.at_xpath("n1:person_demographics"))
     end
 
     def person_financial_reports
-      @financial_reports = element_builder(@root.at_xpath("n1:financial_reports"))
+      @financial_reports = extract_elements(@root.at_xpath("n1:financial_reports"))
     end
 
     def person_relationships
-      @relationships = element_builder(@root.at_xpath("n1:person_relationships"))
+      @relationships = extract_elements(@root.at_xpath("n1:person_relationships"))
     end
 
     def person_health
-      @health = element_builder(@root.at_xpath("n1:person_health"))     
+      @health = extract_elements(@root.at_xpath("n1:person_health"))     
     end
 
     def id
@@ -173,12 +173,12 @@ module Parsers::Xml::Reports
 
     def extract_properties(node)
       node.elements.inject({}) do |data, node|
-        data[node.name.to_sym] = (node.elements.count.zero? ? node.text().strip() : element_builder(node))
+        data[node.name.to_sym] = (node.elements.count.zero? ? node.text().strip() : extract_elements(node))
         data
       end
     end
 
-    def element_builder(node)
+    def extract_elements(node)
       single_element = node.elements.detect{|node| node.elements.count.zero?}
       (single_element.nil? ? extract_collection(node) : extract_properties(node))
     end
