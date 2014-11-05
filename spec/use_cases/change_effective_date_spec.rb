@@ -4,7 +4,7 @@ describe ChangeEffectiveDate do
   subject(:change_effective_date) { ChangeEffectiveDate.new(transmitter, policy_repo) }
   let(:policy_repo) { double(where: double(first: policy)) }
   let(:policy) { double(id: '1234', enrollees: enrollees, save!: true, subscriber: subscriber, plan: plan, market: market, employer: employer, employer_contribution: 1.00, total_premium_amount: BigDecimal.new("100.0"), 'total_premium_amount=' => nil, 'employer_contribution=' => nil, 'total_responsible_amount=' => nil)}
-  let(:plan) { double(rate: looked_up_premium )}
+  let(:plan) { double(rate: looked_up_premium, year: 2014 )}
   let(:looked_up_premium) { double(amount: 123) }
   let(:market) { 'individual' }
   let(:employer) { nil }
@@ -95,12 +95,14 @@ describe ChangeEffectiveDate do
 
   context 'when policy is for shop market' do
     let(:market) { 'shop' }
-    let(:employer) { double(plan_year_start: Date.today.prev_year.prev_week)}
+    let(:plan_years) { [ double(:plan_year => 2014, :start_date => plan_year_start) ] }
+    let(:plan_year_start) { Date.today.prev_year.prev_week }
+    let(:employer) { double(plan_years: plan_years)}
 
     it "updates enrollees' premium based on the new effective_date and employer plan year start" do
       enrollees.each do |enrollee|
         new_effective_date = Date.parse(request[:effective_date])
-        expect(policy.plan).to receive(:rate).with(employer.plan_year_start, new_effective_date, enrollee.member.dob)
+        expect(policy.plan).to receive(:rate).with(plan_year_start, new_effective_date, enrollee.member.dob)
       end
 
       subject.execute(request, listener)

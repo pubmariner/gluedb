@@ -39,27 +39,27 @@ class Plan
   scope :by_name, order_by(name: 1, hios_plan_id: 1)
 
   def invalidate_find_cache
-    Rails.cache.delete("Plan/find/hios_plan_id.#{self.hios_plan_id}")
+#    Rails.cache.delete("Plan/find/hios_plan_id.#{self.hios_plan_id}")
     Rails.cache.delete("Plan/find/hios_plan_id.#{self.hios_plan_id}.#{self.year}")
     true
   end
 
   def self.find_by_hios_id_and_year(h_id, year)
-    Rails.cache.fetch("Plan/find/hios_plan_id.#{h_id}.#{year}") do
+#    Rails.cache.fetch("Plan/find/hios_plan_id.#{h_id}.#{year}") do
       Plan.where(
         :hios_plan_id => h_id,
         :year => year
       ).first
-    end
+#    end
   end
 
-  def self.find_by_hios_id(h_id)
-    Rails.cache.fetch("Plan/find/hios_plan_id.#{h_id}") do
-      Plan.where(
-        :hios_plan_id => h_id
-      ).first
-    end
-  end
+#  def self.find_by_hios_id(h_id)
+#    Rails.cache.fetch("Plan/find/hios_plan_id.#{h_id}") do
+#      Plan.where(
+#        :hios_plan_id => h_id
+#      ).first
+#    end
+#  end
 
   # Provide premium rate given the rate schedule, date coverage will start, and applicant age when coverage starts
   def rate(rate_period_date, benefit_begin_date, birth_date)

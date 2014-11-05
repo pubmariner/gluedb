@@ -1,3 +1,4 @@
+=begin
 require 'rails_helper'
 require 'savon'
 require 'nokogiri'
@@ -79,3 +80,4 @@ describe Soap::V1::PoliciesController do
   end
 
 end
+=end
