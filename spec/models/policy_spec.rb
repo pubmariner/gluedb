@@ -208,7 +208,7 @@ describe Policy do
     let(:policy) { create(:policy) }
 
     it 'finds policies matching subscriber member id and plan id' do
-      expect(Policy.find_by_sub_and_plan(policy.enrollees.first.m_id, policy.plan._id)).to eq policy
+      expect(Policy.find_by_sub_and_plan(policy.enrollees.first.m_id, policy.plan.hios_plan_id)).to eq policy
     end
   end
 
@@ -216,7 +216,7 @@ describe Policy do
     let(:policy) { create(:policy) }
 
     it 'finds policy by eg_id, carrier_id, and plan_id' do
-      expect(Policy.find_by_subkeys(policy.eg_id, policy.carrier_id, policy.plan_id)).to eq policy
+      expect(Policy.find_by_subkeys(policy.eg_id, policy.carrier_id, policy.plan.hios_plan_id)).to eq policy
     end
   end
 
@@ -224,7 +224,9 @@ describe Policy do
     let(:eg_id) { '1' }
     let(:carrier_id) { '2' }
     let(:plan_id) { '3' }
-    let(:policy) { Policy.new(enrollment_group_id: eg_id, carrier_id: carrier_id, plan_id: plan_id)}
+    let(:plan_hios_id) { "a hios id" }
+    let(:plan) { Plan.create!(:name => "test_plan", :hios_plan_id => plan_hios_id, carrier_id: carrier_id, :coverage_type => "health") }
+    let(:policy) { Policy.new(enrollment_group_id: eg_id, carrier_id: carrier_id, plan: plan)}
     let(:responsible_party_id) { '1' }
     let(:employer_id) { '2' }
     let(:broker_id) { '3' }
@@ -245,9 +247,8 @@ describe Policy do
       policy.carrier_to_bill = carrier_to_bill
     end
     context 'given policy exists' do
-      let(:existing_policy) { Policy.new(eg_id: eg_id, carrier_id: carrier_id, plan_id: plan_id) }
-      before { existing_policy.save! }
       it 'finds and updates the policy' do
+        existing_policy = Policy.create!(eg_id: eg_id, carrier_id: carrier_id, plan: plan)
         found_policy = Policy.find_or_update_policy(policy)
 
         expect(found_policy).to eq existing_policy
