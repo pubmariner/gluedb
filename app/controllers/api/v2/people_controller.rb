@@ -1,5 +1,3 @@
-require_relative "../../../../lib/search_abstractor"
-
 class Api::V2::PeopleController < ApplicationController
 
   def index
