@@ -3,7 +3,7 @@ require 'net/http'
 module Parsers::Xml::Reports
   class Individual
 
-    attr_reader :root, :root_level_elements, :person_details, :demographics, :financial_reports, :relationships, :health
+    attr_reader :root, :identifiers, :person_details, :demographics, :financial_reports, :relationships, :health
 
     CITIZENSHIP_MAPPING = {
        "U.S. Citizen" => %W(us_citizen naturalized_citizen indian_tribe_member),
@@ -29,10 +29,11 @@ module Parsers::Xml::Reports
     end
 
     def build_root_level_elements
-      @root_level_elements = @root.elements.inject({}) do |data, node|
+      identifiers = @root.elements.inject({}) do |data, node|
         data[node.name.to_sym] = node.text().strip() if node.elements.count.zero?
         data
       end
+      @identifiers = OpenStruct.new(identifiers)
     end
 
     def build_person_details
@@ -90,7 +91,7 @@ module Parsers::Xml::Reports
 
     def tax_status
       return @financial_reports.empty?
-      tax_status = @financial_reports[0][:tax_filing_status]
+      tax_status = @financial_reports[0].tax_filing_status
       case tax_status
       when 'non_filer'
         'Non-filer'
@@ -103,15 +104,16 @@ module Parsers::Xml::Reports
     end
 
     def tax_filer_status
-      filing_status = 'Single'
-      relationship = relationships.detect do |relationship| 
-        ['spouse', 'life partner'].include?(relationship[:relationship_uri].split("#")[1])
+      return 'Single' unless married?
+      @financial_reports[0].is_tax_filing_together ? 'Married Filing Jointly' : 'Married Filing Separately'
+    end
+
+    def married?
+      relationship = @relationships.detect do |relationship|
+        relation_str = relationship.relationship_uri.split("#")[1]
+        ['spouse', 'life partner'].include?(relation_str)
       end
-      if relationship
-        return if @financial_reports.empty?
-        filing_status = @financial_reports[0][:is_tax_filing_together] ? 'Married Filing Jointly' : 'Married Filing Separately'
-      end
-      filing_status
+      relationship.blank? ? false : true
     end
 
     def projected_income
@@ -172,15 +174,16 @@ module Parsers::Xml::Reports
     end
 
     def extract_properties(node)
-      node.elements.inject({}) do |data, node|
+      properties = node.elements.inject({}) do |data, node|
         data[node.name.to_sym] = (node.elements.count.zero? ? node.text().strip() : extract_elements(node))
         data
       end
+      OpenStruct.new(properties)
     end
 
     def extract_elements(node)
-      single_element = node.elements.detect{|node| node.elements.count.zero?}
-      (single_element.nil? ? extract_collection(node) : extract_properties(node))
+      independent_element = node.elements.detect{|node| node.elements.count.zero?}
+      independent_element.nil? ? extract_collection(node) : extract_properties(node)
     end
 
     def parse_date(date)

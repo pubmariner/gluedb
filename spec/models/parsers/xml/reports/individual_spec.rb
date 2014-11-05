@@ -97,8 +97,8 @@ module Parsers::Xml::Reports
       individual = Nokogiri::XML(individual_xml)
       subject = Individual.new(individual.root)
       subject.build_root_level_elements
-      expect(subject.root_level_elements[:id]).to eq person_id
-      expect(subject.root_level_elements[:application_group_id]).to eq application_group_id
+      expect(subject.identifiers.id).to eq person_id
+      expect(subject.identifiers.application_group_id).to eq application_group_id
     end
 
     it 'should parse person details' do
@@ -107,29 +107,15 @@ module Parsers::Xml::Reports
       subject.build_person_details
 
       person_name = individual.root.at_xpath('n1:person/n1:person_name')
-      name_hash = person_name.elements.inject({}) do |data, node| 
-        data[node.name.to_sym] = node.text().strip()
-        data
-      end
-      expect(subject.person_details[:person_name]).to eq name_hash
+      expect(subject.person_details.person_name).to eq OpenStruct.new(build_element_hash(person_name))
 
       addresses = individual.root.xpath('n1:person/n1:addresses/n1:address')
-      address_arr = addresses.map do |address|
-        address.elements.inject({}) do |data, node| 
-          data[node.name.to_sym] = node.text().strip()
-          data
-        end
-      end
-      expect(subject.person_details[:addresses]).to eq address_arr
+      address_arr = addresses.inject([]){|data, address| data << OpenStruct.new(build_element_hash(address))}
+      expect(subject.person_details.addresses).to eq address_arr
 
       emails = individual.root.xpath('n1:person/n1:emails/n1:email')
-      email_arr = emails.map do |email|
-        email.elements.inject({}) do |data, node| 
-          data[node.name.to_sym] = node.text().strip()
-          data
-        end
-      end
-      expect(subject.person_details[:emails]).to eq email_arr
+      email_arr = emails.inject([]){|data, email| data << OpenStruct.new(build_element_hash(email))}
+      expect(subject.person_details.emails).to eq email_arr
     end
 
     it 'should parse demograpics data' do
@@ -137,11 +123,7 @@ module Parsers::Xml::Reports
       subject = Individual.new(individual.root)
       subject.person_demographics
       demographics = individual.root.at_xpath('n1:person_demographics')
-      demographics_hash = demographics.elements.inject({}) do |data, node| 
-        data[node.name.to_sym] = node.text().strip()
-        data
-      end
-      expect(subject.demographics).to eq demographics_hash
+      expect(subject.demographics).to eq OpenStruct.new(build_element_hash(demographics))
     end
 
     it 'should parse financial reports' do
@@ -149,20 +131,13 @@ module Parsers::Xml::Reports
       subject = Individual.new(individual.root)
       subject.person_financial_reports
       financial_reports = individual.root.xpath("n1:financial_reports/n1:financial_report")
-      financials = financial_reports.map do |report|
-        report.elements.inject({}) do |data, node|
-          if node.elements.count > 0
-            data[node.name.to_sym] = node.elements.inject([]) do |data, node|
-              data << node.elements.inject({}) do |data, node|
-                data[node.name.to_sym] = node.text().strip()
-                data
-              end
-            end
-          else
-            data[node.name.to_sym] = node.text().strip()
-          end
+      financials = financial_reports.inject([]) do |data, report|
+        ele_hash = report.elements.inject({}) do |data, node|
+          data[node.name.to_sym] = node.elements.count.zero? ? node.text().strip() :
+            node.elements.inject([]){|data, node| data << OpenStruct.new(build_element_hash(node))}
           data
         end
+        data << OpenStruct.new(ele_hash)
       end
       expect(subject.financial_reports).to eq financials
     end
@@ -172,27 +147,16 @@ module Parsers::Xml::Reports
       subject = Individual.new(individual.root)
       subject.person_relationships
       relationships = individual.root.xpath('n1:person_relationships/n1:person_relationship')
-      relationship_arr = relationships.inject([]) do |data, relation|
-        data << relation.elements.inject({}) do |data, node| 
-          data[node.name.to_sym] = node.text().strip()
-          data
-        end
-      end
+      relationship_arr = relationships.inject([]){|data, node| data << OpenStruct.new(build_element_hash(node))}
       expect(subject.relationships).to eq relationship_arr
     end
-
 
     it 'should parse health' do
       individual = Nokogiri::XML(individual_xml)
       subject = Individual.new(individual.root)
       subject.person_health
       person_health = individual.root.at_xpath('n1:person_health')
-
-      health = person_health.elements.inject({}) do |data, node| 
-        data[node.name.to_sym] = node.text().strip()
-        data
-      end
-      expect(subject.health).to eq health
+      expect(subject.health).to eq OpenStruct.new(build_element_hash(person_health))
     end
 
     # it 'should return date of birth' do
@@ -212,5 +176,14 @@ module Parsers::Xml::Reports
 
     # it 'should return tax status' do
     # end
+
+    private
+
+    def build_element_hash(node)
+      node.elements.inject({}) do |data, node|
+        data[node.name.to_sym] = node.text().strip()
+        data
+      end
+    end
   end
 end
