@@ -38,9 +38,13 @@ class Person
   index({name_last: 1, name_first:1, "emails.email_address" => 1})
   index({"emails.email_address" => 1})
 
-  belongs_to :broker
-  belongs_to :employer
-  belongs_to :household
+  belongs_to :employee, class_name: "Employer", inverse_of: :employees
+
+  belongs_to :applicant, class_name: "ApplicationGroup", inverse_of: :applicants
+  has_many   :primary_applicants, class_name: "ApplicationGroup", inverse_of: :primary_applicant
+  has_many   :consenters, class_name: "ApplicationGroup", inverse_of: :consent_applicant
+
+  belongs_to :tax_household_member, class_name: "TaxHousehold", inverse_of: :tax_household_members
 
   embeds_many :addresses, :inverse_of => :person
   accepts_nested_attributes_for :addresses, reject_if: proc { |attribs| attribs['address_1'].blank? }, allow_destroy: true

@@ -15,6 +15,7 @@ class Policy
   field :preceding_enrollment_group_id, type: String
 #  field :r_id, as: :hbx_responsible_party_id, type: String
 
+  # TODO: move BigDecimal types to Integers
   field :allocated_aptc, type: BigDecimal, default: 0.00
   field :elected_aptc, type: BigDecimal, default: 0.00
   field :applied_aptc, type: BigDecimal, default: 0.00
@@ -23,6 +24,7 @@ class Policy
   field :pre_amt_tot, as: :total_premium_amount, type: BigDecimal, default: 0.00
   field :tot_res_amt, as: :total_responsible_amount, type: BigDecimal, default: 0.00
   field :tot_emp_res_amt, as: :employer_contribution, type: BigDecimal, default: 0.00
+  
   field :sep_reason, type: String, default: :open_enrollment
   field :carrier_to_bill, type: Boolean, default: false
   field :aasm_state, type: String
