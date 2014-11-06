@@ -1,6 +1,7 @@
 module Protocols::Csv
   class CsvTransmission
     include Mongoid::Document
+    include Mongoid::Timestamps
 
     field :batch_id, type: String
     field :file_name, type: String

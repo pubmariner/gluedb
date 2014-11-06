@@ -74,6 +74,7 @@ module Listeners
         :csv_transmission_id => transmission.id,
         :batch_index => details[:batch_index],
         :policy_id => details[:policy_id],
+        :submitted_at => details[:attestation_date],
         :body => create_body(details)
       })
       @controller.respond_to_failure(@errors)
@@ -86,7 +87,8 @@ module Listeners
         :csv_transmission_id => transmission.id,
         :batch_index => details[:batch_index],
         :policy_id => details[:policy_id],
-        :body => create_body(details)
+        :body => create_body(details),
+        :submitted_at => details[:attestation_date]
       })
       @controller.respond_to_success
     end

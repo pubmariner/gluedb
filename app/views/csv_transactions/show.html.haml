@@ -20,6 +20,8 @@
         %dd= dd_value(@csv_transaction.batch_index)
         %dt= model_class.human_attribute_name(:submitted_at)
         %dd= @csv_transaction.submitted_at.strftime("%m-%d-%Y %H:%M:%S%z") if @csv_transaction.submitted_at.present?
+        %dt= model_class.human_attribute_name(:imported_at)
+        %dd= @csv_transaction.created_at.strftime("%m-%d-%Y %H:%M:%S%z") if @csv_transaction.created_at.present?
         - if !@csv_transaction.rejected?
           %dt= model_class.human_attribute_name(:status)
           %dd= dd_value(@csv_transaction.aasm_state)
