@@ -10,7 +10,7 @@ class UpdatePolicyStatus
 
     failed = false
 
-    result_keys = [:carrier_id, :file_name, :submitted_by, :batch_id, :batch_index, :body]
+    result_keys = [:carrier_id, :file_name, :submitted_by, :batch_id, :batch_index, :body, :attestation_date]
 
     failure_data = request.select { |k, _| result_keys.include?(k) }
 
