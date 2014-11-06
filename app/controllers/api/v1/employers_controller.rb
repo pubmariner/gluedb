@@ -12,4 +12,8 @@ class Api::V1::EmployersController < ApplicationController
   def show
     @employer = Employer.find(params[:id])
   end
+
+  def old_cv
+    @employer = Employer.find(params[:id])
+  end
 end
