@@ -9,16 +9,13 @@ module Protocols::Csv
     # TODO: Accept this in request
     field :batch_index, type: Integer
     field :error_list, type: Array
+    field :submitted_at, type: DateTime
 
     # TODO: Use a regular set of fields as a hash instead?
     mount_uploader :body, EdiBody
 
     def rejected?
       error_list.any?
-    end
-
-    def submitted_at
-      self.created_at
     end
 
     def transaction_kind
