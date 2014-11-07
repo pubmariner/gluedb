@@ -10,32 +10,27 @@ class EmployerImport
     @path = path
   end
 
-  def new_employers(file)
+  def create_employers(file)
   end
 
-  def existing_employers
+  def update_employers
     Employer.all.in_groups_of(5, false) do |employers|
-      fetch_employer_group(employers.map(&:fein))
-      break
+      get_employers_from_proxy(employers.map(&:fein))
     end
   end
 
-  def fetch_employer_group(feins)
+  def get_employers_from_proxy(feins)
     begin
       response = request :get, @path, {'feins' => feins.join(',')}
-      validate_n_process(response)
+      case response.code.to_i
+      when 200 || 201
+        ImportEmployerDemographics.execute(response.body)
+      when (400..499)
+        raise 'Bad Request'
+      when (500..599)
+        raise 'Server Issues'
+      end  
     rescue
-    end  
-  end
-
-  def validate_n_process(response)
-    case response.code.to_i
-    when 200 || 201
-      ImportEmployerDemographics.execute(response.body)
-    when (400..499)
-      raise 'Bad Request'
-    when (500..599)
-      raise 'Server Issues'
     end
   end
 
