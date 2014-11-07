@@ -122,5 +122,6 @@ module Amqp
 
     def request(properties, payload, timeout = 15)
       ::Amqp::Requestor.new(channel).request(properties, payload, timeout)
+    end
   end
 end
