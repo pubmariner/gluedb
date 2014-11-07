@@ -3,7 +3,8 @@ require 'net/http'
 module Parsers::Xml::Reports
   class Individual
 
-    attr_reader :root, :identifiers, :person_details, :demographics, :financial_reports, :relationships, :health
+    include NodeUtils
+    attr_reader :root, :root_elements, :person, :demographics, :financial_reports, :relationships, :health
 
     CITIZENSHIP_MAPPING = {
        "U.S. Citizen" => %W(us_citizen naturalized_citizen indian_tribe_member),
@@ -11,33 +12,22 @@ module Parsers::Xml::Reports
        "Not Lawfully Present" => %W(undocumented_immigrant not_lawfully_present_in_us)
     }
 
-    def initialize(data_xml = nil)  
+    def initialize(data_xml = nil, *args)  
       # xml_file = File.open(Rails.root.to_s + "/sample_xmls/individual_address.xml")
       # parser = Nokogiri::XML(xml_file)
       # @root = parser.root
       @root = data_xml
-      # build_data_sets_from_xml
     end
 
-    def build_data_sets_from_xml
-      build_root_level_elements
-      build_person_details
-      person_demographics
-      person_relationships
-      person_financial_reports
-      person_health
-    end
-
-    def build_root_level_elements
-      identifiers = @root.elements.inject({}) do |data, node|
-        data[node.name.to_sym] = node.text().strip() if node.elements.count.zero?
-        data
+    def parse_full_xml
+      root_level_elements
+      [ :details, :demographics, :relationships, :financial_reports, :health ].each do |attr|
+        self.send("person_#{attr.to_s}")
       end
-      @identifiers = OpenStruct.new(identifiers)
     end
 
-    def build_person_details
-      @person_details = extract_elements(@root.at_xpath("n1:person"))
+    def person_details
+      @person = extract_elements(@root.at_xpath("n1:person"))
     end
 
     def person_demographics
@@ -57,12 +47,12 @@ module Parsers::Xml::Reports
     end
 
     def id
-      person_id = top_level_elements[:id]
+      person_id = root_elements.id
       person_id.nil? ? nil : person_id.match(/\w+$/)[0]
     end
 
     def dob
-      parse_date(@demographics[:birth_date])
+      parse_date(@demographics.birth_date)
     end
 
     def age
@@ -70,20 +60,20 @@ module Parsers::Xml::Reports
     end
 
     def incarcerated
-      @demographics[:is_incarcerated] == 'true' ? 'Yes' : 'No'
+      @demographics.is_incarcerated == 'true' ? 'Yes' : 'No'
     end
 
     def residency
       return if @addresses[0].nil?
-      @addresses[0][:state].strip == 'DC' ? 'D.C. Resident' : 'Not a D.C. Resident'
+      @addresses[0].state.strip == 'DC' ? 'D.C. Resident' : 'Not a D.C. Resident'
     end
 
     def citizenship
-      if @demographics[:citizen_status].nil?
+      if @demographics.citizen_status.nil?
         raise "Citizenship status missing for person #{self.name_first} #{self.name_last}"
       end
 
-      citizen_status = @demographics[:citizen_status].split("#")[1]
+      citizen_status = @demographics.citizen_status.split("#")[1]
       CITIZENSHIP_MAPPING.each do |key, value|
         return key if value.include?(citizen_status)
       end
@@ -164,30 +154,5 @@ module Parsers::Xml::Reports
     # def dental_plan
     #   plan_by_coverage_type("dental")
     # end
-
-    private
-
-    def extract_collection(node)
-      node.elements.inject([]) do |data, node|
-        data << extract_properties(node)
-      end
-    end
-
-    def extract_properties(node)
-      properties = node.elements.inject({}) do |data, node|
-        data[node.name.to_sym] = (node.elements.count.zero? ? node.text().strip() : extract_elements(node))
-        data
-      end
-      OpenStruct.new(properties)
-    end
-
-    def extract_elements(node)
-      independent_element = node.elements.detect{|node| node.elements.count.zero?}
-      independent_element.nil? ? extract_collection(node) : extract_properties(node)
-    end
-
-    def parse_date(date)
-      Date.parse(date)
-    end
   end
 end

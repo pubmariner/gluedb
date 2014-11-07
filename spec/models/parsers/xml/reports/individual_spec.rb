@@ -96,15 +96,15 @@ module Parsers::Xml::Reports
     it 'should parse top level elements' do
       individual = Nokogiri::XML(individual_xml)
       subject = Individual.new(individual.root)
-      subject.build_root_level_elements
-      expect(subject.identifiers.id).to eq person_id
-      expect(subject.identifiers.application_group_id).to eq application_group_id
+      subject.root_level_elements
+      expect(subject.root_elements.id).to eq person_id
+      expect(subject.root_elements.application_group_id).to eq application_group_id
     end
 
     it 'should parse person details' do
       individual = Nokogiri::XML(individual_xml)
       subject = Individual.new(individual.root)
-      subject.build_person_details
+      subject.person_details
 
       person_name = individual.root.at_xpath('n1:person/n1:person_name')
       expect(subject.person_details.person_name).to eq OpenStruct.new(build_element_hash(person_name))
