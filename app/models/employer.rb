@@ -184,6 +184,12 @@ class Employer
     end
   end
 
+  def merge_broker(existing, incoming)
+    if existing.broker.nil?
+      existing.broker = incoming.broker
+    end
+  end
+
   def merge_plan_year(incoming)
     existing = self.plan_years.detect { |py| py.match(incoming) }
     if(existing)
@@ -195,6 +201,7 @@ class Employer
         :fte_count,
         :pte_count
       )
+      merge_broker(existing,incoming)
       EmployerElectedPlansMerger.merge(existing, incoming)
       update_carriers(existing)
     else
@@ -229,8 +236,8 @@ class Employer
     employer.fein = data[:fein]
     employer.hbx_id = data[:hbx_id]
     employer.sic_code = data[:sic_code]
-    employer.notes = data[:notes] 
-    employer 
+    employer.notes = data[:notes]
+    employer
   end
 
   class << self
