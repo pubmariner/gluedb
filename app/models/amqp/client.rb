@@ -1,6 +1,3 @@
-require 'timeout'
-require 'thread'
-
 module Amqp
   class Client
     attr_reader :channel, :queue
@@ -72,6 +69,7 @@ module Amqp
     def subscribe(opts = {})
       @running = false
       trap('TERM') { try_to_stop }
+      trap('INT') { exit -1 }
       @queue.subscribe(opts) do |delivery_info, properties, payload|
         start_running
         begin
@@ -122,19 +120,7 @@ module Amqp
       new_properties
     end
 
-    def request(properties, payload)
-      temp_queue = channel.queue("", :exclusive => true)
-      channel.publish(payload, properties.merge({ :reply_to => temp_queue.name }))
-      delivery_info, properties, payload = [nil, nil, nil]
-      Timeout::timeout(15) do
-        temp_queue.subscribe({:manual_ack => true, :block => true}) do |di, prop, pay|
-          delivery_info, properties, payload = [di, prop, pay]
-          channel.acknowledge(di.delivery_tag, false)
-          throw :terminate, "success"
-        end
-      end
-      temp_queue.delete
-      [delivery_info, properties, payload]
-    end
+    def request(properties, payload, timeout = 15)
+      ::Amqp::Requestor.new(channel).request(properties, payload, timeout)
   end
 end
