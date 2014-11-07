@@ -1,5 +1,5 @@
 <%= form_for [commentable, commentable.comments.build], layout: :inline do |f| %>
-  <%= f.text_field :content, placeholder: 'Comment' %>
+  <%= f.text_area :content, placeholder: 'Comment', rows: 3 %>
   <%= f.submit 'Add' %>
   <%= f.select :priority, Comment::PRIORITY_TYPE, {}, :class => 'form-control select select-primary' %>
   <%= f.hidden_field :commentable, value: commentable.class %>

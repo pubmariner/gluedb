@@ -3,5 +3,5 @@
   %n1:phone_number= phone.phone_number
   - if phone.extension.present?
     %n1:extension= phone.extension
-  - if phone.preferred.present?
-    %n1:preferred= phone.preferred
+  - if phone.primary.present?
+    %n1:preferred= phone.primary

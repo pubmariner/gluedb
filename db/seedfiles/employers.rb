@@ -3,7 +3,7 @@ puts "Loading Employers"
 # Employer.collection.drop
 require 'csv'
 
-Employer.collection.where.update_all({"$set" => {"elected_plans"=> []}})
+PlanYear.delete_all
 glob_pat = File.join(File.dirname(__FILE__), "employer_groups", "*.xml")
 
 Dir.glob(glob_pat).each do |f|
@@ -24,13 +24,15 @@ CSV.foreach(gid_file, headers: true) do |row|
   hbx_id = record['HBX_ID']
   emp = Employer.where(:hbx_id => hbx_id).first
   if emp
-    c_hash.each_pair do |k,v|
-    if !record["#{k}_01"].blank?
-      emp.update_elected_plans(c_hash[k], record["#{k}_01"])
-      emp.touch
+    pys = emp.plan_years
+    pys.each do |py|
+      c_hash.each_pair do |k,v|
+        if !record["#{k}_01"].blank?
+          py.update_group_ids(c_hash[k], record["#{k}_01"])
+        end
+      end
+      py.save!
     end
-    end
-    emp.save!
   else
     puts "Couldn't find: #{record['FEIN']} - #{record['HBX_ID']} - #{record['NAME']}"
   end

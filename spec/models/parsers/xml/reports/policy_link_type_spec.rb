@@ -13,6 +13,7 @@ module Parsers::Xml::Reports
     let(:end_date) { "<n1:end_date>20141212</n1:end_date>"}
     let(:employer) { "<n1:employer></n1:employer>" }
 
+
     it 'should parse policy id' do
       policy = Nokogiri::XML(policy_xml)
       subject = PolicyLinkType.new(policy.root)

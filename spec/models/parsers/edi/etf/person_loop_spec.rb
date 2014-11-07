@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Parsers::Edi::Etf::PersonLoop do
   subject(:person_loop) { Parsers::Edi::Etf::PersonLoop.new(raw_loop) }
@@ -8,9 +8,11 @@ describe Parsers::Edi::Etf::PersonLoop do
       'L2100A' => {
         "N3" => ['', street1, street2, ''],
         'N4' => ['', city, state, zip],
-        'NM1' => ['', '', '', name_last, name_first, name_middle, name_prefix, name_suffix]
+        'NM1' => ['', '', '', name_last, name_first, name_middle, name_prefix, name_suffix, '', ssn],
+        'DMG' => ['', '', dob, gender],
       },
-      'REFs' => [['', '17', member_id ]]
+      'REFs' => [['', '17', member_id ]],
+      'INS' => ['', '', '', change_type]
     }
   end
 
@@ -25,6 +27,10 @@ describe Parsers::Edi::Etf::PersonLoop do
   let(:name_middle) { 'X' }
   let(:name_last) { 'Doe' }
   let(:name_suffix) { 'Jr' }
+  let(:ssn) { '11111111111'}
+  let(:gender) { 'M' }
+  let(:dob) { '1970-01-01'}
+  let(:change_type) { '001' }
 
   describe 'policy_loops' do
     let(:raw_policy_loop) { Hash.new }
@@ -39,8 +45,18 @@ describe Parsers::Edi::Etf::PersonLoop do
     expect(person_loop.street1).to eq street1
   end
 
-  it 'exposes second street line' do
-    expect(person_loop.street2).to eq street2
+  describe 'street line 2' do
+
+    it 'exposes second street line' do
+      expect(person_loop.street2).to eq street2
+    end
+
+    context 'when blank' do
+      let(:street2) { ' ' }
+      it 'returns nil' do 
+        expect(person_loop.street2).to be_nil
+      end
+    end
   end
 
   it 'exposes city' do
@@ -59,24 +75,50 @@ describe Parsers::Edi::Etf::PersonLoop do
     expect(person_loop.member_id).to eq member_id
   end
 
-  it 'exposes name prefix' do
-    expect(person_loop.name_prefix).to eq name_prefix
-  end
+  describe 'middle name' do
 
+    it 'exposes name prefix' do
+      expect(person_loop.name_prefix).to eq name_prefix
+    end
+    context 'when blank' do
+      let(:name_prefix) { ' ' }
+      it 'returns nil' do
+        expect(person_loop.name_prefix).to be_nil
+      end
+    end
+  end
   it 'exposes first name' do
     expect(person_loop.name_first).to eq name_first
   end
 
-  it 'exposes middle name' do
-    expect(person_loop.name_middle).to eq name_middle
+  describe 'middle name' do
+    it 'exposes middle name' do
+      expect(person_loop.name_middle).to eq name_middle
+    end
+
+    context 'when blank' do
+      let(:name_middle) { ' ' }
+      it 'returns nil' do
+        expect(person_loop.name_middle).to be_nil
+      end
+    end
   end
 
   it 'exposes last name' do
     expect(person_loop.name_last).to eq name_last
   end
 
-  it 'exposes name suffix' do
-    expect(person_loop.name_suffix).to eq name_suffix
+  describe 'name suffix' do
+    it 'exposes name suffix' do
+      expect(person_loop.name_suffix).to eq name_suffix
+    end
+
+    context 'when blank' do
+      let(:name_suffix) { ' ' }
+      it 'returns nil' do
+        expect(person_loop.name_suffix).to be_nil
+      end
+    end
   end
 
   describe '#cancellation_or_termination?' do
@@ -101,4 +143,65 @@ describe Parsers::Edi::Etf::PersonLoop do
       end
     end
   end
+
+  describe 'ssn' do
+    it 'exposes ssn' do
+      expect(person_loop.ssn).to eq ssn
+    end
+
+    context 'when blank' do
+      let(:ssn) { ' '}
+      it 'returns nil' do 
+        expect(person_loop.ssn).to be_nil
+      end
+    end
+
+    context 'when too short' do
+      let(:ssn) { '1'}
+      it 'returns nil' do
+        expect(person_loop.ssn).to be_nil
+      end
+    end
+  end
+
+  it 'exposes gender' do
+    expect(person_loop.gender).to eq gender
+  end
+
+  describe 'date of birth' do
+    it 'exposes date of birth' do
+      expect(person_loop.date_of_birth).to eq dob
+    end
+    context 'when blank' do
+      let(:dob) { ' ' }
+      it 'returns nil' do
+        expect(person_loop.date_of_birth).to be_nil
+      end
+    end
+  end
+
+  describe 'change type' do
+
+    context 'when change' do
+      let(:change_type) { '001' }
+      it 'returns change' do
+        expect(person_loop.change_type).to eq :change
+      end
+    end
+
+    context 'when stop' do
+      let(:change_type) { '024' }
+      it 'returns stop' do
+        expect(person_loop.change_type).to eq :stop
+      end
+    end
+
+    context 'when anything else' do
+      let(:change_type) { ' ' }
+      it 'returns add' do
+        expect(person_loop.change_type).to eq :add
+      end
+    end
+  end
+
 end

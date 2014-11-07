@@ -14,7 +14,6 @@ describe Carrier do
     :policies,
     :premium_payments,
     :brokers,
-    :employers,
     :carrier_profiles
   ].each do |attribute|
     it { should respond_to attribute }

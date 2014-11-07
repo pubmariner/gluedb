@@ -17,7 +17,7 @@ class Carrier
   has_many :policies
   has_many :premium_payments
   has_and_belongs_to_many :brokers
-  has_and_belongs_to_many :employers
+#   has_and_belongs_to_many :employers
 
   embeds_many :carrier_profiles
 

@@ -56,4 +56,3 @@ gem 'cancancan', '~> 1.9'
 gem 'oj'
 gem 'roo'
 gem 'bh'
-gem 'wash_out' #the soap service gem

@@ -1,0 +1,4 @@
+= render 'shared/v2/identity', id: api_v1_person_url(person)
+%n1:person= render 'shared/v2/person', person: person
+= render 'shared/v2/relationships', person: person
+= render 'shared/v2/timestamp', record: person

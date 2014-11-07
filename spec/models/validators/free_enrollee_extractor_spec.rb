@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Validators::FreeEnrolleeExtractor do
   context 'when there are not enough enrollees' do
@@ -24,9 +24,8 @@ describe Validators::FreeEnrolleeExtractor do
     let(:enrollees) { [subscriber, spouse, costly_one, costly_two, costly_three, costly_four, free_one, free_two, free_three] }
     it 'returns youngest children under age of 21' do
       costly_enrollees = Validators::FreeEnrolleeExtractor.new.extract_free_from(enrollees)
-      expect(costly_enrollees).to include(free_one, free_two, free_three)
-      expect(costly_enrollees).not_to include(subscriber, spouse, costly_one, costly_two, costly_three, costly_four)
-
+      expect(costly_enrollees).to include(free_two, free_three)
+      expect(costly_enrollees).not_to include(subscriber, spouse, costly_one, costly_two, costly_three, costly_four, free_one)
     end
   end
 

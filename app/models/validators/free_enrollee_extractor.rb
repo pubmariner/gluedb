@@ -8,10 +8,11 @@ module Validators
       enrollees = Collections::Enrollees.new(collection)
 
       children = enrollees.children
-      if(children.count > @ceiling)
-        sorted = sort_by_oldest(children.to_a)
-        sorted.shift(children.count - @ceiling)
-        Collections::Enrollees.new(sorted).within_age_range(0...21).to_a
+      children_under_21 = Collections::Enrollees.new(children).within_age_range(0...21).to_a
+      if(children_under_21.count > @ceiling)
+        sorted = sort_by_oldest(children_under_21)
+        sorted.shift(@ceiling)
+        Collections::Enrollees.new(sorted).to_a
       else
         []
       end

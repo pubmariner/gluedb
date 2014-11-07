@@ -7,8 +7,11 @@ class Phone
 
   field :phone_type, type: String
   field :phone_number, type: String
-  field :extension, type: String
-  field :primary, as: :preferred, type: Boolean
+  field :extension, type: String, default: ""
+  field :primary, type: Boolean
+  field :country_code, type: String, default: ""
+  field :area_code, type: String, default: ""
+  field :full_phone_number, type: String, default: ""
 
   validates_presence_of  :phone_number
   validates_presence_of  :phone_type, message: "Choose a type"
@@ -34,6 +37,13 @@ class Phone
 
   def extension=(value)
     super filter_non_numbers(value)
+  end
+
+  def self.make(data)
+    phone = Phone.new
+    phone.phone_type = data[:phone_type]
+    phone.phone_number = data[:phone_number]
+    phone
   end
 
 private

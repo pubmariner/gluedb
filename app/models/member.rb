@@ -24,6 +24,7 @@ class Member
   field :e_person_id, type: String        # Elibility system transaction-level foreign key
   field :e_concern_role_id, type: String  # Eligibility system 'unified person' foreign key
   field :aceds_id, type: Integer          # Medicaid system foreign key
+  field :e_pdc_id, type: String
 
   field :import_source, type: String      # e.g. :b2b_gateway, :eligibility_system
   field :imported_at, type: DateTime
@@ -33,15 +34,21 @@ class Member
   #  field :carrier_id, type: String
 
   field :dob, type: DateTime
+  field :death_date, type: DateTime
   field :ssn, type: String
   field :gender, type: String
+  field :ethnicity, type: String, default: ""
+  field :race, type: String, default: ""
+  field :birth_location, type: String, default: ""
+  field :marital_status, type: String, default: ""
+  field :hbx_role, type: String, default: ""
 
   field :citizen_status, type: String, default: 'us_citizen'
   field :is_state_resident, type: Boolean, default: true
   field :is_incarcerated, type: Boolean, default: false
   field :is_applicant, type: Boolean, default: true
 
-  field :hlh, as: :tobacco_use_code, type: String, default: "Unknown"
+  field :hlh, as: :tobacco_use_code, type: String, default: "unknown"
   field :lui, as: :language_code, type: String
 
   validates_presence_of  :gender, message: "Choose a gender"
@@ -51,8 +58,8 @@ class Member
   validates_length_of :ssn, allow_blank: true, allow_nil: true, minimum: 9, maximum: 9,
                       message: "SSN must be 9 digits"
 
-  validates :citizen_status, 
-    inclusion: { in: CITIZEN_STATUS_TYPES, message: "%{value} is not a valid citizen status" }, 
+  validates :citizen_status,
+    inclusion: { in: CITIZEN_STATUS_TYPES, message: "%{value} is not a valid citizen status" },
     allow_blank: true
 
   index({"person_relationships.subject_person" => 1})

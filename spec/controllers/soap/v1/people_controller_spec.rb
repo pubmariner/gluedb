@@ -1,3 +1,4 @@
+=begin
 require 'rails_helper'
 require 'savon'
 
@@ -79,3 +80,4 @@ describe Soap::V1::PeopleController do
   end
 
 end
+=end

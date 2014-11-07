@@ -2,12 +2,12 @@ class Comment
   include Mongoid::Document
   include Mongoid::Timestamps
 
-  before_save :set_priority_flag
+  before_save :set_priority
 
   PRIORITY_TYPE = %W[low normal high]
 
   field :content, type: String
-  field :priority_flag, type: Boolean, default: false
+  field :is_priority, type: Boolean, default: false
   field :priority, type: String, default: "normal"
   field :user, type: String
 
@@ -26,7 +26,7 @@ class Comment
   end
 
   private
-    def set_priority_flag
-      priority_flag = true if high?
+    def set_priority
+      is_priority = true if high?
     end
 end

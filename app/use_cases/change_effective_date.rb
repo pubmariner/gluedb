@@ -51,7 +51,9 @@ class ChangeEffectiveDate
         if (policy.market == 'individual')
           rate_period_date = enrollee.coverage_start
         elsif (policy.market == 'shop')
-          rate_period_date = policy.employer.plan_year_start
+          year = policy.plan.year
+          plan_year = policy.employer.plan_years.detect { |py| py.plan_year == year }
+          rate_period_date = plan_year.start_date
         end
         enrollee.pre_amt = policy.plan.rate(rate_period_date, enrollee.coverage_start, enrollee.member.dob).amount
         affected_enrollees << enrollee

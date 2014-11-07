@@ -8,6 +8,14 @@ module Listeners
       @errors = []
     end
 
+    def invalid_attestation_date(details = {})
+      @errors << "Invalid attestation date: #{details[:attestation_date]}"
+    end
+
+    def transaction_after_attestation(t_date, a_date)
+      @errors << "A transaction occured on #{t_date} after the attestation date of #{a_date}"
+    end
+
     def non_authority_member(s_id)
       @errors << "Member #{s_id} is not the authority member"
     end
@@ -27,11 +35,11 @@ module Listeners
     def policy_status_is_same
       @errors << "Policy status is the same."
     end
-    
+
     def subscriber_id_mismatch(details)
       @errors << "Subscriber ID does not match. Provided: #{details[:provided]}, Existing: #{details[:existing]}"
     end
-      
+
     def enrolled_count_mismatch(details)
       @errors << "Enrolled Count does not match. Provided: #{details[:provided]}, Existing: #{details[:existing]}"
     end
@@ -66,6 +74,7 @@ module Listeners
         :csv_transmission_id => transmission.id,
         :batch_index => details[:batch_index],
         :policy_id => details[:policy_id],
+        :submitted_at => details[:attestation_date],
         :body => create_body(details)
       })
       @controller.respond_to_failure(@errors)
@@ -78,7 +87,8 @@ module Listeners
         :csv_transmission_id => transmission.id,
         :batch_index => details[:batch_index],
         :policy_id => details[:policy_id],
-        :body => create_body(details)
+        :body => create_body(details),
+        :submitted_at => details[:attestation_date]
       })
       @controller.respond_to_success
     end

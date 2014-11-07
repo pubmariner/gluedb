@@ -95,6 +95,7 @@ Gluedb::Application.routes.draw do
   resources :carriers do
     resources :plans
     get :show_plans
+    get :plan_years
     post :calculate_premium, on: :collection
   end
 
@@ -106,6 +107,19 @@ Gluedb::Application.routes.draw do
 
   namespace :api, :defaults => { :format => 'xml' } do
     namespace :v1 do
+      resources :events, :only => [:create]
+      resources :people, :only => [:show, :index]
+      resources :employers, :only => [:show, :index] do
+        member do
+          get :old_cv
+        end
+      end
+      resources :policies, :only => [:show, :index]
+      resources :application_groups, :only => [:show, :index]
+      resources :households, :only => [:show, :index]
+      resources :irs_reports, :only => [:index]
+    end
+    namespace :v2 do
       resources :events, :only => [:create]
       resources :people, :only => [:show, :index]
       resources :employers, :only => [:show, :index]
@@ -158,15 +172,6 @@ Gluedb::Application.routes.draw do
     end
   end
 
-  #routes for soap services
-  namespace :soap do
-    namespace :v1 do
-      wash_out :people
-      wash_out :policies
-      wash_out :application_groups
-      wash_out :employers
-    end
-  end
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

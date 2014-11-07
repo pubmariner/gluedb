@@ -4,7 +4,7 @@ module Parsers::Xml::Enrollment
       @xml = xml
       @namespaces = Parsers::Xml::Enrollment::NAMESPACES
 
-      @payload = @xml.at_xpath('/proc:Operation/proc:payload', @namespaces)
+      @payload = @xml.at_xpath('//proc:payload', @namespaces)
     end
 
     def type

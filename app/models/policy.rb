@@ -179,6 +179,9 @@ class Policy
     end
   end
 
+  def latest_transaction_date
+    (transaction_set_enrollments + csv_transactions).sort_by(&:submitted_at).last.submitted_at
+  end
 
   def edi_transaction_sets
     Protocols::X12::TransactionSetEnrollment.where({"policy_id" => self._id})
@@ -227,10 +230,11 @@ class Policy
   end
 
   def self.find_by_sub_and_plan(sub_id, h_id)
-    Rails.cache.fetch("Policy/find/sub_plan.#{sub_id}.#{h_id}") do
+#    Rails.cache.fetch("Policy/find/sub_plan.#{sub_id}.#{h_id}") do
+      plans = Plan.where(:hios_plan_id => h_id)
       found_policies = Policy.where(
         {
-          :plan_id => h_id,
+          :plan_id => {"$in" => plans.map(&:_id)},
           :enrollees => {
             "$elemMatch" => {
               :rel_code => "self",
@@ -244,25 +248,33 @@ class Policy
       else
         found_policies.first
       end
-    end
+#    end
   end
 
   def self.find_by_subkeys(eg_id, c_id, h_id)
-    Rails.cache.fetch("Policy/find/subkeys.#{eg_id}.#{c_id}.#{h_id}") do
-      Policy.where(
+      plans = Plan.where(hios_plan_id: h_id)
+      plan_ids = plans.map(&:_id)
+
+      policies = Policy.where(
         {
           :eg_id => eg_id,
           :carrier_id => c_id,
-          :plan_id => h_id
-        }).first
-    end
+          :plan_id => {
+            '$in' => plan_ids
+          }
+        })
+      if(policies.count > 1)
+        raise "More than one policy that match subkeys: eg_id=#{eg_id}, carrier_id=#{c_id}, plan_ids=#{plan_ids}"
+      end
+      policies.first
   end
 
   def self.find_or_update_policy(m_enrollment)
+    plan = Plan.find(m_enrollment.plan_id)
     found_enrollment = self.find_by_subkeys(
       m_enrollment.enrollment_group_id,
       m_enrollment.carrier_id,
-      m_enrollment.plan_id
+      plan.hios_plan_id
     )
     if found_enrollment
       found_enrollment.responsible_party_id = m_enrollment.responsible_party_id

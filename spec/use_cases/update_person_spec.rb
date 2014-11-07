@@ -6,7 +6,7 @@ module TestBarrier
     let(:listener) { double(has_errors?: false, success: false, :set_current_address => nil) }
     let(:person_repo) { double(find_by_id: person) }
     let(:change_address_request_factory) { double(from_person_update_request: change_address_request) }
-    
+
     let(:change_address_request) do
       {
         person_id: "1",
@@ -23,17 +23,17 @@ module TestBarrier
     let(:address_changer) { double(validate: true, commit: nil) }
     let(:person) { Person.new(name_first: 'Joe', name_last: 'Dirt', addresses: addresses, address_of: nil) }
     let(:addresses) { [existing_address] }
-    let(:existing_address) do 
-      Address.new(existing_address_fields) 
+    let(:existing_address) do
+      Address.new(existing_address_fields)
     end
 
-    let(:existing_address_fields) { 
-      { 
-        address_type: existing_address_type, 
-        address_1: '1234 A street', 
-        address_2: '#321', 
-        city: 'Atlanta', 
-        state: 'GA', 
+    let(:existing_address_fields) {
+      {
+        address_type: existing_address_type,
+        address_1: '1234 A street',
+        address_2: '#321',
+        city: 'Atlanta',
+        state: 'GA',
         zip: '12345'
       }
     }
@@ -98,7 +98,7 @@ module TestBarrier
 
     context 'when request doesnt have a home address' do
       let(:listener) { double(home_address_not_present: nil, has_errors?: true, fail: nil, :set_current_address => nil) }
-      before { request[:addresses] = [{ address_type: 'work' }, { address_type: 'mailing' }] }
+      before { request[:addresses] = [{ address_type: 'work' }, { address_type: 'billing' }] }
       it 'notifies the listener' do
         expect(listener).to receive(:home_address_not_present)
         expect(listener).to receive(:fail)
