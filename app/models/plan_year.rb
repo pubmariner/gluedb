@@ -64,6 +64,7 @@ class PlanYear
     plans_to_update.each do |ep|
       ep.carrier_employer_group_id = g_id
       ep.touch
+      ep.save!
     end
   end
 

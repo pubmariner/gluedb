@@ -14,7 +14,11 @@ class EventNotification < DocumentValidator
   end
 
   def save
-    return false unless valid?
+    valid_result = valid?
+    unless valid_result
+      Rails.logger.error(errors.to_xml.inspect)
+      return false
+    end
     event_publisher.publish(document)
     true
   end

@@ -16,10 +16,11 @@ module Parsers
       validate :no_bogus_broker
       validate :on_blacklist
 
-      def initialize(f_name, mt, el, blist = [], i_cache)
+      def initialize(f_name, mt, el, carrier, blist, i_cache)
         @file_name = f_name
         @message_type = mt
         @etf_loop = el
+        @carrier = carrier
         @blacklisted_bgns = blist
         @import_cache = i_cache
       end
@@ -108,19 +109,35 @@ module Parsers
           if pol_loop.empty?
             log_error(:etf_loop, "has no valid plan")
           else
-            plan_year = nil
-            coverage_start = Date.parse(pol_loop.coverage_start)
-            if(is_shop?)
-              employer_loop = Etf::EmployerLoop.new(@etf_loop["L1000A"]["N1"])
-              employer = Employer.find_for_fein(employer_loop.fein)
-              plan_year = PlanYear.where({
-                :employer_id => employer.id,
-                :start_date => { "$lte" => coverage_start }
-              }).order_by(&:start_date).last.year
+            plan = nil
+            coverage_start = Maybe.new(pol_loop.coverage_start).fmap { |cs| Date.parse(cs) }.value
+            if !coverage_start.blank?
+              if(is_shop?)
+                employer_loop = Etf::EmployerLoop.new(@etf_loop["L1000A"]["N1"])
+                employer = nil
+                if employer_loop.specified_as_group?
+                  employer = Employer.find_for_carrier_and_group_id(@carrier.id, employer_loop.group_id)
+                else
+                  employer = Employer.find_for_fein(employer_loop.fein)
+                end
+                if employer.blank?
+                  errors.add(:etf_loop, "has invalid employer: #{employer_loop.fein}")
+                  puts "has invalid employer: #{employer_loop.fein}"
+                  return
+                end
+                plan_year = PlanYear.where({
+                  :employer_id => employer.id,
+                  :start_date => { "$lte" => coverage_start }
+                }).order_by(&:start_date).last.start_date.year
+              else
+                plan_year = coverage_start.year
+              end
+              plan = @import_cache.lookup_plan(pol_loop.hios_id, plan_year)
             else
-              plan_year = coverage_start.year
+              eg_id = pol_loop.eg_id
+              hios = pol_loop.hios_id
+              plan = Maybe.new(Policy.find_for_group_and_hios(eg_id, hios)).plan.value
             end
-            plan = @import_cache.lookup_plan(pol_loop.hios_id, plan_year)
             if plan.blank?
               log_error(:etf_loop, "has no valid plan")
             end
