@@ -28,7 +28,7 @@ CSV.foreach(gid_file, headers: true) do |row|
     pys.each do |py|
       c_hash.each_pair do |k,v|
         if !record["#{k}_01"].blank?
-          py.update_group_ids(c_hash[k], record["#{k}_01"])
+          py.update_group_ids(c_hash[k]._id, record["#{k}_01"])
         end
       end
       py.save!

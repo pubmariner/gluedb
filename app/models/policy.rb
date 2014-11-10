@@ -251,6 +251,23 @@ class Policy
 #    end
   end
 
+  def self.find_for_group_and_hios(eg_id, h_id)
+      plans = Plan.where(hios_plan_id: h_id)
+      plan_ids = plans.map(&:_id)
+
+      policies = Policy.where(
+        {
+          :eg_id => eg_id,
+          :plan_id => {
+            '$in' => plan_ids
+          }
+        })
+      if(policies.count > 1)
+        raise "More than one policy that match subkeys: eg_id=#{eg_id}, carrier_id=#{c_id}, plan_ids=#{plan_ids}"
+      end
+      policies.first
+  end
+
   def self.find_by_subkeys(eg_id, c_id, h_id)
       plans = Plan.where(hios_plan_id: h_id)
       plan_ids = plans.map(&:_id)
