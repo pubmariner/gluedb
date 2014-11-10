@@ -5,6 +5,11 @@ module Listeners
       "#{ec.hbx_id}.#{ec.environment}.q.glue.edi_ops"
     end
 
+    def on_message(delivery_info, properties, payload)
+      # Don't uncomment this yet.
+      # channel.acknowledge(delivery_info.delivery_tag, false) 
+    end
+
     def self.run
       conn = Bunny.new(ExchangeInformation.amqp_uri)
       conn.start
