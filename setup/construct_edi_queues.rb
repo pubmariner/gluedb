@@ -18,6 +18,7 @@ class EdiQueueSetup
     ev_exchange = exchange(:topic, ec.event_exchange)
 
     edi_q = queue(Listeners::EdiQueueListener.queue_name)
+    edi_q.bind(ev_exchange, :routing_key => "enrollment.*.sep")
   end
 end
 
