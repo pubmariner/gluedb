@@ -11,7 +11,12 @@ class ExchangeInformation
   REQUIRED_KEYS = [
     'amqp_uri',
     'receiver_id',
-    'invalid_argument_queue', 'processing_failure_queue', 'request_exchange'
+    'invalid_argument_queue',
+    'processing_failure_queue',
+    'request_exchange',
+    'event_exchange',
+    'environment',
+    'hbx_id'
   ]
 
   attr_reader :config
@@ -19,7 +24,7 @@ class ExchangeInformation
   # TODO: I have a feeling we may be using this pattern
   #       A LOT.  Look into extracting it if we repeat.
   def initialize
-    @config = YAML.load_file(File.join(HbxEnterprise::App.root,'..','config', 'exchange.yml'))
+    @config = YAML.load_file(File.join(Rails.root,'config', 'exchange.yml'))
     ensure_configuration_values(@config)
   end
 
