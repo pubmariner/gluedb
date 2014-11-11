@@ -38,18 +38,19 @@ class Person
   index({name_last: 1, name_first:1, "emails.email_address" => 1})
   index({"emails.email_address" => 1})
 
-  belongs_to :employee, class_name: "Employer", inverse_of: :employees
-
   belongs_to :applicant, class_name: "ApplicationGroup", inverse_of: :applicants
+  belongs_to :tax_household_member, class_name: "TaxHousehold", inverse_of: :tax_household_members
+
   has_many   :primary_applicants, class_name: "ApplicationGroup", inverse_of: :primary_applicant
   has_many   :consenters, class_name: "ApplicationGroup", inverse_of: :consent_applicant
 
-  belongs_to :tax_household_member, class_name: "TaxHousehold", inverse_of: :tax_household_members
+  has_and_belongs_to_many :employers, class_name: "Employer", inverse_of: :employee
+  has_and_belongs_to_many :policy_enrollees, class_name: "Enrollee", inverse_of: :policy_enrollee
 
   embeds_many :addresses, :inverse_of => :person
   accepts_nested_attributes_for :addresses, reject_if: proc { |attribs| attribs['address_1'].blank? }, allow_destroy: true
 
-  embeds_many :phones, :inverse_of => :person
+  embeds_many :phones, :inverse_of => :perso
   accepts_nested_attributes_for :phones, reject_if: proc { |attribs| attribs['phone_number'].blank? }, allow_destroy: true
 
   embeds_many :emails, :inverse_of => :person
@@ -61,6 +62,9 @@ class Person
 
   embeds_many :responsible_parties
 #  accepts_nested_attributes_for :responsible_parties, reject_if: :all_blank, allow_destroy: true
+
+  embeds_many :assistance_eligibilities
+  accepts_nested_attributes_for :assistance_eligibilities, allow_destroy: true
 
   embeds_many :comments
   accepts_nested_attributes_for :comments, reject_if: proc { |attribs| attribs['content'].blank? }, allow_destroy: true
@@ -79,12 +83,7 @@ class Person
   scope :all_over_or_equal_age, ->(age) {lte(:'members.dob' => (Date.today - age.years))}
   scope :all_under_or_equal_age, ->(age) {gte(:'members.dob' => (Date.today - age.years))}
   scope :all_with_multiple_members, exists({ :'members.1' => true })
-
   scope :by_name, order_by(name_last: 1, name_first: 1)
-  #
-  #
-  embeds_many :assistance_eligibilities
-  accepts_nested_attributes_for :assistance_eligibilities, allow_destroy: true
 
   def update_attributes_with_delta(props = {})
     old_record = self.find(self.id)

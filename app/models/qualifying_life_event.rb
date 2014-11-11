@@ -1,8 +1,9 @@
 class QualifyingLifeEvent
   include Mongoid::Document
 	include Mongoid::Timestamps
+  include AASM
 
-  REASONS = [
+  KINDS = [
     "open_enrollment",
     "lost_access_to_mec",
     "adoption",
@@ -34,15 +35,21 @@ class QualifyingLifeEvent
 
 	field :kind, type: String  # Qualifying Life Event
 	field :event_date, type: Date
-	field :start_date, type: Date
-	field :end_date, type: Date
-	field :number_of_days, type: Integer
+	field :sep_start_date, type: Date
+	field :sep_end_date, type: Date
+	field :sep_number_of_days, type: Integer
 
   field :submitted_date, type: Date
 
   field :approval_status, type: Boolean
   field :determined_by, type: String
   field :determination_date, type: Date
+
+  field :aasm_state, type: String
+
+  index({kind:  1})
+  index({sep_start_date:  1})
+  index({sep_end_date:  1})
 
   embedded_in :application_group
 
@@ -58,7 +65,7 @@ class QualifyingLifeEvent
   					presence: true,
   					allow_blank: false,
   					allow_nil:   false,
-  					inclusion: {in: REASONS}
+  					inclusion: {in: KINDS}
 
   # before_create :activate_household_sep
   # before_save :activate_household_sep

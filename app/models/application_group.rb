@@ -5,9 +5,6 @@ class ApplicationGroup
   include Mongoid::Paranoia
   include AASM
 
-  HBX_SERVICE_TYPES = %W[unassisted_qhp insurance_assisted_qhp empployer_sponsored streamlined_medicaid
-                          emergency_medicaid hcr_chip]
-
   field :e_case_id, type: String  # Eligibility system foreign key
   field :is_active, type: Boolean, default: true   # ApplicationGroup active on the Exchange?
 
@@ -30,7 +27,11 @@ class ApplicationGroup
 #  embeds_many :assistance_eligibilities
 #  accepts_nested_attributes_for :assistance_eligibilities, reject_if: proc { |attribs| attribs['date_determined'].blank? }, allow_destroy: true
 
+  embeds_many :irs_groups
   embeds_many :tax_households
+  embeds_many :eligibility_determinations
+  embeds_many :hbx_enrollments
+  embeds_many :hbx_enrollment_exemptions
 
   embeds_many :qualifying_life_events, cascade_callbacks: true
   accepts_nested_attributes_for :qualifying_life_events, reject_if: proc { |attribs| attribs['start_date'].blank? }, allow_destroy: true

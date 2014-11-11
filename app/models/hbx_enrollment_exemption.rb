@@ -1,20 +1,17 @@
-class HbxEnrollment
+class EnrollmentExemption
   include Mongoid::Document
   include Mongoid::Timestamps
   include Mongoid::Versioning
   include Mongoid::Paranoia
 
-  KINDS = %W[unassisted_qhp insurance_assisted_qhp employer_sponsored streamlined_medicaid emergency_medicaid hcr_chip]
+  # TYPES = %w[]
+  KINDS = %W[hardship health_care_ministry_member incarceration indian_tribe_member religious_conscience]
 
   auto_increment :_id
-
+  field :certificate_number, type: String
   field :kind, type: String
-  field :aasm_state, type: String
-
-  field :allocated_aptc_in_cents, type: Integer
-  field :csr_as_percent, type: Integer
-
-  belongs_to :broker
+  field :start_date, type: Date
+  field :end_date, type: Date
 
   embedded_in :application_group
 

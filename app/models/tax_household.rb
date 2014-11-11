@@ -3,18 +3,13 @@ class TaxHousehold
   include Mongoid::Timestamps
   include Mongoid::Versioning
   include Mongoid::Paranoia
-  include AASM
 
-  # Unique identifier for this Household used for reporting enrollment and premium tax credits to IRS
-  auto_increment :irs_group_id
-  # field :irs_group_id, type: String
+  auto_increment :_id
 
 #  field :rel, as: :relationship, type: String
   field :e_pdc_id, type: String  # Eligibility system PDC foreign key
 
-
   field :primary_applicant_id, type: String
-
   field :magi_in_cents, type: Integer, default: 0  # Modified Adjusted Gross Income
 
   # Premium tax credit assistance eligibility.  
@@ -45,8 +40,6 @@ class TaxHousehold
 
   # has_many :policies
   embeds_many :hbx_enrollments
-  embeds_many :enrollment_exemptions
-  embeds_many :eligibility_determinations
 
   embeds_many :comments
   accepts_nested_attributes_for :comments, reject_if: proc { |attribs| attribs['content'].blank? }, allow_destroy: true

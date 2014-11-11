@@ -38,6 +38,7 @@ class Policy
 
   embeds_many :enrollees
   accepts_nested_attributes_for :enrollees, reject_if: :all_blank, allow_destroy: true
+
   index({ "enrollees.m_id" => 1 })
   index({ "enrollees.hbx_member_id" => 1 })
   index({ "enrollees.carrier_member_id" => 1})
@@ -51,13 +52,15 @@ class Policy
   belongs_to :plan, counter_cache: true, index: true
   belongs_to :employer, counter_cache: true, index: true
   belongs_to :responsible_party
-  belongs_to :household
-  belongs_to :application_group
+
+  belongs_to :hbx_enrollment
+
   index({:application_group_id => 1})
 
   has_many :transaction_set_enrollments,
-              class_name: "Protocols::X12::TransactionSetEnrollment",
-              order: { submitted_at: :desc }
+            class_name: "Protocols::X12::TransactionSetEnrollment",
+            order: { submitted_at: :desc }
+            
   has_many :premium_payments, order: { paid_at: 1 }
 
   has_many :csv_transactions, :class_name => "Protocols::Csv::CsvTransaction"

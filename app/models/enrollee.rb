@@ -10,8 +10,6 @@ class Enrollee
 
   attr_accessor :include_checked
 
-  field :m_id, as: :hbx_member_id, type: String
-
   field :ds, as: :disabled_status, type: Boolean, default: false
   field :ben_stat, as: :benefit_status_code, type: String
   field :emp_stat, as: :employment_status_code, type: String
@@ -26,8 +24,7 @@ class Enrollee
 
   embedded_in :policy
 
-  validates_presence_of :m_id, :relationship_status_code
-
+  validates_presence_of :relationship_status_code
   validates_inclusion_of :benefit_status_code, in: BENEFIT_STATUS_CODE_LIST
   validates_inclusion_of :employment_status_code, in: EMPLOYMENT_STATUS_CODE_LIST
   validates_inclusion_of :relationship_status_code, in: RELATIONSHIP_STATUS_CODE_LIST
