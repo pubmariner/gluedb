@@ -1,4 +1,4 @@
-class UpdatePersonRequest
+class UpdatePersonAddressRequest
   def self.from_form(person_id, form, current_user)
     request = {
       person_id: person_id,

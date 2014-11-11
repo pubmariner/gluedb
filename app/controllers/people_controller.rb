@@ -80,7 +80,7 @@ class PeopleController < ApplicationController
     end
     @person.assign_attributes(params[:person], without_protection: true)
 
-    request = UpdatePersonRequest.from_form(params[:id], params[:person], current_user.email)
+    request = UpdatePersonAddressRequest.from_form(params[:id], params[:person], current_user.email)
     listener = UpdatePersonErrorCatcher.new(@person)
     address_changer = ChangeMemberAddress.new(nil)
     update_person = UpdatePersonAddress.new(Person, address_changer, ChangeAddressRequest)
@@ -94,7 +94,7 @@ class PeopleController < ApplicationController
 
   def persist_and_transmit
     @person = Person.find(params[:id])
-    request = UpdatePersonRequest.from_form(params[:id], JSON.parse(params[:person]), current_user.email)
+    request = UpdatePersonAddressRequest.from_form(params[:id], JSON.parse(params[:person]), current_user.email)
 
     address_changer = ChangeMemberAddress.new(transmitter)
     update_person = UpdatePersonAddress.new(Person, address_changer, ChangeAddressRequest)
