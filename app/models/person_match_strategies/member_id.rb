@@ -1,6 +1,6 @@
 module PersonMatchStrategies
   class MemberId
-    def match(params = {})
+    def match(options = {})
       if (!options[:member_id].blank?)
         people = Person.find_for_members([options[:member_id]])
         raise AmbiguiousMatchError.new("Multiple people with same member id: #{options[:member_id]}")
