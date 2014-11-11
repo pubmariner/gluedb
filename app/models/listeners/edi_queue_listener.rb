@@ -6,8 +6,20 @@ module Listeners
     end
 
     def on_message(delivery_info, properties, payload)
-      # Don't uncomment this yet.
-      # channel.acknowledge(delivery_info.delivery_tag, false) 
+      event_key = delivery_info.routing_key
+      enrollment_group_uri = properties.headers["enrollment_group_uri"]
+      qualifying_reason_uri = properties.headers["qualifying_reason_uri"]
+      submitted_timestamp = properties.headers["submitted_timestamp"]
+      event_name = properties.headers["event_name"]
+      EdiOpsTransaction.create!({
+        :event_key => event_key,
+        :event_name => event_name,
+        :qualifying_reason_uri => qualifying_reason_uri,
+        :submitted_timestamp => submitted_timestamp,
+        :enrollment_group_uri => enrollment_group_uri,
+        :status => "new"
+      })
+      channel.acknowledge(delivery_info.delivery_tag, false) 
     end
 
     def self.run
