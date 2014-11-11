@@ -15,6 +15,7 @@ class Policy
   field :preceding_enrollment_group_id, type: String
 #  field :r_id, as: :hbx_responsible_party_id, type: String
 
+  # TODO: move BigDecimal types to Integers
   field :allocated_aptc, type: BigDecimal, default: 0.00
   field :elected_aptc, type: BigDecimal, default: 0.00
   field :applied_aptc, type: BigDecimal, default: 0.00
@@ -23,6 +24,7 @@ class Policy
   field :pre_amt_tot, as: :total_premium_amount, type: BigDecimal, default: 0.00
   field :tot_res_amt, as: :total_responsible_amount, type: BigDecimal, default: 0.00
   field :tot_emp_res_amt, as: :employer_contribution, type: BigDecimal, default: 0.00
+  
   field :sep_reason, type: String, default: :open_enrollment
   field :carrier_to_bill, type: Boolean, default: false
   field :aasm_state, type: String
@@ -36,6 +38,7 @@ class Policy
 
   embeds_many :enrollees
   accepts_nested_attributes_for :enrollees, reject_if: :all_blank, allow_destroy: true
+
   index({ "enrollees.m_id" => 1 })
   index({ "enrollees.hbx_member_id" => 1 })
   index({ "enrollees.carrier_member_id" => 1})
@@ -49,13 +52,15 @@ class Policy
   belongs_to :plan, counter_cache: true, index: true
   belongs_to :employer, counter_cache: true, index: true
   belongs_to :responsible_party
-  belongs_to :household
-  belongs_to :application_group
+
+  belongs_to :hbx_enrollment
+
   index({:application_group_id => 1})
 
   has_many :transaction_set_enrollments,
-              class_name: "Protocols::X12::TransactionSetEnrollment",
-              order: { submitted_at: :desc }
+            class_name: "Protocols::X12::TransactionSetEnrollment",
+            order: { submitted_at: :desc }
+            
   has_many :premium_payments, order: { paid_at: 1 }
 
   has_many :csv_transactions, :class_name => "Protocols::Csv::CsvTransaction"
