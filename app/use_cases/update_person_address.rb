@@ -1,4 +1,4 @@
-class UpdatePerson
+class UpdatePersonAddress
   def initialize(person_repo, address_changer, change_address_request_factory)
     @person_repo = person_repo
     @address_changer = address_changer
@@ -7,6 +7,7 @@ class UpdatePerson
 
   def validate(request, listener)
     fail = false
+
     person = @person_repo.find_by_id(request[:person_id])
 
     if(missing_home_address?(request))

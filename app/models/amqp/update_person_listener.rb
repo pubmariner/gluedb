@@ -21,7 +21,7 @@ module Amqp
       person = Person.find(request[:person_id])
       listener = UpdatePersonErrorCatcher.new(person)
       address_changer = ChangeMemberAddress.new(TransmitPolicyMaintenance.new)
-      update_person = UpdatePerson.new(Person, address_changer, ChangeAddressRequest)
+      update_person = UpdatePersonAddress.new(Person, address_changer, ChangeAddressRequest)
       update_person.execute(request, listener)
     end
 
