@@ -3,10 +3,8 @@ module Queries
     def self.find(options)
       found_person = nil
 
-      if (!options[:member_id].blank?)
-        found_person = Person.find_by_member_id(options[:member_id])
-        return found_person if found_person
-      end
+      person, member = ::PersonMatchStrategies::MemberId.new.match(params)
+      return person if person
       found_people = Person.where({"members.ssn" => options[:ssn]})
       if (found_people.length > 0)
         if (!options[:name_last].nil?)
