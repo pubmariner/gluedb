@@ -22,8 +22,11 @@ class EdiQueueSetup
     ec = ExchangeInformation
     ev_exchange = exchange(:topic, ec.event_exchange)
 
+    req_exchange = exchange(:direct, ec.request_exchange)
+
     edi_q = queue(Listeners::EdiQueueListener.queue_name)
     edi_q.bind(ev_exchange, :routing_key => "enrollment.*.sep")
+    edi_q.bind(req_exchange, :routing_key => "enrollment.error")
 
     other_queue = logging_queue(ec, "initial_and_renewal")
     other_queue.bind(ev_exchange, {
