@@ -19,7 +19,7 @@ class UpdatePerson
         dob: request[:members][0][:dob]
       }
 
-      [person, member] = PersonMatchStrategies::Finder.find_person_and_member(options)
+      person, member = PersonMatchStrategies::Finder.find_person_and_member(options)
 
       if person.blank?
         return @create_person_factory.validate(request, listener)

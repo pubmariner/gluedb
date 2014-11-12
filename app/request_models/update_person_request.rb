@@ -11,7 +11,7 @@ class UpdatePersonRequest
       members: [member_details(individual)], 
       addresses: individual.person.addresses.map{|address| address.marshal_dump},
       emails: individual.person.emails.map{|email| email.marshal_dump},
-      relationships: individual.relationships.map{|realtionship| relationship.marshal_dump}
+      relationships: individual.relationships.map{|relationship| relationship.marshal_dump},
       job_title: individual.person.job_title,
       department: individual.person.department,
       is_active: individual.root_elements.is_active
@@ -36,7 +36,7 @@ class UpdatePersonRequest
     {
       ssn: individual.demographics.ssn,
       gender: individual.demographics.sex,
-      dob: individual.demographics.birth_date
+      dob: individual.demographics.birth_date,
       ethnicity: individual.demographics.ethnicity,
       race: individual.demographics.race,
       birth_location: individual.demographics.birth_location,
