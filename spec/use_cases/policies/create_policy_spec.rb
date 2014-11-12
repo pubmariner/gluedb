@@ -100,7 +100,7 @@ describe Policies::CreatePolicy do
 
     it "should create the policy" do
       expect(policy_factory).to receive(:create!).with(create_params)
-      subject.execute(request)
+      subject.commit(request)
     end
 
     describe "with a broker" do
@@ -115,7 +115,7 @@ describe Policies::CreatePolicy do
 
       it "should create the policy" do
         expect(policy_factory).to receive(:create!).with(broker_create_params)
-        subject.execute(broker_request)
+        subject.commit(broker_request)
       end
     end
   end

@@ -5,6 +5,7 @@ module Policies
       @policy_factory = policy_factory
     end
 
+    # TODO: Introduce premium validations and employers!
     def validate(request, listener)
       failed = false
       eg_id = request[:enrollment_group_id]
@@ -44,7 +45,7 @@ module Policies
       !fail
     end
 
-    def execute(request)
+    def commit(request)
       hios_id = request[:hios_id]
       plan_year = request[:plan_year]
       broker_npn = request[:broker_npn]
