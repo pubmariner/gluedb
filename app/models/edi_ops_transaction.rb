@@ -7,6 +7,8 @@ class EdiOpsTransaction
   field :submitted_timestamp, type: DateTime
   field :event_key, type: String
   field :event_name, type: String
+  field :errors, type: Hash
+  field :return_status, type: Integer
 
   field :status, type: String
 end

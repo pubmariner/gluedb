@@ -4,6 +4,10 @@ class NewEnrollment
       super(obj)
       @person_map = {}
     end
+
+    def register_person(m_id, person, member)
+      @person_map[m_id] = [person, member]
+    end
   end
 
 
