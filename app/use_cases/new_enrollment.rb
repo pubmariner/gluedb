@@ -1,5 +1,7 @@
 class NewEnrollment
   class PersonMappingListener < SimpleDelegator
+    attr_reader :person_map
+
     def initialize(obj)
       super(obj)
       @person_map = {}
@@ -11,7 +13,7 @@ class NewEnrollment
   end
 
 
-  def initialize(update_person_uc, create_policy_uc)
+  def initialize(update_person_uc, create_policy_uc = Policies::CreatePolicy)
     @update_person_use_case = update_person_uc
     @create_policy_use_case = create_policy_uc
   end
@@ -44,13 +46,26 @@ class NewEnrollment
       listener.fail
     else
       individuals.each do |ind|
-        @update_person_use_case.commit(ind)
+        @update_person_use_case.commit(ind, listener)
       end
       policies.each do |pol|
-        @create_policy_use_case.commit(pol)
+        pol_properties = remap_enrollees(pol, listener)
+        @create_policy_use_case.commit(pol_properties)
       end
       listener.success
     end
+  end
+
+  def remap_enrollees(pol, listener)
+    pol_hash = pol.dup
+    enrollees = pol_hash[:enrollees]
+    updated_enrollees = enrollees.map do |en|
+      updated_en = en.dup
+      updated_en[:m_id] = listener.person_map[en[:m_id]].hbx_member_id
+      updated_en
+    end
+    pol_hash[:enrollees] = updated_enrollees
+    pol_hash
   end
 
 end
