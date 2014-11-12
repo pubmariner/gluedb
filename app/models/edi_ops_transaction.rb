@@ -8,7 +8,7 @@ class EdiOpsTransaction
   field :event_key, type: String
   field :event_name, type: String
   field :errors, type: Hash
-  field :valid, type: Boolean, default: true
+  field :return_status, type: Integer
 
   field :status, type: String
 end
