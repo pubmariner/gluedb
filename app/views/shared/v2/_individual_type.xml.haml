@@ -30,7 +30,7 @@
     %n1:is_tobacco_user= authority_member.hlh
     - if false #TODO
       %n1:is_disabled
-- unless person.responsible_parties.empty? && false #MAJOR TODO
+- unless person.responsible_parties.empty? && true #MAJOR TODO
   %n1:responsible_parties
     - person.responsible_parties.each do |rp|
       %n1:responsible_party
