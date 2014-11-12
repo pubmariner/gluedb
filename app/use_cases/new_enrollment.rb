@@ -1,11 +1,19 @@
 class NewEnrollment
+  class PersonMappingListener < SimpleDelegator
+    def initialize(obj)
+      super(obj)
+      @person_map = {}
+    end
+  end
+
 
   def initialize(update_person_uc, create_policy_uc)
     @update_person_use_case = update_person_uc
     @create_policy_use_case = create_policy_uc
   end
 
-  def execute(request, listener)
+  def execute(request, orig_listener)
+    listener = PersonMappingListener.new(orig_listener)
     failed = false
     individuals = request[:individuals]
     policies = request[:policies]
