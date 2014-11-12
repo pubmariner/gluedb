@@ -7,11 +7,14 @@ describe NewEnrollment do
   let(:create_policy_use_case) { double(:validate => true) }
   let(:individuals) { [person1] }
   let(:person1) { double }
-  let(:policy1) { double }
+  let(:policy1) { { :enrollees => [] } }
   let(:policies) { [policy1] }
+  let(:person_mapper_listener) { NewEnrollment::PersonMappingListener.new(listener) }
   before(:each) {
       allow(update_person_use_case).to receive(:validate).with(person1, listener).and_return(true)
       allow(create_policy_use_case).to receive(:validate).with(policy1, listener).and_return(true)
+
+      allow(NewEnrollment::PersonMappingListener).to receive(:new).with(listener).and_return(person_mapper_listener)
   }
 
   subject {
@@ -19,7 +22,7 @@ describe NewEnrollment do
   }
 
   it "should notify the listener of success" do
-      expect(update_person_use_case).to receive(:commit).with(person1)
+      expect(update_person_use_case).to receive(:commit).with(person1, person_mapper_listener)
       expect(create_policy_use_case).to receive(:commit).with(policy1)
       expect(listener).to receive(:success)
       subject.execute(request, listener)
