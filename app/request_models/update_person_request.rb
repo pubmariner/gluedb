@@ -22,13 +22,13 @@ class UpdatePersonRequest
 
   def person_names(individual)
     {
-      name_pfx: individual.names.person_name_prefix_text,
-      name_first: individual.names.person_given_name,
-      name_middle: individual.names.person_middle_name,
-      name_last: individual.names.person_surname,
-      name_sfx: individual.names.person_name_suffix_text,
-      name_full: individual.names.person_full_name,
-      alternate_name: individual.names.person_alternate_name
+      name_pfx: individual.person.person_name.person_name_prefix_text,
+      name_first: individual.person.person_name.person_given_name,
+      name_middle: individual.person.person_name.person_middle_name,
+      name_last: individual.person.person_name.person_surname,
+      name_sfx: individual.person.person_name.person_name_suffix_text,
+      name_full: individual.person.person_name.person_full_name,
+      alternate_name: individual.person.person_name.person_alternate_name
     }
   end
 
