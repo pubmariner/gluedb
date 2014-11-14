@@ -24,7 +24,6 @@ class Member
   field :e_person_id, type: String        # Elibility system transaction-level foreign key
   field :e_concern_role_id, type: String  # Eligibility system 'unified person' foreign key
   field :aceds_id, type: Integer          # Medicaid system foreign key
-  field :e_pdc_id, type: String
 
   field :import_source, type: String      # e.g. :b2b_gateway, :eligibility_system
   field :imported_at, type: DateTime
