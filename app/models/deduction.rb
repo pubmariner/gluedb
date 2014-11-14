@@ -30,7 +30,7 @@ class Deduction
   field :frequency, type: String
   field :start_date, type: Date
   field :end_date, type: Date
-  field :submission_date, type: Date
+  field :submission_date, type: DateTime
 
   embedded_in :assistance_eligibility, inverse_of: :deductions
 

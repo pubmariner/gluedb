@@ -14,12 +14,11 @@ class AssistanceEligibility
 
   field :is_enrolled_for_es_coverage, type: Boolean, default: false
   field :is_without_assistance, type: Boolean, default: true
-
   field :is_ia_eligible, type: Boolean, default: false
   field :is_medicaid_chip_eligible, type: Boolean, default: false
-  field :submission_date, type: Date
+  field :submitted_date, type: DateTime
 
-  index({submission_date:  1})
+  index({submitted_date:  1})
 
   embedded_in :person
 
