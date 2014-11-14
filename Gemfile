@@ -41,7 +41,6 @@ end
 
 group :production do
   gem 'unicorn', '4.8.2'
-  gem 'bluepill'
 end
 
 gem "haml"
