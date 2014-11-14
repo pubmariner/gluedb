@@ -6,17 +6,36 @@ class ApplicationGroup
   include AASM
 
   field :e_case_id, type: String  # Eligibility system foreign key
+  field :e_status_code, type: String
   field :is_active, type: Boolean, default: true   # ApplicationGroup active on the Exchange?
 
-  field :consent_renewal_year, type: Integer    # Authorize auto-renewal elibility check through this year (CCYY format)
-  field :coverage_renewal_year, type: String    # Temporary field to indicate whether IRS consent was granted
-  field :submitted_date, type: Date             # Date application was created on authority system
+  field :renewal_consent_through_year, type: Integer    # Authorize auto-renewal elibility check through this year (CCYY format)
+  field :submitted_date, type: DateTime             # Date application was created on authority system
 
   field :application_type, type: String
   field :aasm_state, type: String
   field :updated_by, type: String
 
+  embeds_many :irs_groups, cascade_callbacks: true
+  accepts_nested_attributes_for :irs_groups
+
+  embeds_many :tax_households, cascade_callbacks: true
+  accepts_nested_attributes_for :tax_households
+  embeds_many :eligibility_determinations
+  accepts_nested_attributes_for :eligibility_determinations
+  embeds_many :hbx_enrollments, cascade_callbacks: true
+  accepts_nested_attributes_for :hbx_enrollments
+  embeds_many :hbx_enrollment_exemptions
+  accepts_nested_attributes_for :hbx_enrollment_exemptions
+
+  embeds_many :qualifying_life_events, cascade_callbacks: true
+  accepts_nested_attributes_for :qualifying_life_events, reject_if: proc { |attribs| attribs['start_date'].blank? }, allow_destroy: true
+
+  embeds_many :comments, cascade_callbacks: true
+  accepts_nested_attributes_for :comments, reject_if: proc { |attribs| attribs['content'].blank? }, allow_destroy: true
+
   has_many :applicants, class_name: "Person", inverse_of: :applicant
+  has_many :enrollment_policies, class_name: "Policy", inverse_of: :enrollment_policy
 
   # Person responsible for this application group
   belongs_to :primary_applicant, class_name: "Person", inverse_of: :primary_applicants
@@ -27,28 +46,17 @@ class ApplicationGroup
 #  embeds_many :assistance_eligibilities
 #  accepts_nested_attributes_for :assistance_eligibilities, reject_if: proc { |attribs| attribs['date_determined'].blank? }, allow_destroy: true
 
-  embeds_many :irs_groups
-  embeds_many :tax_households
-  embeds_many :eligibility_determinations
-  embeds_many :hbx_enrollments
-  embeds_many :hbx_enrollment_exemptions
-
-  embeds_many :qualifying_life_events, cascade_callbacks: true
-  accepts_nested_attributes_for :qualifying_life_events, reject_if: proc { |attribs| attribs['start_date'].blank? }, allow_destroy: true
-
-  embeds_many :comments
-  accepts_nested_attributes_for :comments, reject_if: proc { |attribs| attribs['content'].blank? }, allow_destroy: true
-
   scope :all_with_multiple_applicants, exists({ :'applicants.1' => true })
 
 #  validates_inclusion_of :max_renewal_year, :in => 2013..2025, message: "must fall between 2013 and 2030"
 
   index({e_case_id:  1})
   index({is_active:  1})
-  index({:"applicants.applicant_id" => 1})
   index({primary_applicant_id:  1})
   index({consent_applicant_id:  1})
   index({submitted_date:  1})
+  index({ "applicants.applicant_id" => 1 })
+
 
   aasm do
     state :enrollment_closed, initial: true
