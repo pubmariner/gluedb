@@ -47,7 +47,7 @@ class Policy
   index({ "enrollees.coverage_start" => 1})
   index({ "enrollees.coverage_end" => 1})
 
-  belongs_to :enrollment_policy, class_name: "ApplicationGroup", inverse_of: :enrollment_policies
+  belongs_to :enrollment_policy, class_name: "ApplicationGroup", inverse_of: :policies
   belongs_to :carrier, counter_cache: true, index: true
   belongs_to :broker, counter_cache: true, index: true # Assumes that broker change triggers new enrollment group
   belongs_to :plan, counter_cache: true, index: true
