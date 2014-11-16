@@ -17,6 +17,8 @@ class Broker
   field :alternate_name, type: String, default: ""
   field :npn, type: String
 
+  has_and_belongs_to_many :application_groups, class_name: "ApplicationGroup", inverse_of: :brokers
+
   has_many :policies, order: {name_last: 1, name_first: 1}
   has_many :people
 
@@ -38,7 +40,6 @@ class Broker
 
   validates_inclusion_of :b_type, in: ["broker", "tpa"]
 
-  index({:name => 1})
   index({:npn => 1})
 
   before_save :initialize_name_full
