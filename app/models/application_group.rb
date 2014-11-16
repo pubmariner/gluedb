@@ -16,26 +16,9 @@ class ApplicationGroup
   field :aasm_state, type: String
   field :updated_by, type: String
 
-  embeds_many :irs_groups, cascade_callbacks: true
-  accepts_nested_attributes_for :irs_groups
-
-  embeds_many :tax_households, cascade_callbacks: true
-  accepts_nested_attributes_for :tax_households
-  embeds_many :eligibility_determinations
-  accepts_nested_attributes_for :eligibility_determinations
-  embeds_many :hbx_enrollments, cascade_callbacks: true
-  accepts_nested_attributes_for :hbx_enrollments
-  embeds_many :hbx_enrollment_exemptions
-  accepts_nested_attributes_for :hbx_enrollment_exemptions
-
-  embeds_many :qualifying_life_events, cascade_callbacks: true
-  accepts_nested_attributes_for :qualifying_life_events, reject_if: proc { |attribs| attribs['start_date'].blank? }, allow_destroy: true
-
-  embeds_many :comments, cascade_callbacks: true
-  accepts_nested_attributes_for :comments, reject_if: proc { |attribs| attribs['content'].blank? }, allow_destroy: true
-
   has_many :applicants, class_name: "Person", inverse_of: :applicant
-  has_many :enrollment_policies, class_name: "Policy", inverse_of: :enrollment_policy
+  has_many :policies, class_name: "Policy", inverse_of: :enrollment_policy
+  has_and_belongs_to_many :brokers, class_name: "Broker", inverse_of: :application_groups
 
   # Person responsible for this application group
   belongs_to :primary_applicant, class_name: "Person", inverse_of: :primary_applicants
@@ -43,8 +26,34 @@ class ApplicationGroup
   # Person who authorizes auto-renewal eligibility check
   belongs_to :consent_applicant, class_name: "Person", inverse_of: :consenters
 
+  embeds_many :irs_groups, cascade_callbacks: true
+  accepts_nested_attributes_for :irs_groups
+
+  embeds_many :tax_households, cascade_callbacks: true
+  accepts_nested_attributes_for :tax_households
+
+  embeds_many :hbx_enrollments, cascade_callbacks: true
+  accepts_nested_attributes_for :hbx_enrollments
+
+  embeds_many :hbx_enrollment_exemptions, cascade_callbacks: true
+  accepts_nested_attributes_for :hbx_enrollment_exemptions
+
+  embeds_many :eligibility_determinations, cascade_callbacks: true
+  accepts_nested_attributes_for :eligibility_determinations
+
+  embeds_many :qualifying_life_events, cascade_callbacks: true
+  accepts_nested_attributes_for :qualifying_life_events, reject_if: proc { |attribs| attribs['start_date'].blank? }, allow_destroy: true
+
+  embeds_many :comments, cascade_callbacks: true
+  accepts_nested_attributes_for :comments, reject_if: proc { |attribs| attribs['content'].blank? }, allow_destroy: true
+
 #  embeds_many :assistance_eligibilities
 #  accepts_nested_attributes_for :assistance_eligibilities, reject_if: proc { |attribs| attribs['date_determined'].blank? }, allow_destroy: true
+
+  validates :renewal_consent_through_year, 
+              presence: true,
+              numericality: { only_integer: true, inclusion: 2014..2025 }
+
 
   scope :all_with_multiple_applicants, exists({ :'applicants.1' => true })
 
@@ -54,8 +63,10 @@ class ApplicationGroup
   index({is_active:  1})
   index({primary_applicant_id:  1})
   index({consent_applicant_id:  1})
+  index({"irs_group._id" =>  1})
+  index({"hbx_enrollment._id" =>  1})
   index({submitted_date:  1})
-  index({ "applicants.applicant_id" => 1 })
+  index({"applicants.applicant_id" => 1})
 
 
   aasm do
