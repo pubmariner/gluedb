@@ -36,24 +36,43 @@ class HbxEnrollment
   accepts_nested_attributes_for :comments, reject_if: proc { |attribs| attribs['content'].blank? }, allow_destroy: true
 
   validates :kind, 
-  					presence: true,
-  					allow_blank: false,
-  					allow_nil:   false,
-  					inclusion: {in: KINDS}
+    					presence: true,
+    					allow_blank: false,
+    					allow_nil:   false,
+    					inclusion: {in: KINDS, message: "%{value} is not a valid enrollment type"}
+
+  validates :allocated_aptc_in_cents,
+              allow_nil: true, 
+              numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+
+  validates :csr_percent_as_integer,
+              allow_nil: true, 
+              numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
 
   def parent
+    raise "undefined parent ApplicationGroup" unless application_group? 
     self.application_group
   end
 
-  def policy
-    Policy.find(self.policy_id) unless self.policy_id.blank?
+  def broker=(broker_instance)
+    return unless broker_instance.is_a? Broker
+    self.broker_id = broker_instance._id
+    parent.brokers << broker_instance
+  end
+
+  def broker
+    Broker.find(self.broker_id) unless self.broker_id.blank?
   end
 
   def policy=(policy_instance)
     return unless policy_instance.is_a? Policy
     self.policy_id = policy_instance._id
-    parent.enrollment_policies << policy_instance
+    parent.policies << policy_instance
+  end
+
+  def policy
+    Policy.find(self.policy_id) unless self.policy_id.blank?
   end
 
   def irs_group=(irs_instance)

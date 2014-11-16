@@ -86,32 +86,51 @@ describe ApplicationGroup do
       expect(ag.irs_groups.first.hbx_enrollments.first.primary_applicant_id).to eql(p1._id)
     end
 
-    it "Sets and gets HbxEnrollment Policy associations" do
+    it "sets and gets HbxEnrollment Policy associations" do
+
+      broker = Broker.create!(
+        b_type: "broker",
+        name_first: "Tom",
+        name_last: "Schultz",
+        npn: "345987012",
+        addresses: [Address.new(
+          address_type: "work", 
+          address_1: "1 Copley Plaza", 
+          city: "Boston", 
+          state: "MA",
+          zip: "03814")]
+        )
 
       policy = Policy.create!(
-        eg_id: "abx123xyz",
+        eg_id: "abc123xyz",
         pre_amt_tot: 750,
         tot_res_amt: 650,
         applied_aptc: 100,
         carrier_to_bill: true
         ) 
 
-      ag.tax_households << th
+      expect(ag.policies.size).to eql(0)
+      expect(ag.brokers.size).to eql(0)
+
       ag.hbx_enrollments = [he]
-
-      expect(ag.hbx_enrollments.first.policy).to eql(nil)
-      expect(ag.enrollment_policies.size).to eql(0)
-
-      ag.hbx_enrollments.first.policy = policy
+      he.policy = policy
+      he.broker = broker
       ag.save!
 
       # Verify the ApplicationGroup::HbxEnrollment side of association
-      expect(ag.enrollment_policies.size).to eql(1)
+      expect(ag.policies.size).to eql(1)
       expect(ag.hbx_enrollments.first.policy_id).to eql(policy._id)
-      expect(ag.enrollment_policies.first.pre_amt_tot).to eql(750)
+      expect(ag.policies.first.pre_amt_tot).to eql(750)
+
+      # Verify the ApplicationGroup::Brokers side of association
+      expect(ag.brokers.size).to eql(1)
+      expect(ag.brokers.first._id).to eql(broker._id)
 
       # Verify the Policy side of association
       expect(policy.hbx_enrollment._id).to eql(ag.hbx_enrollments.first._id)
+
+      # Verify the Broker side of association
+      expect(broker.application_groups.first._id).to eql(ag._id)
     end
   end
 end
