@@ -14,6 +14,8 @@ class HbxEnrollmentExemption
   field :irs_group_id, type: Integer
 
 
+  embeds_many :applicant_links
+
   embeds_many :comments
   accepts_nested_attributes_for :comments, reject_if: proc { |attribs| attribs['content'].blank? }, allow_destroy: true
 
