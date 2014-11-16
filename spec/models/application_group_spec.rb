@@ -67,10 +67,22 @@ describe ApplicationGroup do
       )
     }
 
+    let(:hx) {
+      HbxEnrollmentExemption.new(
+        irs_group: ag.irs_groups.first,
+        kind: "hardship",
+        certificate_number: "123zxy987",
+        start_date: Date.today - 60,
+        end_date: Date.today + 60,
+        applicant_links: [a1]
+      )
+    }
+
     it "sets and gets embedded IrsGroup, TaxHousehold and HbxEnrollment associations and attributes" do
 
       ag.tax_households  = [th]
       ag.hbx_enrollments = [he]
+      ag.hbx_enrollment_exemptions = [hx]
 
       expect(ag.tax_households.first.primary_applicant_id).to eql(p0._id)
       expect(ag.tax_households.first.applicant_links.first.person._id).to eql(a0.person_id)
@@ -80,10 +92,15 @@ describe ApplicationGroup do
       expect(ag.hbx_enrollments.first.csr_percent_as_integer).to eql(71)
       expect(ag.hbx_enrollments.first.applicant_links.first.person_id).to eql(a1.person_id)
 
-      # Access the hbx_enrollment and tax_household properties via the IrsGroup association
-      expect(ag.irs_groups.first.hbx_enrollments.first.kind).to eql("unassisted_qhp")
+      expect(ag.hbx_enrollment_exemptions.first.certificate_number).to eql("123zxy987")
+
+      # Access embedded model properties via the IrsGroup association
       expect(ag.irs_groups.first.tax_households.first.primary_applicant_id).to eql(p0._id)
+
+      expect(ag.irs_groups.first.hbx_enrollments.first.kind).to eql("unassisted_qhp")
       expect(ag.irs_groups.first.hbx_enrollments.first.primary_applicant_id).to eql(p1._id)
+
+      expect(ag.irs_groups.first.hbx_enrollment_exemptions.first.kind).to eql(hx.kind)
     end
 
     it "sets and gets HbxEnrollment Policy associations" do
