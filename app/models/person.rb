@@ -45,12 +45,11 @@ class Person
   has_many   :consenters, class_name: "ApplicationGroup", inverse_of: :consent_applicant
 
   has_and_belongs_to_many :employers, class_name: "Employer", inverse_of: :employee
-  has_and_belongs_to_many :policy_enrollees, class_name: "Enrollee", inverse_of: :policy_enrollee
 
   embeds_many :addresses, :inverse_of => :person
   accepts_nested_attributes_for :addresses, reject_if: proc { |attribs| attribs['address_1'].blank? }, allow_destroy: true
 
-  embeds_many :phones, :inverse_of => :perso
+  embeds_many :phones, :inverse_of => :person
   accepts_nested_attributes_for :phones, reject_if: proc { |attribs| attribs['phone_number'].blank? }, allow_destroy: true
 
   embeds_many :emails, :inverse_of => :person
