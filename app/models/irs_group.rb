@@ -25,4 +25,9 @@ class IrsGroup
     parent.hbx_enrollments.where(:irs_group_id => self.id)
   end
 
+  # embedded has_many :hbx_enrollment_exemptions
+  def hbx_enrollment_exemptions
+    parent.hbx_enrollment_exemptions.where(:irs_group_id => self.id)
+  end
+
 end
