@@ -34,12 +34,12 @@ describe ApplicationGroup do
     end
   end
 
-  describe "manages embedded associations" do
+  describe "manages embedded associations." do
 
     let(:ag) {
       ApplicationGroup.create!(
           e_case_id: "6754632abc", 
-          consent_renewal_year: 2017, 
+          renewal_consent_through_year: 2017, 
           submitted_date: Date.today,
           applicants: [p0, p1],
           primary_applicant: p0,
