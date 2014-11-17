@@ -9,56 +9,109 @@
     ]
   %>
 </div>
-<%= link_to 'Edit', edit_application_group_path(@application_group), class: 'btn btn-primary' %>
 <div class='col-md-12'>
-  <h6>People</h6>
 
-  <div class='panel-body'>
-    <%= link_to('New Person', new_person_path(application_group_id: @application_group.id)) %>
-    <ul class="list-unstyled">
+<h6>Exchange Status</h6>
+<p>Individual market enrollment is open|closed. Enrollment will open|close on <b>Date</b>></p>
+<p>Application Group is in Special Enrollment Period (SEP). SEP will close on <b>Date</b>></p>
+<p><b>Employer name</b> enrollment is open|closed. Enrollment will open|close on <b>Date</b>></p>
 
-      <% @application_group.households.each do |household| %>
-        <li>
-          <%= link_to('(Household)', application_group_household_path(@application_group.id, household.id)) %>
-        </li>
+<h6>General</h6>
+<ul>
+  <li>renewal_consent_through_year</li>
+  <li>consent_applicant</li>
+  <li>tax_households</li>
+  <li>irs_groups</li>
+  <li>hbx_enrollment_exemptions</li>
+  <li>is_active</li>
+</ul>
 
-      <% end %>
-    </ul>
+<h6>Activity</h6>
+<p>Transacton status of all current, or last enrollment</p>
+<table class="table table-condensed">
+  <thead>
+    <tr>
+      <th>application_type</th>
+      <th>submitted_date</th>
+      <th>aasm_state</th>
+      <th>e_status_code</th>
+      <th>e_case_id</th>
+    </tr>
+  </thead>
+  <% @application_group.qualifying_life_events.each do |qle| %>
+    <tbody>
+      <tr>
+        <td><%= qle.kind %></td>
+        <td><%= qle.state %></td>
+        <td><%= qle.event_date %></td>
+        <td><%= qle.sep_start_date %></td>
+        <td><%= qle.sep_end_date %></td>
+      </tr>
+    </tbody>
+  <% end %>
+</table>
 
-  </div>
 
-  <h6>Events</h6>
-  <%= link_to('New Life Event', new_special_enrollment_period_path(application_group_id: @application_group.id)) %>
+<h6>Member Information</h6>
+<ul>
+  <li>Member Name</li>
+  <li>Exchange ID</li>
+  <li>Address</li>
+  <li>Email</li>
+</ul>
+<p><small>Manage Members</small></p>
+
+<h6>Enrolled Plans</h6>
+<ul>
+  <li>Carrier</li>
+  <li>Carrier ID</li>
+  <li>Plan Name</li>
+  <li>Coverage Type</li>
+  <li>Coverage Level (family, individual)</li>
+  <li>Effective Date</li>
+</ul>
+<p><small>Manage Enrolled Plans</small></p>
+
+<h6>Assistance</h6>
+<ul>
+  <li>eligibility_determinations</li>
+</ul>
+<p><small>Apply for Assistance</small></p>
+
+<h6>Life Events</h6>
+<%= link_to('New Life Event', new_special_enrollment_period_path(application_group_id: @application_group.id)) %>
 
   <table class="table table-condensed">
     <thead>
       <tr>
         <th>Reason</th>
+        <th>Event Date</th>
         <th>Start Date</th>
         <th>End Date</th>
+        <th>Workflow state</th>
       </tr>
     </thead>
-    <% @application_group.special_enrollment_periods.each do |sep| %>
+    <% @application_group.qualifying_life_events.each do |qle| %>
       <tbody>
         <tr>
-          <td><%= sep.reason %></td>
-          <td><%= sep.start_date %></td>
-          <td><%= sep.end_date %></td>
+          <td><%= qle.kind %></td>
+          <td><%= qle.state %></td>
+          <td><%= qle.event_date %></td>
+          <td><%= qle.sep_start_date %></td>
+          <td><%= qle.sep_end_date %></td>
         </tr>
       </tbody>
     <% end %>
   </table>
 
-  <dl class="dl-horizontal">
+<h6>Other</h6>
+<ul>
+  <li>1095A</li>
+  <li>1095A</li>
+</ul>
 
-    <dt><%= "Household(s)" %></dt>
-    <% if @application_group.households.count == 0 %>
-      <dd></dd>
-    <% end %>
-    <% @application_group.households.each do |household| %>
-      <dd>household</dd>
-    <% end %>
-  </dl>
+<h6>Employer</h6>
+<h6>Broker</h6>
 
   <div class="well well-sm default">
     <div class="form-actions">
