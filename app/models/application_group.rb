@@ -42,7 +42,7 @@ class ApplicationGroup
   accepts_nested_attributes_for :eligibility_determinations
 
   embeds_many :qualifying_life_events, cascade_callbacks: true
-  accepts_nested_attributes_for :qualifying_life_events, reject_if: proc { |attribs| attribs['start_date'].blank? }, allow_destroy: true
+  accepts_nested_attributes_for :qualifying_life_events, reject_if: proc { |attribs| attribs['sep_start_date'].blank? }, allow_destroy: true
 
   embeds_many :comments, cascade_callbacks: true
   accepts_nested_attributes_for :comments, reject_if: proc { |attribs| attribs['content'].blank? }, allow_destroy: true

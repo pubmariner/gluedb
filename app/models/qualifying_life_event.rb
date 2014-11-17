@@ -32,20 +32,16 @@ class QualifyingLifeEvent
     "exceptional_circumstances"
   ]
 
+  embedded_in :application_group
 
 	field :kind, type: String  # Qualifying Life Event
 	field :event_date, type: Date
 	field :sep_start_date, type: Date
 	field :sep_end_date, type: Date
 	field :sep_number_of_days, type: Integer
-
-  field :submitted_date, type: Date
-
-  field :approval_status, type: Boolean
-  field :determined_by, type: String
-  field :determination_date, type: Date
-
   field :aasm_state, type: String
+
+  field :submitted_date, type: DateTime
 
   index({kind:  1})
   index({sep_start_date:  1})
@@ -56,9 +52,8 @@ class QualifyingLifeEvent
   embeds_many :comments
   accepts_nested_attributes_for :comments, reject_if: proc { |attribs| attribs['content'].blank? }, allow_destroy: true
 
- 	validates_presence_of :event_date, :start_date, :end_date
+ 	validates_presence_of :event_date, :sep_start_date, :sep_end_date
 
-	validates_presence_of :start_date, :end_date
 	validate :end_date_follows_start_date
 
   validates :kind, 
@@ -69,6 +64,10 @@ class QualifyingLifeEvent
 
   # before_create :activate_household_sep
   # before_save :activate_household_sep
+
+  def parent
+    self.application_group
+  end
 
 	def calculate_end_date(period_in_days)
 		self.end_date = start_date + period_in_days unless start_date.blank?
@@ -82,7 +81,7 @@ private
 	def end_date_follows_start_date
 		return if end_date.nil?
 		# Passes validation if end_date == start_date
-		errors.add(:end_date, "end_date cannot preceed start_date") if end_date < start_date
+		errors.add(:end_date, "end_date cannot preceed start_date") if sep_end_date < sep_start_date
 	end
 
 	# def activate_household_sep
