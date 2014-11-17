@@ -56,14 +56,30 @@ describe ApplicationGroup do
       )
     }
 
+    let(:ed) {
+      EligibilityDetermination.new(
+        csr_percent: 0.73,
+        max_aptc_in_dollars: 165.00,
+        applicant_links: [ApplicantLink.new(
+                            e_pdc_id: "qwerty",
+                            person: p0,
+                            is_ia_eligible: true,
+                            is_medicaid_chip_eligible: true
+                          )],
+        determination_date: Date.today
+      )
+    }
+
     let(:he) {
       HbxEnrollment.new(
-        primary_applicant: p1,
+        primary_applicant: p0,
         irs_group: ag.irs_groups.first,
+        eligibility_determination: ed,
         kind: "unassisted_qhp",
         allocated_aptc_in_dollars: 125.00,
-        csr_percent_as_integer: 71,
-        applicant_links: [a1]
+        elected_aptc_in_dollars: 115.00,
+        csr_percent: 0.71,
+        applicant_links: [a0]
       )
     }
 
@@ -74,31 +90,40 @@ describe ApplicationGroup do
         certificate_number: "123zxy987",
         start_date: Date.today - 60,
         end_date: Date.today + 60,
-        applicant_links: [a1]
+        applicant_links: [ApplicantLink.new(
+                            person: p1,
+                            is_ia_eligible: true,
+                            is_medicaid_chip_eligible: true
+                          )]
       )
     }
 
+
     it "sets and gets embedded IrsGroup, TaxHousehold and HbxEnrollment associations and attributes" do
 
+      ag.eligibility_determinations = [ed]
       ag.tax_households  = [th]
       ag.hbx_enrollments = [he]
       ag.hbx_enrollment_exemptions = [hx]
 
-      expect(ag.tax_households.first.primary_applicant_id).to eql(p0._id)
+      expect(ag.eligibility_determinations.first.csr_percent_as_integer).to eq(73)
+      expect(ag.eligibility_determinations.first.applicant_links.first.is_ia_eligible).to eq(true)
+
+      expect(ag.tax_households.first.primary_applicant_id).to eql(p0.id)
       expect(ag.tax_households.first.applicant_links.first.person._id).to eql(a0.person_id)
 
-      expect(ag.hbx_enrollments.first.primary_applicant_id).to eql(p1._id)
+      expect(ag.hbx_enrollments.first.primary_applicant_id).to eql(p0.id)
+      expect(ag.hbx_enrollments.first.eligibility_determination.id).to eq(ed.id)
       expect(ag.hbx_enrollments.first.allocated_aptc_in_cents).to eql(12500)
-      expect(ag.hbx_enrollments.first.csr_percent_as_integer).to eql(71)
-      expect(ag.hbx_enrollments.first.applicant_links.first.person_id).to eql(a1.person_id)
+      expect(ag.hbx_enrollments.first.applicant_links.first.person_id).to eql(a0.person_id)
 
       expect(ag.hbx_enrollment_exemptions.first.certificate_number).to eql("123zxy987")
 
       # Access embedded model properties via the IrsGroup association
-      expect(ag.irs_groups.first.tax_households.first.primary_applicant_id).to eql(p0._id)
+      expect(ag.irs_groups.first.tax_households.first.primary_applicant_id).to eql(p0.id)
 
       expect(ag.irs_groups.first.hbx_enrollments.first.kind).to eql("unassisted_qhp")
-      expect(ag.irs_groups.first.hbx_enrollments.first.primary_applicant_id).to eql(p1._id)
+      expect(ag.irs_groups.first.hbx_enrollments.first.primary_applicant_id).to eql(p0.id)
 
       expect(ag.irs_groups.first.hbx_enrollment_exemptions.first.kind).to eql(hx.kind)
     end

@@ -9,26 +9,19 @@ class HbxEnrollment
 
   auto_increment :_id, seed: 9999
 
-  # embedded belongs_to IrsGroup association
-  field :policy_id, type: Moped::BSON::ObjectId
-  field :irs_group_id, type: Moped::BSON::ObjectId
   field :kind, type: String
-  field :primary_applicant_id, type: Moped::BSON::ObjectId
-
-  field :allocated_aptc_in_cents, type: Integer
-  field :csr_percent_as_integer, type: Integer
+  field :allocated_aptc_in_cents, type: Integer, default: 0
+  field :applied_aptc_in_cents, type: Integer, default: 0
+  field :elected_aptc_in_cents, type: Integer, default: 0
   field :aasm_state, type: String
 
-  belongs_to :broker
+  # embedded association: belongs_to IrsGroup 
+  field :irs_group_id, type: Moped::BSON::ObjectId
+  field :broker_id, type: Moped::BSON::ObjectId
+  field :policy_id, type: Moped::BSON::ObjectId
+  field :primary_applicant_id, type: Moped::BSON::ObjectId
 
-  # Polymorphic?
-
-    # field :policy_id, type: Moped::BSON::ObjectId
-    # field :eligibility_determination_id, type: Moped::BSON::ObjectId
-    # field :applied_aptc_in_cents, type: Integer
-    # field :elected_aptc_in_cents, type: Integer
-    # field :allocated_aptc_in_cents, type: Integer
-    # field :csr_percent, type: Float
+  field :eligibility_determination_id, type: Moped::BSON::ObjectId
 
 
   embeds_many :applicant_links
@@ -45,11 +38,6 @@ class HbxEnrollment
               allow_nil: true, 
               numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
-  validates :csr_percent_as_integer,
-              allow_nil: true, 
-              numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-
-
   def parent
     raise "undefined parent ApplicationGroup" unless application_group? 
     self.application_group
@@ -58,7 +46,7 @@ class HbxEnrollment
   def broker=(broker_instance)
     return unless broker_instance.is_a? Broker
     self.broker_id = broker_instance._id
-    parent.brokers << broker_instance
+    parent.brokers << broker_instance  # Brokers are tracked at ApplicationGroup level
   end
 
   def broker
@@ -68,7 +56,7 @@ class HbxEnrollment
   def policy=(policy_instance)
     return unless policy_instance.is_a? Policy
     self.policy_id = policy_instance._id
-    parent.policies << policy_instance
+    parent.policies << policy_instance  # Policies are tracked at ApplicationGroup level
   end
 
   def policy
@@ -93,24 +81,42 @@ class HbxEnrollment
     Person.find(self.primary_applicant_id) unless self.primary_applicant_id.blank?
   end
 
+  # Insurance assistance determination
+  def eligibility_determination=(eligibility_determination_instance)
+    return unless eligibility_determination_instance.is_a? EligibilityDetermination
+    self.eligibility_determination_id = eligibility_determination_instance._id
+  end
+
+  def eligibility_determination
+    parent.eligibility_determinations.find(self.eligibility_determination_id) unless self.eligibility_determination_id.blank?
+  end
+
   def allocated_aptc_in_dollars=(dollars)
-    self.allocated_aptc_in_cents = Rational(dollars) * Rational(100)
+    self.allocated_aptc_in_cents = (Rational(dollars) * Rational(100)).to_i
   end
 
   def allocated_aptc_in_dollars
     (Rational(allocated_aptc_in_cents) / Rational(100)).to_f if allocated_aptc_in_cents
   end
 
+  def applied_aptc_in_dollars=(dollars)
+    self.applied_aptc_in_cents = (Rational(dollars) * Rational(100)).to_i
+  end
+
+  def applied_aptc_in_dollars
+    (Rational(applied_aptc_in_cents) / Rational(100)).to_f if applied_aptc_in_cents
+  end
+
+  def elected_aptc_in_dollars=(dollars)
+    self.elected_aptc_in_cents = (Rational(dollars) * Rational(100)).to_i
+  end
+
+  def elected_aptc_in_dollars
+    (Rational(elected_aptc_in_cents) / Rational(100)).to_f if elected_aptc_in_cents
+  end
 
   aasm do
     state :enrollment_closed, initial: true
   end
-
-private
-  # Validate csr_percent value is in range 1..0
-  def csr_as_percent
-    errors.add(:csr_percent, "value must be between 0 and 1") unless (0 <= csr_percent && csr_percent <= 1)
-  end
-
 
 end
