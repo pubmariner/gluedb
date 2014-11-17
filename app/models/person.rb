@@ -62,8 +62,8 @@ class Person
   embeds_many :responsible_parties
 #  accepts_nested_attributes_for :responsible_parties, reject_if: :all_blank, allow_destroy: true
 
-  embeds_many :assistance_eligibilities
-  accepts_nested_attributes_for :assistance_eligibilities, allow_destroy: true
+  embeds_many :financial_statements
+  accepts_nested_attributes_for :financial_statements, allow_destroy: true
 
   embeds_many :comments
   accepts_nested_attributes_for :comments, reject_if: proc { |attribs| attribs['content'].blank? }, allow_destroy: true
