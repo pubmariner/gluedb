@@ -46,30 +46,19 @@ class TaxHousehold
     Person.find(self.primary_applicant_id) unless self.primary_applicant_id.blank?
   end
 
+  # Income sum of all tax filers in this Household for specified year
   def total_incomes_by_year
-    tax_household_members.inject({}) do |acc, per|
-      p_incomes = per.assistance_eligibilities.inject({}) do |acc, ae|
+    applicant_links.inject({}) do |acc, per|
+      p_incomes = per.financial_statements.inject({}) do |acc, ae|
         acc.merge(ae.total_incomes_by_year) { |k, ov, nv| ov + nv }
       end
       acc.merge(p_incomes) { |k, ov, nv| ov + nv }
     end
   end
 
-  #TODO: return count for adult (>=21), child (<21) and total
+  #TODO: return count for adults (21-64), children (<21) and total
   def size
     members.size 
-  end
-
-  def magi_in_dollars=(dollars)
-    self.magi_in_cents = Rational(dollars) * Rational(100)
-  end
-
-  def magi_in_dollars
-    (Rational(magi_in_cents) / Rational(100)).to_f if magi_in_cents
-  end
-
-  # Income sum of all tax filers in this Household for specified year
-  def total_income(year)
   end
 
   def self.create_for_people(the_people)
