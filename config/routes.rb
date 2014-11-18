@@ -92,6 +92,8 @@ Gluedb::Application.routes.draw do
     get 'page/:page', :action => :index, :on => :collection
   end
 
+  resources :edi_issues
+
   resources :carriers do
     resources :plans
     get :show_plans

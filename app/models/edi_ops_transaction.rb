@@ -3,6 +3,7 @@ class EdiOpsTransaction
   include Mongoid::Timestamps
   include AASM
 
+  embedded_in :edi_issues
 
   field :qualifying_reason_uri, type: String
   field :enrollment_group_uri, type: String
