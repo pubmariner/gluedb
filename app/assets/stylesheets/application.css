@@ -13,5 +13,6 @@
  *= require bootstrap_and_overrides
  *= require flatuipro
  *= require flatuipro_overrides
+ *= require static_hamburger_menu
  *= require_tree .
  */
