@@ -22,24 +22,21 @@
       <div class="col-md-4">
         <div class="panel panel-default">
           <div class="panel-heading">
-
+            <h3 class="panel-title"><%= prepend_glyph_to_name("Member Information") %></h3>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-              <h3 class="panel-title"><%= prepend_glyph_to_name("Member Information") %>
-                <ul class="nav navbar-nav navbar-right">
-                  <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"> <span class="fui-list"> </span></a>
-                    <ul class="dropdown-menu" role="menu">
-                      <li><a href="#">Manage Members</a></li>
-                      <li><a href="#">Another action</a></li>
-                      <li class="divider"></li>
-                      <li><a href="#">Separated link</a></li>
-                    </ul>
-                  </li>
-                </ul>
-              </h3>
+              <ul class="nav navbar-nav navbar-right  static-hamburger-menu">
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                    <span class="fui-list"> </span></a>
+                  <ul class="dropdown-menu" role="menu">
+                    <li><a href="#">Manage Members</a></li>
+                    <li><a href="#">Another action</a></li>
+                    <li class="divider"></li>
+                    <li><a href="#">Separated link</a></li>
+                  </ul>
+                </li>
+              </ul>
             </div>
-
-            
           </div>
           <div class="panel-body">
             <h4><%= @primary_applicant.full_name %></h4>
@@ -73,6 +70,7 @@
       </div>
     </div>
 
+
     <div class="row">
       <div class="col-md-4">
         <div class="panel panel-default">
@@ -89,12 +87,10 @@
           <% @application_group.hbx_enrollments.each do |e| %>
 
             <% policy    = e.policy %>
-            <% plan      = e.policy.plan %>
 
+            <% plan      = e.policy.plan %>
             <% carrier   = e.policy.carrier %>
             <% broker    = e.policy.broker %>
-            <% enrollees = e.policy.enrollees %>
-
             <% enrollees = e.policy.enrollees %>
 
             <h6><%= plan.name %></h6>
