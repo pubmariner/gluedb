@@ -34,10 +34,6 @@ class ApplicantLink
     Person.find(self.person_id) unless self.person_id.blank?
   end
 
-  def is_active?=(status)
-    self.is_active = status
-  end
-
   def is_active?
     self.is_active
   end

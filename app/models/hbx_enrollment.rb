@@ -16,8 +16,9 @@ class HbxEnrollment
 
   # embedded association: belongs_to IrsGroup 
   field :irs_group_id, type: Moped::BSON::ObjectId
-  field :broker_id, type: Moped::BSON::ObjectId
-  field :policy_id, type: Moped::BSON::ObjectId
+  field :employer_id,  type: Moped::BSON::ObjectId
+  field :broker_id,    type: Moped::BSON::ObjectId
+  field :policy_id,    type: Moped::BSON::ObjectId
   field :primary_applicant_id, type: Moped::BSON::ObjectId
   field :eligibility_determination_id, type: Moped::BSON::ObjectId
   field :qualifying_life_event_id, type: Moped::BSON::ObjectId
@@ -124,10 +125,6 @@ class HbxEnrollment
 
   aasm do
     state :enrollment_closed, initial: true
-  end
-
-  def is_active?=(status)
-    self.is_active = status
   end
 
   def is_active?

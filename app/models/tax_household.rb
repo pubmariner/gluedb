@@ -96,10 +96,6 @@ class TaxHousehold
     Person.find_by_id(relationship.subject_person)
   end
 
-  def is_active?=(status)
-    self.is_active = status
-  end
-
   def is_active?
     self.is_active
   end
