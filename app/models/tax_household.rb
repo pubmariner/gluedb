@@ -4,12 +4,13 @@ class TaxHousehold
 
   embedded_in :application_group
 
-  auto_increment :_id, seed: 9999
+  auto_increment :hbx_id, seed: 9999  # Create 'friendly' ID to publish for other systems
 
   # embedded belongs_to :irs_group association
-  field :irs_group_id, type: Integer
+  field :irs_group_id, type: Moped::BSON::ObjectId
+  field :hbx_enrollment_id, type: Moped::BSON::ObjectId
   field :primary_applicant_id, type: Moped::BSON::ObjectId
-  field :is_active, type: Boolean, default: true   # this Household active on the Exchange?
+  field :is_active, type: Boolean, default: true   # this TaxHousehold active on the Exchange?
   
   # field :e_pdc_id, type: String  # Eligibility system PDC foreign key
 
@@ -28,12 +29,21 @@ class TaxHousehold
     parent.tax_household_members.where(:tax_household_id => id)
   end
 
+  def hbx_enrollment=(he_instance)
+    return unless he_instance.is_a? HbxEnrollment
+    self.hbx_enrollment_id = he_instance._id
+  end
+
+  def hbx_enrollments
+    parent.hbx_enrollments.find(self.hbx_enrollment_id)
+  end
+
   def irs_group=(irs_instance)
     return unless irs_instance.is_a? IrsGroup
     self.irs_group_id = irs_instance._id
   end
 
-  def irs_groups
+  def irs_group
     parent.irs_groups.find(self.irs_group_id)
   end
 
@@ -86,4 +96,11 @@ class TaxHousehold
     Person.find_by_id(relationship.subject_person)
   end
 
+  def is_active?=(status)
+    self.is_active = status
+  end
+
+  def is_active?
+    self.is_active
+  end
 end

@@ -23,8 +23,6 @@ class EligibilityDetermination
               allow_nil: true, 
               numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
-  embeds_many :applicant_links
-
   def parent
     raise "undefined parent ApplicationGroup" unless application_group? 
     self.application_group
@@ -32,12 +30,17 @@ class EligibilityDetermination
 
   # embedded has_many :tax_households
   def tax_households
-    parent.tax_households.where(:irs_group_id => self.id)
+    parent.tax_households.where(:tax_household_id => self.id)
   end
  
   # embedded has_many :hbx_enrollments
   def hbx_enrollments
     parent.hbx_enrollments.where(:hbx_enrollment_id => self.id)
+  end
+
+  # embedded has_many :financial_statement
+  def financial_statements
+    parent.financial_statements.where(:financial_statement_id => self.id)
   end
 
   def primary_applicant=(person_instance)

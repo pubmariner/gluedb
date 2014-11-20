@@ -36,5 +36,9 @@ class HbxEnrollmentExemption
     self.irs_group_id = irs_instance._id
   end
 
+  def irs_group
+    parent.irs_group.find(self.irs_group_id)
+  end
+
 
 end

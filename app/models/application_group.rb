@@ -5,26 +5,29 @@ class ApplicationGroup
   include Mongoid::Paranoia
   include AASM
 
+  auto_increment :hbx_assigned_id, seed: 9999
   field :e_case_id, type: String  # Eligibility system foreign key
   field :e_status_code, type: String
   field :is_active, type: Boolean, default: true   # ApplicationGroup active on the Exchange?
 
-  field :renewal_consent_through_year, type: Integer    # Authorize auto-renewal elibility check through this year (CCYY format)
-  field :submitted_date, type: DateTime             # Date application was created on authority system
+  field :renewal_consent_through_year, type: Integer  # Authorize auto-renewal elibility check through this year (CCYY format)
+  field :submitted_date, type: DateTime               # Date application was created on authority system
 
   field :application_type, type: String
   field :aasm_state, type: String
   field :updated_by, type: String
 
+  # All current and former members of this group
   has_many :applicants, class_name: "Person", inverse_of: :applicant
-  has_many :policies, class_name: "Policy", inverse_of: :enrollment_policy
-  has_and_belongs_to_many :brokers, class_name: "Broker", inverse_of: :application_groups
 
   # Person responsible for this application group
-  belongs_to :primary_applicant, class_name: "Person", inverse_of: :primary_applicants
+  has_one :primary_applicant, class_name: "Person"
 
   # Person who authorizes auto-renewal eligibility check
-  belongs_to :consent_applicant, class_name: "Person", inverse_of: :consenters
+  has_one :consent_applicant, class_name: "Person"
+
+  has_many :hbx_enrollment_policies, class_name: "Policy", inverse_of: :hbx_enrollment_policy
+  # has_and_belongs_to_many :brokers, class_name: "Broker", inverse_of: :application_groups
 
   embeds_many :irs_groups, cascade_callbacks: true
   accepts_nested_attributes_for :irs_groups
@@ -37,6 +40,9 @@ class ApplicationGroup
 
   embeds_many :hbx_enrollment_exemptions, cascade_callbacks: true
   accepts_nested_attributes_for :hbx_enrollment_exemptions
+
+  embeds_many :financial_statements
+  accepts_nested_attributes_for :financial_statements
 
   embeds_many :eligibility_determinations, cascade_callbacks: true
   accepts_nested_attributes_for :eligibility_determinations
@@ -52,18 +58,19 @@ class ApplicationGroup
               numericality: { only_integer: true, inclusion: 2014..2025 }
 
 
-  scope :all_with_multiple_applicants, exists({ :'applicants.1' => true })
+  scope :all_with_multiple_applicants, exists({ :'applicant_links.1' => true })
 
 #  validates_inclusion_of :max_renewal_year, :in => 2013..2025, message: "must fall between 2013 and 2030"
 
   index({e_case_id:  1})
   index({is_active:  1})
+  index({aasm_state:  1})
   index({primary_applicant_id:  1})
   index({consent_applicant_id:  1})
   index({"irs_group._id" =>  1})
   index({"hbx_enrollment._id" =>  1})
   index({submitted_date:  1})
-  index({"applicants.applicant_id" => 1})
+  index({"applicant_links.applicant_id" => 1})
 
 
   aasm do

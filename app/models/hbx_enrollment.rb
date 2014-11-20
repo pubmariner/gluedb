@@ -7,12 +7,11 @@ class HbxEnrollment
 
   embedded_in :application_group
 
-  auto_increment :_id, seed: 9999
-
   field :kind, type: String
   field :allocated_aptc_in_cents, type: Integer, default: 0
   field :applied_aptc_in_cents, type: Integer, default: 0
   field :elected_aptc_in_cents, type: Integer, default: 0
+  field :is_active, type: Boolean, default: true 
   field :aasm_state, type: String
 
   # embedded association: belongs_to IrsGroup 
@@ -20,10 +19,8 @@ class HbxEnrollment
   field :broker_id, type: Moped::BSON::ObjectId
   field :policy_id, type: Moped::BSON::ObjectId
   field :primary_applicant_id, type: Moped::BSON::ObjectId
-
   field :eligibility_determination_id, type: Moped::BSON::ObjectId
-
-
+  field :qualifying_life_event_id, type: Moped::BSON::ObjectId
   embeds_many :applicant_links
   embeds_many :comments
   accepts_nested_attributes_for :comments, reject_if: proc { |attribs| attribs['content'].blank? }, allow_destroy: true
@@ -51,6 +48,16 @@ class HbxEnrollment
 
   def broker
     Broker.find(self.broker_id) unless self.broker_id.blank?
+  end
+
+  def qualifying_life_event=(qle_instance)
+    return unless qle_instance.is_a? QualifyingLifeEvent
+    self.qualifying_life_event_id = qle_instance._id
+    parent.policies << qle_instance  # Policies are tracked at ApplicationGroup level
+  end
+
+  def qualifying_life_event
+    parent.qualifying_life_event.find(self.qualifying_life_event_id)
   end
 
   def policy=(policy_instance)
@@ -118,5 +125,14 @@ class HbxEnrollment
   aasm do
     state :enrollment_closed, initial: true
   end
+
+  def is_active?=(status)
+    self.is_active = status
+  end
+
+  def is_active?
+    self.is_active
+  end
+
 
 end
