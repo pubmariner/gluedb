@@ -31,10 +31,6 @@ class IrsGroup
     parent.hbx_enrollment_exemptions.where(:irs_group_id => self.id)
   end
 
-  def is_active?=(status)
-    self.is_active = status
-  end
-
   def is_active?
     self.is_active
   end
