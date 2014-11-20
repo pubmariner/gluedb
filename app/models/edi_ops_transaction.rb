@@ -26,11 +26,11 @@ class EdiOpsTransaction
     state :assigned
     state :resolved
 
-    event assign: do
+    event :assign do
       transitions from: :open, to: :assigned
     end
 
-    event resolve: do
+    event :resolve do
       transitions from: :assigned, to: :resolved
     end
   end
