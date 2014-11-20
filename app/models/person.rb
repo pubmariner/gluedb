@@ -38,11 +38,10 @@ class Person
   index({name_last: 1, name_first:1, "emails.email_address" => 1})
   index({"emails.email_address" => 1})
 
-  belongs_to :applicant, class_name: "ApplicationGroup", inverse_of: :applicants
-  belongs_to :tax_household_member, class_name: "TaxHousehold", inverse_of: :tax_household_members
 
-  has_many   :primary_applicants, class_name: "ApplicationGroup", inverse_of: :primary_applicant
-  has_many   :consenters, class_name: "ApplicationGroup", inverse_of: :consent_applicant
+  belongs_to :applicant, class_name: "ApplicationGroup", inverse_of: :applicants
+  belongs_to :primary_applicant, class_name: "ApplicationGroup"
+  belongs_to :consent_applicant, class_name: "ApplicationGroup"
 
   has_and_belongs_to_many :employers, class_name: "Employer", inverse_of: :employee
 
@@ -61,9 +60,6 @@ class Person
 
   embeds_many :responsible_parties
 #  accepts_nested_attributes_for :responsible_parties, reject_if: :all_blank, allow_destroy: true
-
-  embeds_many :financial_statements
-  accepts_nested_attributes_for :financial_statements, allow_destroy: true
 
   embeds_many :comments
   accepts_nested_attributes_for :comments, reject_if: proc { |attribs| attribs['content'].blank? }, allow_destroy: true
