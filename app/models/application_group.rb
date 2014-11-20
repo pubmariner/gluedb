@@ -21,10 +21,10 @@ class ApplicationGroup
   has_many :applicants, class_name: "Person", inverse_of: :applicant
 
   # Person responsible for this application group
-  has_one :primary_applicant, class_name: "Person"
+  has_one :primary_applicant, class_name: "Person", inverse_of: :primary_applicant
 
   # Person who authorizes auto-renewal eligibility check
-  has_one :consent_applicant, class_name: "Person"
+  has_one :consent_applicant, class_name: "Person", inverse_of: :consent_applicant
 
   has_many :hbx_enrollment_policies, class_name: "Policy", inverse_of: :hbx_enrollment_policy
   # has_and_belongs_to_many :brokers, class_name: "Broker", inverse_of: :application_groups
