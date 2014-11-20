@@ -40,8 +40,8 @@ class Person
 
 
   belongs_to :applicant, class_name: "ApplicationGroup", inverse_of: :applicants
-  belongs_to :primary_applicant, class_name: "ApplicationGroup"
-  belongs_to :consent_applicant, class_name: "ApplicationGroup"
+  belongs_to :primary_applicant, class_name: "ApplicationGroup", inverse_of: :primary_applicant
+  belongs_to :consent_applicant, class_name: "ApplicationGroup", inverse_of: :consent_applicant
 
   has_and_belongs_to_many :employers, class_name: "Employer", inverse_of: :employee
 
