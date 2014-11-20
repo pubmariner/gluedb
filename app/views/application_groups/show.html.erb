@@ -3,119 +3,211 @@
 <div class="page-header">
   <%- #pid = @application_group.person_relationships.first.subject_person -%>
   <%= render 'shared/breadcrumb', crumbs: [
-      link_to('Application Groups', application_groups_path),
-      @application_group.id
+    link_to('Application Groups', application_groups_path),
+    @application_group.id
       # Person.find(pid).name_full
     ]
-  %>
-</div>
-<div class='col-md-12'>
-
-<h6>Exchange Status</h6>
-<p>Individual market enrollment is open|closed. Enrollment will open|close on <b>Date</b>></p>
-<p>Application Group is in Special Enrollment Period (SEP). SEP will close on <b>Date</b>></p>
-<p><b>Employer name</b> enrollment is open|closed. Enrollment will open|close on <b>Date</b>></p>
-
-<h6>General</h6>
-<ul>
-  <li>renewal_consent_through_year</li>
-  <li>consent_applicant</li>
-  <li>tax_households</li>
-  <li>irs_groups</li>
-  <li>hbx_enrollment_exemptions</li>
-  <li>is_active</li>
-</ul>
-
-<h6>Activity</h6>
-<p>Transacton status of all current, or last enrollment</p>
-<table class="table table-condensed">
-  <thead>
-    <tr>
-      <th>application_type</th>
-      <th>submitted_date</th>
-      <th>aasm_state</th>
-      <th>e_status_code</th>
-      <th>e_case_id</th>
-    </tr>
-  </thead>
-  <% @application_group.qualifying_life_events.each do |qle| %>
-    <tbody>
-      <tr>
-        <td><%= qle.kind %></td>
-        <td><%= qle.state %></td>
-        <td><%= qle.event_date %></td>
-        <td><%= qle.sep_start_date %></td>
-        <td><%= qle.sep_end_date %></td>
-      </tr>
-    </tbody>
-  <% end %>
-</table>
-
-
-<h6>Member Information</h6>
-<ul>
-  <li>Member Name</li>
-  <li>Exchange ID</li>
-  <li>Address</li>
-  <li>Email</li>
-</ul>
-<p><small>Manage Members</small></p>
-
-<h6>Enrolled Plans</h6>
-<ul>
-  <li>Carrier</li>
-  <li>Carrier ID</li>
-  <li>Plan Name</li>
-  <li>Coverage Type</li>
-  <li>Coverage Level (family, individual)</li>
-  <li>Effective Date</li>
-</ul>
-<p><small>Manage Enrolled Plans</small></p>
-
-<h6>Assistance</h6>
-<ul>
-  <li>eligibility_determinations</li>
-</ul>
-<p><small>Apply for Assistance</small></p>
-
-<h6>Life Events</h6>
-<%= link_to('New Life Event', new_special_enrollment_period_path(application_group_id: @application_group.id)) %>
-
-  <table class="table table-condensed">
-    <thead>
-      <tr>
-        <th>Reason</th>
-        <th>Event Date</th>
-        <th>Start Date</th>
-        <th>End Date</th>
-        <th>Workflow state</th>
-      </tr>
-    </thead>
-    <% @application_group.qualifying_life_events.each do |qle| %>
-      <tbody>
-        <tr>
-          <td><%= qle.kind %></td>
-          <td><%= qle.state %></td>
-          <td><%= qle.event_date %></td>
-          <td><%= qle.sep_start_date %></td>
-          <td><%= qle.sep_end_date %></td>
-        </tr>
-      </tbody>
-    <% end %>
-  </table>
-
-<h6>Other</h6>
-<ul>
-  <li>1095A</li>
-  <li>1095A</li>
-</ul>
-
-<h6>Employer</h6>
-<h6>Broker</h6>
-
-  <div class="well well-sm default">
-    <div class="form-actions">
-     <%= link_to t('.back', :default => t("helpers.links.back")), application_groups_path, :class => 'btn btn-primary'  %>
-    </div>
+    %>
   </div>
+  <div class='col-md-12'>
+
+    <div class="alert alert-success alert-dismissible" role="alert">
+      <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <p>Individual market enrollment is open|closed. Enrollment will open|close on <b>Date</b>></p>
+        <p>Application Group is in Special Enrollment Period (SEP). SEP will close on <b>Date</b>></p>
+        <p><b>Employer name</b> enrollment is open|closed. Enrollment will open|close on <b>Date</b>></p>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+              <h3 class="panel-title"><%= prepend_glyph_to_name("Member Information") %>
+                <ul class="nav navbar-nav navbar-right">
+                  <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"> <span class="fui-list"> </span></a>
+                    <ul class="dropdown-menu" role="menu">
+                      <li><a href="#">Manage Members</a></li>
+                      <li><a href="#">Another action</a></li>
+                      <li class="divider"></li>
+                      <li><a href="#">Separated link</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </h3>
+            </div>
+
+            
+          </div>
+          <div class="panel-body">
+            <h4><%= @primary_applicant.full_name %></h4>
+            <address>
+              (Exchange-assigned ID: <%= @primary_applicant.authority_member.hbx_member_id %>)<br/>
+              <%= @primary_applicant.addresses.first.formatted_address %><br/>
+              <abbr title="Phone">P:</abbr> (123) 456-7890<br/>
+              <a href="mailto:#"><%= @primary_applicant.emails.first.email_address %></a>
+            </address>
+            <p><%= "There are #{ @application_group.applicants.size } members on this plan" %></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><span class="fui-list"> Life Events </span></h3>
+          </div>
+          <div class="panel-body">
+            <ul>
+              <li>Kind</li>
+              <li>Event Date</li>
+              <li>Status</li>
+              <li>Special Enrollment Period Start Date</li>
+              <li>Special Enrollment Period End Date</li>
+            </ul>
+          </div>
+          <div class="panel-footer"><p><small>New Life Event | Access Life Event History</small></p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Enrolled Plans</h3>
+          </div>
+          <div class="panel-body">
+          <% @primary_applicant.financial_statements.each do |fs| %>
+          <% end %>
+
+          <% @active_policies = @primary_applicant.active_policies %>
+          <% @future_policies = @primary_applicant.future_active_policies %>
+
+          <% @application_group.hbx_enrollments.each do |e| %>
+
+            <% policy    = e.policy %>
+            <% plan      = e.policy.plan %>
+
+            <% carrier   = e.policy.carrier %>
+            <% broker    = e.policy.broker %>
+            <% enrollees = e.policy.enrollees %>
+
+            <% enrollees = e.policy.enrollees %>
+
+            <h6><%= plan.name %></h6>
+            <dl class="dl-horizontal">
+              <dt>Carrier</dt>
+              <dd><%= e.policy.carrier.name %></dd>
+              <dt>Plan ID</dt>
+              <dd><%= plan.hios_plan_id %></dd>
+              <dt>Coverage Type</dt>
+              <dd><%= plan.coverage_type.capitalize %></dd>
+              <dt>Coverage Level</dt>
+              <dd><%= plan.metal_level %></dd>
+              <dt>Metal Level</dt>
+              <dd><%= plan.metal_level %></dd>
+              <dt>Broker</dt>
+              <dd><%= policy.broker.full_name unless policy.broker.blank? %></dd>
+              <dt>Effective Date</dt>
+              <dd><%#= effective_date %></dd>
+            </dl>
+          <% end %>
+          </div>
+          <div class="panel-footer"><p><small>New Life Event | Access Life Event History</small></p></div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Insurance Assistance</h3>
+          </div>
+          <div class="panel-body">
+            <ul>
+              <li>Head of Household Member Name 1</li>
+              <ul>
+                <li>aptc</li>
+                <li>csr</li>
+                <li>total_income</li>
+                <li>total_expenses</li>
+                <li>alternative_benefits</li>
+              </ul>
+            </ul>
+            <ul>
+              <li>Head of Household Member Name 1</li>
+              <ul>
+                <li>aptc</li>
+                <li>csr</li>
+                <li>total_income</li>
+                <li>total_expenses</li>
+                <li>alternative_benefits</li>
+              </ul>
+            </ul>
+          </div>
+          <div class="panel-footer"><p><small>Apply for Assistance | Update Financial Information</small></p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Broker</h3>
+          </div>
+          <div class="panel-body">
+            <ul>
+              <li>Name</li>
+              <li>Exchange ID</li>
+              <li>Address</li>
+              <li>Phone</li>
+              <li>Email</li>
+            </ul>
+          </div>
+          <div class="panel-footer"><p><small>Manage Members</small></p></div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Employer</h3>
+          </div>
+          <div class="panel-body">
+            <ul>
+              <li>name</li>
+              <li>exchange_id</li>
+              <li>elected_plans</li>
+            </ul>
+          </div>
+          <div class="panel-footer"><p><small>Manage Members</small></p></div>
+        </div>
+      </div>
+    </div>
+
+    <h6>General</h6>
+    <ul>
+      <li>Access my IRS 1095A forms</li>
+      <li>Access my Notice history</li>
+      <li>renewal_consent_through_year</li>
+      <li>consent_applicant</li>
+      <li>irs_groups</li>
+      <li>is_active</li>
+    </ul>
+
+    <h6>Admin</h6>
+    <ul>
+      <li>irs_groups</li>
+      <li>is_active?</li>
+    </ul>
+
+
+    <div class="well well-sm default">
+      <div class="form-actions">
+       <%= link_to t('.back', :default => t("helpers.links.back")), application_groups_path, :class => 'btn btn-primary'  %>
+      </div>
+    </div>
 </div>
