@@ -44,7 +44,8 @@ class Employer
   has_many :plan_years
   embeds_many :elected_plans
 
-  has_and_belongs_to_many :employees, class_name: 'Person', inverse_of: :employee, order: {name_last: 1, name_first: 1}
+  # has_and_belongs_to_many :employees, class_name: 'Person', inverse_of: :employers, order: {name_last: 1, name_first: 1}
+  has_many :employees, class_name: 'Person', inverse_of: :employer, order: {name_last: 1, name_first: 1}
   has_and_belongs_to_many :carriers, order: { name: 1 }, inverse_of: nil
   has_and_belongs_to_many :plans, order: { name: 1, hios_plan_id: 1 }
 

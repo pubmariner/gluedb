@@ -8,6 +8,8 @@ class HbxEnrollment
   embedded_in :application_group
 
   field :kind, type: String
+  field :enrollment_group_id, type: String
+  field :plan_id, type: Moped::BSON::ObjectId
   field :allocated_aptc_in_cents, type: Integer, default: 0
   field :applied_aptc_in_cents, type: Integer, default: 0
   field :elected_aptc_in_cents, type: Integer, default: 0
@@ -15,13 +17,14 @@ class HbxEnrollment
   field :aasm_state, type: String
 
   # embedded association: belongs_to IrsGroup 
+  field :policy_id,    type: Integer
   field :irs_group_id, type: Moped::BSON::ObjectId
   field :employer_id,  type: Moped::BSON::ObjectId
   field :broker_id,    type: Moped::BSON::ObjectId
-  field :policy_id,    type: Moped::BSON::ObjectId
   field :primary_applicant_id, type: Moped::BSON::ObjectId
   field :eligibility_determination_id, type: Moped::BSON::ObjectId
   field :qualifying_life_event_id, type: Moped::BSON::ObjectId
+
   embeds_many :applicant_links
   embeds_many :comments
   accepts_nested_attributes_for :comments, reject_if: proc { |attribs| attribs['content'].blank? }, allow_destroy: true
@@ -39,6 +42,15 @@ class HbxEnrollment
   def parent
     raise "undefined parent ApplicationGroup" unless application_group? 
     self.application_group
+  end
+
+  def employer=(employer_instance)
+    return unless employer_instance.is_a? Employer
+    self.employer_id = employer_instance._id
+  end
+
+  def employer
+    Broker.find(self.employer_id) unless self.employer_id.blank?
   end
 
   def broker=(broker_instance)
@@ -64,11 +76,20 @@ class HbxEnrollment
   def policy=(policy_instance)
     return unless policy_instance.is_a? Policy
     self.policy_id = policy_instance._id
-    parent.policies << policy_instance  # Policies are tracked at ApplicationGroup level
+    parent.hbx_enrollment_policies << policy_instance  # Policies are tracked at ApplicationGroup level
   end
 
   def policy
     Policy.find(self.policy_id) unless self.policy_id.blank?
+  end
+
+  def plan=(plan_instance)
+    return unless plan_instance.is_a? Plan
+    self.plan_id = plan_instance._id
+  end
+
+  def plan
+    Plan.find(self.plan_id) unless self.plan_id.blank?
   end
 
   def irs_group=(irs_instance)

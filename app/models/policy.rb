@@ -15,7 +15,6 @@ class Policy
   field :preceding_enrollment_group_id, type: String
 #  field :r_id, as: :hbx_responsible_party_id, type: String
 
-  # TODO: move BigDecimal types to Integers
   field :allocated_aptc, type: BigDecimal, default: 0.00
   field :elected_aptc, type: BigDecimal, default: 0.00
   field :applied_aptc, type: BigDecimal, default: 0.00
@@ -24,30 +23,18 @@ class Policy
   field :pre_amt_tot, as: :total_premium_amount, type: BigDecimal, default: 0.00
   field :tot_res_amt, as: :total_responsible_amount, type: BigDecimal, default: 0.00
   field :tot_emp_res_amt, as: :employer_contribution, type: BigDecimal, default: 0.00
-  
   field :sep_reason, type: String, default: :open_enrollment
   field :carrier_to_bill, type: Boolean, default: false
+  field :is_active, type: Boolean
   field :aasm_state, type: String
   field :updated_by, type: String
 
   validates_presence_of :eg_id
 
-  index({:eg_id => 1})
-  index({:aasm_state => 1})
-  index({:eg_id => 1, :carrier_id => 1, :plan_id => 1})
-
-  # has_many :policy_enrollees, class_name: "Person", inverse_of: :policy_enrollees
   embeds_many :enrollees
   accepts_nested_attributes_for :enrollees, reject_if: :all_blank, allow_destroy: true
 
-  index({ "enrollees.m_id" => 1 })
-  index({ "enrollees.hbx_member_id" => 1 })
-  index({ "enrollees.person_id" => 1 })
-  index({ "enrollees.rel_code" => 1})
-  index({ "enrollees.coverage_start" => 1})
-  index({ "enrollees.coverage_end" => 1})
-
-  belongs_to :enrollment_policy, class_name: "ApplicationGroup", inverse_of: :policies
+  belongs_to :hbx_enrollment_policy, class_name: "ApplicationGroup", inverse_of: :hbx_enrollment_policies, index: true
   belongs_to :carrier, counter_cache: true, index: true
   belongs_to :broker, counter_cache: true, index: true # Assumes that broker change triggers new enrollment group
   belongs_to :plan, counter_cache: true, index: true
@@ -55,12 +42,23 @@ class Policy
   belongs_to :responsible_party
 
   has_many :transaction_set_enrollments,
-            class_name: "Protocols::X12::TransactionSetEnrollment",
-            order: { submitted_at: :desc }
-            
+              class_name: "Protocols::X12::TransactionSetEnrollment",
+              order: { submitted_at: :desc }
   has_many :premium_payments, order: { paid_at: 1 }
 
   has_many :csv_transactions, :class_name => "Protocols::Csv::CsvTransaction"
+
+  index({:eg_id => 1})
+  index({:aasm_state => 1})
+  index({:eg_id => 1, :carrier_id => 1, :plan_id => 1})
+  index({ "enrollees.person_id" => 1 })
+  index({ "enrollees.m_id" => 1 })
+  index({ "enrollees.hbx_member_id" => 1 })
+  index({ "enrollees.carrier_member_id" => 1})
+  index({ "enrollees.carrier_policy_id" => 1})
+  index({ "enrollees.rel_code" => 1})
+  index({ "enrollees.coverage_start" => 1})
+  index({ "enrollees.coverage_end" => 1})
 
   before_create :generate_enrollment_group_id
   before_save :invalidate_find_cache
@@ -137,11 +135,6 @@ class Policy
       transitions from: :carrier_canceled, to: :effectuated
     end
 
-  end
-
-  # Embedded belongs_to HbxEnrollment
-  def hbx_enrollment
-    enrollment_policy.hbx_enrollments.detect { |e| e.policy_id == self._id }
   end
 
   def canceled?
@@ -496,6 +489,11 @@ class Policy
   def transaction_list
     (transaction_set_enrollments + csv_transactions).sort_by(&:submitted_at).reverse
   end
+
+  def is_active?
+    currently_active?
+  end
+
 
 protected
   def generate_enrollment_group_id
