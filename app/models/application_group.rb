@@ -13,22 +13,21 @@ class ApplicationGroup
   field :renewal_consent_through_year, type: Integer  # Authorize auto-renewal elibility check through this year (CCYY format)
   field :submitted_date, type: DateTime               # Date application was created on authority system
 
+  # Person responsible for this application group
+  field :primary_applicant_id, type: Moped::BSON::ObjectId
+
+  # Person who authorizes auto-renewal eligibility check
+  field :consent_applicant_id, type: Moped::BSON::ObjectId
+
   field :application_type, type: String
   field :aasm_state, type: String
   field :updated_by, type: String
 
   # All current and former members of this group
-  has_many :applicants, class_name: "Person", inverse_of: :applicant
-
-  # Person responsible for this application group
-  has_one :primary_applicant, class_name: "Person", inverse_of: :primary_applicant
-
-  # Person who authorizes auto-renewal eligibility check
-  has_one :consent_applicant, class_name: "Person", inverse_of: :consent_applicant
+  has_many :applicants, class_name: "Person", inverse_of: :application_group
 
   has_many :hbx_enrollment_policies, class_name: "Policy", inverse_of: :hbx_enrollment_policy
-  # has_and_belongs_to_many :brokers, class_name: "Broker", inverse_of: :application_groups
-
+ 
   embeds_many :irs_groups, cascade_callbacks: true
   accepts_nested_attributes_for :irs_groups
 
@@ -71,6 +70,30 @@ class ApplicationGroup
   index({"hbx_enrollment._id" =>  1})
   index({submitted_date:  1})
   index({"applicant_links.applicant_id" => 1})
+
+
+
+  def find_hbx_enrollment_by_policy
+  end
+
+
+  def primary_applicant=(person_instance)
+    return unless person_instance.is_a? Person
+    self.primary_applicant_id = person_instance._id
+  end
+
+  def primary_applicant
+    Person.find(self.primary_applicant_id) unless self.primary_applicant_id.blank?
+  end
+
+  def consent_applicant=(person_instance)
+    return unless person_instance.is_a? Person
+    self.consent_applicant_id = person_instance._id
+  end
+
+  def consent_applicant
+    Person.find(self.consent_applicant_id) unless self.consent_applicant_id.blank?
+  end
 
 
   aasm do
@@ -135,6 +158,10 @@ class ApplicationGroup
 
   def self.find_by_case_id(case_id)
     where({"e_case_id" => case_id}).first
+  end
+
+  def is_active?
+    self.is_active
   end
 
 end

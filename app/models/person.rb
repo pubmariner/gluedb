@@ -23,6 +23,9 @@ class Person
   field :authority_member_id, type: String, default: nil
   index({"authority_member_id" => 1})
 
+  # field :auth_member, type: Moped::BSON::ObjectId
+  # index({auth_member: 1})
+
   before_create :initialize_authority_member
   before_save :initialize_name_full
   before_save :invalidate_find_caches
@@ -38,12 +41,12 @@ class Person
   index({name_last: 1, name_first:1, "emails.email_address" => 1})
   index({"emails.email_address" => 1})
 
+  #TODO - create authority member index (use Mongo indexing method that expects many empty values)
 
-  belongs_to :applicant, class_name: "ApplicationGroup", inverse_of: :applicants
-  belongs_to :primary_applicant, class_name: "ApplicationGroup", inverse_of: :primary_applicant
-  belongs_to :consent_applicant, class_name: "ApplicationGroup", inverse_of: :consent_applicant
+  belongs_to :application_group, class_name: "ApplicationGroup", inverse_of: :applicants, index: true
 
-  has_and_belongs_to_many :employers, class_name: "Employer", inverse_of: :employee
+  # has_and_belongs_to_many :employers, class_name: "Employer", inverse_of: :employees
+  belongs_to :employer, class_name: "Employer", inverse_of: :employees, index: true
 
   embeds_many :addresses, :inverse_of => :person
   accepts_nested_attributes_for :addresses, reject_if: proc { |attribs| attribs['address_1'].blank? }, allow_destroy: true
@@ -56,7 +59,9 @@ class Person
 
   # embeds_many :members, after_add: :generate_hbx_member_id
   embeds_many :members, cascade_callbacks: true
+
   embeds_many :person_relationships
+  accepts_nested_attributes_for :person_relationships
 
   embeds_many :responsible_parties
 #  accepts_nested_attributes_for :responsible_parties, reject_if: :all_blank, allow_destroy: true
