@@ -25,8 +25,10 @@ class ApplicationGroup
 
   # All current and former members of this group
   has_many :applicants, class_name: "Person", inverse_of: :application_group
+  accepts_nested_attributes_for :applicants
 
   has_many :hbx_enrollment_policies, class_name: "Policy", inverse_of: :hbx_enrollment_policy
+  accepts_nested_attributes_for :hbx_enrollment_policies
  
   embeds_many :irs_groups, cascade_callbacks: true
   accepts_nested_attributes_for :irs_groups
@@ -66,16 +68,30 @@ class ApplicationGroup
   index({aasm_state:  1})
   index({primary_applicant_id:  1})
   index({consent_applicant_id:  1})
-  index({"irs_group._id" =>  1})
+  index({"irs_group.hbx_id" =>  1})
   index({"hbx_enrollment._id" =>  1})
+  index({"hbx_enrollment.broker_id" =>  1})
+  index({"hbx_enrollment.employer_id" =>  1})
+  index({"hbx_enrollment.policy_id" =>  1})
   index({submitted_date:  1})
   index({"applicant_links.applicant_id" => 1})
 
 
-
-  def find_hbx_enrollment_by_policy
+  def employers
+    hbx_enrollments.inject([]) { |em, e| p << e.employer unless e.employer.blank? } || []
   end
 
+  def policies
+    hbx_enrollments.inject([]) { |p, e| p << e.policy unless e.policy.blank? } || []
+  end
+
+  def brokers
+    hbx_enrollments.inject([]) { |b, e| b << e.broker unless e.broker.blank? } || []
+  end
+
+  def active_brokers
+    hbx_enrollments.inject([]) { |b, e| b << e.broker if e.is_active? && !e.broker.blank? } || []
+  end
 
   def primary_applicant=(person_instance)
     return unless person_instance.is_a? Person
