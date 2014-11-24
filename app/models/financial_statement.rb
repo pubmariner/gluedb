@@ -23,8 +23,6 @@ class FinancialStatement
 
   index({submitted_date:  1})
 
-  embeds_one :applicant_link
-
   embeds_many :incomes
   accepts_nested_attributes_for :incomes
 
@@ -58,7 +56,7 @@ class FinancialStatement
   end
 
   def eligibility_determination
-    parent.eligibility_determination.find(self.primary_applicant_id) unless self.primary_applicant_id.blank?
+    parent.eligibility_determination.find(self.eligibility_determination_id) unless self.eligibility_determination_id.blank?
   end
 
   # Evaluate if receiving Alternative Benefits this year

@@ -10,7 +10,7 @@ class HbxEnrollmentExemption
   field :certificate_number, type: String
   field :start_date, type: Date
   field :end_date, type: Date
-  field :irs_group_id, type: Integer
+  field :irs_group_id, type: Moped::BSON::ObjectId
 
   embeds_many :applicant_links
 

@@ -26,7 +26,7 @@ class TaxHousehold
   end
 
   def members
-    parent.tax_household_members.where(:tax_household_id => id)
+    parent.tax_household_members.where(:tax_household_id => self.id)
   end
 
   def hbx_enrollment=(he_instance)
@@ -35,7 +35,7 @@ class TaxHousehold
   end
 
   def hbx_enrollments
-    parent.hbx_enrollments.find(self.hbx_enrollment_id)
+    parent.hbx_enrollments.where(:tax_household_id => self.id)
   end
 
   def irs_group=(irs_instance)
