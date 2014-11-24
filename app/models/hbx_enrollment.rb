@@ -50,13 +50,12 @@ class HbxEnrollment
   end
 
   def employer
-    Broker.find(self.employer_id) unless self.employer_id.blank?
+    Employer.find(self.employer_id) unless self.employer_id.blank?
   end
 
   def broker=(broker_instance)
     return unless broker_instance.is_a? Broker
     self.broker_id = broker_instance._id
-    parent.brokers << broker_instance  # Brokers are tracked at ApplicationGroup level
   end
 
   def broker
@@ -66,7 +65,6 @@ class HbxEnrollment
   def qualifying_life_event=(qle_instance)
     return unless qle_instance.is_a? QualifyingLifeEvent
     self.qualifying_life_event_id = qle_instance._id
-    parent.policies << qle_instance  # Policies are tracked at ApplicationGroup level
   end
 
   def qualifying_life_event
