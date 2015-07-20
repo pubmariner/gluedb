@@ -3,8 +3,8 @@ require 'csv'
 module Generators::Reports  
   class IrsYearlySerializer
 
-    IRS_XML_PATH = "#{Rails.root.to_s}/IRS_JUN05/h41/"
-    IRS_PDF_PATH = "#{Rails.root.to_s}/IRS_JUN05/irs1095a/"
+    IRS_XML_PATH = "#{@irs_path}/h41/"
+    IRS_PDF_PATH = "#{@irs_path}/irs1095a/"
 
     def initialize
       @count = 0
@@ -19,6 +19,12 @@ module Generators::Reports
       @pdf_set  = 0
       @irs_set  = 0
       @aptc_versions = []
+
+      @irs_path = "#{Rails.root.to_s}/irs/irs_EOY_#{Time.now.strftime('%m_%d_%Y_%H_%M')}"
+
+      create_directory @irs_path
+      create_directory @irs_path + "/h41"
+      create_directory @irs_path + "/irs1095a"
 
       @carriers = Carrier.all.inject({}){|hash, carrier| hash[carrier.id] = carrier.name; hash}
     end

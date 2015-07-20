@@ -6,6 +6,10 @@ module Generators::Reports
     attr_reader :consolidated_doc
     attr_reader :xml_docs
 
+
+    DURATION = 12
+    CALENDER_YEAR = 2014
+
     NS = { 
       "xmlns" => "urn:us:gov:treasury:irs:common",
       "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
@@ -43,7 +47,12 @@ module Generators::Reports
     end
 
     def merge
-      @consolidated_doc = @xml_docs[0]
+      if @consolidated_doc == nil
+        xml_doc = @xml_docs[0]
+        xml_doc = chop_special_characters(xml_doc)
+        @consolidated_doc = xml_doc
+      end
+
       @xml_docs.shift
 
       @consolidated_doc.xpath('//xmlns:IndividualExchange', NS).each do |node|
@@ -93,7 +102,7 @@ module Generators::Reports
         update_ssn = Maybe.new(ssn_node.content).strip.gsub("-","").value
         ssn_node.content = update_ssn
       end
-
+      
       ["PersonFirstName", "PersonMiddleName", "PersonLastName", "AddressLine1Txt", "AddressLine2Txt", "CityNm"].each do |ele|
         node.xpath("//#{ele}", NS).each do |xml_tag|
           update_ele = Maybe.new(xml_tag.content).strip.gsub(/(\-{2}|\'|\#|\"|\&|\<|\>)/,"").value
