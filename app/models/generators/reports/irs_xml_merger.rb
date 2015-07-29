@@ -18,7 +18,8 @@ module Generators::Reports
 
     def initialize(dir, sequential_number)
       @dir = dir
-      output_file_name = "EOM_Request_#{sequential_number}_#{Time.now.utc.iso8601.gsub(/-|:/,'')}.xml"
+      timestamp = Time.now.utc.iso8601.gsub(/-|:/,'').match(/(.*)Z/)[1] + "000Z"
+      output_file_name = "EOM_Request_#{sequential_number}_#{timestamp}.xml"
       @data_file_path = File.join(@dir,'..', 'transmission', output_file_name)
       @xml_docs = []
       @doc_count = nil

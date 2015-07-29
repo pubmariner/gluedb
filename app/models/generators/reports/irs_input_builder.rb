@@ -103,7 +103,7 @@ module Generators::Reports
         @notice.has_aptc = if @multi_version_pol
           true # @multi_version_pol.assisted?
         else
-          @policy.applied_aptc > 0
+          @policy_disposition.as_of(Date.new(IRS_YEAR, i, 1)).applied_aptc > 0
         end
 
         if @notice.has_aptc

@@ -11,8 +11,6 @@ module Generators::Reports
       @carriers = Carrier.all.inject({}){|hash, carrier| hash[carrier.id] = carrier.name; hash}
       @policy_family_hash = {}
 
-
-
       @h36_root_folder = "#{Rails.root}/irs/h36_#{Time.now.strftime('%m_%d_%Y_%H_%M')}"
       create_directory @h36_root_folder
     end
@@ -22,112 +20,128 @@ module Generators::Reports
       current = 0
       folder_count = 1
 
-      missing_irs_groups = []
-      multiple_taxhouseholds = []
+      # missing_irs_groups = []
+      # multiple_taxhouseholds = []
 
-      # create_directory(@h36_root_folder)
-      # create_directory("#{@h36_root_folder}/transmission")
-      # create_new_irs_folder(folder_count)
+      create_directory("#{@h36_root_folder}/transmission")
+      create_new_irs_folder(folder_count)
 
       # non_auth_families = 0
       # non_auth_pols = 0
       # families_with_no_coverage = 0
+      # missing_active_enrollments = 0
 
       start = Time.now
       Family.all.each do |family|
         current += 1
 
         if current % 100 == 0
-          # puts "currently at #{current}"
+          puts "currently at #{current}"
         end
 
         begin
-
-          next if family.households.count > 1 || family.active_household.nil? || family.primary_applicant.nil?
-          next unless family.active_household.has_aptc?(CALENDER_YEAR)
-
-          active_enrollments = family.active_household.enrollments_for_year(CALENDER_YEAR)
-          next if active_enrollments.compact.empty?
-
-          active_pols = active_enrollments.map(&:policy)
-          next if active_pols.detect{|pol| pol.is_shop? }
-
-          if family.irs_groups.empty?
-            missing_irs_groups << family.e_case_id
-            # puts "e_case_id --------- #{family.e_case_id}"
+          if family.households.count > 1 || family.active_household.nil? 
             next
           end
 
-          # if active_pols.detect{|pol| pol.carrier_id.to_s == "53e67210eb899a460300000d"} || dupes.include?(family.e_case_id.to_i)
-          #   count += 1
-          # else
-          #   non_authority_pols = active_enrollments.count { |enrollment| !enrollment.policy.belong_to_authority_member? }
-          #   if non_authority_pols > 0
-          #     non_auth_pols += non_authority_pols
-          #     non_auth_families += 1
-          #     if non_authority_pols == active_enrollments.count
-          #       families_with_no_coverage += 1
-          #     end
+          # if family.primary_applicant.nil?
+          #   puts "------------found more than one household/activehousehold nil/primary aplicant nil---#{family.e_case_id}"
+          # end
+
+          # next unless family.active_household.has_aptc?(CALENDER_YEAR)
+
+          active_enrollments = family.active_household.enrollments_for_year(CALENDER_YEAR)
+          if active_enrollments.compact.empty?
+            # puts "-----#{family.e_case_id}"
+            # missing_active_enrollments += 1
+            next
+          end
+
+          # active_pols = active_enrollments.map(&:policy)
+
+          if family.irs_groups.empty?
+            missing_irs_groups << family.e_case_id
+            puts "e_case_id --------- #{family.e_case_id}"
+            next
+          end
+
+          # non_authority_pols = active_enrollments.count { |enrollment| !enrollment.policy.belong_to_authority_member? }
+          # if non_authority_pols > 0
+          #   non_auth_pols += non_authority_pols
+          #   non_auth_families += 1
+          #   if non_authority_pols == active_enrollments.count
+          #     families_with_no_coverage += 1
           #   end
           # end
 
           # build_policy_family_hash(active_pols, family)
+          # active_pols = nil
 
-          active_pols = nil
+          count += 1
 
-          # count += 1
           # next if active_enrollments.map(&:policy).any? {|pol| multi_version_aptc?(pol) }
           # policy_ids = active_enrollments.map(&:policy_id)
           # next if (policy_ids & policies_to_skip).any?
 
           active_enrollments = nil
 
-          if family.family_members.any? {|x| x.person.authority_member.ssn == '999999999' }
-            @logger.info "ssn with all 9's --- #{family.e_case_id.inspect}"
-            next
-          end
+          # if family.family_members.any? {|x| x.person.authority_member.ssn == '999999999' }
+          #   puts "ssn with all 9's --- #{family.e_case_id.inspect}"
+          #   next
+          # end
 
-          if family.active_household.tax_households.count > 1
-            multiple_taxhouseholds << family.e_case_id
-            # puts family.e_case_id
-          end
+          # if family.active_household.tax_households.count > 1
+          #   multiple_taxhouseholds << family.e_case_id
+          # elsif family.active_household.tax_households.count == 0
+          #   puts "-----no tax household----#{family.e_case_id}"
+          # end
 
-          family.active_household.tax_households.each do |th|
-            th.primary
-            th.spouse
-            th.dependents
-          end
+          # family.active_household.tax_households.each do |th|
+          #   th.primary
+          #   th.spouse
+          #   th.dependents
+          # end
 
-          # irs_group = build_irs_group(family)
+          irs_group = build_irs_group(family)
 
           # if irs_group.insurance_policies.empty?
-          #   @logger.info "insurance policies empty --- #{family.e_case_id.inspect}"
+          #   puts "insurance policies empty --- #{family.e_case_id.inspect}"
           #   next
           # end
 
           # if irs_group.insurance_policies.any?{|policy| policy.no_coverage? || policy.no_premium_amount? }
-          #   @logger.info "family has wrong policy --- #{family.e_case_id.inspect}"
+          #   puts "family has wrong policy --- #{family.e_case_id.inspect}"
           #   next
           # end
 
-          # group_xml = IrsMonthlyXml.new(irs_group, family.e_case_id)
-          # group_xml.folder_name = @h36_folder_name
-          # group_xml.serialize
-
-          # irs_group = nil
-          # group_xml = nil
-
-          # if count % 3200 == 0
-          #   merge_and_validate_xmls(folder_count)
-          #   folder_count += 1
-          #   create_new_irs_folder(folder_count)
+          # if irs_group.households[0].tax_households.empty?
+          #   puts "EMPTY TAX HOUSEHOLDS #{family.e_case_id}"
+          #   next
           # end
 
-          # if count % 200 == 0
-          #   puts "so far --- #{count} --- out of #{current}"
-          #   puts "time taken for current record ---- #{Time.now - start} seconds"
-          #   start = Time.now
+          # if irs_group.households[0].tax_households[0].primary.blank?
+          #   puts "EMPTY TAX PRIMARY #{family.e_case_id}"
+          #   next
           # end
+
+          group_xml = IrsMonthlyXml.new(irs_group, family.e_case_id)
+          group_xml.folder_path = "#{@h36_root_folder}/#{@h36_folder_name}"
+          group_xml.serialize
+
+          irs_group = nil
+          group_xml = nil
+
+          if count % 3000 == 0
+            merge_and_validate_xmls(folder_count)
+            folder_count += 1
+            create_new_irs_folder(folder_count)
+          end
+
+          if count % 100 == 0
+            puts "so far --- #{count} --- out of #{current}"
+            puts "time taken for current record ---- #{Time.now - start} seconds"
+            start = Time.now
+          end
 
         rescue Exception => e
           puts "Failed #{family.e_case_id}--#{e.to_s}"
@@ -135,20 +149,25 @@ module Generators::Reports
       end
 
       # print_families_with_samepolicy
-      # merge_and_validate_xmls(folder_count)
-      # create_manifest
+
+      merge_and_validate_xmls(folder_count)
+      create_manifest
+
       # true
       # puts count
       # puts missing_irs_groups.inspect
       # puts missing_irs_groups.count
+
       # puts multiple_taxhouseholds.count
       # puts multiple_taxhouseholds.inspect
 
-      # puts count
+      puts count
 
       # puts non_auth_families
       # puts non_auth_pols
       # puts families_with_no_coverage
+
+      # puts missing_active_enrollments
     end
 
     def build_irs_group(family)
@@ -164,7 +183,7 @@ module Generators::Reports
         if ecases.count > 1
           puts "#{policy_id}---#{ecases.join(',').inspect}"
         end
-      end    
+      end   
     end
 
     def build_policy_family_hash(active_pols, family)
