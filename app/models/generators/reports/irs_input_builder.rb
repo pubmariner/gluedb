@@ -35,8 +35,8 @@ module Generators::Reports
       @notice.qhp_id = @policy.plan.hios_plan_id.gsub('-','')
       @notice.policy_id = prepend_zeros(@policy.id.to_s, 6)
       # @notice.has_aptc = true if @policy.applied_aptc > 0
-      
-      @notice.recipient_address = PdfTemplates::NoticeAddress.new(address_to_hash(@subscriber.addresses[0]))
+
+      @notice.recipient_address = PdfTemplates::NoticeAddress.new(address_to_hash(@subscriber.mailing_address))
 
       append_policy_enrollees
       @void ? append_void_monthly_premiums : append_monthly_premiums

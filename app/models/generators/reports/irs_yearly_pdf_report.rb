@@ -6,9 +6,11 @@ module Generators::Reports
 
       @multiple = multiple
       @void = void
+      @catastrophic = true
 
       template = "#{Rails.root}/1095a_template.pdf"
       template = "#{Rails.root}/1095a_template_void.pdf" if @void
+      template = "#{Rails.root}/1095a_template_catastrophic.pdf" if @catastrophic
 
       # template = "#{Rails.root}/1095a_template_corrected.pdf"
 
@@ -51,8 +53,14 @@ module Generators::Reports
         fill_recipient_contact
       end
 
-      bounding_box([44, 430+padding], :width => 200) do
-        text "#{@notice.recipient.name}:"
+      if @catastrophic
+        bounding_box([44, 405+padding], :width => 200) do
+          text "#{@notice.recipient.name}:"
+        end
+      else
+        bounding_box([44, 430+padding], :width => 200) do
+          text "#{@notice.recipient.name}:"
+        end
       end
 
       if @void

@@ -604,6 +604,7 @@ class Policy
   end
 
   def ehb_premium
+    return as_dollars(self.pre_amt_tot) if self.plan.ehb.to_f.zero?
     as_dollars(self.pre_amt_tot * self.plan.ehb)
   end
 

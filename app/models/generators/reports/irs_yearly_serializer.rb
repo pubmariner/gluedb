@@ -3,8 +3,8 @@ require 'csv'
 module Generators::Reports  
   class IrsYearlySerializer
 
-    IRS_XML_PATH = "#{@irs_path}/h41/"
-    IRS_PDF_PATH = "#{@irs_path}/irs1095a/"
+    # IRS_XML_PATH = "#{@irs_path}/h41/"
+    # IRS_PDF_PATH = "#{@irs_path}/irs1095a/"
 
     def initialize
       @count = 0
@@ -20,11 +20,13 @@ module Generators::Reports
       @irs_set  = 0
       @aptc_versions = []
 
-      @irs_path = "#{Rails.root.to_s}/irs/irs_EOY_#{Time.now.strftime('%m_%d_%Y_%H_%M')}"
+      irs_path = "#{Rails.root.to_s}/irs/irs_EOY_#{Time.now.strftime('%m_%d_%Y_%H_%M')}"
+      @irs_xml_path = irs_path + "/h41/"
+      @irs_pdf_path = irs_path + "/irs1095a/"
 
-      create_directory @irs_path
-      create_directory @irs_path + "/h41"
-      create_directory @irs_path + "/irs1095a"
+      create_directory irs_path
+      create_directory @irs_xml_path
+      create_directory @irs_pdf_path
 
       @carriers = Carrier.all.inject({}){|hash, carrier| hash[carrier.id] = carrier.name; hash}
     end
@@ -150,7 +152,7 @@ module Generators::Reports
     end
 
     def create_manifest
-      Generators::Reports::Manifest.new.create("#{IRS_XML_PATH + @h41_folder_name}")
+      Generators::Reports::Manifest.new.create("#{@irs_xml_path + @h41_folder_name}")
     end
 
     def rejected_policy?(policy)
@@ -173,28 +175,28 @@ module Generators::Reports
 
     def render_xml(notice)
       xml_report = Generators::Reports::IrsYearlyXml.new(notice).serialize.to_xml(:indent => 2)
-      File.open("#{IRS_XML_PATH + @h41_folder_name}/#{@report_names[:xml]}.xml", 'w') do |file|
+      File.open("#{@irs_xml_path + @h41_folder_name}/#{@report_names[:xml]}.xml", 'w') do |file|
         file.write xml_report
       end
     end
 
     def render_pdf(notice, multiple = false, void = false)
       pdf_notice = Generators::Reports::IrsYearlyPdfReport.new(notice, multiple, void)
-      pdf_notice.render_file("#{IRS_PDF_PATH + @irs1095_folder_name}/#{@report_names[:pdf]}_Corrected.pdf")
+      pdf_notice.render_file("#{@irs_pdf_path + @irs1095_folder_name}/#{@report_names[:pdf]}.pdf")
     end
 
     def create_new_pdf_folder
       @pdf_set += 1
       folder_number = prepend_zeros(@pdf_set.to_s, 3)
       @irs1095_folder_name = "DCHBX_IRS1095A_#{Time.now.strftime('%H_%M_%d_%m_%Y')}_#{folder_number}"
-      create_directory "#{IRS_PDF_PATH + @irs1095_folder_name}"
+      create_directory @irs_pdf_path + @irs1095_folder_name
     end
 
     def create_new_irs_folder
       @irs_set += 1
       folder_number = prepend_zeros(@irs_set.to_s, 3)
       @h41_folder_name = "DCHBX_H41_#{Time.now.strftime('%H_%M_%d_%m_%Y')}_#{folder_number}"
-      create_directory "#{IRS_XML_PATH + @h41_folder_name}"
+      create_directory @irs_xml_path + @h41_folder_name
     end
 
     def create_directory(path)
