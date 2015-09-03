@@ -192,6 +192,16 @@ class Family
     end
   end
 
+  class << self
+    def find_all_by_primary_applicant(person)
+      Family.find_all_by_person(person).select() { |f| f.primary_applicant.person.id.to_s == person.id.to_s }
+    end
+
+    def find_all_by_person(person)
+      Family.where("family_members.person_id" => person.id)
+    end
+  end
+
 private
 
   # This method will return true only if all the family_members in tax_household_members and coverage_household_members are present in self.family_members
