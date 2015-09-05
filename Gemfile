@@ -62,3 +62,6 @@ gem 'roo'
 gem 'bh'
 gem 'nokogiri-happymapper', :require => 'happymapper'
 gem 'prawn', '~> 0.11.1'
+
+gem 'wicked_pdf'
+gem 'wkhtmltopdf-binary'
