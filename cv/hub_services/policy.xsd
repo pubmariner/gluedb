@@ -51,13 +51,8 @@
 							<xs:documentation>Income, expenses and tax filing status for this Individual</xs:documentation>
 						</xs:annotation>
 					</xs:element>
-					<xs:element name="is_active" type="xs:boolean" minOccurs="0">
-						<xs:annotation>
-							<xs:documentation>Indicator this person is operative on the HBX</xs:documentation>
-						</xs:annotation>
-					</xs:element>
-					<xs:element ref="comments" minOccurs="0"/>
-					<xs:group ref="ResourceTimestampGroup" minOccurs="0"/>
+					<xs:group ref="CommentedActiveResourceGroup"/>
+					<xs:group ref="OptionalResourceTimestampGroup"/>
 				</xs:sequence>
 			</xs:restriction>
 		</xs:complexContent>
@@ -66,7 +61,7 @@
 		<xs:complexContent>
 			<xs:restriction base="IndividualType">
 				<xs:sequence>
-					<xs:element name="id" type="IdentifierType" minOccurs="0"/>
+					<xs:element name="id" type="IdentifierType"/>
 					<xs:element name="primary_family_id" type="IdentifierType" minOccurs="0">
 						<xs:annotation>
 							<xs:documentation>Primary family of this person.</xs:documentation>
@@ -99,13 +94,8 @@
 							<xs:documentation>Income, expenses and tax filing status for this Individual</xs:documentation>
 						</xs:annotation>
 					</xs:element>
-					<xs:element name="is_active" type="xs:boolean" minOccurs="0">
-						<xs:annotation>
-							<xs:documentation>Indicator this person is operative on the HBX</xs:documentation>
-						</xs:annotation>
-					</xs:element>
-					<xs:element ref="comments" minOccurs="0"/>
-					<xs:group ref="ResourceTimestampGroup" minOccurs="0"/>
+					<xs:group ref="CommentedActiveResourceGroup"/>
+					<xs:group ref="OptionalResourceTimestampGroup"/>
 				</xs:sequence>
 			</xs:restriction>
 		</xs:complexContent>
