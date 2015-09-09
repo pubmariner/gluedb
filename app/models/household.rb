@@ -145,7 +145,7 @@ class Household
   end
 
   def valid_policy?(pol)
-    return false if pol.rejected? || pol.has_no_enrollees? || pol.canceled?
+    return false if pol.rejected? || pol.has_no_enrollees? || pol.canceled? || pol.is_shop?
     return false if pol.plan.metal_level =~ /catastrophic/i
     (pol.plan.coverage_type =~ /health/i).nil? ? false : true
   end

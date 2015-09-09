@@ -187,6 +187,10 @@ class Policy
     enrollees.reject { |e| e.relationship_status_code == "self" }
   end
 
+  def dependents
+    enrollees.reject { |e| e.canceled? || e.relationship_status_code == "self" ||  e.relationship_status_code == "spouse" }
+  end
+
   def has_responsible_person?
     !self.responsible_party_id.blank?
   end
@@ -600,10 +604,12 @@ class Policy
   end
 
   def ehb_premium
+    return as_dollars(self.pre_amt_tot) if self.plan.ehb.to_f.zero?
     as_dollars(self.pre_amt_tot * self.plan.ehb)
   end
 
   def changes_over_time?
+    return true if multi_aptc?
     eligible_enrollees = self.enrollees.reject do |en|
       en.canceled?
     end

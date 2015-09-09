@@ -2,9 +2,17 @@ module Generators::Reports
   class IrsYearlyPdfReport < PdfReport
     include ActionView::Helpers::NumberHelper
 
-    def initialize(notice, multiple = false)
+    def initialize(notice, multiple = false, void = false)
+
       @multiple = multiple
+      @void = void
+      @catastrophic = true
+
       template = "#{Rails.root}/1095a_template.pdf"
+      template = "#{Rails.root}/1095a_template_void.pdf" if @void
+      template = "#{Rails.root}/1095a_template_catastrophic.pdf" if @catastrophic
+
+      # template = "#{Rails.root}/1095a_template_corrected.pdf"
 
       super({:template => template, :margin => [30, 55]})
       font_size 11
@@ -16,7 +24,7 @@ module Generators::Reports
       fill_coverletter
       go_to_page(5)
       fill_subscriber_details
-      fill_household_details
+      fill_household_details unless @void
       fill_preimum_details
     end
 
@@ -32,16 +40,37 @@ module Generators::Reports
     def fill_coverletter
       go_to_page(3)
 
-      bounding_box([15, 553], :width => 200) do
+      padding = 31
+      padding = 0
+      
+      padding = 26 if @void
+
+      bounding_box([15, 553+padding], :width => 200) do
         text "#{Date.today.strftime('%m/%d/%Y')}"
       end
 
-      bounding_box([15, 525], :width => 300) do
+      bounding_box([15, 525+padding], :width => 300) do
         fill_recipient_contact
       end
 
-      bounding_box([44, 430], :width => 200) do
-        text "#{@notice.recipient.name}:"
+      if @catastrophic
+        bounding_box([44, 405+padding], :width => 200) do
+          text "#{@notice.recipient.name}:"
+        end
+      else
+        bounding_box([44, 430+padding], :width => 200) do
+          text "#{@notice.recipient.name}:"
+        end
+      end
+
+      if @void
+        bounding_box([133, 292+padding], :width => 200) do
+          text @notice.canceled_policies.blank? ? 'None' : @notice.canceled_policies
+        end
+
+        bounding_box([120, 223+padding], :width => 200) do
+          text @notice.active_policies.blank? ? 'None' : @notice.active_policies
+        end
       end
     end
 
@@ -73,12 +102,14 @@ module Generators::Reports
         text 'DC'
       end
 
-      bounding_box([col2, y_pos], :width => 150) do
-        text @notice.policy_id
-      end
+      if !@void
+        bounding_box([col2, y_pos], :width => 150) do
+          text @notice.policy_id
+        end
 
-      bounding_box([col3, y_pos], :width => 200) do
-        text @notice.issuer_name
+        bounding_box([col3, y_pos], :width => 200) do
+          text @notice.issuer_name
+        end
       end
 
       move_down(12)
@@ -88,7 +119,7 @@ module Generators::Reports
       fill_enrollee(@notice.recipient)
 
       move_down(12)
-      if @notice.spouse && @notice.has_aptc
+      if @notice.spouse && @notice.has_aptc && !@void
         fill_enrollee(@notice.spouse)
       else
         move_down(13)
@@ -98,11 +129,11 @@ module Generators::Reports
       y_pos = cursor
 
       bounding_box([col1, y_pos], :width => 100) do
-        text @notice.recipient.coverage_start_date
+        text @notice.recipient.coverage_start_date unless @void
       end
 
       bounding_box([col2, y_pos], :width => 100) do
-        text @notice.recipient.coverage_termination_date.to_s
+        text @notice.recipient.coverage_termination_date.to_s unless @void
       end
 
       bounding_box([col3, y_pos], :width => 250) do
@@ -195,18 +226,18 @@ module Generators::Reports
 
       (1..12).each do |index|
         monthly_premium = @notice.monthly_premiums.detect{|p| p.serial == index}
-        if monthly_premium
+        if monthly_premium || @void
           bounding_box([col1, y_pos], :width => 100) do
-            text number_to_currency(monthly_premium.premium_amount), :align => :right
+            text number_to_currency(@void ? 0.0 : monthly_premium.premium_amount), :align => :right
           end
 
-          if @notice.has_aptc
+          if @notice.has_aptc || @void
             bounding_box([col2, y_pos], :width => 130) do
-              text number_to_currency(monthly_premium.premium_amount_slcsp), :align => :right
+              text number_to_currency(@void ? 0.0 : monthly_premium.premium_amount_slcsp), :align => :right
             end
 
             bounding_box([col3, y_pos], :width => 120) do
-              text number_to_currency(monthly_premium.monthly_aptc), :align => :right
+              text number_to_currency(@void ? 0.0 : monthly_premium.monthly_aptc), :align => :right
             end
           end
         end
@@ -214,16 +245,16 @@ module Generators::Reports
       end
 
       bounding_box([col1, y_pos], :width => 100) do
-        text number_to_currency(@notice.yearly_premium.premium_amount), :align => :right
+        text number_to_currency(@void ? 0.0 : @notice.yearly_premium.premium_amount), :align => :right
       end
 
-      if @notice.has_aptc
+      if @notice.has_aptc || @void
         bounding_box([col2, y_pos], :width => 130) do
-          text number_to_currency(@notice.yearly_premium.slcsp_premium_amount), :align => :right
+          text number_to_currency(@void ? 0.0 : @notice.yearly_premium.slcsp_premium_amount), :align => :right
         end
   
         bounding_box([col3, y_pos], :width => 120) do
-          text number_to_currency(@notice.yearly_premium.aptc_amount), :align => :right
+          text number_to_currency(@void ? 0.0 : @notice.yearly_premium.aptc_amount), :align => :right
         end
       end
     end

@@ -50,7 +50,7 @@ module Generators::Reports
         xml.BatchID Time.now.utc.iso8601
         xml.BatchPartnerID '02.DC*.SBE.001.001'
         xml.BatchAttachmentTotalQuantity @manifest.file_count
-        xml['ns4'].BatchCategoryCode 'IRS_EOY_REQ'
+        xml['ns4'].BatchCategoryCode 'IRS_EOY_SUBMIT_CORRECTED_RECORDS_REQ' #'IRS_EOY_REQ'
         xml.BatchTransmissionQuantity 1
       end
     end

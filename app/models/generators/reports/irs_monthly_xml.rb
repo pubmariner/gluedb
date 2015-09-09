@@ -9,20 +9,20 @@ module Generators::Reports
     NS = { 
       "xmlns" => "urn:us:gov:treasury:irs:common",
       "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
-      "xmlns:n1" => "urn:us:gov:treasury:irs:msg:monthlyexchangeperiodicdata"
-      # "xmlns:n1" => "urn:us:gov:treasury:irs:msg:sbmpolicylevelenrollment"  # CMS
+      # "xmlns:n1" => "urn:us:gov:treasury:irs:msg:monthlyexchangeperiodicdata"
+      "xmlns:n1" => "urn:us:gov:treasury:irs:msg:sbmpolicylevelenrollment"  # CMS
     }
 
-    attr_accessor :folder_name
+    attr_accessor :folder_path
 
     def initialize(irs_group, e_case_id)
       @irs_group = irs_group
-      @folder_name = folder_name
+      @folder_path = folder_path
       @e_case_id = e_case_id
     end
     
     def serialize
-      File.open("#{Rails.root}/h36xmls/may18/#{@folder_name}/#{@e_case_id}_#{@irs_group.identification_num}.xml", 'w') do |file|
+      File.open("#{@folder_path}/#{@e_case_id}_#{@irs_group.identification_num}.xml", 'w') do |file|
         file.write builder.to_xml(:indent => 2)
       end
     end
@@ -31,7 +31,7 @@ module Generators::Reports
       Nokogiri::XML::Builder.new do |xml|
         xml['n1'].HealthExchange(NS) do
           xml.SubmissionYr 2015
-          xml.SubmissionMonthNum "04"
+          xml.SubmissionMonthNum "07"
           xml.ApplicableCoverageYr CALENDER_YEAR
           xml.IndividualExchange do |xml|
             xml.HealthExchangeId "02.DC*.SBE.001.001"
@@ -77,7 +77,7 @@ module Generators::Reports
       serialize_tax_individual(xml, tax_household.primary, 'Primary')
       serialize_tax_individual(xml, tax_household.spouse, 'Spouse')
       tax_household.dependents.each do |dependent|
-        serialize_tax_individual(xml, tax_household.spouse, 'Dependent')
+        serialize_tax_individual(xml, dependent, 'Dependent')
       end
     end
 
@@ -88,7 +88,7 @@ module Generators::Reports
           serialize_names(xml, individual)
           xml.SSN individual.ssn unless individual.ssn.blank?
           xml.BirthDt date_formatter(individual.dob)
-          serialize_address(xml, individual.address)
+          serialize_address(xml, individual.address) if relation == 'Primary'
         end
         # individual.employers.each do |employer_url|
         #   serialize_employer(xml, employer)
@@ -109,9 +109,9 @@ module Generators::Reports
       xml.USAddressGrp do |xml|
         xml.AddressLine1Txt address.street_1
         xml.AddressLine2Txt address.street_2
-        xml.CityNm address.city
+        xml.CityNm address.city.gsub(/[\.\,]/, '')
         xml.USStateCd address.state
-        xml.USZIPCd address.zip
+        xml.USZIPCd address.zip.split('-')[0]
         # xml.USZIPExtensionCd
       end 
     end
@@ -155,7 +155,7 @@ module Generators::Reports
         xml.InsuranceCoverage do |xml|
           xml.ApplicableCoverageMonthNum prepend_zeros(premium.serial.to_s, 2)
           xml.QHPPolicyNum policy.policy_id
-          # xml.QHPId policy.qhp_id # CMS
+          xml.QHPId policy.qhp_id # CMS
           xml.PediatricDentalPlanPremiumInd "N"
           xml.QHPIssuerEIN policy.issuer_fein
           xml.IssuerNm policy.issuer_name

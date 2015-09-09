@@ -3,7 +3,7 @@ require 'csv'
 module Generators::Reports  
   class MultiVersionAptcLookup
 
-    attr_reader :monthly_aptcs
+    attr_reader :monthly_aptcs, :policy
 
     def initialize(policy)
       @policy = policy

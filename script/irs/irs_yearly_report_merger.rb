@@ -9,10 +9,10 @@ module Irs
     XMLNS = {
         "air5.0" => "urn:us:gov:treasury:irs:ext:aca:air:5.0",
         "irs" => "urn:us:gov:treasury:irs:common",
-        "batchreq" => "urn:us:gov:treasury:irs:msg:form1095atransmissionupstreammessage",
-        "batchresp" => "urn:us:gov:treasury:irs:msg:form1095atransmissionexchrespmessage",
-        "reqack" => "urn:us:gov:treasury:irs:msg:form1095atransmissionexchackngmessage",
-        "xsi" => "http://www.w3.org/2001/XMLSchema-instance"
+        "batchreq" => "urn:us:gov:treasury:irs:msg:form1095atransmissionupstreammessage"
+        # "batchresp" => "urn:us:gov:treasury:irs:msg:form1095atransmissionexchrespmessage",
+        # "reqack" => "urn:us:gov:treasury:irs:msg:form1095atransmissionexchackngmessage",
+        # "xsi" => "http://www.w3.org/2001/XMLSchema-instance"
     }
 
     def initialize(dir)

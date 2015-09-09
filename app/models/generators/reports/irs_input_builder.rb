@@ -35,8 +35,8 @@ module Generators::Reports
       @notice.qhp_id = @policy.plan.hios_plan_id.gsub('-','')
       @notice.policy_id = prepend_zeros(@policy.id.to_s, 6)
       # @notice.has_aptc = true if @policy.applied_aptc > 0
-      
-      @notice.recipient_address = PdfTemplates::NoticeAddress.new(address_to_hash(@subscriber.addresses[0]))
+
+      @notice.recipient_address = PdfTemplates::NoticeAddress.new(address_to_hash(@subscriber.mailing_address))
 
       append_policy_enrollees
       @void ? append_void_monthly_premiums : append_monthly_premiums
@@ -103,7 +103,7 @@ module Generators::Reports
         @notice.has_aptc = if @multi_version_pol
           true # @multi_version_pol.assisted?
         else
-          @policy.applied_aptc > 0
+          @policy_disposition.as_of(Date.new(IRS_YEAR, i, 1)).applied_aptc > 0
         end
 
         if @notice.has_aptc
