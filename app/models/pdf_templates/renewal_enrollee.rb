@@ -11,7 +11,7 @@ module PdfTemplates
     attribute :tax_status, String
     attribute :other_coverage, String
     attribute :household_size, Integer
-    attribute :project_income, String
+    attribute :projected_income, String
     attribute :incarcerated, Boolean, :default => false
 
     def to_csv

@@ -3,7 +3,6 @@ module Generators::Reports
 
     def process(policies)
       health, dental = policies
-      notice = PdfTemplates::RenewalNoticeInput.new
       base_policy = health || dental
 
       if base_policy.subscriber.nil?
@@ -11,18 +10,31 @@ module Generators::Reports
       end
 
       primary = base_policy.subscriber.person
+      return if primary.mailing_address.blank?
 
-      members = base_policy.enrollees_sans_subscriber.map{|enrollee| enrollee.person.name_full}.reject{ |en| en.canceled? || en.terminated? }
+      members = base_policy.enrollees_sans_subscriber.map{|enrollee| enrollee.person.name_full}
+
+      notice = PdfTemplates::RenewalNoticeInput.new
       notice.covered_individuals = members
-
       notice.primary_name = primary.name_full
       notice.primary_identifier = primary.authority_member.hbx_member_id
+
+      if health
+        notice.health_policy = health.id
+      end
+
+      if dental
+        notice.dental_policy = dental.id
+      end
+
       if primary.addresses.empty?
         raise 'subscriber address empty'
       end
 
+      active_enrollees = base_policy.enrollees_sans_subscriber.reject{ |en| en.canceled? || en.terminated? }
+
       notice = append_address(primary, notice)
-      notice = append_taxhousehold(primary, members.map(&:person), notice)
+      notice = append_taxhousehold(primary, active_enrollees.map(&:person), notice)
       notice = append_health_policy(health, notice) if health
       notice = append_dental_policy(dental, notice) if dental
 
@@ -63,7 +75,7 @@ module Generators::Reports
 
     def append_taxhousehold(subscriber, enrollees, notice)
       ([subscriber] + enrollees).each do |enrollee|
-        notice.tax_household << build_enrollee(enrollee, primary)
+        notice.tax_household << build_enrollee(enrollee, subscriber)
       end
       notice
     end
@@ -87,7 +99,6 @@ module Generators::Reports
         person = person || subscriber
       end
       if person.home_address.blank? && person.mailing_address.blank?
-        @missing_home_address += 1
         return
       end
       (person.home_address || person.mailing_address).state == 'DC' ? 'D.C. Resident' : 'Not a D.C. Resident'

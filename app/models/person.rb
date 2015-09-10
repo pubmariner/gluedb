@@ -415,6 +415,32 @@ class Person
     end
   end
 
+  def citizenship
+    authority_member = self.authority_member
+
+    if authority_member.citizen_status.blank?
+      raise "Citizenship status missing for person #{self.name_first} #{self.name_last}"
+    end
+
+    citizenship_mapping = {
+      "U.S. Citizen" => %W(us_citizen naturalized_citizen indian_tribe_member),
+      "Lawfully Present" => %W(alien_lawfully_present lawful_permanent_resident),
+      "Not Lawfully Present" => %W(undocumented_immigrant not_lawfully_present_in_us)
+    }
+
+    citizen_status = authority_member.citizen_status
+    citizenship_mapping.each do |key, value|
+      return key if value.include?(citizen_status)
+    end
+  end
+
+  def incarcerated?
+    if self.authority_member.blank?
+      raise "missing authority member"
+    end
+    self.authority_member.is_incarcerated == 'true' ? 'Yes' : 'No'
+  end
+
   private
 
   def initialize_authority_member
