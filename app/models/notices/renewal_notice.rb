@@ -12,7 +12,7 @@ module Notices
       attach_voter_registration
       generate_envelope
       prepend_envelope
-      # save_html
+      save_html
     end
   end
 end
