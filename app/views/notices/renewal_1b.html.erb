@@ -15,23 +15,19 @@
 <table class="total_table" border="0">
   <tbody>
   <tr>
-  <td></br></td>
+  <td></br></br></td>
   </tr>
     <tr class="wid50">
       <td align="left"><%= Date.today.strftime('%m/%d/%Y') %></td>
     </tr>
     <tr>
-  <td></br></td>
+  <td></td>
   </tr>
   </tbody>
 </table>
 <%= render partial: "notices/ivl/inner_address", :locals => {notice: notice} %>
 <table class="total_table" border="0">
   <tbody>
-  <tr>
-      <td></br>
-        </td>
-    </tr>
     <tr>
       <td><h3>Subject: DC Health Link Plan Year 2016 Open Enrollment & Preliminary Renewal Notice</h3></td>
     </tr>
@@ -47,7 +43,7 @@
 <table class="total_table" border="0">
   <tbody>
     <tr>
-      <td><ul style="list-style:none;"><li class="mar20"><strong>Review your information:</strong> We need to make sure that the information we have about you and your household is up to date. Review the information in this notice and let us know by «Response_Date» if anything will be different next year.  </li><li  class="mar20"><strong>Choose your 2016 plan:</strong> If you want to keep your current health insurance plan, you don’t need to re-enroll. We will renew your coverage in the same plan or a similar one for 2016. If you want to consider selecting a different health plan for 2016, you will have an opportunity to do so once open enrollment for 2016 starts on November 1, 2015.  </li><li  class="mar20"><strong>Pay your premiums:</strong> You must continue to pay your premiums for your 2015 plan on time each month in order to have your coverage renewed for 2016. If you pay health insurance or dental premiums through an auto-payment plan, you must update the amount you pay to cover your 2016 plan premium(s).  Failure to update your autopay amounts could result in the carrier terminating your coverage in 2016. If you have any questions about autopay, please call your health insurance or dental insurance company.</li></ul></td>
+       <td><ul style="list-style: circle solid;"><li style="margin-top: 10px;"><strong>Review your information:</strong> We need to make sure that the information we have about you and your household is up to date. Review the information in this notice and let us know by «Response_Date» if anything will be different next year.  </li><li style="margin-top: 10px;"><strong>Choose your 2016 plan:</strong> If you want to keep your current health insurance plan, you don’t need to re-enroll. We will renew your coverage in the same plan or a similar one for 2016. If you want to consider selecting a different health plan for 2016, you will have an opportunity to do so once open enrollment for 2016 starts on November 1, 2015.  </li><li style="margin-top: 10px;"><strong>Pay your premiums:</strong> You must continue to pay your premiums for your 2015 plan on time each month in order to have your coverage renewed for 2016. If you pay health insurance or dental premiums through an auto-payment plan, you must update the amount you pay to cover your 2016 plan premium(s).  Failure to update your autopay amounts could result in the carrier terminating your coverage in 2016. If you have any questions about autopay, please call your health insurance or dental insurance company.</li></ul></td>
       </tr>
     <tr>
       <td>
@@ -60,7 +56,7 @@
 <table class="total_table" border="0">
   <tbody>
     <tr>
-    <td></br></td>
+    <td></td>
     </tr>
     <tr class="mar20 fssizeuser">
       <td>
@@ -75,47 +71,42 @@
     <td></br></td>
     </tr>
   <tr>
-      <td><h3 style="color:rgb(54,95,145);">Review Your Information</h3></td>
+      <td><h2 style="color:rgb(54,95,145);">Review Your Information</h2></td>
     </tr>
     <tr>
     <td>It is very important that you provide updated 2016 information for your entire tax household, which includes your spouse and tax dependents, even if they are not enrolled in coverage through DC Health Link to make sure that you receive the correct amount of help paying for coverage.</td>
     </tr>
     <tr>
-    <td></br></td>
-    </tr>
-    <tr>
-    <td>This is the most up to date information we have for you and other members of your household:</td>
-    </tr>
-    <tr>
-    <td></br></td>
     </tr>
   </tbody>
   </table>
 </div>
-
+<div style="margin: 10px 0; font-size: 12px;">This is the most up to date information we have for you and other members of your household:</div>
 <div class="page_break">
-
-  <% 5.times do |item| %>
+  <% 1.times do |i| %>
+  <% notice.tax_household.each do |household_member| %>
+  <div style="display:block; page-break-inside: avoid;">
   <table class="total_table household_member_details" border="1">
   <tbody>
-      <th colspan="2" style="width:100%; text-align:left; background-color:rgb(198,217,241); padding:0 10px;"><strong>household member</strong></th>
+      <th colspan="2" style="width:100%; text-align:left; background-color:rgb(198,217,241); padding:0 10px;"><b><%= household_member.full_name %></b></th>
   <tr>
     <td style="width: 45%;">State of Residency</td>
-    <td></td>
+    <td><%= household_member.residency %></td>
     </tr>
     <tr>
     <td style="width: 45%;">Citizenship/Lawful Presence</td>
-    <td></td>
+    <td><%= household_member.citizenship_status %></td>
     </tr>
     <tr>
     <td style="width: 45%;">Incarcerated</td>
-    <td></td>
+    <td><%= household_member.incarcerated %></td>
     </tr>
-    
   </tbody>
   </table>
+  </div>
   <% end %>
-
+  <% end %>
+  <div style="display:block; page-break-inside: avoid;">
   <table class="total_table" border="0">
   <tbody>
     <tr class="mar20 fssizeuser">
@@ -125,7 +116,7 @@
     </tr>   
   </tbody>
   </table>
-
+  </div>
   </div>
   
   <div class="page_break">
@@ -133,17 +124,20 @@
 <tr><td></td></tr>
 
 </table>
+     <div style="display:block; page-break-inside: avoid;">
+
    <table class="total_table" border="0">
   <tbody>
   <tr>
-      <td><h3 style="color:rgb(54,95,145);">Projected 2016 Health Plan Enrollment</h3></td>
+      <td><h2 style="color:rgb(54,95,145);">Projected 2016 Health Plan Enrollment</h2></td>
     </tr>
 <tr>
       <td>Open enrollment for 2016 begins November 1, 2015 and ends January 31, 2016. If you would like a different plan for 2016, you must choose it during open enrollment. The date your new plan will start depends on when you finish shopping for your new plan:</td>
     </tr>
-    <tr><td></br></td></tr>
      </tbody>
      </table>
+    </div>
+     <div style="display:block; page-break-inside: avoid;">
       <table align="center" class="total_table household_member_details" style="width: 70%;" border="1">
   <tbody>
       <tr colspan="2" style="text-align:left; background-color:rgb(198,217,241); padding:0 10px;">
@@ -164,7 +158,8 @@
     </tr>
   </tbody>
   </table>
-
+</div>
+<div style="display:block; page-break-inside: avoid;">
   <table class="total_table" border="0">
   <tbody>
     <tr class="mar20 fssizeuser">
@@ -172,40 +167,50 @@
     </tr>
      </tbody>
      </table>
-      <table class="total_table" border="0">
-  <tbody>
-    <tr><td></br></td></tr> 
-    <tr>
-      <td><h4>Health Plan:  <span>«M_2016_Health_Plan»</span></h4></td>
-    </tr>
-    <tr>
-      <td style="float:left; margin-right:4%; vertical-align:top; width:50%; "><ul><li style="list-style:none;">Total Monthly Premium Cost: </li></ul></td>
-      <td style="float:left; vertical-align:top;"><ul><li style="list-style:none;">$ <span>M_2016_Health_Plan_Premium</span></li></ul></td>
-    </tr>
-  </tbody>
-</table>
-<table class="total_table" border="0">
-  <tbody>
-       <tr>
-      <td><h4>Dental Plan:  <span>«M_2016_Dental_Plan»</span></h4></td>
-    </tr>
-    <tr>
-      <td style="float:left; margin-right:4%; vertical-align:top; width:50%;"><ul><li style="list-style:none;">Total Monthly Premium Cost: </li></ul></td>
-      <td style="float:left; vertical-align:top;"><ul><li style="list-style:none;">$ <span>
-      M_2016_Dental_Plan_Premium</span></li></ul></td>
-    </tr>
-    <tr><td></br></td></tr>
-  </tbody>
-</table>
-
+   </div>
+  <div style="display:block; page-break-inside: avoid;">
   <table class="total_table" border="0">
+  <tbody>
+    <tr><td colspan="2">
+ <div style="margin: 12px 0 0 0; font-size: 12px;">
+    <strong>If you do nothing, you will be enrolled in these plans starting January 1, 2016:</strong>
+  </div>
+    </td></tr>
+    <tr>
+      <td style="padding-top: 12px;" colspan="2"><span style="text-decoration: underline; font-size: 13px;">Health Plan:  <span><%= notice.health_plan_name %></span></span></td>
+    </tr>
+    <tr>
+      <td style="float:left; vertical-align:top; padding-top: 10px; width: 50%;" colspan="1">
+        <div style="margin-left: 35px;"><strong>Total Monthly Premium Cost: </strong></div>
+      </td>
+      <td style="vertical-align:top; padding-top: 10px;">
+        <div style="float:right; padding-right: 150px;"><strong><%= number_to_currency(notice.health_premium) %></strong></div>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding-top: 15px;" colspan="2"><span style="text-decoration: underline; font-size: 13px;">Dental Plan:  <span><%= notice.dental_plan_name %></span></span></td>
+    </tr>
+    <tr>
+      <td style="float:left; vertical-align:top; padding-top: 10px; width: 50%;" colspan="1">
+        <div style="margin-left: 35px;"><strong>Total Monthly Premium Cost: </strong></div>
+      </td>
+      <td style="vertical-align:top; padding-top: 10px;float: left;" colspan="1">
+        <div style="float:right; padding-right: 150px;"><strong><%= number_to_currency(notice.dental_premium) %></strong></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div style="display:block; page-break-inside: avoid;">
+  <table class="total_table" border="0" style="margin-top: 10px;">
   <tbody>
     <tr class="mar20 fssizeuser">
       <td><strong>If you are satisfied with these plans, you do not need to do anything during open enrollment but continue to pay your monthly premiums for your health and/or dental plan. We will automatically renew your coverage in these plans for 2016.</strong></td>
     </tr>
      </tbody>
      </table>
-
+</div>
+<div style="display:block; page-break-inside: avoid;">
        <table class="total_table" border="0">
   <tbody>
     <tr class="mar20 fssizeuser">
@@ -213,45 +218,39 @@
     </tr>
      </tbody>
      </table>
+   </div>
+     <div style="display:block; page-break-inside: avoid;">
 
       <table class="total_table" border="0">
   <tbody>
   <tr>
-      <td><h3 style="color:rgb(54,95,145);">Pay Your Premiums</h3></td>
+      <td><h2 style="color:rgb(54,95,145);">Pay Your Premiums</h2></td>
     </tr>
 <tr>
-      <td>You must continue to pay your premium for your 2015 plan to be renewed for 2016. <strong>If you miss a payment or do not pay the full amount each month, your coverage will not be automatically renewed.</strong> If you believe your 2015 plan has been terminated and you want to enroll in plan for 2016, please call DC Health Link Customer Service at 1-855-532-5465.</td>
+      <td>You must continue to pay your premium for your 2015 plan to be renewed for 2016. <b>If you miss a payment or do not pay the full amount each month, your coverage will not be automatically renewed.</b> If you believe your 2015 plan has been terminated and you want to enroll in plan for 2016, please call DC Health Link Customer Service at 1-855-532-5465.</td>
     </tr>
-     <tr>
-      <td></br></td>
-    </tr>
-    <tr><td>Your monthly premium amount will be different in 2016. <strong>If you have auto-pay set up for your health insurance plan(s), you must contact your health insurance plan to update the amount withdrawn every month.</strong> If you do not make an update, your health or dental insurance company may terminate your coverage.</td></tr>
+      </tbody>
+     </table>
+   </div>
+        <div style="display:block; page-break-inside: avoid;">
+
+  <table class="total_table" border="0">
+  <tbody>
+    <tr class="mar20 fssizeuser">
+    <td>Your monthly premium amount will be different in 2016. <strong>If you have auto-pay set up for your health insurance plan(s), you must contact your health insurance plan to update the amount withdrawn every month.</strong> If you do not make an update, your health or dental insurance company may terminate your coverage.</td></tr>
      </tbody>
      </table>
-
+   </div>
+<div style="display:block; page-break-inside: avoid;">
            <table class="total_table" border="0">
   <tbody>
   <tr>
-      <td><h3 style="color:rgb(54,95,145);">Your Secure User Account</h3></td>
+      <td><h2 style="color:rgb(54,95,145);">Your Secure User Account</h2></td>
     </tr>
 <tr>
-      <td>Important information is stored in your account on the DC Health Link website.  If you don’t have an account already, you can create one by going to www.DCHealthLink.com. You can get help with logging in or creating an account by calling DC Health Link Customer Service toll-free at 1-855-532-5465.</td>
+      <td style="padding-right: 2px;">Important information is stored in your account on the DC Health Link website.  If you don’t have an account already, you can create one by going to www.DCHealthLink.com. You can get help with logging in or creating an account by calling DC Health Link Customer Service toll-free at 1-855-532-5465.</td>
     </tr>
      </tbody>
      </table>
+     </div>
   </div>
-
-<style>
-.household_member_details{
-  margin-bottom:20px;
-}
-
-table.household_member_details td, table.household_member_details th {
-    border-width: 0.1em;
-    border-style: solid;
-}
-
-.household_member_details td, .household_member_details th{
-  padding:5px 10px;
-}
-</style>
