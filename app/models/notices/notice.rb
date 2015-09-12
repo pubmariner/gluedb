@@ -34,7 +34,7 @@ module Notices
         self.html,
         margin:  {  
           top: 15,
-          bottom: 40,
+          bottom: 30,
           left: 22,
           right: 22 
         },

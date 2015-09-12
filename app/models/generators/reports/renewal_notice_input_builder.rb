@@ -53,23 +53,25 @@ module Generators::Reports
       notice
     end
 
-    def append_health_policy(health, notice)
-      notice.health_plan_name = health.plan.name
-      notice.health_premium = health.pre_amt_tot
-      if @type == 'qhp'
-        notice.health_aptc = health.applied_aptc
-        notice.health_responsible_amt = health.tot_res_amt
-      end
-      notice    
+    def append_health_policy(health_policy, notice)
+      renewal_policy = health_policy.clone_for_renewal(Date.new(2016, 1, 1))
+      pc = ::Premiums::PolicyCalculator.new
+      pc.apply_calculations(renewal_policy)
+      notice.health_plan_name = renewal_policy.plan.name
+      notice.health_premium = renewal_policy.pre_amt_tot
+      notice
     end
 
-    def append_dental_policy(dental, notice)
-      notice.dental_plan_name = dental.plan.name
-      notice.dental_premium = dental.pre_amt_tot
-      if @type == 'qhp'
-        notice.dental_aptc = dental.applied_aptc
-        notice.dental_responsible_amt = dental.tot_res_amt
-      end
+    def append_dental_policy(dental_policy, notice)
+      renewal_policy = dental_policy.clone_for_renewal(Date.new(2016, 1, 1))
+      pc = ::Premiums::PolicyCalculator.new
+      pc.apply_calculations(renewal_policy)
+      notice.dental_plan_name = renewal_policy.plan.name
+      notice.dental_premium = renewal_policy.pre_amt_tot
+      # if @type == 'qhp'
+      #   notice.dental_aptc = dental.applied_aptc
+      #   notice.dental_responsible_amt = dental.tot_res_amt
+      # end
       notice
     end
 
@@ -101,7 +103,7 @@ module Generators::Reports
       if person.home_address.blank? && person.mailing_address.blank?
         return
       end
-      (person.home_address || person.mailing_address).state == 'DC' ? 'D.C. Resident' : 'Not a D.C. Resident'
+      (person.home_address || person.mailing_address).state.upcase
     end
   end
 end
