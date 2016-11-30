@@ -13,7 +13,7 @@ module RemoteResources
 
     delegate :name_first, :name_last, :name_middle, :name_sfx, :name_pfx, :addresses, :emails, :phones, :to => :person, :allow_nil => true
 
-    delegate :ssn, :dob, :gender, :to => :person_demographics, :allow_nil => true
+    delegate :ssn, :dob, :gender, :is_disabled :to => :person_demographics, :allow_nil => true
 
     def hbx_member_id
       Maybe.new(id).split("#").last.value
