@@ -24,6 +24,7 @@ module ExternalEvents
       @event_responder = e_responder
       @message_tag = m_tag
       @event_xml = e_xml
+      @logger = Logger.new("#{Rails.root}/log/enrollment_event_notification_errors_#{Time.now.strftime('%Y%m%d%H%M%S%3N')}.log")
     end
 
     def hash
@@ -60,8 +61,12 @@ module ExternalEvents
 
     def has_bogus_plan_year?
       return false unless is_shop?
-      plan_year = find_employer_plan_year(policy_cv)
-      plan_year.nil?
+      begin
+        plan_year = find_employer_plan_year(policy_cv)
+        plan_year.nil?
+      rescue Exception=>e
+        @logger.info(e)
+      end
     end
 
     def clean_ivars
