@@ -64,6 +64,8 @@ module Handlers
 
     def find_employer_plan_year(policy_cv)
       employer = find_employer(policy_cv)
+      employer_hbx_id = extract_employer_hbx_id(policy_cv)
+      raise "Employer not found for #{employer_hbx_id}" if employer.nil? 
       subscriber_enrollee = extract_subscriber(policy_cv)
       subscriber_start = extract_enrollee_start(subscriber_enrollee)
       employer.plan_year_of(subscriber_start)
@@ -74,6 +76,12 @@ module Handlers
       employer_hbx_id = Maybe.new(employer_link).id.strip.split("#").last.value
       return nil if employer_hbx_id.blank?
       Employer.where(hbx_id: employer_hbx_id).first
+    end
+
+    def extract_employer_hbx_id(policy_cv)
+      employer_link = extract_employer_link(policy_cv)
+      employer_hbx_id = Maybe.new(employer_link).id.strip.split("#").last.value
+      return employer_hbx_id
     end
 
     def extract_enrollment_action(enrollment_event_cv)
