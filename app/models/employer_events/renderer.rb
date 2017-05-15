@@ -114,7 +114,7 @@ benefit_coverage_period_reinstated
         return false
       end
 
-      is_renewal_add_event = (employer.event_name == "benefit_coverage_renewal_carrier_dropped")
+      is_renewal_add_event = (employer.event_name == "benefit_coverage_renewal_application_eligible")
 
       if is_renewal_add_event && !has_plan_year_that_starts_later
         return false
