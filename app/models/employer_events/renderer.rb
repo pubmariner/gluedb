@@ -11,17 +11,17 @@ broker_added
 broker_terminated
 general_agent_added
 general_agent_terminated
+benefit_coverage_initial_application_eligible
+benefit_coverage_renewal_carrier_dropped
+benefit_coverage_renewal_application_eligible
     )
 
     EXCLUDED_FOR_NOW = %w(
-benefit_coverage_initial_application_eligible
 benefit_coverage_period_terminated_voluntary
 benefit_coverage_period_terminated_nonpayment
 benefit_coverage_period_terminated_relocated
-benefit_coverage_renewal_carrier_dropped
 benefit_coverage_renewal_terminated_voluntary
 benefit_coverage_renewal_terminated_ineligible
-benefit_coverage_renewal_application_eligible
 benefit_coverage_period_reinstated
     )
 
@@ -50,6 +50,8 @@ benefit_coverage_period_reinstated
           node.remove
         end
       end
+
+
       doc.xpath("//cv:employer_census_families", {:cv => XML_NS}).each do |node|
         node.remove
       end
@@ -74,6 +76,50 @@ benefit_coverage_period_reinstated
       doc.xpath("//cv:plan_year[not(cv:benefit_groups)]", {:cv => XML_NS}).each do |node|
         node.remove
       end
+
+      has_plan_year_that_ends_later = false
+      # Check that at least one plan year for this carrier is not in the past
+      doc.xpath("//cv:plan_year", {:cv => XML_NS}).each do |node|
+        node = node.xpath("cv:plan_year_end", {:cv => XML_NS}).first
+        if node
+          end_date = (Date.strptime(node.content, "%Y%m%d")) rescue nil
+          if end_date
+            if end_date > Date.today
+              has_plan_year_that_ends_later = true
+              break
+            end
+          end
+        end
+      end
+      unless has_plan_year_that_ends_later
+        return false
+      end
+      
+      # Check that at least one plan year for this carrier that starts later
+      # If one exists, block transmission of events where we 'leave' that carrier
+      has_plan_year_that_starts_later = false
+      doc.xpath("//cv:plan_year", {:cv => XML_NS}).each do |node|
+        node = node.xpath("cv:plan_year_start", {:cv => XML_NS}).first
+        if node
+          start_date = (Date.strptime(node.content, "%Y%m%d")) rescue nil
+          if start_date 
+            if start_date > Date.today
+              has_plan_year_that_starts_later = true
+              break
+            end
+          end
+        end
+      end
+      if has_plan_year_that_starts_later && (employer_event.event_name == "benefit_coverage_renewal_carrier_dropped")
+        return false
+      end
+
+      is_renewal_add_event = (employer.event_name == "benefit_coverage_renewal_carrier_dropped")
+
+      if is_renewal_add_event && !has_plan_year_that_starts_later
+        return false
+      end
+
       event_header = <<-XMLHEADER
                         <employer_event>
                                 <event_name>urn:openhbx:events:v1:employer##{employer_event.event_name}</event_name>
