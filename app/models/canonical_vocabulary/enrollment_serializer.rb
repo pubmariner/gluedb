@@ -97,7 +97,7 @@ module CanonicalVocabulary
         if !person.name_sfx.blank?
           xml['con'].name_suffix(person.name_sfx.strip)
         end
-        if !person.home_phone.nil?
+        if !person.home_phone.nil? && person.home_phone.phone_number != "0"
           xml['con'].phone do |xml|
             xml['con'].phone_type("home")
             xml['con'].phone_number(person.home_phone.phone_number)
@@ -118,7 +118,7 @@ module CanonicalVocabulary
       person = member.person
       serialize_contact(person, xml)
       xml['ins'].exchange_member_id(en.m_id)
-      xml['ins'].individual_relationship_code(en.rel_code.capitalize)
+      xml['ins'].individual_relationship_code(en.rel_code.titleize)
       if !member.dob.blank?
         xml['ins'].DOB(member.dob.strftime("%Y%m%d"))
       end

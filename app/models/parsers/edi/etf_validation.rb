@@ -93,6 +93,7 @@ module Parsers
         end
       end
 
+      # FIXME: 15769 - Require premiums only if not composite-rated
       def has_all_premium_amounts
         if right_subscriber_count
           unless (@etf_loop["L2000s"].all?{ |l| tsf_exists?(l, "PRE AMT 1") })
@@ -143,7 +144,7 @@ module Parsers
                   log_error(:etf_loop, "has no valid plan year")
                   return
                 end
-                plan_year = plan_years.order_by(&:start_date).last.start_date.year
+                plan_year = plan_years.sort_by{|py| py.start_date}.last.start_date.year
               else
                 plan_year = coverage_start.year
               end

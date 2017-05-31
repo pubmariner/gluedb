@@ -1,23 +1,72 @@
 # Put an Enrollment Event CV onto the bus after transforming
 module Handlers
   class TransmitEdiForEvent < Base
-    
+    include EnrollmentEventXmlHelper
+
     def initialize(app)
       @app = app
     end
 
-    # Context requires:
-    # - enrollment_event_cv (Openhbx::Cv2::EnrollmentEvent)
-    # - amqp_connection (A connection to an amqp service)
-    # - raw_event_xml (a string containing the raw event xml)
-    def call(context)
-      action_xml = context.raw_event_xml
-      if is_publishable?(context.enrollment_event_cv)
-        edi_builder = EdiCodec::X12::BenefitEnrollment.new(action_xml)
-        x12_xml = edi_builder.call.to_xml
-        publish_to_bus(context.amqp_connection, context.enrollment_event_cv, x12_xml)
+    def send_single_termination(context, term)
+      if term.transmit?
+        affected_members = term.affected_member_ids.map do |a_member_id|
+          ::BusinessProcesses::AffectedMember.new({
+            :policy => term.policy,
+            :member_id => a_member_id
+          })
+        end
+        enrollees = term.policy.enrollees.select do |en|
+          term.member_ids.include?(en.m_id)
+        end
+        render_result = ApplicationController.new.render_to_string(
+          :layout => "enrollment_event",
+          :partial => "enrollment_events/enrollment_event",
+          :format => :xml,
+          :locals => {
+            :affected_members => affected_members,
+            :policy => term.policy,
+            :enrollees => enrollees,
+            :event_type => "urn:openhbx:terms:v1:enrollment#terminate_enrollment",
+            :transaction_id => term.transaction_id
+          })
+        enrollment_event_cv = enrollment_event_cv_for(render_result)
+        if is_publishable?(enrollment_event_cv)
+          begin
+            edi_builder = EdiCodec::X12::BenefitEnrollment.new(render_result)
+            x12_xml = edi_builder.call.to_xml
+            publish_to_bus(context.amqp_connection, enrollment_event_cv, x12_xml)
+          rescue Exception => e
+            context.errors.add(:event_xml, e.message)
+            context.errors.add(:event_xml, render_result)
+          end
+        end
       end
-      @app.call(context)
+    end
+
+    # Context requires:
+    # - amqp_connection (A connection to an amqp service)
+    def call(context)
+      action_xml = context.event_message.event_xml
+      enrollment_event_cv = enrollment_event_cv_for(action_xml)
+      update_bgn = (context.terminations.any? || context.cancellations.any?)
+      context.terminations.each do |term|
+        send_single_termination(context, term)
+      end
+      context.cancellations.each do |cancel|
+        send_single_termination(context, cancel)
+      end
+      if is_publishable?(enrollment_event_cv)
+        begin
+          edi_builder = EdiCodec::X12::BenefitEnrollment.new(update_transaction_id(action_xml, update_bgn))
+          x12_xml = edi_builder.call.to_xml
+          publish_to_bus(context.amqp_connection, enrollment_event_cv, x12_xml)
+        rescue Exception => e
+          context.errors.add(:event_xml, e.message)
+          context.errors.add(:event_xml, action_xml)
+          return context
+        end
+      end
+      super(context)
     end
 
     def publish_to_bus(amqp_connection, enrollment_event_cv, x12_payload)
@@ -38,7 +87,6 @@ module Handlers
       found_plan.carrier.abbrev.upcase
     end
 
-
     def determine_file_name(enrollment_event_cv)
       market_identifier = shop_market?(enrollment_event_cv) ? "S" : "I"
       carrier_identifier = find_carrier_abbreviation(enrollment_event_cv)
@@ -48,21 +96,32 @@ module Handlers
 
     protected
 
+    def new_transaction_id
+      ran = Random.new
+      current_time = Time.now.utc
+      reference_number_base = current_time.strftime("%Y%m%d%H%M%S") + current_time.usec.to_s[0..2]
+      reference_number_base + sprintf("%05i", ran.rand(65535))
+    end
+
+    def update_transaction_id(action_xml, change_bgn = false)
+      return action_xml unless change_bgn
+      new_id_for_bgn = new_transaction_id
+      the_xml = Nokogiri::XML(action_xml)
+      the_xml.xpath("//cv:enrollment/cv:transaction_id/cv:id", {:cv => "http://openhbx.org/api/terms/1.0"}).each do |node|
+        node.content = new_id_for_bgn
+      end
+      the_xml.xpath("//cv:enrollment_event_body/cv:transaction_id", {:cv => "http://openhbx.org/api/terms/1.0"}).each do |node|
+        node.content = new_id_for_bgn
+      end
+      the_xml.to_xml(:indent => 2)
+    end
+
     def is_publishable?(enrollment_event_cv)
       Maybe.new(enrollment_event_cv).event.body.publishable?.value
     end
 
-    def extract_policy(enrollment_event_cv)
-      Maybe.new(enrollment_event_cv).event.body.enrollment.policy.value
-    end
-
-    def determine_market(enrollment_event_cv)
-      shop_enrollment = Maybe.new(enrollment_event_cv).event.body.enrollment.policy.policy_enrollment.shop_market.value 
-      shop_enrollment.nil? ? "individual" : "shop"
-    end
-
     def is_initial?(enrollment_event_cv)
-      event_name = Maybe.new(enrollment_event_cv).event.event_name.strip.split("#").last.downcase.value
+      event_name = Maybe.new(enrollment_event_cv).event.body.enrollment.enrollment_type.strip.split("#").last.downcase.value
       (event_name == "initial")
     end
 
@@ -76,16 +135,6 @@ module Handlers
 
     def shop_market?(enrollment_event_cv)
       determine_market(enrollment_event_cv) == "shop"
-    end
-
-    def extract_hios_id(policy_cv)
-      return nil if policy_cv.policy_enrollment.plan.id.blank?
-      policy_cv.policy_enrollment.plan.id.split("#").last
-    end
-
-    def extract_active_year(policy_cv)
-      return nil if policy_cv.policy_enrollment.plan.blank?
-      policy_cv.policy_enrollment.plan.active_year
     end
   end
 end
