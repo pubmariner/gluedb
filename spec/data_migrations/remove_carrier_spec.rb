@@ -17,7 +17,7 @@ describe RemoveCarrier, dbclean: :after_each do
     before { subject.remove_plans }
 
     it "should remove the plans" do
-      expect(Plan.find(plan.id)).to be_nil
+      expect(Plan.where(_id: plan._id).first).to be_nil
     end
   end
 
