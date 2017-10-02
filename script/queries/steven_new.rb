@@ -26,7 +26,7 @@ Caches::MongoidCache.with_cache_for(Carrier, Plan, Employer) do
     csv << ["Subscriber ID", "Member ID" , "Policy ID", "Enrollment Group ID", "Status",
             "First Name", "Last Name","SSN", "DOB", "Gender", "Relationship",
             "Plan Name", "HIOS ID", "Plan Metal Level", "Carrier Name",
-            "Premium Amount", "Premium Total", "Policy Employer Contribution",
+            "Premium Amount", "Premium Total", "Policy APTC", "Policy Employer Contribution",
             "Coverage Start", "Coverage End",
             "Employer Name", "Employer DBA", "Employer FEIN", "Employer HBX ID",
             "Home Address", "Mailing Address","Email","Phone Number","Broker"]
@@ -64,7 +64,6 @@ Caches::MongoidCache.with_cache_for(Carrier, Plan, Employer) do
             pol.enrollees.each do |en|
               #if !en.canceled?
                 per = en.person
-                next if per.blank?
                 csv << [
                   subscriber_id, en.m_id, pol._id, pol.eg_id, pol.aasm_state,
                   per.name_first,
@@ -74,7 +73,7 @@ Caches::MongoidCache.with_cache_for(Carrier, Plan, Employer) do
                   en.member.gender,
                   en.rel_code,
                   plan.name, plan.hios_plan_id, plan.metal_level, carrier.name,
-                  en.pre_amt, pol.pre_amt_tot, pol.tot_emp_res_amt,
+                  en.pre_amt, pol.pre_amt_tot,pol.applied_aptc, pol.tot_emp_res_amt,
                   en.coverage_start.blank? ? nil : en.coverage_start.strftime("%Y%m%d"),
                   en.coverage_end.blank? ? nil : en.coverage_end.strftime("%Y%m%d"),
                   pol.employer_id.blank? ? nil : employer.name,
@@ -95,8 +94,5 @@ Caches::MongoidCache.with_cache_for(Carrier, Plan, Employer) do
 
 end
 
-upload_to_s3 = Aws::S3Storage.new
-uri = upload_to_s3.save(file_path: filename, options: { internal_artifact: true})
-upload_to_s3.publish_to_sftp(filename,"Legacy::PushGlueEnrollmentReport", uri)
 timey2 = Time.now
 puts "Report ended at #{timey2}"

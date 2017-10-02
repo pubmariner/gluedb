@@ -9,12 +9,7 @@ module Parsers
 
         # FIXME: 15769 - Return 0 in case of composite rating
         def pre_amt
-          pre_1_cat = category_by_name('PRE AMT 1')
-          if pre_1_cat.blank?
-            0.00
-          else
-            pre_1_cat.value
-          end
+          category_by_name('PRE AMT 1').value
         end
 
         def pre_amt_tot
