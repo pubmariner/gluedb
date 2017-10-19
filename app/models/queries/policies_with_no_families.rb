@@ -5,8 +5,17 @@ module Queries
 
     # returns ids of policies that do not belong to any family
     def execute
-      policies_with_hbx_enrollment = Family.all.flat_map(&:active_household).compact.flat_map(&:hbx_enrollments).map(&:policy_id).uniq
-      Policy.where(:id.nin => policies_with_hbx_enrollment).pluck(:id).to_a
+      policies_with_hbx_enrollment = Family.all.inject([]) do |policies, family|
+        begin
+          policies << family.active_household.hbx_enrollments.where(:kind.ne => 'employer_sponsored').pluck(&:policy_id)
+          policies.flatten!
+        rescue => e
+          puts e
+        end
+        policies
+      end
+
+      Policy.where(:id.nin => policies_with_hbx_enrollment).pluck(:id)
     end
   end
 end
