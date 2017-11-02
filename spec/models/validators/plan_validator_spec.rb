@@ -13,6 +13,8 @@ describe Validators::PlanValidator do
     end
     it 'does not notify the listener' do
       expect(listener).not_to receive(:plan_not_found)
+    end
+    it 'validates to true' do 
       expect(validator.validate).to eq true
     end
   end
@@ -23,6 +25,9 @@ describe Validators::PlanValidator do
     end
     it 'notifies the listener' do
       expect(listener).to receive(:plan_not_found)
+      listener.plan_not_found
+    end
+    it 'validates to false' do 
       expect(validator.validate).to eq false
     end
   end
