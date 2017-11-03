@@ -5,7 +5,7 @@ describe Validators::PlanValidator do
 
   let(:change_request) { double }
   let(:plan) { double }
-  let(:listener) { double }
+  let(:listener) { instance_double(VocabUploadsController) }
 
   context 'when the plan is found' do 
     before do
@@ -13,6 +13,7 @@ describe Validators::PlanValidator do
     end
     it 'does not notify the listener' do
       expect(listener).not_to receive(:plan_not_found)
+      subject.validate
     end
     it 'validates to true' do 
       expect(validator.validate).to eq true
@@ -22,10 +23,11 @@ describe Validators::PlanValidator do
   context 'when the plan is not found' do 
     before do
       allow(plan).to receive(:blank?).and_return(true)
+      allow(listener).to receive(:plan_not_found)
     end
     it 'notifies the listener' do
       expect(listener).to receive(:plan_not_found)
-      listener.plan_not_found
+      subject.validate
     end
     it 'validates to false' do 
       expect(validator.validate).to eq false
