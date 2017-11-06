@@ -40,6 +40,10 @@ class VocabUploadsController < ApplicationController
     flash_message_now(:error, "Premium was not found in the system.")
   end
 
+  def plan_not_found
+    flash_message_now(:error, "Plan not found in the system. Please check your effective date and HIOS ID.")
+  end
+
   def details_text(details)
     "Expected $#{sprintf "%.2f", details[:expected]} but got $#{sprintf "%.2f", details[:provided]}."
   end
