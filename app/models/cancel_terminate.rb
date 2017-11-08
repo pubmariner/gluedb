@@ -54,7 +54,7 @@ class CancelTerminate
   def map_people_from_policy(enroll)
     policy.enrollees.map do |em|
       per = em.person
-      InvolvedPerson.new({m_id: em.m_id, name: per.name_full, role: em.rel_code, affect_selected: true, include_selected: true}) if em.coverage_status == "active"
+      InvolvedPerson.new({m_id: em.m_id, name: per.name_full, role: em.rel_code, affect_selected: true, include_selected: true}) if (em.coverage_status == "active" && per.present?)
     end
   end
 
