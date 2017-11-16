@@ -12,7 +12,7 @@ FactoryGirl.define do
       shp_dtl true
 
       after(:create) do |carrier, evaluator|
-        create_list(:plan, 1, carrier: carrier)
+        create_list(:ivl_health_plan, 1, carrier: carrier)
         create_list(:ivl_dental_plan, 1, carrier: carrier)
         create_list(:ivl_assisted_plan, 1, carrier: carrier)
         create_list(:shop_health_plan, 1, carrier: carrier)
@@ -27,7 +27,7 @@ FactoryGirl.define do
       shp_hlt true
 
       after(:create) do |carrier, evaluator|
-        create_list(:plan, 1, carrier: carrier)
+        create_list(:ivl_health_plan, 1, carrier: carrier)
         create_list(:ivl_assisted_plan, 1, carrier: carrier)
         create_list(:shop_health_plan, 1, carrier: carrier)
       end
@@ -83,7 +83,7 @@ FactoryGirl.define do
       ind_hlt true
 
       after(:create) do |carrier, evaluator|
-        create_list(:plan, 1, carrier: carrier)
+        create_list(:ivl_health_plan, 1, carrier: carrier)
         create_list(:ivl_assisted_plan, 1, carrier: carrier)
       end
     end
@@ -105,7 +105,7 @@ FactoryGirl.define do
       ind_dtl true
 
       after(:create) do |carrier, evaluator|
-        create_list(:plan, 1, carrier: carrier)
+        create_list(:ivl_health_plan, 1, carrier: carrier)
         create_list(:ivl_dental_plan, 1, carrier: carrier)
         create_list(:ivl_assisted_plan, 1, carrier: carrier)
       end

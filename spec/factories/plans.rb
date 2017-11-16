@@ -11,6 +11,12 @@ FactoryGirl.define do
     ehb 0.0
     carrier
 
+    trait :ivl_health do 
+      after(:create) do |plan,evaluator|
+        create_list(:health_premium_table, 120, plan: plan)
+      end
+    end
+
     trait :shop_health do
       name 'SHOP Health Plan'
       abbrev 'SHPB'
@@ -18,6 +24,10 @@ FactoryGirl.define do
       hios_plan_id '2747'
       market_type 'shop'
       carrier
+
+      after(:create) do |plan,evaluator|
+        create_list(:health_premium_table, 120, plan: plan)
+      end
     end
 
     trait :shop_dental do 
@@ -29,6 +39,10 @@ FactoryGirl.define do
       metal_level 'dental'
       coverage_type 'dental'
       carrier
+
+      after(:create) do |plan,evaluator|
+        create_list(:dental_premium_table, 120, plan: plan)
+      end
     end
 
     trait :ivl_assisted do 
@@ -38,6 +52,10 @@ FactoryGirl.define do
       hios_plan_id '7284'
       metal_level 'silver'
       carrier
+
+      after(:create) do |plan,evaluator|
+        create_list(:health_premium_table, 120, plan: plan)
+      end
     end
 
     trait :ivl_dental do 
@@ -48,6 +66,10 @@ FactoryGirl.define do
       metal_level 'dental'
       coverage_type 'dental'
       carrier
+
+      after(:create) do |plan,evaluator|
+        create_list(:dental_premium_table, 120, plan: plan)
+      end
     end
 
     trait :renewal_plan do
@@ -60,9 +82,15 @@ FactoryGirl.define do
           renewal_plan.save
           plan.renewal_plan = renewal_plan
           plan.save
+          plan.premium_tables.each do |pt|
+            pt.rate_start_date += 1.year
+            pt.rate_end_date += 1.year
+            pt.save
+          end
         end
     end
 
+    factory :ivl_health_plan, traits: [:ivl_health]
     factory :shop_health_plan, traits: [:shop_health]
     factory :shop_dental_plan, traits: [:shop_dental]
     factory :ivl_assisted_plan, traits: [:ivl_assisted]
