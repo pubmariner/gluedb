@@ -63,5 +63,15 @@ FactoryGirl.define do
       ind_hlt true
       ind_dtl true
     end
+
+    factory :health_and_dental_carrier, traits: [:health_and_dental]
+    factory :health_carrier, traits: [:health_only]
+    factory :dental_carrier, traits: [:dental_only]
+    factory :shop_health_carrier, traits: [:shop_health]
+    factory :shop_dental_carrier, traits: [:shop_dental]
+    factory :shop_health_and_dental_carrier, traits: [:shop_health_and_dental]
+    factory :ivl_health_carrier, traits: [:ivl_health]
+    factory :ivl_dental_carrier, traits: [:ivl_dental]
+    factory :ivl_health_and_dental_carrier, traits: [:ivl_health_and_dental]
   end
 end

@@ -7,5 +7,13 @@ unless Rails.env.development?
 
   puts "Load complete: Carriers"
 else
-
+  FactoryGirl.create(:health_and_dental_carrier)
+  FactoryGirl.create(:health_carrier)
+  FactoryGirl.create(:dental_carrier)
+  FactoryGirl.create(:shop_health_carrier)
+  FactoryGirl.create(:shop_dental_carrier)
+  FactoryGirl.create(:shop_health_and_dental_carrier)
+  FactoryGirl.create(:ivl_health_carrier)
+  FactoryGirl.create(:ivl_dental_carrier)
+  FactoryGirl.create(:ivl_health_and_dental_carrier)
 end
