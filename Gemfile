@@ -21,6 +21,11 @@ gem "psych", "2.0.5"
 group :development do
   gem 'capistrano', '2.15.4'
   gem 'ruby-progressbar', '1.6.0'
+  # To run console pry
+  gem 'pry'
+  gem 'pry-rails'
+  gem 'pry-stack_explorer'
+  gem 'pry-remote'
 #  gem 'jazz_hands'
 end
 
