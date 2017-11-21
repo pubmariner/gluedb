@@ -21,6 +21,12 @@ FactoryGirl.define do
       end
     end
 
+    trait :with_renewal_plan_year do 
+      after(:create) do |employer|
+        create :renewal_plan_year, employer: employer
+      end
+    end
+
     trait :with_contact_info do 
       after(:create) do |emp, evaluator|
         create_list(:address, 1, employer: emp)
