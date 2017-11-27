@@ -26,8 +26,18 @@ module Aws
 
     # If success, return URI which has the s3 bucket key
     # else return nil
-    def self.save(file_path, bucket_name, key=SecureRandom.uuid)
-      Aws::S3Storage.new.save(file_path, bucket_name, key)
+    def self.save(file_path:, bucket_name:, key: SecureRandom.uuid, options: {})
+      Aws::S3Storage.new.save(file_path: file_path, bucket_name: bucket_name, key: key, options: options)
+    end
+
+    # Here's an option to publish to SFTP.
+    def publish_to_sftp(filename, transport_process, uri)
+      conn = AmqpConnectionProvider.start_connection
+      eb = Amqp::EventBroadcaster.new(conn)
+      aws_key = uri.split("#").last
+      props = {:headers => {:artifact_key => aws_key, :file_name => filename, :transport_process => transport_process}, :routing_key => "info.events.transport_artifact.transport_requested"}
+      eb.broadcast(props, "payload")
+      conn.close
     end
 
     # The uri has information about the bucket name and key
