@@ -2,8 +2,8 @@ FactoryGirl.define do
   factory :plan do
     name 'Super Plan A'
     abbrev 'SPA'
-    hbx_plan_id '1234'
-    hios_plan_id '4321'
+    sequence(:hbx_plan_id, 1234) {|n| "#{n}" }
+    sequence(:hios_plan_id, 4321) {|n| "#{n}" }
     coverage_type 'health'
     metal_level 'bronze'
     market_type 'individual'
@@ -11,7 +11,9 @@ FactoryGirl.define do
     ehb 0.0
     carrier
 
-    trait :ivl_health do 
+    trait :ivl_health do
+      name 'IVL Health Plan'
+      association :carrier, factory: :ivl_health_carrier
       after(:create) do |plan,evaluator|
         create_list(:health_premium_table, 120, plan: plan)
       end
@@ -20,21 +22,21 @@ FactoryGirl.define do
     trait :shop_health do
       name 'SHOP Health Plan'
       abbrev 'SHPB'
-      hbx_plan_id '7472'
-      hios_plan_id '2747'
+      sequence(:hbx_plan_id, 12345) {|n| "#{n}" }
+      sequence(:hios_plan_id, 54321) {|n| "#{n}" }
       market_type 'shop'
-      carrier
+      association :carrier, factory: ivl_health_carrier
 
       after(:create) do |plan,evaluator|
         create_list(:health_premium_table, 120, plan: plan)
       end
     end
 
-    trait :shop_dental do 
+    trait :shop_dental do
       name 'SHOP Dental Plan'
       abbrev 'SHDP'
-      hbx_plan_id '7437'
-      hios_plan_id '7347'
+      sequence(:hbx_plan_id, 123456) {|n| "#{n}" }
+      sequence(:hios_plan_id, 654321) {|n| "#{n}" }
       market_type 'shop'
       metal_level 'dental'
       coverage_type 'dental'
@@ -45,11 +47,11 @@ FactoryGirl.define do
       end
     end
 
-    trait :ivl_assisted do 
+    trait :ivl_assisted do
       name 'IVL Assisted Plan'
       abbrev 'IVAP'
-      hbx_plan_id '4827'
-      hios_plan_id '7284'
+      sequence(:hbx_plan_id, 1234567) {|n| "#{n}" }
+      sequence(:hios_plan_id, 7654321) {|n| "#{n}" }
       metal_level 'silver'
       carrier
 
@@ -58,11 +60,11 @@ FactoryGirl.define do
       end
     end
 
-    trait :ivl_dental do 
+    trait :ivl_dental do
       name 'IVL Dental Plan'
       abbrev 'IVDP'
-      hbx_plan_id '4837'
-      hios_plan_id '7384'
+      sequence(:hbx_plan_id, 12345678) {|n| "#{n}" }
+      sequence(:hios_plan_id, 87654321) {|n| "#{n}" }
       metal_level 'dental'
       coverage_type 'dental'
       carrier
