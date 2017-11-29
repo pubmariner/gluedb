@@ -25,7 +25,7 @@ FactoryGirl.define do
       sequence(:hbx_plan_id, 12345) {|n| "#{n}" }
       sequence(:hios_plan_id, 54321) {|n| "#{n}" }
       market_type 'shop'
-      association :carrier, factory: ivl_health_carrier
+      association :carrier, factory: :ivl_health_carrier
 
       after(:create) do |plan,evaluator|
         create_list(:health_premium_table, 120, plan: plan)
