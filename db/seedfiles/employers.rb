@@ -1,12 +1,12 @@
 puts "Loading Employers"
 
-unless Rails.env.development?
+if !Rails.env.development?
   # Employer.collection.drop
   require 'csv'
-  
+
   # PlanYear.delete_all
   glob_pat = File.join(File.dirname(__FILE__), "employer_groups", "*.xml")
-  
+
   Dir.glob(glob_pat).each do |f|
     puts f
     f_in = File.open(f, 'r')
@@ -15,11 +15,11 @@ unless Rails.env.development?
     f_in.close
     puts f
   end
-  
+
   c_hash = Hash[(Carrier.all.map { |c| [c.abbrev, c]}) ]
-  
+
   gid_file = File.join(File.dirname(__FILE__), "employer_group_ids.csv")
-  
+
   CSV.foreach(gid_file, headers: true) do |row|
     record = row.to_hash
     hbx_id = record['HBX_ID']

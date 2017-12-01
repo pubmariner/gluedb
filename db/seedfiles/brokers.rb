@@ -1,6 +1,6 @@
 puts 'Loading Brokers'
 
-unless Rails.env.development?
+if  !Rails.env.development?
   pattern = File.join(File.dirname(__FILE__), "brokers", "*.xml")
 
   Dir.glob(pattern).each do |file_path|

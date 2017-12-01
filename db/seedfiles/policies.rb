@@ -1,6 +1,6 @@
 puts "Loading: Policies"
 
-unless Rails.env.development?
+if !Rails.env.development?
   POLCIES = YAML.load_file(Rails.root.join('db', 'seedfiles', 'policies.yml'))
   puts "Loading: Policies"
 
