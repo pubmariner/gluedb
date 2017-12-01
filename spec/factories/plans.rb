@@ -9,11 +9,11 @@ FactoryGirl.define do
     market_type 'individual'
     year Date.today.year
     ehb 0.0
-    carrier
+    carrier { Carrier.where(:name => /Health/i).first_or_create! }
 
     trait :ivl_health do
       name 'IVL Health Plan'
-      association :carrier, factory: :ivl_health_carrier
+      carrier { Carrier.where(:name => /IVL Health Carrier/i).first_or_create! }
       after(:create) do |plan,evaluator|
         create_list(:health_premium_table, 120, plan: plan)
       end
@@ -25,7 +25,7 @@ FactoryGirl.define do
       sequence(:hbx_plan_id, 12345) {|n| "#{n}" }
       sequence(:hios_plan_id, 54321) {|n| "#{n}" }
       market_type 'shop'
-      association :carrier, factory: :ivl_health_carrier
+      carrier { Carrier.where(:name => /SHOP Health Carrier/i).first_or_create! }
 
       after(:create) do |plan,evaluator|
         create_list(:health_premium_table, 120, plan: plan)
@@ -40,7 +40,7 @@ FactoryGirl.define do
       market_type 'shop'
       metal_level 'dental'
       coverage_type 'dental'
-      carrier
+      carrier { Carrier.where(:name => /SHOP Dental Carrier/i).first_or_create! }
 
       after(:create) do |plan,evaluator|
         create_list(:dental_premium_table, 120, plan: plan)
@@ -53,7 +53,6 @@ FactoryGirl.define do
       sequence(:hbx_plan_id, 1234567) {|n| "#{n}" }
       sequence(:hios_plan_id, 7654321) {|n| "#{n}" }
       metal_level 'silver'
-      carrier
 
       after(:create) do |plan,evaluator|
         create_list(:health_premium_table, 120, plan: plan)
@@ -67,7 +66,8 @@ FactoryGirl.define do
       sequence(:hios_plan_id, 87654321) {|n| "#{n}" }
       metal_level 'dental'
       coverage_type 'dental'
-      carrier
+      carrier { Carrier.where(:name => /IVL Dental Carrier/i).first_or_create! }
+
 
       after(:create) do |plan,evaluator|
         create_list(:dental_premium_table, 120, plan: plan)
