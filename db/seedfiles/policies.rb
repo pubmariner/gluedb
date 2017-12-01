@@ -15,4 +15,9 @@ else
   FactoryGirl.create(:ivl_assisted_health_policy_with_aptc_and_csr)
   FactoryGirl.create(:ivl_assisted_health_policy_with_aptc_no_csr)
   FactoryGirl.create(:ivl_assisted_health_policy_no_aptc_with_csr)
+
+  Policy.all.each do |pol|
+    pol.carrier = pol.plan.carrier
+    pol.save
+  end
 end
