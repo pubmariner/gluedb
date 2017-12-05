@@ -65,28 +65,19 @@ all_policies_with_no_families = Queries::PoliciesWithNoFamilies.new.execute
 
 @logger.info "Total policies_with_no_families: #{all_policies_with_no_families.length}"
 
-policies_with_no_families = all_policies_with_no_families.select do |policy_id|
-  policy = Policy.find(policy_id)
-  next if policy.subscriber.nil?
-  next if policy.plan.nil?
-  policy.subscriber.coverage_start >= @begin_date && policy.subscriber.coverage_start <= @end_date
-end
 
-@logger.info "In given daterange: policies_with_no_families: #{policies_with_no_families.length}"
-
-
-policy_groups = policies_with_no_families.group_by do |policy_id|
-  policy = Policy.find(policy_id)
-  next if policy.subscriber.person.nil?
+policy_groups = all_policies_with_no_families.where(:enrollees => {
+  "$elemMatch" => { :rel_code => "self", :coverage_start.gte => @begin_date, :coverage_start.lte => @end_date }
+  }).group_by do |policy|
   policy.subscriber.person.id
 end
+
+@logger.info "In given daterange: subscribers with policies not mapped to a family: #{policy_groups.length}"
 
 people_with_multiple_families = []
 @logger.info "policy_groups: #{policy_groups.length}"
 
-
-policy_groups.each do |person_id, policy_ids|
-  policy_ids.uniq!
+policy_groups.each do |person_id, policies|  
   begin
     person = Person.find(person_id)
     families = Family.where({:family_members => {"$elemMatch" => {:person_id => Moped::BSON::ObjectId(person_id)}}})
@@ -98,12 +89,9 @@ policy_groups.each do |person_id, policy_ids|
     end
 
     family = families.first
-    policy_ids.each do |policy_id|
-      policy = Policy.find(policy_id)
+    policies.each do |policy|
       add_hbx_enrollment(family, policy)
       family.save!
-      policy_groups[person_id].delete(policy) #delete the policy as it is processed
-      #@logger.info "Saved family : #{family.e_case_id}"
     end
 
     policy_groups.delete(person_id) #delete the subscriber as we have processed him/her
@@ -115,16 +103,12 @@ end
 @logger.info "people_with_multiple_families #{people_with_multiple_families.inspect}"
 @logger.info "family_count after attaching non primary applicant policies: #{Family.count}"
 @logger.info "people_with_multiple_families: #{people_with_multiple_families.length}"
-
-
 @logger.info "Starting to create families for policies without families"
 
-
-policy_groups.each do |person_id, policy_ids|
+policy_groups.each do |person_id, policies|
   next if people_with_multiple_families.include?(person_id)
   begin
     person = Person.find(person_id)
-    policies = Policy.find(policy_ids).to_a
     family_from_policy_subscriber = FamilyFromPolicySubscriber.new(person, policies)
     family_from_policy_subscriber.create
     family_from_policy_subscriber.save
