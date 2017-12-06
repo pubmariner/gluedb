@@ -8,7 +8,11 @@ policies = Policy.no_timeout.where(
             :coverage_start => {"$gt" => Date.new(2014,12,31)}}}}
 )
 
-policies = policies.reject{|pol| pol.market == 'individual' && !pol.subscriber.nil? &&(pol.subscriber.coverage_start.year == 2014||pol.subscriber.coverage_start.year == 2015) }
+policies = policies.reject{|pol| pol.market == 'individual' &&
+                                 !pol.subscriber.nil? &&
+                                 (pol.subscriber.coverage_start.year == 2014||
+                                  pol.subscriber.coverage_start.year == 2015||
+                                  pol.subscriber.coverage_start.year == 2016) }
 
 
 def bad_eg_id(eg_id)
@@ -34,6 +38,9 @@ Caches::MongoidCache.with_cache_for(Carrier, Plan, Employer) do
             "Employer Name", "Employer DBA", "Employer FEIN", "Employer HBX ID",
             "Home Address", "Mailing Address","Email","Phone Number","Broker"]
     policies.each do |pol|
+      count += 1
+      puts "#{count}/#{total_count} done at #{Time.now}" if count % 10000 == 0
+      puts "#{count}/#{total_count} done at #{Time.now}" if count == total_count
       if !bad_eg_id(pol.eg_id)
         if !pol.subscriber.nil?
           #if !pol.subscriber.canceled?
