@@ -5,35 +5,39 @@ policies = Policy.no_timeout.where(
   {"eg_id" => {"$not" => /DC0.{32}/},
    :enrollees => {"$elemMatch" =>
       {:rel_code => "self",
-            :coverage_start => {"$gt" => Date.new(2014,12,31)}}}}
+            :coverage_start => {"$gt" => Date.new(2015,12,31)}}}}
 )
 
-policies = policies.reject{|pol| pol.market == 'individual' && !pol.subscriber.nil? &&(pol.subscriber.coverage_start.year == 2014||pol.subscriber.coverage_start.year == 2015) }
+policies = policies.reject{|pol| pol.market == 'individual' && 
+                                 !pol.subscriber.nil? &&
+                                 (pol.subscriber.coverage_start.year == 2014||
+                                  pol.subscriber.coverage_start.year == 2015||
+                                  pol.subscriber.coverage_start.year == 2016) }
 
 
 def bad_eg_id(eg_id)
   (eg_id =~ /\A000/) || (eg_id =~ /\+/)
 end
 
-hostname = %x(echo $HOSTNAME).strip
+count = 0
+total_count = policies.size
 
-environment_name = hostname.gsub(".","").gsub("edidbmhchbxshoporg","")
-
-timestamp = Time.now.strftime('%Y_%m_%d_%H_%M_%S')
-
-filename = "CCA_#{environment_name}_enrollment_#{timestamp}.csv"
+timestamp = Time.now.strftime('%Y%m%d%H%M')
 
 Caches::MongoidCache.with_cache_for(Carrier, Plan, Employer) do
 
-  CSV.open(filename, 'w') do |csv|
-    csv << ["Subscriber ID", "Member ID" , "Policy ID", "Enrollment Group ID",
+  CSV.open("stephen_expected_effectuated_20140930_#{timestamp}.csv", 'w') do |csv|
+    csv << ["Subscriber ID", "Member ID" , "Policy ID", "Enrollment Group ID", "Status",
             "First Name", "Last Name","SSN", "DOB", "Gender", "Relationship",
             "Plan Name", "HIOS ID", "Plan Metal Level", "Carrier Name",
-            "Premium Amount", "Premium Total", "Policy Employer Contribution",
+            "Premium Amount", "Premium Total", "Policy APTC", "Policy Employer Contribution",
             "Coverage Start", "Coverage End",
             "Employer Name", "Employer DBA", "Employer FEIN", "Employer HBX ID",
             "Home Address", "Mailing Address","Email","Phone Number","Broker"]
     policies.each do |pol|
+      count += 1
+      puts "#{count}/#{total_count} done at #{Time.now}" if count % 10000 == 0
+      puts "#{count}/#{total_count} done at #{Time.now}" if count == total_count
       if !bad_eg_id(pol.eg_id)
         if !pol.subscriber.nil?
           #if !pol.subscriber.canceled?
@@ -66,7 +70,7 @@ Caches::MongoidCache.with_cache_for(Carrier, Plan, Employer) do
                 per = en.person
                 next if per.blank?
                 csv << [
-                  subscriber_id, en.m_id, pol._id, pol.eg_id,
+                  subscriber_id, en.m_id, pol._id, pol.eg_id, pol.aasm_state,
                   per.name_first,
                   per.name_last,
                   en.member.ssn,
@@ -74,7 +78,7 @@ Caches::MongoidCache.with_cache_for(Carrier, Plan, Employer) do
                   en.member.gender,
                   en.rel_code,
                   plan.name, plan.hios_plan_id, plan.metal_level, carrier.name,
-                  en.pre_amt, pol.pre_amt_tot, pol.tot_emp_res_amt,
+                  en.pre_amt, pol.pre_amt_tot,pol.applied_aptc, pol.tot_emp_res_amt,
                   en.coverage_start.blank? ? nil : en.coverage_start.strftime("%Y%m%d"),
                   en.coverage_end.blank? ? nil : en.coverage_end.strftime("%Y%m%d"),
                   pol.employer_id.blank? ? nil : employer.name,
@@ -95,8 +99,5 @@ Caches::MongoidCache.with_cache_for(Carrier, Plan, Employer) do
 
 end
 
-upload_to_s3 = Aws::S3Storage.new
-uri = upload_to_s3.save(file_path: filename, options: { internal_artifact: true})
-upload_to_s3.publish_to_sftp(filename,"Legacy::PushGlueEnrollmentReport", uri)
 timey2 = Time.now
 puts "Report ended at #{timey2}"
