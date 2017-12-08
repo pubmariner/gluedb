@@ -7,9 +7,10 @@ module ExternalEvents
 
     # p_node : Openhbx::Cv2::Policy
     # p_record : Plan
-    def initialize(p_node, p_record)
+    def initialize(p_node, p_record, cobra_reinstate = false)
       @policy_node = p_node
       @plan = p_record
+      @cobra = cobra_reinstate
     end
 
     def extract_pre_amt_tot
@@ -22,6 +23,13 @@ module ExternalEvents
       p_enrollment = Maybe.new(@policy_node).policy_enrollment.value
       return 0.00 if p_enrollment.blank?
       BigDecimal.new(Maybe.new(p_enrollment).total_responsible_amount.strip.value)
+    end
+
+    def extract_cobra_eligibility_date
+      p_enrollment = Maybe.new(@policy_node).policy_enrollment.value
+      val = Maybe.new(p_enrollment).eligibility_event.event_date.strip.value
+      return nil if val.blank?
+      Date.strptime(val, "%Y%m%d") rescue nil
     end
 
     def extract_enrollee_premium(enrollee)
@@ -131,8 +139,8 @@ module ExternalEvents
       policy.enrollees << Enrollee.new({
         :m_id => member_id,
         :rel_code => extract_rel_code(enrollee_node),
-        :ben_stat => "active",
-        :emp_state => "active",
+        :ben_stat => @cobra ? "cobra" : "active",
+        :emp_stat => "active",
         :coverage_start => extract_enrollee_start(enrollee_node),
         :pre_amt => extract_enrollee_premium(enrollee_node)
       })
@@ -151,8 +159,8 @@ module ExternalEvents
       policy.enrollees << Enrollee.new({
         :m_id => subscriber_id,
         :rel_code => "self",
-        :ben_stat => "active",
-        :emp_state => "active",
+        :ben_stat => @cobra ? "cobra" : "active",
+        :emp_stat => "active",
         :coverage_start => extract_enrollee_start(sub_node),
         :pre_amt => extract_enrollee_premium(sub_node)
       })
@@ -195,25 +203,19 @@ module ExternalEvents
     end
 
     def persist
-      responsible_party = responsible_party_exists? ? existing_responsible_party : build_responsible_party(responsible_person) 
-      if policy_exists? 
-        existing_policy.update_attributes(responsible_party_id:responsible_party.id) if !existing_policy.has_responsible_person? && responsible_party.present?
-        return true
-      else
-        policy = Policy.create!({
-          :plan => @plan,
-          :carrier_id => @plan.carrier_id,
-          :eg_id => extract_enrollment_group_id(@policy_node),
-          :pre_amt_tot => extract_pre_amt_tot,
-          :tot_res_amt => extract_tot_res_amt,
-          :responsible_party_id => responsible_party.id
-        }.merge(extract_other_financials).merge(extract_rating_details))
-        build_subscriber(policy)
-        other_enrollees = @policy_node.enrollees.reject { |en| en.subscriber? }
-        other_enrollees.each do |en|
-          build_enrollee(policy, en)
-        end
-        true
+      return true if policy_exists? && !@cobra
+      policy = Policy.create!({
+        :plan => @plan,
+        :carrier_id => @plan.carrier_id,
+        :eg_id => extract_enrollment_group_id(@policy_node),
+        :pre_amt_tot => extract_pre_amt_tot,
+        :tot_res_amt => extract_tot_res_amt,
+        :cobra_eligibility_date => @cobra ? extract_cobra_eligibility_date : nil
+      }.merge(extract_other_financials).merge(extract_rating_details))
+      build_subscriber(policy)
+      other_enrollees = @policy_node.enrollees.reject { |en| en.subscriber? }
+      other_enrollees.each do |en|
+        build_enrollee(policy, en)
       end
     end
   end
