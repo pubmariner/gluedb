@@ -203,8 +203,10 @@ module ExternalEvents
     end
 
     def persist
-      return true if policy_exists? && !@cobra
-      responsible_party = responsible_party_exists? ? existing_responsible_party : build_responsible_party(responsible_person) 
+      return true if policy_exists?
+
+      responsible_party = responsible_party_exists? ? existing_responsible_party : build_responsible_party(responsible_person)
+
       policy = Policy.create!({
         :plan => @plan,
         :carrier_id => @plan.carrier_id,
@@ -214,7 +216,9 @@ module ExternalEvents
         :cobra_eligibility_date => @cobra ? extract_cobra_eligibility_date : nil,
         :responsible_party_id => responsible_party.id
       }.merge(extract_other_financials).merge(extract_rating_details))
+
       build_subscriber(policy)
+
       other_enrollees = @policy_node.enrollees.reject { |en| en.subscriber? }
       other_enrollees.each do |en|
         build_enrollee(policy, en)
