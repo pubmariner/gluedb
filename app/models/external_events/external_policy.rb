@@ -205,6 +205,7 @@ module ExternalEvents
 
     def persist
       return true if policy_exists?
+      return false if extract_pre_amt_tot == 0.0
 
       responsible_party_attributes = {}
       if !@policy_node.responsible_party.blank?

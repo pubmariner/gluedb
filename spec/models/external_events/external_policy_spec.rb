@@ -104,4 +104,44 @@ describe ExternalEvents::ExternalPolicy, "given:
       end
     end
   end
+
+  describe ".persist method" do
+    let(:member) { FactoryGirl.build :member }
+    let!(:person) { FactoryGirl.create(:person, members: [member])}
+    let!(:plan) {FactoryGirl.create(:plan, carrier_id:'01') }
+    let!(:enrolles) { double("Enrolles", :subscriber? => true)}
+
+    before do
+    end
+
+    it "should save if policy exists" do
+      allow(subject).to receive(:policy_exists?).and_return true
+
+      expect(subject.persist).to eq true
+    end
+
+    it "should not create a policy if policy does not exists or premium amount total is $0.00" do
+      allow(subject).to receive(:policy_exists?).and_return false
+      allow(subject).to receive(:extract_pre_amt_tot).and_return 0.00
+
+      expect(subject.persist).to eq false
+    end
+
+    it "should create policy when premium amount total is non-zero " do
+      responsible_party = instance_double(Openhbx::Cv2::ResponsibleParty, id: member.hbx_member_id)
+
+      subject.instance_variable_set(:@plan,plan)
+      allow(subject).to receive(:policy_exists?).and_return false
+      allow(subject).to receive(:extract_pre_amt_tot).and_return 123
+      allow(policy_cv).to receive(:enrollees).and_return ([enrolles])
+      allow(policy_cv).to receive(:responsible_party).and_return(responsible_party)
+      allow(subject).to receive(:extract_tot_res_amt).and_return 234
+      allow(subject).to receive(:extract_enrollment_group_id).and_return "123"
+      allow(subject).to receive(:extract_other_financials).and_return({:applied_aptc => "123"})
+      allow(subject).to receive(:extract_rating_details).and_return({:rating_area => "01001"})
+      allow(subject).to receive(:build_subscriber).and_return nil
+
+      expect(subject.persist).to eq true
+    end
+  end
 end
