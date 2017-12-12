@@ -47,8 +47,14 @@ module ChangeSets
         policy_node = extract_policy(latest_enrollment)
 
         policy.enrollees.each do |enrollee|
-          policy_node_enrollee = policy_node.enrollees.find { |enrollee_node| enrollee_node.member.id == enrollee.m_id }
-          enrollee.update_attributes!({pre_amt: BigDecimal(policy_node_enrollee.benefit.premium_amount || 0.00)})
+          # this does not take into account issues with uris
+          policy_node_enrollee = policy_node.enrollees.find do |enrollee_node|
+            enrollee_node_id = Maybe.new(enrollee_node).member.id.strip.split("#").last.value
+            enrollee.m_id == enrollee_node_id
+          end
+          if policy_node_enrollee
+            enrollee.update_attributes!({pre_amt: BigDecimal(policy_node_enrollee.benefit.premium_amount || 0.00)})
+          end
         end
 
         policy.tot_res_amt = policy_node.policy_enrollment.total_responsible_amount
