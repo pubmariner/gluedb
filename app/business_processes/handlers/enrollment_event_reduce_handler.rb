@@ -4,9 +4,7 @@ module Handlers
     # call :: [::ExternalEvents::EnrollmentEventNotification]-> [[::ExternalEvents::EnrollmentEventNotification]]
     # We split out and collate the events into buckets.  Then we call the step after us once for each bucket.
     def call(context)
-      no_dupe_events = discard_already_processed_events(context)
-      no_bad_terms = discard_terms_with_no_end_date(no_dupe_events)
-      no_rerun_terms = discard_already_processed_terminations(no_bad_terms)
+      no_rerun_terms = execute_filters(context)
       reduced_list = perform_reduction(no_rerun_terms)
       reduced_list.map do |element|
 #        begin
@@ -19,19 +17,16 @@ module Handlers
 
     protected
 
-    def discard_already_processed_terminations(enrollments)
-      filter = ::ExternalEvents::EnrollmentEventNotificationFilters::AlreadyProcessedTermination.new
-      filter.filter(enrollments)
-    end
-
-    def discard_already_processed_events(enrollments)
-      filter = ::ExternalEvents::EnrollmentEventNotificationFilters::AlreadyProcessedEvent.new
-      filter.filter(enrollments)
-    end
-
-    def discard_terms_with_no_end_date(enrollments)
-      filter = ::ExternalEvents::EnrollmentEventNotificationFilters::TerminationWithoutEnd.new
-      filter.filter(enrollments)
+    def execute_filters(enrollments)
+      filters = [
+        ::ExternalEvents::EnrollmentEventNotificationFilters::AlreadyProcessedEvent.new,
+        ::ExternalEvents::EnrollmentEventNotificationFilters::TerminationWithoutEnd.new,
+        ::ExternalEvents::EnrollmentEventNotificationFilters::AlreadyProcessedTermination.new,
+        ::ExternalEvents::EnrollmentEventNotificationFilters::ZeroPremiumTotal.new
+      ]
+      filters.inject(enrollments) do |acc, filter|
+        filter.filter(acc)
+      end
     end
 
     def perform_reduction(full_event_list)

@@ -91,6 +91,7 @@ describe Handlers::EnrollmentEventReduceHandler, "given:
   let(:notifications) { [duplicate_notification_1, duplicate_notification_2, non_duplicate_notification] }
   let(:bad_term_filter) { instance_double(::ExternalEvents::EnrollmentEventNotificationFilters::TerminationWithoutEnd) }
   let(:dupe_termination_filter) { instance_double(::ExternalEvents::EnrollmentEventNotificationFilters::AlreadyProcessedTermination) }
+  let(:zero_premium_filter) { instance_double(::ExternalEvents::EnrollmentEventNotificationFilters::ZeroPremiumTotal) }
 
   let(:next_step) { double("The next step in the pipeline") }
 
@@ -101,6 +102,8 @@ describe Handlers::EnrollmentEventReduceHandler, "given:
     allow(dupe_termination_filter).to receive(:filter).with(notifications).and_return(notifications)
     allow(::ExternalEvents::EnrollmentEventNotificationFilters::TerminationWithoutEnd).to receive(:new).and_return(bad_term_filter)
     allow(bad_term_filter).to receive(:filter).with(notifications).and_return(notifications)
+    allow(::ExternalEvents::EnrollmentEventNotificationFilters::ZeroPremiumTotal).to receive(:new).and_return(zero_premium_filter)
+    allow(zero_premium_filter).to receive(:filter).with(notifications).and_return(notifications)
     allow(next_step).to receive(:call).with([non_duplicate_notification])
     allow(duplicate_notification_1).to receive(:check_and_mark_duplication_against).with(duplicate_notification_2)
     allow(non_duplicate_notification).to receive(:update_business_process_history).with("Handlers::EnrollmentEventReduceHandler")
@@ -128,6 +131,7 @@ describe Handlers::EnrollmentEventReduceHandler, "given:
   let(:notifications) { [same_bucket_notification_1, same_bucket_notification_2, non_duplicate_notification] }
   let(:bad_term_filter) { instance_double(::ExternalEvents::EnrollmentEventNotificationFilters::TerminationWithoutEnd) }
   let(:dupe_termination_filter) { instance_double(::ExternalEvents::EnrollmentEventNotificationFilters::AlreadyProcessedTermination) }
+  let(:zero_premium_filter) { instance_double(::ExternalEvents::EnrollmentEventNotificationFilters::ZeroPremiumTotal) }
 
   let(:next_step) { double("The next step in the pipeline") }
 
@@ -137,7 +141,9 @@ describe Handlers::EnrollmentEventReduceHandler, "given:
     allow(::ExternalEvents::EnrollmentEventNotificationFilters::AlreadyProcessedTermination).to receive(:new).and_return(dupe_termination_filter)
     allow(dupe_termination_filter).to receive(:filter).with(notifications).and_return(notifications)
     allow(::ExternalEvents::EnrollmentEventNotificationFilters::TerminationWithoutEnd).to receive(:new).and_return(bad_term_filter)
+    allow(::ExternalEvents::EnrollmentEventNotificationFilters::ZeroPremiumTotal).to receive(:new).and_return(zero_premium_filter)
     allow(bad_term_filter).to receive(:filter).with(notifications).and_return(notifications)
+    allow(zero_premium_filter).to receive(:filter).with(notifications).and_return(notifications)
     allow(next_step).to receive(:call).with([non_duplicate_notification])
     allow(next_step).to receive(:call).with([same_bucket_notification_1, same_bucket_notification_2])
     allow(same_bucket_notification_1).to receive(:check_and_mark_duplication_against).with(same_bucket_notification_2)
