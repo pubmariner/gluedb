@@ -54,82 +54,30 @@ describe ExternalEvents::ExternalPolicy, "given:
     end
   end
 
+  describe "#responsible_person_exists?" do
+    context 'of a responsible party existing' do
+      let(:member) { FactoryGirl.build :member }
+      let!(:person) { FactoryGirl.create(:person, members: [member])}
+
+      before do
+        responsible_party = instance_double(Openhbx::Cv2::ResponsibleParty, id: member.hbx_member_id)
+        allow(policy_cv).to receive(:responsible_party).and_return(responsible_party)
+      end
+
+      it 'returns true' do
+        expect(subject.responsible_person_exists?).to be_truthy
+      end
+    end
+  end
+
   describe ".Persist" do
-  
     let!(:responsible_party) { ResponsibleParty.new(entity_identifier: "responsible party") }
     let!(:person) { FactoryGirl.create(:person,responsible_parties:[responsible_party])}
 
-    context "when policy and responsible party exists" do
-
-      let!(:policy) {FactoryGirl.create(:policy,responsible_party_id:responsible_party.id) }
-      before :each do
-        allow(subject).to receive(:policy_exists?).and_return(true)
-        allow(subject).to receive(:existing_policy).and_return(policy)
-        allow(subject).to receive(:responsible_party_exists?).and_return(true)
-        allow(policy).to receive(:has_responsible_person?).and_return(true)
-        allow(subject).to receive(:existing_responsible_party).and_return(responsible_party)
-      end
-
-      it "should not update responsible party of policy" do
-        subject.persist
-        expect(policy.responsible_party_id).to eq responsible_party.id
-      end
-
-       it "should not create responsible party" do
-        subject.persist
-        expect(person.responsible_parties.count).to eq 1
-      end
-    end
-
-    context "when policy has no responsible party " do
-
-      let!(:policy) {FactoryGirl.create(:policy) }
-
-      before :each do
-        allow(subject).to receive(:policy_exists?).and_return(true)
-        allow(subject).to receive(:existing_policy).and_return(policy)
-      end
-
-      context "with responsible party exists" do
-        before :each do
-          allow(subject).to receive(:responsible_party_exists?).and_return(true)
-          allow(subject).to receive(:existing_responsible_party).and_return(responsible_party)
-        end
-
-        it "should update with responsible party of policy" do
-          expect(policy.responsible_party_id).to eq nil
-          subject.persist
-          expect(policy.responsible_party_id).to eq responsible_party.id
-        end
-      end
-
-      context "with no responsible party" do
-
-        let!(:person) { FactoryGirl.create(:person)}
-
-        before :each do
-          allow(subject).to receive(:responsible_party_exists?).and_return(false)
-          allow(subject).to receive(:responsible_person_exists?).and_return(true)
-          allow(subject).to receive(:responsible_person).and_return(person)
-        end
-
-        it "should create responsible party" do
-          expect(person.responsible_parties).to eq []
-          subject.persist
-          expect(person.responsible_parties.exists?).to eq true
-        end
-
-        it "should update policy with responsible party" do
-          subject.persist
-          expect(policy.responsible_party_id).to eq person.responsible_parties.first.id
-        end
-      end
-    end
-
     context "when policy not exists and responsible party exists", dbclean: :after_each do
-
       let!(:plan) {FactoryGirl.create(:plan, carrier_id:'01') }
       let(:applied_aptc) { {:applied_aptc =>'0.0'} }
+      let(:responsible_party_node) { instance_double(::Openhbx::Cv2::ResponsibleParty) }
 
       before :each do
         allow(subject).to receive(:policy_exists?).and_return(false)
@@ -144,6 +92,7 @@ describe ExternalEvents::ExternalPolicy, "given:
         allow(subject).to receive(:subscriber_id).and_return("rspec-id")
         allow(subject).to receive(:extract_enrollee_start).with("rspec-sub-node").and_return(Date.today)
         allow(subject).to receive(:extract_enrollee_premium).with("rspec-sub-node").and_return("100")
+        allow(policy_cv).to receive(:responsible_party).and_return(responsible_party_node)
         subject.instance_variable_set(:@plan,plan)
       end
 
