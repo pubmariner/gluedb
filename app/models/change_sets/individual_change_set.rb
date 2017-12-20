@@ -75,7 +75,7 @@ module ChangeSets
       elsif home_email_changed?
         @home_email_changer.perform_update(record, resource, determine_policies_to_transmit, !multiple_contact_changes?)
       elsif dob_changed?
-        @dob_changer.perform_update(member, resource, determine_policies_to_transmit)
+        @dob_changer.perform_update(member, resource, now_or_future_active_policies)
       end
     end
 
@@ -209,7 +209,7 @@ module ChangeSets
     def determine_policies_to_transmit
       selected_policies = now_or_future_active_policies.inject({}) do |acc, pol|
         carrier_id = pol.plan.carrier_id
-        individual_market = pol.employer_id.blank? 
+        individual_market = pol.employer_id.blank?
         lookup_key = [carrier_id, individual_market]
         if acc.has_key?(lookup_key)
           if acc[lookup_key].policy_start <= pol.policy_start
