@@ -36,16 +36,15 @@ RSpec.describe "app/views/enrollment_events/_enrollment_event.xml.haml" do
                                                                       }
     @doc = Nokogiri::HTML(rendered.gsub("\n", ""))
   end
-  
+
   context "cobra enrollment" do
-   
+
    it "should include market type is cobra" do
       expect(@doc.at_xpath('//market').text).to eq "urn:openhbx:terms:v1:aca_marketplace#cobra"
     end
 
     it "should include cobra event kind and event date in rendered policy" do
-      expect(@doc.at_xpath('//event_kind').text).to eq "urn:dc0:terms:v1:qualifying_life_event#cobra"
-      expect(@doc.at_xpath('//event_date').text).to eq cobra_date.strftime("%Y%m%d")
-      end
-    end  
+      expect(@doc.at_xpath('//cobra_eligibility_date').text).to eq cobra_date.strftime("%Y%m%d")
+    end
   end
+end
