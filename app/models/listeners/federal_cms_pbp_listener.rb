@@ -26,17 +26,14 @@ module Listeners
       coverage_year = m_headers["coverage_year"].to_s
       pbp_final = m_headers["pbp_final"].to_s
 
-      r_code, resource_or_body = Generators::Reports::SbmiSerializer.generate_sbmi(self, coverage_year, pbp_final)
+      r_code = Generators::Reports::SbmiSerializer.generate_sbmi(self, coverage_year, pbp_final)
 
       case r_code.to_s
       when "200"
         channel.ack(delivery_info.delivery_tag, false)
       else # r_code: 500
-        resource_error_broadcast("report_timeout", r_code)
+        resource_error_broadcast("report_failed", r_code)
         channel.reject(delivery_info.delivery_tag, true)
-      # else
-      #   resource_error_broadcast("unknown_error", r_code, resource_or_body)
-      #   channel.ack(delivery_info.delivery_tag, false)
       end
     end
 

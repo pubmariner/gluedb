@@ -95,9 +95,9 @@ module Generators::Reports
         sbmi_serializer = Generators::Reports::SbmiSerializer.new
         sbmi_serializer.pbp_final = pbp_final
         sbmi_serializer.process
-        # return 200 OK
+        return "200"
       rescue Exception => e
-        # return 500 FAILIED
+        return "500"
       end
     end
 
