@@ -23,6 +23,7 @@ module EnrollmentAction
       selected_action = [
         ::EnrollmentAction::PassiveRenewal,
         ::EnrollmentAction::ActiveRenewal,
+        ::EnrollmentAction::NewPolicyReinstate,
         ::EnrollmentAction::Reinstate,
         ::EnrollmentAction::CarrierSwitch,
         ::EnrollmentAction::CarrierSwitchRenewal,
