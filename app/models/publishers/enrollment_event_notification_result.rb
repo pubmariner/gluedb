@@ -48,6 +48,24 @@ module Publishers
       event_responder.ack_message(message_tag)
     end
 
+    def drop_zero_premium_total!(event_notification)
+      event_responder.broadcast_response(
+        "error",
+        "zero_premium_total",
+        "422",
+        event_xml,
+        headers
+      )
+      store_error_model(
+        event_notification,
+        "zero_premium_total",
+        headers.merge({
+          "return_status" => "422"
+        })
+      )
+      event_responder.ack_message(message_tag)
+    end
+
     def drop_no_end_date_termination!(event_notification)
       event_responder.broadcast_response(
         "error",

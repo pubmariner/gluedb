@@ -44,6 +44,13 @@ module ExternalEvents
       end
     end
 
+    def drop_if_zero_premium_total!
+      return false unless zero_premium_total?
+      response_with_publisher do |result_publisher|
+        result_publisher.drop_zero_premium_total!(self)
+      end
+    end
+
     def drop_if_already_processed_termination!
       return false unless already_processed_termination?
       response_with_publisher do |result_publisher|
@@ -380,6 +387,12 @@ module ExternalEvents
       else
         false
       end
+    end
+
+    def zero_premium_total?
+      pre_tot_amt_string = Maybe.new(policy_cv).policy_enrollment.premium_total_amount.strip.value
+      return true if pre_tot_amt_string.blank?
+      BigDecimal.new(pre_tot_amt_string) <= 0.0
     end
 
     private

@@ -11,6 +11,46 @@ describe ::ExternalEvents::EnrollmentEventNotification do
     ::ExternalEvents::EnrollmentEventNotification.new responder, m_tag, t_stamp, e_xml, headers
   end
 
+  describe "#zero_premium_total?" do
+    let(:policy_cv) { instance_double(::Openhbx::Cv2::Policy, :policy_enrollment => policy_enrollment) }
+
+      before :each do
+        allow(enrollment_event_notification).to receive(:policy_cv).and_return(policy_cv)
+      end
+
+    context "with no policy_enrollment node" do
+      let(:policy_enrollment) { nil }
+
+      it "has a zero premium total" do
+        expect(enrollment_event_notification.zero_premium_total?).to be_truthy
+      end
+    end
+
+    context "with no premium total node" do
+      let(:policy_enrollment) { instance_double(::Openhbx::Cv2::PolicyEnrollment, :premium_total_amount => nil) }
+
+      it "has a zero premium total" do
+        expect(enrollment_event_notification.zero_premium_total?).to be_truthy
+      end
+    end
+
+    context "with a 0 premium total node" do
+      let(:policy_enrollment) { instance_double(::Openhbx::Cv2::PolicyEnrollment, :premium_total_amount => "0.00") }
+
+      it "has a zero premium total" do
+        expect(enrollment_event_notification.zero_premium_total?).to be_truthy
+      end
+    end
+
+    context "with a non-zero premium total" do
+      let(:policy_enrollment) { instance_double(::Openhbx::Cv2::PolicyEnrollment, :premium_total_amount => "0.01") }
+
+      it "does not have a zero premium total" do
+        expect(enrollment_event_notification.zero_premium_total?).to be_falsey
+      end
+    end
+  end
+
   describe "#drop_if_bogus_plan_year!" do
     subject { enrollment_event_notification.drop_if_bogus_plan_year! }
 
