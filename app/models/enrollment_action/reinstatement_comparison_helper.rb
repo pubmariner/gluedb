@@ -17,7 +17,7 @@ module EnrollmentAction
       if enrollment_event.is_shop?
         same_carrier_reinstatement_candidates(enrollment_event)
       else
-        ivl_reinstatement_candidates(enrollment_event)
+        ivl_reinstatement_candidates(enrollment_event.policy_cv)
       end
     end
 
@@ -64,7 +64,7 @@ module EnrollmentAction
       pol.coverage_period.end == subscriber_start - 1.day
     end
 
-    def ivl_reinstatement_candidates(enrollment_event)
+    def ivl_reinstatement_candidates(policy_cv)
       subscriber_enrollee = extract_subscriber(policy_cv)
       subscriber_start = extract_enrollee_start(subscriber_enrollee)
       subscriber_id = extract_member_id(subscriber_enrollee)

@@ -13,10 +13,10 @@ module ExternalEvents
     end
 
     def update_policy_information
-      p_enrollment = Maybe.new(@policy_node).policy_enrollment.value
       @existing_policy.update_attributes!({
         :aasm_state => "submitted"
       })
+      @existing_policy.reload
       @existing_policy.hbx_enrollment_ids << extract_enrollment_group_id(@policy_node)
       @existing_policy.save!
     end

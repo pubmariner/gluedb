@@ -42,6 +42,7 @@ module ExternalEvents
         :tot_emp_res_amt => tot_emp_res_amt,
         :aasm_state => "submitted"
       })
+      @existing_policy.reload
       @existing_policy.hbx_enrollment_ids << extract_enrollment_group_id(@policy_node)
       @existing_policy.save!
     end
