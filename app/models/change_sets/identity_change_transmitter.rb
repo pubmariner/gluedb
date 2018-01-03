@@ -13,6 +13,7 @@ module ChangeSets
     end
 
     def publish
+       return true unless @policy.active_member_ids.include?(@affected_member.m_id)
        render_result = ApplicationController.new.render_to_string(
          :layout => "enrollment_event",
          :partial => "enrollment_events/enrollment_event",
