@@ -3,8 +3,8 @@ require 'csv'
 module Generators::Reports  
   class SbmiSerializer
 
-    CALENDER_YEAR = 2017
-    CANCELED_DATE = Date.new(2017,06,01)
+    CALENDER_YEAR = 2018
+    CANCELED_DATE = Date.new(2017,12,8)
 
     attr_accessor :pbp_final
 
@@ -59,9 +59,14 @@ module Generators::Reports
           if count % 20 == 0
             puts "processing #{count}"
           end
-
-          builder = Generators::Reports::SbmiPolicyBuilder.new(pol)
-          builder.process
+          
+          begin
+            builder = Generators::Reports::SbmiPolicyBuilder.new(pol)
+            builder.process
+          rescue Exception => e
+            puts e.inspect
+            next
+          end
 
           sbmi_xml = SbmiXml.new
           sbmi_xml.sbmi_policy = builder.sbmi_policy
@@ -74,7 +79,7 @@ module Generators::Reports
 
         merge_and_validate_xmls(hios_prefix)
 
-        workbook.write "#{Rails.root.to_s}/2017_SBMI_DATA_EXPORT_#{Time.now.strftime("%Y_%m_%d_%H_%M")}_#{hios_prefix}.xls"
+        workbook.write "#{Rails.root.to_s}/#{CALENDER_YEAR}_SBMI_DATA_EXPORT_#{Time.now.strftime("%Y_%m_%d_%H_%M")}_#{hios_prefix}.xls"
       end 
     end
 
@@ -87,29 +92,30 @@ module Generators::Reports
       xml_merge.validate
     end
 
-    def self.generate_sbmi(listener, coverage_year, pbp_final)
-      CALENDER_YEAR = coverage_year.to_i
+    # def self.generate_sbmi(listener, coverage_year, pbp_final)
+    #   CALENDER_YEAR = coverage_year.to_i
 
-      begin
-        set_cancel_date
-        sbmi_serializer = Generators::Reports::SbmiSerializer.new
-        sbmi_serializer.pbp_final = pbp_final
-        sbmi_serializer.process
-        return "200"
-      rescue Exception => e
-        return "500"
-      end
-    end
+    #   begin
+    #     set_cancel_date
+    #     binding.pry
+    #     sbmi_serializer = Generators::Reports::SbmiSerializer.new
+    #     sbmi_serializer.pbp_final = pbp_final
+    #     sbmi_serializer.process
+    #     return "200"
+    #   rescue Exception => e
+    #     return "500"
+    #   end
+    # end
 
-    def set_cancel_date
-      prev_month = Date.today.prev_month.beginning_of_month
+    # def set_cancel_date
+    #   prev_month = Date.today.prev_month.beginning_of_month
 
-      if Date.today.day == 1
-        CANCELED_DATE = Date.new(prev_month.year, prev_month.month, 10)
-      else
-        CANCELED_DATE = Date.new(Date.today.year, Date.today.month, 1)
-      end
-    end
+    #   if Date.today.day == 1
+    #     CANCELED_DATE = Date.new(prev_month.year, prev_month.month, 10)
+    #   else
+    #     CANCELED_DATE = Date.new(Date.today.year, Date.today.month, 1)
+    #   end
+    # end
 
     private
 
