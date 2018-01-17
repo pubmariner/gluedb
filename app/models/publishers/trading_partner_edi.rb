@@ -20,17 +20,18 @@ module Publishers
       action_xml = event_xml
       enrollment_event_cv = enrollment_event_cv_for(action_xml)
       if is_publishable?(enrollment_event_cv)
-#        begin
+        begin
+
           publish_transaction_id = new_transaction_id
           enrollment_with_transaction_id = update_transaction_id(action_xml, publish_transaction_id)
           edi_builder = EdiCodec::X12::BenefitEnrollment.new(enrollment_with_transaction_id)
           x12_xml = edi_builder.call.to_xml
           publish_to_bus(amqp_connection, enrollment_event_cv, x12_xml, publish_transaction_id)
-#        rescue Exception => e
-#          errors.add(:error_message, e.message)
-#          errors.add(:event_xml, event_xml)
-#          return false
-#        end
+        rescue Exception => e
+          errors.add(:error_message, e.message)
+          errors.add(:event_xml, event_xml)
+          return false
+        end
       end
       true
     end
