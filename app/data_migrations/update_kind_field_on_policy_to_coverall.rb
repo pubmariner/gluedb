@@ -4,10 +4,9 @@ class UpdateKindFieldOnPolicyToCoverall < MongoidMigrationTask
 
   def migrate
     hbx_ids = ENV['hbx_ids'].to_s.split(',')
-    policies = Policy.all.to_a
     policies = []
     hbx_ids.each do |hbx_id|
-      policy = Policy.where(:hbx_enrollment_ids => {"$in" => hbx_id}).first
+      policy = Policy.where(:hbx_enrollment_ids => hbx_id).first
       policy.update_attributes!(kind: "coverall")
       policies << policy.id
     end
