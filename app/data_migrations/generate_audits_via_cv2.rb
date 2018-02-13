@@ -10,57 +10,44 @@ class TransformSimpleEdiFileSet
   end
 
   def transform(xml_string)
-    enrollment_event_cv = enrollment_event_cv_for(xml_string)
-    if is_publishable?(enrollment_event_cv)
-      edi_builder = EdiCodec::X12::BenefitEnrollment.new(xml_string)
-      x12_xml = edi_builder.call.to_xml
-      publish_to_file(enrollment_event_cv, x12_xml)
-    end
+    enrollment_event_xml = Nokogiri::XML(xml_string)
+    edi_builder = EdiCodec::X12::BenefitEnrollment.new(xml_string)
+    x12_xml = edi_builder.call.to_xml
+    publish_to_file(enrollment_event_xml, x12_xml)
   end
 
-  def publish_to_file(enrollment_event_cv, x12_payload)
-    file_name = determine_file_name(enrollment_event_cv)
+  def publish_to_file(enrollment_event_xml, x12_payload)
+    file_name = determine_file_name(enrollment_event_xml)
     File.open(File.join(@out_path, file_name), 'w') do |f|
       f.write(x12_payload)
     end
   end
 
-  def find_carrier_abbreviation(enrollment_event_cv)
-    policy_cv = extract_policy(enrollment_event_cv)
-    hios_id = extract_hios_id(policy_cv)
-    active_year = extract_active_year(policy_cv)
-    found_plan = Plan.where(:hios_plan_id => hios_id, :year => active_year.to_i).first
-    found_plan.carrier.abbrev.upcase
+  def find_carrier_abbreviation(enrollment_event_xml)
+    hios_id = enrollment_event_xml.xpath("//cv:enrollment/cv:plan/cv:id/cv:id", XML_NS).first.content.strip.split("#").last
+    active_year = enrollment_event_xml.xpath("//cv:enrollment/cv:plan/cv:active_year", XML_NS).first.content.strip
+    found_plan = Caches::CustomCache.lookup(Plan, :cv2_hios_active_year_plan_cache, [active_year.to_i, hios_id]) do
+     Plan.where(:hios_plan_id => hios_id, :year => active_year.to_i).first
+    end
+    found_carrier = Caches::CustomCache.lookup(Carrier, :cv2_carrier_cache, found_plan.carrier_id) { found_plan.carrier } 
+    found_carrier.abbrev.upcase
   end
 
-  def determine_file_name(enrollment_event_cv)
-    market_identifier = shop_market?(enrollment_event_cv) ? "S" : "I"
-    carrier_identifier = find_carrier_abbreviation(enrollment_event_cv)
+  def determine_file_name(enrollment_event_xml)
+    market_identifier = shop_market?(enrollment_event_xml) ? "S" : "I"
+    carrier_identifier = find_carrier_abbreviation(enrollment_event_xml)
     category_identifier = "_A_F_"
-    "834_" + transaction_id(enrollment_event_cv) + "_" + carrier_identifier + category_identifier + market_identifier + "_1.xml"
+    "834_" + transaction_id(enrollment_event_xml) + "_" + carrier_identifier + category_identifier + market_identifier + "_1.xml"
   end
 
   protected
 
-  def is_publishable?(enrollment_event_cv)
-    Maybe.new(enrollment_event_cv).event.body.publishable?.value
+  def transaction_id(enrollment_event_xml)
+    enrollment_event_xml.xpath("//cv:enrollment_event_body/cv:transaction_id", XML_NS).first.content.strip
   end
 
-  def is_initial?(enrollment_event_cv)
-    event_name = Maybe.new(enrollment_event_cv).event.body.enrollment.enrollment_type.strip.split("#").last.downcase.value
-    (event_name == "initial")
-  end
-
-  def routing_key(enrollment_event_cv)
-    is_initial?(enrollment_event_cv) ? "hbx.enrollment_messages" : "hbx.maintenance_messages"
-  end
-
-  def transaction_id(enrollment_event_cv)
-    Maybe.new(enrollment_event_cv).event.body.transaction_id.strip.value
-  end
-
-  def shop_market?(enrollment_event_cv)
-    determine_market(enrollment_event_cv) == "shop"
+  def shop_market?(enrollment_event_xml)
+    enrollment_event_xml.xpath("//cv:policy/cv:enrollment/cv:shop_market", XML_NS).any?
   end
 end
 
@@ -71,20 +58,23 @@ class GenerateAudits
     active_start = find_active_start(market,cutoff_date)
     active_end = find_active_end(cutoff_date)
     employer_ids = get_employer_ids(active_start,active_end,market)
-
     eligible_policies = Policy.where({:enrollees => {"$elemMatch" => {:rel_code => "self",
                                                                        :coverage_start => {"$gt" => active_start}}},
                                        :employer_id => {"$in" => employer_ids},
                                        :plan_id => {"$in" => plan_ids}}).no_timeout
+
 
     eligible_policies.each do |policy|
       if !policy.canceled?
         if !(policy.subscriber.coverage_start > active_end)
           employer = policy.employer
           next unless in_current_plan_year?(policy,employer,cutoff_date,active_start,active_end)
+          subscriber = policy.subscriber
+          next unless subscriber
           subscriber_id = policy.subscriber.m_id
-          next if policy.subscriber.person.blank?
-          auth_subscriber_id = policy.subscriber.person.authority_member_id
+          subscriber_person = policy.subscriber.person
+          next unless subscriber_person
+          auth_subscriber_id = subscriber_person.authority_member_id
           if subscriber_id == auth_subscriber_id
             yield policy
           end
@@ -97,7 +87,7 @@ class GenerateAudits
     if market.downcase == 'ivl'
       active_start = cutoff_date.beginning_of_year - 1.day
     elsif market.downcase == 'shop'
-      active_start = (cutoff_date + 1.month) - 1.year
+      active_start = ((cutoff_date + 1.month) - 1.year) - 1.day
     end
     active_start
   end
@@ -121,6 +111,7 @@ class GenerateAudits
       date_range = (active_start..active_end)
     else
       plan_year = current_plan_year(employer,cutoff_date,active_start,active_end)
+      return false if plan_year.blank?
       py_start = plan_year.start_date
       py_end = plan_year.end_date
       date_range = (py_start..py_end)
@@ -140,30 +131,29 @@ class GenerateAudits
     else
       today = cutoff_date
     end
-    employer.plan_years.each do |plan_year|
-      py_start = plan_year.start_date
-      py_end = plan_year.end_date
-      date_range = (py_start..py_end)
-      if date_range.include?(today)
-        return plan_year
-      end
-    end
+    plan_year = employer.plan_years.detect{|py| (py.start_date..py.end_date).include?(today)}
+    plan_year
   end
 
   def generate_cv2s
     cutoff_date = Date.strptime(ENV['cutoff_date'], '%m-%d-%Y')
-    system("rm -rf untransformed_audits > /dev/null")
-    Dir.mkdir("untransformed_audits")
+    system("rm -rf transformed_audits > /dev/null")
+    Dir.mkdir("transformed_audits")
 
-    transformer = TransformSimpleEdiFileSet.new('untransformed_audits')
+    transformer = TransformSimpleEdiFileSet.new('transformed_audits')
 
+    puts "Started Generating Polices at #{Time.now}"
     pull_policies(ENV['market'],cutoff_date,ENV['carrier']) do |policy|
-      affected_members = []
-      policy.enrollees.each{|en| affected_members << BusinessProcesses::AffectedMember.new(:policy => policy, :member_id => en.m_id)}
-      event_type = "urn:openhbx:terms:v1:enrollment#audit"
-      tid = generate_transaction_id
-      cv_render = render_cv(affected_members,policy,event_type,tid)
-      transformer.transform(cv_render)
+      begin
+        affected_members = []
+        policy.enrollees.each{|en| affected_members << BusinessProcesses::AffectedMember.new(:policy => policy, :member_id => en.m_id)}
+        event_type = "urn:openhbx:terms:v1:enrollment#audit"
+        tid = generate_transaction_id
+        cv_render = render_cv(affected_members,policy,event_type,tid)
+        transformer.transform(cv_render)
+      rescue Exception=>e
+        puts "Glue Policy ID: #{policy.id}, Glue Enrollment ID: #{policy.eg_id} failed - #{e.inspect}"
+      end
     end
   end
 

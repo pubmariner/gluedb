@@ -21,7 +21,6 @@ module Publishers
       enrollment_event_cv = enrollment_event_cv_for(action_xml)
       if is_publishable?(enrollment_event_cv)
         begin
-
           publish_transaction_id = new_transaction_id
           enrollment_with_transaction_id = update_transaction_id(action_xml, publish_transaction_id)
           edi_builder = EdiCodec::X12::BenefitEnrollment.new(enrollment_with_transaction_id)
