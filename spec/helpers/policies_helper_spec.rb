@@ -5,8 +5,8 @@ RSpec.describe PoliciesHelper, :type => :helper do
   describe "show_1095A_document_button?" do
     let(:policy) { FactoryGirl.create(:policy) }
 
-    context "2017 policy" do
-      let(:subscriber) { FactoryGirl.build(:enrollee, :coverage_start => Date.new(2017,01,01)) }
+    context "current year policy" do
+      let(:subscriber) { FactoryGirl.build(:enrollee, :coverage_start => Date.new(Date.today.year,01,01)) }
       before do
         allow(policy).to receive(:subscriber).and_return(subscriber)
       end
@@ -16,8 +16,8 @@ RSpec.describe PoliciesHelper, :type => :helper do
       end
     end
 
-    context "2016 policy" do
-      let(:subscriber) { FactoryGirl.build(:enrollee, :coverage_start => Date.new(2016,01,01)) }
+    context "previous year policy" do
+      let(:subscriber) { FactoryGirl.build(:enrollee, :coverage_start => Date.new(Date.today.year - 1 ,01,01)) }
       before do
         allow(policy).to receive(:subscriber).and_return(subscriber)
       end
