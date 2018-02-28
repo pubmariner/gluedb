@@ -6,12 +6,17 @@ FactoryGirl.define do
     sequence(:name_last) {|n| "Smith\##{n}" }
     name_sfx 'Jr'
 
+    transient do
+      skip_address false
+    end
+
     after(:create) do |p, evaluator|
       create_list(:member, 2, person: p)
-      create_list(:address, 2, person: p)
+      create_list(:address, 2, person: p) unless evaluator.skip_address
       create_list(:phone, 2, person: p)
       create_list(:email, 2, person: p)
       p.authority_member_id = p.members.first.hbx_member_id
+      p.save
     end
 
     trait :without_first_name do
