@@ -22,7 +22,22 @@ FactoryGirl.define do
       name_last ' '
     end
 
-    factory :invalid_person, traits: [:without_first_name,
-      :without_last_name]
+    trait :adult_under_26 do
+      after(:create) do |p, evaluator|
+        p.members.clear
+        create_list(:adult_member_under_26,1,person: p)
+      end
+    end
+
+    trait :child do
+      after(:create) do |p,evaluator|
+        p.members.clear
+        create_list(:child_member,1,person: p)
+      end
+    end
+
+    factory :invalid_person, traits: [:without_first_name, :without_last_name]
+    factory :under_26_person, traits: [:adult_under_26]
+    factory :child_person, traits: [:child]
   end
 end

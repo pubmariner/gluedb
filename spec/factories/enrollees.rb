@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :enrollee do
-    sequence(:m_id) { |n| "#{n}"}
+    m_id {FactoryGirl.create(:person).authority_member_id}
     ben_stat 'active'
     emp_stat 'active'
     rel_code 'self'

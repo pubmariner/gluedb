@@ -1,19 +1,26 @@
 FactoryGirl.define do
   factory :plan_year do
-    start_date Date.new(2014,1,1)  
-    end_date  Date.new(2014,12,31)
-    open_enrollment_start Date.new(2013,10,1)  
-    open_enrollment_end  Date.new(2013,11,10)
+    start_date Date.today.beginning_of_month  
+    end_date Date.today.beginning_of_month + 1.year - 1.day
+    open_enrollment_start Date.today.beginning_of_month - 2.months
+    open_enrollment_end Date.today.beginning_of_month - 1.month + 9.days
     fte_count  1
     pte_count  1
-  end
 
   trait :renewal_year do 
-    start_date Date.new(2015,1,1)  
-    end_date  Date.new(2015,12,31)
-    open_enrollment_start Date.new(2014,10,1)  
-    open_enrollment_end  Date.new(2014,11,10)
+    start_date Date.today.beginning_of_month + 1.year  
+    end_date Date.today.beginning_of_month + 2.year - 1.day
+    open_enrollment_start Date.today.beginning_of_month + 1.year - 2.months
+    open_enrollment_end  Date.today.beginning_of_month + 1.year - 1.month + 9.days
   end
 
-  factory :renewal_plan_year, traits: [:renewal_year]
+  trait :with_broker do
+    after(:create) do |plan_year, evaluator|
+      create :broker, plan_year: plan_year
+    end
+  end
+
+  factory :renewal_plan_year, class: PlanYear, traits: [:renewal_year]
+  
+  end  
 end
