@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :user do
-    sequence(:email) { |n| "example#{n}@example.com" }
+    email 'example@example.com'
     password '12345678'
     password_confirmation '12345678'
     approved true
@@ -25,10 +25,6 @@ FactoryGirl.define do
 
   trait :admin do
     role "admin"
-  end
-
-  trait :service do
-    role "service"
   end
 
   factory :invalid_user, traits: [:without_email, :without_password, :without_password_confirmation]
