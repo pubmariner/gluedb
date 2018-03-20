@@ -1,6 +1,6 @@
 module Aws
   class S3Storage
-    ENV_LIST = ['local', 'prod', 'preprod']
+    ENV_LIST = ['local', 'prod', 'preprod', 'uat', 'cte', 'ctf']
 
     def initialize
       setup
@@ -9,8 +9,8 @@ module Aws
     # If success, return URI which has the s3 bucket key
     # else return nil
     # raises exception if exception occurs
-    def save(file_path, bucket_name, key=SecureRandom.uuid)
-      bucket_name = env_bucket_name(bucket_name)
+    def save(file_path:, bucket_name: env_bucket_for_glue_report, key:SecureRandom.uuid, options: {})
+      bucket_name = fetch_bucket(bucket_name, options)
       uri = "urn:openhbx:terms:v1:file_storage:s3:bucket:#{bucket_name}##{key}"
       begin
         object = get_object(bucket_name, key)
@@ -66,8 +66,17 @@ module Aws
     end
 
     private
+
     def read_object(object)
       object.get.body.read
+    end
+
+    def fetch_bucket(bucket_name, args_items)
+      if args_items[:internal_artifact]
+        bucket_name
+      else
+        env_bucket_name(bucket_name)
+      end
     end
 
     def get_object(bucket_name, key)
@@ -89,12 +98,17 @@ module Aws
     end
 
     def env_bucket_name(bucket_name)
-      "dchbx-gluedb-#{bucket_name}-#{aws_env}"
+      "#{Settings.abbrev}-gluedb-#{bucket_name}-#{aws_env}"
+    end
+
+    def env_bucket_for_glue_report
+      "#{Settings.abbrev}-#{aws_env}-aca-internal-artifact-transport"
     end
 
     def setup
       client=Aws::S3::Client.new
       @resource=Aws::S3::Resource.new(client: client)
     end
+
   end
 end
