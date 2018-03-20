@@ -8,7 +8,6 @@ policies = Policy.no_timeout.where(
             :coverage_start => {"$gt" => Date.new(2015,12,31)}}}}
 )
 
-
 policies = policies.reject{|pol| pol.market == 'individual' &&
                                  !pol.subscriber.nil? &&
                                  (pol.subscriber.coverage_start.year == 2014||
