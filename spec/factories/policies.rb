@@ -19,7 +19,7 @@ FactoryGirl.define do
     after(:create) do |p, evaluator|
       create_list(:enrollee, 2, policy: p)
     end
- 
+
 
     trait :shop do
       employer
@@ -51,11 +51,19 @@ FactoryGirl.define do
       association :plan, factory: :ivl_assisted_plan
     end
 
+    trait :canceled_dependent do
+      after(:create) do |p, evaluator|
+        create_list(:enrollee, 2, policy: p)
+        create_list(:cancelled_enrollee,1, policy: p)
+      end
+    end
+
     factory :shop_policy, traits: [:shop]
     factory :terminated_policy, traits: [:terminated]
     factory :ivl_health_policy, traits: [:ivl_health]
     factory :ivl_assisted_health_policy_with_aptc_and_csr, traits: [:ivl_health, :with_aptc, :with_csr]
     factory :ivl_assisted_health_policy_with_aptc_no_csr, traits: [:ivl_health, :with_aptc]
     factory :ivl_assisted_health_policy_no_aptc_with_csr, traits: [:with_csr]
+    factory :canceled_dependent_policy, traits: [:canceled_dependent]
   end
 end
