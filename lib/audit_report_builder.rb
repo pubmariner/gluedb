@@ -5,7 +5,7 @@ class AuditReportBuilder
 
   def qhp_audit_report
     workbook = Spreadsheet::Workbook.new
-    sheet = workbook.create_worksheet :name => '2017 QHP Policies'
+    sheet = workbook.create_worksheet :name => '2016 QHP Policies'
     index = 1
     @carriers = Carrier.all.inject({}){|hash, carrier| hash[carrier.id] = carrier.name; hash}
 
@@ -83,7 +83,7 @@ class AuditReportBuilder
       end
     end
 
-    workbook.write "#{Rails.root.to_s}/aa_audit_report_2017_cancels.xls"
+    workbook.write "#{Rails.root.to_s}/aa_audit_report_2016.xls"
   end
 
   private
@@ -99,7 +99,8 @@ class AuditReportBuilder
     #   p_repo[val["member_id"]] = val["person_id"]
     # end
 
-    plans = Plan.where({:metal_level => {"$not" => /catastrophic/i}, :coverage_type => /health/i, :year => 2017}).map(&:id)
+    # plans = Plan.where({:metal_level => {"$not" => /catastrophic/i}, :coverage_type => /health/i, :year => 2017}).map(&:id)
+    plans = Plan.where({:year => 2016}).map(&:id)
 
     p_repo = {}
     Person.each do |person|
@@ -108,7 +109,7 @@ class AuditReportBuilder
       end
     end
 
-    pols = PolicyStatus::Active.between(Date.new(2016,12,31), Date.new(2017,9,30)).results.where({
+    pols = PolicyStatus::Active.between(Date.new(2016,9,30), Date.new(2016,12,31)).results.where({
       :plan_id => {"$in" => plans}, :employer_id => nil
       }).group_by { |p| p_repo[p.subscriber.m_id] }
   end
@@ -137,8 +138,8 @@ class AuditReportBuilder
 
     data = data + (1..12).inject([]) do |data, index|
       monthly_premium = notice.monthly_premiums.detect{|p| p.serial == index}
-      data << ((monthly_premium.blank? || index >= 10) ? nil : monthly_premium.premium_amount)
-      data << ((monthly_premium.blank? || index >= 10) ? nil : monthly_premium.monthly_aptc)
+      data << ((monthly_premium.blank? || index < 10) ? nil : monthly_premium.premium_amount)
+      data << ((monthly_premium.blank? || index < 10) ? nil : monthly_premium.monthly_aptc)
 
       # data << ((monthly_premium.blank?) ? nil : monthly_premium.premium_amount)
       # data << ((monthly_premium.blank?) ? nil : monthly_premium.monthly_aptc)
