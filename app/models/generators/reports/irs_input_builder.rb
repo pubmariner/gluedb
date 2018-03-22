@@ -36,10 +36,10 @@ module Generators::Reports
       @notice.issuer_name = @carrier_hash[@policy.carrier_id]
 
       # Enable for IRS H36
-      # if @policy.plan.hios_plan_id.match(/^86052/)
-      #   puts "CareFirst BlueChoice -- #{@policy.id}"
-      #   @notice.issuer_name = "CareFirst BlueChoice"
-      # end
+      if @policy.plan.hios_plan_id.match(/^86052/)
+        puts "CareFirst BlueChoice -- #{@policy.id}"
+        @notice.issuer_name = "CareFirst BlueChoice"
+      end
 
       # @policy.plan.carrier.name
       @notice.qhp_id = @policy.plan.hios_plan_id.gsub('-','')
@@ -201,14 +201,14 @@ module Generators::Reports
             end
             
             # Enable for 1095A & H41
-            if coverage_end_month == i
-              premium_amount = nil
-            end
+            # if coverage_end_month == i
+            #   premium_amount = nil
+            # end
 
             # Enable for H36
-            # if coverage_end_month == i
-            #   premium_amount = 0
-            # end
+            if coverage_end_month == i
+              premium_amount = 0
+            end
 
           else
             if coverage_end_month == i
@@ -250,18 +250,12 @@ module Generators::Reports
           # @multi_version_pol.aptc_as_of(Date.new(IRS_YEAR, i, 1))
 
           # silver_plan = Plan.where({ "year" => 2014, "hios_plan_id" => "94506DC0390006-01" }).first
-          # silver_plan_premium = @policy_disposition.as_of(Date.new(IRS_YEAR, i, 1), silver_plan).ehb_premium
-
           # silver_plan = Plan.where({ "year" => 2015, "hios_plan_id" => "94506DC0390006-01" }).first
-          # silver_plan_premium = @policy_disposition.as_of(Date.new(IRS_YEAR, i, 1), silver_plan).ehb_premium
-
           # silver_plan = Plan.where({ "year" => 2016, "hios_plan_id" => "94506DC0390006-01" }).first
-          # silver_plan_premium = @policy_disposition.as_of(Date.new(IRS_YEAR, i, 1), silver_plan).ehb_premium
-
           silver_plan = Plan.where({ "year" => 2017, "hios_plan_id" => "86052DC0400001-01" }).first
+          # silver_plan = Plan.where({ "year" => 2018, "hios_plan_id" => "94506DC0390014-01" }).first
           silver_plan_premium = @policy_disposition.as_of(Date.new(IRS_YEAR, i, 1), silver_plan).ehb_premium
-
-
+ 
           aptc_amt = @policy_disposition.as_of(Date.new(IRS_YEAR, i, 1)).applied_aptc
 
           # Prorated Start Dates
@@ -286,16 +280,16 @@ module Generators::Reports
               end
 
               # Enable for Federal 1095A & H41
-              if coverage_end_month == i
-                silver_plan_premium = nil
-                aptc_amt = nil
-              end
+              # if coverage_end_month == i
+              #   silver_plan_premium = nil
+              #   aptc_amt = nil
+              # end
                
               # Enable this for H36
-              # if coverage_end_month == i
-              #   silver_plan_premium = 0
-              #   aptc_amt = 0
-              # end
+              if coverage_end_month == i
+                silver_plan_premium = 0
+                aptc_amt = 0
+              end
             else
               if coverage_end_month == i
                 silver_plan_premium = 0
