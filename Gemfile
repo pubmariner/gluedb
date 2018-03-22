@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'rake', '10.4.2'
-gem 'rails', '3.2.16'
+gem 'rails', '3.2.22.5'
 
 gem "mongoid", "~> 3.1.6"
 gem "origin"
@@ -26,6 +26,7 @@ end
 
 group 'development', 'test' do
   gem 'rspec', '3.3.0'
+  gem 'rspec-core', '3.3.2'
 end
 
 group :development, :assets, :test do
@@ -50,7 +51,6 @@ end
 group :test do
   gem 'test-unit'
 	gem 'mongoid-rspec'
-  gem 'rspec-core', '3.3.2'
   gem 'rspec-rails', '3.3.3'
   gem 'rspec-collection_matchers', '1.1.2'
   gem 'capybara', '2.4.4'
@@ -84,7 +84,7 @@ gem "mongoid_auto_increment", '0.1.2'
 gem 'american_date', '1.1.0'
 gem 'cancancan', '~> 1.9'
 gem 'oj'
-gem 'roo', '2.1.1'
+gem 'roo', '2.1.0'
 gem 'bh'
 gem 'nokogiri-happymapper', :require => 'happymapper'
 gem 'prawn', '~> 0.11.1'
@@ -93,3 +93,6 @@ gem 'edi_codec', git: "git@github.com:dchbx/edi_codec.git"
 gem 'ibsciss-middleware', git: "https://github.com/dchbx/ruby-middleware.git", :require => "middleware"
 gem 'rgl', '0.5.2'
 gem 'aws-sdk'
+
+# configuration support
+gem "config", '~> 1.0.0'

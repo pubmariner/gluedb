@@ -32,8 +32,10 @@ module EnrollmentAction
         ::EnrollmentAction::PlanChangeDependentDrop,
         ::EnrollmentAction::RenewalDependentAdd,
         ::EnrollmentAction::RenewalDependentDrop,
+        ::EnrollmentAction::AssistanceChange,
         ::EnrollmentAction::InitialEnrollment,
-        ::EnrollmentAction::Termination
+        ::EnrollmentAction::Termination,
+        ::EnrollmentAction::ReselectionOfExistingCoverage
       ].detect { |kls| kls.qualifies?(chunk) }
       
       if selected_action
@@ -52,6 +54,15 @@ module EnrollmentAction
       term = chunk.detect { |c| c.is_termination? }
       action = chunk.detect { |c| !c.is_termination? }
       self.new(term, action)
+    end
+
+    # Check if an enrollment already exists - if it does and you don't want to send out a new transaction, call this method. 
+    def check_already_exists
+      if @action && action.existing_policy
+        errors.add(:action, "enrollment already exists")
+        return true
+      end
+      return false
     end
 
     # When implemented in a subclass, return true on successful persistance of
@@ -83,10 +94,10 @@ module EnrollmentAction
       batch_id = SecureRandom.uuid
       if @termination
         idx = idx + 1
-        @termination.persist_failed!(self.class.name.to_s, publish_errors, batch_id, idx)
+        @termination.persist_failed!(self.class.name.to_s, persist_errors, batch_id, idx)
       end
       if @action
-        @action.persist_failed!(self.class.name.to_s, publish_errors, batch_id, idx)
+        @action.persist_failed!(self.class.name.to_s, persist_errors, batch_id, idx)
       end
     end
 
@@ -103,11 +114,13 @@ module EnrollmentAction
     end
 
     def flow_successful!
+      idx = 0
+      batch_id = SecureRandom.uuid
       if @termination
-        @termination.flow_successful!(self.class.name.to_s)
+        @termination.flow_successful!(self.class.name.to_s, batch_id, idx)
       end
       if @action
-        @action.flow_successful!(self.class.name.to_s)
+        @action.flow_successful!(self.class.name.to_s, batch_id, idx)
       end
     end
 

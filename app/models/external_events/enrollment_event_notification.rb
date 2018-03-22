@@ -30,7 +30,7 @@ module ExternalEvents
       bucket_id.hash
     end
 
-    def bucket_id 
+    def bucket_id
       [subscriber_id, coverage_type, employer_hbx_id]
     end
 
@@ -41,6 +41,35 @@ module ExternalEvents
     def drop_payload_duplicate!
       response_with_publisher do |result_publisher|
         result_publisher.drop_payload_duplicate!(self)
+      end
+    end
+
+    def drop_if_already_processed_termination!
+      return false unless already_processed_termination?
+      response_with_publisher do |result_publisher|
+        result_publisher.drop_already_processed!(self)
+      end
+    end
+
+    def drop_if_term_with_no_end!
+      return false unless is_termination?
+      return false unless subscriber_end.blank?
+      response_with_publisher do |result_publisher|
+        result_publisher.drop_no_end_date_termination!(self)
+      end
+    end
+
+    def drop_if_already_processed!
+      found_event = ::EnrollmentAction::EnrollmentActionIssue.where(
+        :hbx_enrollment_id => hbx_enrollment_id,
+        :enrollment_action_uri => enrollment_action
+      )
+      if found_event.any?
+        response_with_publisher do |result_publisher|
+          result_publisher.drop_already_processed!(self)
+        end
+      else
+        false
       end
     end
 
@@ -95,9 +124,9 @@ module ExternalEvents
       end
     end
 
-    def flow_successful!(action_name)
+    def flow_successful!(action_name, batch_id, batch_index)
       response_with_publisher do |result_publisher|
-        result_publisher.flow_successful!(self, action_name)
+        result_publisher.flow_successful!(self, action_name, batch_id, batch_index)
       end
     end
 
@@ -140,7 +169,7 @@ module ExternalEvents
       others.each do |other|
         if (other.hbx_enrollment_id == hbx_enrollment_id) && other.is_coverage_starter?
           @bogus_termination = false
-          return 
+          return
         end
       end
       @bogus_termination = existing_policy.nil?
@@ -275,12 +304,12 @@ module ExternalEvents
 
     def employer_hbx_id
       @employer_hbx_id ||= begin
-                           if determine_market(enrollment_event_xml) == "individual"
-                             nil
-                           else
-                             Maybe.new(policy_cv).policy_enrollment.shop_market.employer_link.id.strip.split("#").last.value
+                             if determine_market(enrollment_event_xml) == "individual"
+                               nil
+                             else
+                               Maybe.new(policy_cv).policy_enrollment.shop_market.employer_link.id.strip.split("#").last.value
+                             end
                            end
-                         end
     end
 
     def is_shop?
@@ -320,6 +349,21 @@ module ExternalEvents
 
     def existing_plan
       @existing_plan ||= extract_plan(policy_cv)
+    end
+
+    def is_publishable?
+      Maybe.new(enrollment_event_xml).event.body.publishable?.value
+    end
+
+    def already_processed_termination?
+      return false unless is_termination?
+      return false if existing_policy.blank?
+      return true if existing_policy.canceled?
+      if existing_policy.terminated?
+        !is_cancel?
+      else
+        false
+      end
     end
 
     private

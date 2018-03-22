@@ -107,8 +107,14 @@ module ExternalEvents
           :coverage_start => extract_enrollee_start(enrollee_node),
           :pre_amt => extract_enrollee_premium(enrollee_node)
         })
-        policy.save!
+      else
+        enrollee = policy.enrollees.detect { |en| en.m_id == member_id }
+        if enrollee
+          enrollee.pre_amt = extract_enrollee_premium(enrollee_node)
+          enrollee.save!
+        end
       end
+      policy.save!
     end
 
     def subscriber_id
@@ -120,12 +126,12 @@ module ExternalEvents
 
     def persist
       pol = policy_to_update
-      pol.update_attributes({
+      pol.update_attributes!({
         :pre_amt_tot => extract_pre_amt_tot,
         :tot_res_amt => extract_tot_res_amt
       }.merge(extract_other_financials))
-      other_enrollees = @policy_node.enrollees.reject { |en| en.subscriber? }
-      other_enrollees.each do |en|
+      pol = Policy.find(pol._id)
+      @policy_node.enrollees.each do |en|
         build_enrollee(pol, en)
       end
       true

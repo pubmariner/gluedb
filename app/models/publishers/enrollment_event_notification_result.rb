@@ -48,6 +48,24 @@ module Publishers
       event_responder.ack_message(message_tag)
     end
 
+    def drop_no_end_date_termination!(event_notification)
+      event_responder.broadcast_response(
+        "error",
+        "termination_without_end_date",
+        "422",
+        event_xml,
+        headers
+      )
+      store_error_model(
+        event_notification,
+        "termination_without_end_date",
+        headers.merge({
+          "return_status" => "422"
+        })
+      )
+      event_responder.ack_message(message_tag)
+    end
+
     def drop_payload_duplicate!(event_notification)
       event_responder.broadcast_ok_response(
         "duplicate_event_payload",
@@ -68,6 +86,15 @@ module Publishers
           hbx_enrollment_id: event_notification.hbx_enrollment_id,
           enrollment_action_uri: event_notification.enrollment_action
         })
+      )
+      event_responder.ack_message(message_tag)
+    end
+
+    def drop_already_processed!(event_notification)
+      event_responder.broadcast_ok_response(
+        "event_already_processed",
+        event_xml,
+        headers
       )
       event_responder.ack_message(message_tag)
     end
@@ -189,7 +216,7 @@ module Publishers
       event_responder.ack_message(message_tag)
     end
 
-    def flow_successful!(event_notification, action_name)
+    def flow_successful!(event_notification, action_name, batch_id, batch_index)
       event_responder.broadcast_response(
         "info",
         "event_processed",
@@ -198,6 +225,18 @@ module Publishers
         headers.merge({
           :enrollment_action => action_name
         })
+      )
+      store_error_model(
+        event_notification,
+        "processed_successfully",
+        headers.merge({
+          "return_status" => "200",
+          "action_name" => action_name
+        }),
+        {
+          :batch_id => batch_id,
+          :batch_index => batch_index
+        }
       )
       event_responder.ack_message(message_tag)
     end
