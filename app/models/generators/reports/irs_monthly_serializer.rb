@@ -59,57 +59,38 @@ module Generators::Reports
       sheet.row(index).concat columns
       start = Time.now
 
-      # Family.all.each do |family|
-      # Family.where(:"e_case_id" => "2586018").each do |family|
-      Family.where(:e_case_id.in => ["2240288","2456402","2516606","2586018","APYVEZRYFGXW","AZQSEJAPFFRM","DCHUHZUSYAEG","ECCCXVJSLEWT","FPSZLGIUWHAQ","GHKLIFPNLFYW","GKKKHNTIKNZL","IBRIGPEEVVNP","JWUGKFDSJSZO","KQJPQNHIOCIW","LDFMFFZIADLB","QQNUVGPJISGQ","SUNIJIWLWRMH","VJBMCTMKLUOP","YRESCUVSPPSD","ZYINJRORXJZC"]).each do |family|
-
-      # Family.where(:"irs_groups.hbx_assigned_id" => 1000000000030349).to_a.each do |family|
-
-      # [52428, 52918, 55598, 53303, 55584, 55577].inject([]){|families, policy_id|
-      #   families << Family.where("family_members.person_id" => Moped::BSON::ObjectId.from_string(Policy.find(policy_id).subscriber.person.id)).first
-      # }.each do |family|
-
+      Family.all.each do |family|
         current += 1
 
         if current % 100 == 0
           puts "currently at #{current}"
         end
 
-       # break if count > 50
+        begin
 
-
-        # begin
-
-          if family.households.count > 1 || family.active_household.nil? 
-            next
-          end
-
-          # if family.primary_applicant.nil?
-          #   puts "------------found more than one household/activehousehold nil/primary aplicant nil---#{family.e_case_id}"
-          # end
-
-          # next unless family.active_household.has_aptc?(CALENDER_YEAR)
+          next if family.households.count > 1 || family.active_household.nil? 
           
           active_enrollments = family.active_household.enrollments_for_year(CALENDER_YEAR)
           active_enrollments.reject!{|e| e.policy.subscriber.coverage_start >= Date.today.beginning_of_month }
-          active_enrollments.reject!{|e| policies_to_skip.include?(e.policy.eg_id) }
-
-          if active_enrollments.compact.empty?
-            # puts "-----#{family.e_case_id}"
-            # missing_active_enrollments += 1
-            next
+          active_enrollments.reject!{|e| policies_to_skip.include?(e.policy.id.to_s) }
+          active_enrollments.reject! do |en|
+            if en.policy.enrollees.any?{|en| en.person.authority_member.blank?}
+              puts "#{en.policy.id} authority member missing!!"
+              true
+            else
+              false
+            end
           end
+
+          next if active_enrollments.compact.empty?
+          next if family.irs_groups.empty?
+
+          active_enrollments = nil
 
           # active_pols = active_enrollments.map(&:policy)
           # if active_pols.detect{|x| skip_list.include?(x.id) }
           #   next
           # end
-
-          if family.irs_groups.empty?
-            # missing_irs_groups << family.e_case_id
-            # puts "e_case_id --------- #{family.e_case_id}"
-            next
-          end
 
           # next unless family.active_household.tax_households.size == 0
 
@@ -130,13 +111,6 @@ module Generators::Reports
           # next if active_enrollments.map(&:policy).any? {|pol| multi_version_aptc?(pol) }
           # policy_ids = active_enrollments.map(&:policy_id)
           # next if (policy_ids & policies_to_skip).any?
-
-          active_enrollments = nil
-
-          if family.family_members.any? {|x| x.person.authority_member.ssn == '999999999' }
-            # puts "ssn with all 9's --- #{family.e_case_id.inspect}"
-            next
-          end
 
           # if family.active_household.tax_households.count > 1
           #   # multiple_taxhouseholds << family.e_case_id
@@ -218,9 +192,9 @@ module Generators::Reports
             start = Time.now
           end
 
-        # rescue Exception => e
-        #   puts "Failed #{family.e_case_id}--#{e.to_s}"
-        # end
+        rescue Exception => e
+          puts "Failed #{family.e_case_id}--#{e.to_s}"
+        end
       end
 
       # print_families_with_samepolicy
@@ -288,17 +262,7 @@ module Generators::Reports
     private
 
     def policies_to_skip
-      ["738055", "738228", "881248", "730395", "738311", "746691", "881192", "793210", 
-        "880447", "730336", "731561", "730060", "754704", "881876", "742221", "758011", 
-        "730744", "982271", "746272", "747000", "758045", "745036", "746940", "741275", 
-        "741958", "881237", "738996", "742155", "743624", "744471", "961965", "749935", 
-        "758521", "745313", "746116", "881185", "747248", "757019", "749107", "881140", 
-        "750442", "750445", "881394", "881694", "756358", "881871", "760095", "761825", 
-        "881436", "908772", "763097", "743577", "756109", "756119", "774725", "774726", 
-        "881167", "881691", "882107", "741304", "918286", "765857", "751686", "841444", 
-        "841445", "842069", "747256", "750728", "881222", "881863", "744707", "747075", 
-        "881229", "909907", "909922", "782045", "782046", "954932", "954938", "742407", 
-        "881880", "947498"]
+      ["208128","208671","212304","214429","214807","208674","246907","263444","263496","296902","300021"]
     end
 
     def create_new_irs_folder(folder_count)

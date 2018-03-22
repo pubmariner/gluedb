@@ -49,7 +49,6 @@ module Generators::Reports
 
     def read
       Dir.glob(@dir+'/*.xml').each do |file_path|
-        puts file_path
         @xml_docs << Nokogiri::XML(File.open(file_path))
       end
       @doc_count = @xml_docs.count
