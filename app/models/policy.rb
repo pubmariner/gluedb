@@ -724,10 +724,12 @@ class Policy
   end
 
   def authority_member
-    self.subscriber.person.authority_member
+    person = self.subscriber.person
+    person.try(:authority_member)
   end
 
   def belong_to_authority_member?
+    return false if authority_member.blank?
     authority_member.hbx_member_id == self.subscriber.m_id
   end
 

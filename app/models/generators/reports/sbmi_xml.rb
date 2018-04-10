@@ -67,9 +67,10 @@ module Generators::Reports
         xml.MonthlyCSRAmount financial_info.monthly_csr_amount if financial_info.csr_variant != '01' 
         xml.CSRVariantId financial_info.csr_variant
         xml.RatingArea financial_info.rating_area
-
-        financial_info.prorated_amounts.each do |proration|
-          serialize_prorations(xml, proration, financial_info.csr_variant)
+        if sbmi_policy.effectuation_status == "Y"
+          financial_info.prorated_amounts.each do |proration|
+            serialize_prorations(xml, proration, financial_info.csr_variant)
+          end
         end
       end
     end

@@ -26,11 +26,11 @@ module Generators::Reports
         plan_ids = Plan.where(hios_plan_id: /^#{hios_prefix}/, year: CALENDER_YEAR).pluck(:_id)
         puts "Processing #{hios_prefix}"
 
-        workbook = Spreadsheet::Workbook.new
-        sheet = workbook.create_worksheet :name => "#{CALENDER_YEAR} SBMI Report"
+        # workbook = Spreadsheet::Workbook.new
+        # sheet = workbook.create_worksheet :name => "#{CALENDER_YEAR} SBMI Report"
 
-        index = 0
-        sheet.row(index).concat headers
+        # index = 0
+        # sheet.row(index).concat headers
 
         create_sbmi_folder(hios_prefix)
 
@@ -48,15 +48,17 @@ module Generators::Reports
           # end
 
           # disbale for post first report in a calender year
-          next if pol.canceled? && pol.updated_at < CANCELED_DATE
-          next if pol.has_no_enrollees?
+          # next if pol.canceled? && pol.updated_at < CANCELED_DATE
+
+          # next if pol.canceled?
+          # next if pol.has_no_enrollees?
           next if pol.policy_start < Date.new(CALENDER_YEAR, 1, 1)
           next if pol.policy_start > Date.new(CALENDER_YEAR, 12, 31)
           next if !pol.belong_to_authority_member?
-          next if policies_to_skip.include?(pol.eg_id)
+          next if policies_to_skip.include?(pol.id)
           
           count +=1 
-          if count % 20 == 0
+          if count % 100 == 0
             puts "processing #{count}"
           end
           
@@ -79,8 +81,8 @@ module Generators::Reports
 
         merge_and_validate_xmls(hios_prefix)
 
-        workbook.write "#{Rails.root.to_s}/#{CALENDER_YEAR}_SBMI_DATA_EXPORT_#{Time.now.strftime("%Y_%m_%d_%H_%M")}_#{hios_prefix}.xls"
-      end 
+        # workbook.write "#{Rails.root.to_s}/#{CALENDER_YEAR}_SBMI_DATA_EXPORT_#{Time.now.strftime("%Y_%m_%d_%H_%M")}_#{hios_prefix}.xls"
+      end
     end
 
      def merge_and_validate_xmls(hios_prefix)
@@ -145,7 +147,7 @@ module Generators::Reports
     end
 
     def policies_to_skip
-      ["747256", "750728", "881222", "881863", "751686", "841444", "841445", "842069", "743624", "744471", "744707", "747075", "881229", "749107", "881140", "730744", "730336", "742221", "758011", "741304", "738996", "742155", "749935", "758521", "918286", "747248", "757019", "745036", "746940", "730395", "756109", "756119", "774725", "774726", "881167", "881691", "882107", "742407", "881880", "763097", "760095", "761825", "881436", "908772", "741275", "741958", "881237", "765857", "756358", "881871", "730060", "731561", "746272", "747000", "738055", "738228", "881248", "738311", "746691", "881192", "782045", "782046", "743577", "745313", "746116", "881185", "793210", "880447", "909907", "909922", "750442", "750445", "881394", "881694", "754704", "881876", "758045"]
+      ["208128","208671","212304","214429","214807","208674","246907","263444","263496","296902","300021"]
     end
   end
 end

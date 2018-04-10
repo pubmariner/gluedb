@@ -19,8 +19,8 @@ module Generators::Reports
     end
 
     def process
-      @xml_validator = XmlValidator.new
-      @xml_validator.folder_path = sbmi_folder_path
+      # @xml_validator = XmlValidator.new
+      # @xml_validator.folder_path = sbmi_folder_path
 
       read
       merge
@@ -97,12 +97,12 @@ module Generators::Reports
       end
     end
 
-    def self.validate_individuals(dir)
-      Dir.glob(dir+'/*.xml').each do |file_path|
-        puts file_path.inspect
-        @xml_validator.validate(file_path)
-      end
-    end
+    # def self.validate_individuals(dir)
+    #   Dir.glob(dir+'/*.xml').each do |file_path|
+    #     puts file_path.inspect
+    #     @xml_validator.validate(file_path)
+    #   end
+    # end
 
     # def chop_special_characters(node)
     #   node.xpath("//SSN", NS).each do |ssn_node|
