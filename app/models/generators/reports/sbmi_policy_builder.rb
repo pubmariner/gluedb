@@ -93,7 +93,6 @@ module Generators::Reports
     end
 
     def append_financial_information(financial_dates)
-
       total_premium = @policy_disposition.as_of(financial_dates[0]).pre_amt_tot
       applied_aptc = @policy_disposition.as_of(financial_dates[0]).applied_aptc
       responsible_amount = @policy_disposition.as_of(financial_dates[0]).tot_res_amt
@@ -134,16 +133,41 @@ module Generators::Reports
 
     private
 
+    def add_loop_start_date(loop_start_dates, loop_start)
+      loop_start_dates << loop_start if within_policy_period?(loop_start)
+      loop_start_dates
+    end
+
+    def within_policy_period?(loop_start)
+      policy_end_date = policy.policy_end
+      policy_end_date = policy.policy_start.end_of_year if policy_end_date.blank?
+      (policy.policy_start..policy_end_date).cover?(loop_start)
+    end
+
     def financial_information_loops
       active_enrollees = policy.enrollees.reject { |e| e.canceled?}
-
       loop_start_dates = [policy.policy_start]
+
+      # Incorporate Enrollee Start and End Dates
       active_enrollees.each do |enrollee|
         if enrollee.coverage_start != policy.policy_start
-          loop_start_dates << enrollee.coverage_start
+          loop_start_dates = add_loop_start_date(loop_start_dates, enrollee.coverage_start)
         end
+
         if enrollee.coverage_end.present? && (enrollee.coverage_end != policy.policy_end)
-          loop_start_dates << enrollee.coverage_end.next_day
+          loop_start_dates = add_loop_start_date(loop_start_dates, enrollee.coverage_end.next_day)
+        end
+      end
+    
+      # Incorporate APTC Credits Start and End Dates
+      # aptc_credits.start_on and aptc_credits.end_on are mandatory fields - presence check not required for end_on date
+      policy.aptc_credits.each do |credit|
+        if credit.start_on != policy.policy_start
+          loop_start_dates = add_loop_start_date(loop_start_dates, credit.start_on)
+        end
+
+        if credit.end_on != policy.policy_end
+          loop_start_dates = add_loop_start_date(loop_start_dates, credit.end_on.next_day)
         end
       end
 

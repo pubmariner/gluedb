@@ -706,7 +706,7 @@ class Policy
     end_dates = eligible_enrollees.map do |en|
       en.coverage_end.blank? ? self.coverage_period_end : en.coverage_end
     end
-    end_dates.uniq.length > 1
+    end_dates.uniq.length > 1 || aptc_credits.present?
   end
 
   def rejected?
