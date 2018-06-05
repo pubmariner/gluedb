@@ -106,6 +106,23 @@ module Generators::Reports
         csr_variant: csr_variant
       })
 
+
+      if mid_month_start_date?(financial_dates) && mid_month_end_date?(financial_dates)
+        if financial_dates[0].month == financial_dates[1].month
+          multiplying_factor = ((financial_dates[1].day.to_f - financial_dates[0].day.to_f + 1.0) / financial_dates[0].end_of_month.day)
+
+          financial_info.prorated_amounts << PdfTemplates::ProratedAmount.new({
+            partial_month_premium: as_dollars(multiplying_factor * total_premium),
+            partial_month_aptc: as_dollars(multiplying_factor * applied_aptc),
+            partial_month_start_date: format_date(financial_dates[0]),
+            partial_month_end_date: format_date(financial_dates[1])
+          })
+        end
+
+        return financial_info
+      end
+
+
       if mid_month_start_date?(financial_dates)
         multiplying_factor = ((financial_dates[0].end_of_month.day.to_f - financial_dates[0].day.to_f + 1.0) / financial_dates[0].end_of_month.day)
 
