@@ -27,6 +27,7 @@ module EnrollmentAction
         ::EnrollmentAction::Reinstate,
         ::EnrollmentAction::CarrierSwitch,
         ::EnrollmentAction::CarrierSwitchRenewal,
+        ::EnrollmentAction::MarketChange,
         ::EnrollmentAction::DependentAdd,
         ::EnrollmentAction::DependentDrop,
         ::EnrollmentAction::PlanChange,
