@@ -26,9 +26,9 @@ class XmlValidator
     # xsd = Nokogiri::XML::Schema(File.open("#{Rails.root.to_s}/H36Schema/XML/MSG/HHS-IRS-MonthlyExchangePeriodicDataMessage-1.0.xsd"))
 
     # xsd = Nokogiri::XML::Schema(File.open("#{Rails.root.to_s}/H36Schema_88/MSG/HHS-IRS-MonthlyExchangePeriodicDataMessage-1.0.xsd"))
-    # xsd = Nokogiri::XML::Schema(File.open("#{Rails.root.to_s}/ACA_AIR5_1095-ASchema-Marketplace/MSG/IRS-Form1095ATransmissionUpstreamMessage.xsd"))
+    xsd = Nokogiri::XML::Schema(File.open("#{Rails.root.to_s}/ACA_AIR5_1095-ASchema-Marketplace/MSG/IRS-Form1095ATransmissionUpstreamMessage.xsd"))
 
-    xsd = Nokogiri::XML::Schema(File.open("#{Rails.root.to_s}/XML_LIBRARY_8_18/MSG/HHS-IRS-MonthlyExchangePeriodicDataMessage-1.0.xsd")) # IRS 2016
+    # xsd = Nokogiri::XML::Schema(File.open("#{Rails.root.to_s}/XML_LIBRARY_8_18/MSG/HHS-IRS-MonthlyExchangePeriodicDataMessage-1.0.xsd")) # IRS 2016
     # xsd = Nokogiri::XML::Schema(File.open("#{Rails.root.to_s}/CMS_XML/XML_LIBRARY_8_18/MSG/SBMPolicyLevelEnrollment-1.0.xsd")) # CMS 2016
 
     # puts filename.inspect

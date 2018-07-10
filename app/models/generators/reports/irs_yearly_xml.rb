@@ -2,7 +2,9 @@ module Generators::Reports
   class IrsYearlyXml
     include ActionView::Helpers::NumberHelper
 
-    NS = { 
+    attr_accessor :corrected_record_sequence_num, :voided_record_sequence_num
+
+    NS = {
       "xmlns:air5.0" => "urn:us:gov:treasury:irs:ext:aca:air:5.0",
       "xmlns:irs" => "urn:us:gov:treasury:irs:common",
       "xmlns:batchreq" => "urn:us:gov:treasury:irs:msg:form1095atransmissionupstreammessage",
@@ -11,8 +13,8 @@ module Generators::Reports
       "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance"
     }
 
-    def initialize(notice, sequence_num)
-      @sequence_num = sequence_num
+    def initialize(notice)
+      # @sequence_num = sequence_num
       @notice = notice
     end
 
@@ -24,7 +26,7 @@ module Generators::Reports
             serialize_policy(xml)
             serialize_recipient(xml)
             serialize_recipient_spouse(xml)
-            serialize_coverage_household(xml)
+            serialize_coverage_household(xml) if @notice.covered_household.present?
             serialize_policy_premiums(xml)
           end
         end
@@ -34,9 +36,11 @@ module Generators::Reports
     def serialize_headers(xml)
       # xml['air5.0'].RecordSequenceNum @sequence_num
       xml['air5.0'].RecordSequenceNum @notice.policy_id.to_i
-      xml['irs'].TaxYr 2014
-      xml['irs'].CorrectedInd false
-      xml['air5.0'].CorrectedRecordSequenceNum
+      xml['irs'].TaxYr 2017
+      xml['irs'].CorrectedInd corrected_record_sequence_num.present?
+      xml['air5.0'].CorrectedRecordSequenceNum corrected_record_sequence_num
+      xml['air5.0'].VoidInd (voided_record_sequence_num.present? ? 1 : 0)
+      xml['air5.0'].VoidedRecordSequenceNum voided_record_sequence_num
       xml['air5.0'].MarketplaceId "02.DC*.SBE.001.001"  
     end
 
@@ -59,7 +63,7 @@ module Generators::Reports
     def serialize_recipient_spouse(xml)
       if @notice.spouse
         xml['air5.0'].RecipientSpouse do |xml|
-          serialize_individual(xml, @notice.spouse) 
+          serialize_individual(xml, @notice.spouse)
         end
       end
     end

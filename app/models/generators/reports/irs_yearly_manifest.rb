@@ -2,12 +2,12 @@ module Generators::Reports
   class IrsYearlyManifest
 
     NS = {
-      "xmlns:ns0" => "http://birsrep.dsh.cms.gov/exchange/1.0",
-      "xmlns:ns3" => "http://hix.cms.gov/0.1/hix-core", 
-      "xmlns:ns4" => "http://birsrep.dsh.cms.gov/extension/1.0",
-      "xmlns:ns5" => "http://niem.gov/niem/niem-core/2.0",
-      "xmlns:inp1" => "http://xmlns.oracle.com/singleString", 
-      "xmlns:wsa" => "http://www.w3.org/2005/08/addressing"      
+      "xmlns:ns0"  => "http://birsrep.dsh.cms.gov/exchange/1.0",
+      "xmlns:ns3"  => "http://hix.cms.gov/0.1/hix-core", 
+      "xmlns:ns4"  => "http://birsrep.dsh.cms.gov/extension/1.0",
+      "xmlns:ns5"  => "http://niem.gov/niem/niem-core/2.0"
+      # "xmlns:inp1" => "http://xmlns.oracle.com/singleString", 
+      # "xmlns:wsa"  => "http://www.w3.org/2005/08/addressing"      
     }
 
     def create(folder)
