@@ -30,11 +30,11 @@ module Generators::Reports
         @irs_pdf_path = irs_path + "/irs1095a/"
 
         create_directory irs_path
-        create_directory @irs_pdf_path
+        # create_directory @irs_pdf_path
 
-        # @irs_xml_path = irs_path + "/h41/"
-        # create_directory @irs_xml_path
-        # create_directory @irs_xml_path + "/transmission"
+        @irs_xml_path = irs_path + "/h41/"
+        create_directory @irs_xml_path
+        create_directory @irs_xml_path + "/transmission"
       end
 
       @carriers = Carrier.all.inject({}){|hash, carrier| hash[carrier.id] = carrier.name; hash}
@@ -140,6 +140,106 @@ module Generators::Reports
       # create_manifest
     end
 
+
+    def process_corrected_h41
+      create_new_irs_folder
+
+      @corrected_h41_policies = {}
+      CSV.foreach("#{Rails.root}/2018_H41_Corrected_20180607.csv") do |row|
+        @corrected_h41_policies[row[0].strip] = row[1].strip
+      end
+
+      @npt_policies = []
+      CSV.foreach("#{Rails.root}/2017_NPT_UQHP_20180126.csv", headers: :true) do |row|
+        @npt_policies << row[0].strip
+      end
+
+      count = 0
+      @folder_count = 1
+
+      @corrected_h41_policies.keys.each do |policy_id|
+        policy = Policy.find(policy_id)
+
+        # begin
+          next if policy.plan.metal_level =~ /catastrophic/i
+          next if policy.kind == 'coverall'
+
+          count += 1
+          if count % 1000 == 0
+            puts count
+          end
+
+          if policy.responsible_party_id.present?
+            puts "found responsible party #{policy.id}"
+          end
+            
+          if @npt_policies.include?(policy.id.to_s)
+            notice_params[:npt] = true
+          else
+            notice_params[:npt] = false
+          end
+
+          process_policy(policy)
+        # rescue Exception => e
+        #   puts policy.id
+        #   puts e.to_s.inspect
+        # end
+      end
+      merge_and_validate_xmls(@folder_count)
+      create_manifest
+
+    end
+
+    def process_voided_h41
+      create_new_irs_folder
+
+      @void_policies = {}
+      CSV.foreach("#{Rails.root}/2018_H41_Voided_20180607.csv") do |row|
+        @void_policies[row[0].strip] = row[1].strip
+      end
+
+      @npt_policies = []
+      CSV.foreach("#{Rails.root}/2017_NPT_UQHP_20180126.csv", headers: :true) do |row|
+        @npt_policies << row[0].strip
+      end
+
+      count = 0
+      @folder_count = 1
+
+      @void_policies.keys.each do |policy_id|
+        policy = Policy.find(policy_id)
+
+        # begin
+          next if policy.plan.metal_level =~ /catastrophic/i
+          next if policy.kind == 'coverall'
+
+          count += 1
+          if count % 1000 == 0
+            puts count
+          end
+
+          if policy.responsible_party_id.present?
+            puts "found responsible party #{policy.id}"
+          end
+            
+          notice_params[:type] = 'void'
+
+          if @npt_policies.include?(policy.id.to_s)
+            notice_params[:npt] = true
+          else
+            notice_params[:npt] = false
+          end
+
+          process_policy(policy)
+        # rescue Exception => e
+        #   puts policy.id
+        #   puts e.to_s.inspect
+        # end
+      end
+      merge_and_validate_xmls(@folder_count)
+      create_manifest
+    end
+
     def process_policy_ids(ids)
       create_new_pdf_folder
       # create_new_irs_folder
@@ -233,6 +333,8 @@ module Generators::Reports
     end
 
     def valid_policy?(policy)
+      return true
+
       active_enrollees = policy.enrollees.reject{|en| en.canceled?}
 
       if active_enrollees.empty?
@@ -251,9 +353,21 @@ module Generators::Reports
     end
 
     def build_notice_input(policy)
-      irs_input = Generators::Reports::IrsInputBuilder.new(policy, { notice_type: notice_params[:type], npt_policy: notice_params[:npt] })
+      if notice_params[:type] == 'void'
+      irs_input = Generators::Reports::IrsInputBuilder.new(policy, {void: true})
+    else
+            irs_input = Generators::Reports::IrsInputBuilder.new(policy, { notice_type: notice_params[:type], npt_policy: notice_params[:npt] })
+
+    end
+
       irs_input.carrier_hash = @carriers
-      irs_input.settings = @settings
+
+      if @npt_policies.include?(policy.id.to_s)
+        irs_input.npt_policy = true
+        puts "found NPT policy ---- #{policy.id}"
+      end
+
+      # irs_input.settings = @settings
       irs_input.process
       irs_input
     end
@@ -287,28 +401,28 @@ module Generators::Reports
         notice.canceled_policies = []
 
         create_report_names
-        # render_xml(notice)
+        render_xml(notice)
 
-        render_pdf(notice)
+        # render_pdf(notice)
 
-        if notice.covered_household.size > 5
-          create_report_names
-          render_pdf(notice, true)          
-        end
+        # if notice.covered_household.size > 5
+        #   create_report_names
+        #   render_pdf(notice, true)          
+        # end
 
         if @count !=0
           if (@count % 250 == 0)
-            create_new_pdf_folder
+            # create_new_pdf_folder
           elsif (@count % 4000 == 0)
-            # create_new_irs_folder
+            create_new_irs_folder
           end
         end
 
-        # if @count % 4000 == 0
-        #   merge_and_validate_xmls(@folder_count)
-        #   @folder_count += 1
-        #   create_new_irs_folder
-        # end
+        if @count % 4000 == 0
+          merge_and_validate_xmls(@folder_count)
+          @folder_count += 1
+          create_new_irs_folder
+        end
 
         notice = nil
         policy = nil
@@ -410,7 +524,7 @@ module Generators::Reports
     end
 
     def create_manifest
-      Generators::Reports::Manifest.new.create("#{@irs_xml_path + @h41_folder_name}")
+      Generators::Reports::IrsYearlyManifest.new.create("#{@irs_xml_path}/transmission")
     end
 
     def rejected_policy?(policy)
@@ -437,7 +551,14 @@ module Generators::Reports
     end
 
     def render_xml(notice)
-      xml_report = Generators::Reports::IrsYearlyXml.new(notice).serialize.to_xml(:indent => 2)
+
+      puts notice.inspect
+      yearly_xml_generator = Generators::Reports::IrsYearlyXml.new(notice)
+      yearly_xml_generator.corrected_record_sequence_num = @corrected_h41_policies[notice.policy_id] if @corrected_h41_policies.present?
+      yearly_xml_generator.voided_record_sequence_num = @void_policies[notice.policy_id] if @void_policies.present?
+
+      xml_report = yearly_xml_generator.serialize.to_xml(:indent => 2)
+
       File.open("#{@irs_xml_path + @h41_folder_name}/#{@report_names[:xml]}.xml", 'w') do |file|
         file.write xml_report
       end
