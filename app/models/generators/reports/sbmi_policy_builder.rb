@@ -37,9 +37,10 @@ module Generators::Reports
     def append_coverage_household
       if policy.canceled?
         if policy.enrollees.any? { |e| !e.canceled?}
-          raise "Canceled policy has enrollee with improper start and end dates"
+          raise "Canceled policy(#{policy.id}) has enrollee with improper start and end dates"
         end
-        policy.enrollees.each{|enrollee| append_covered_individual(enrollee, (enrollee.subscriber? ? 'Y' : 'N'))}
+        uniq_enrollees = policy.enrollees.group_by{|en| en.person}.collect{|k, v| v[0]}
+        uniq_enrollees.each{|enrollee| append_covered_individual(enrollee, (enrollee.subscriber? ? 'Y' : 'N'))}
       else
         enrollees = policy.enrollees.reject { |e| e.canceled?}
         # if policy.has_responsible_person?
@@ -117,35 +118,45 @@ module Generators::Reports
             partial_month_start_date: format_date(financial_dates[0]),
             partial_month_end_date: format_date(financial_dates[1])
           })
+        else
+          financial_info.prorated_amounts << mid_month_start_prorated_amount(financial_dates[0], total_premium, applied_aptc)
+          financial_info.prorated_amounts << mid_month_end_prorated_amount(financial_dates[1], total_premium, applied_aptc)
         end
 
         return financial_info
       end
 
-
       if mid_month_start_date?(financial_dates)
-        multiplying_factor = ((financial_dates[0].end_of_month.day.to_f - financial_dates[0].day.to_f + 1.0) / financial_dates[0].end_of_month.day)
-
-        financial_info.prorated_amounts << PdfTemplates::ProratedAmount.new({
-          partial_month_premium: as_dollars(multiplying_factor * total_premium),
-          partial_month_aptc: as_dollars(multiplying_factor * applied_aptc),
-          partial_month_start_date: format_date(financial_dates[0]),
-          partial_month_end_date: format_date(financial_dates[0].end_of_month)
-        })
+        financial_info.prorated_amounts << mid_month_start_prorated_amount(financial_dates[0], total_premium, applied_aptc)
       end
 
       if mid_month_end_date?(financial_dates)
-        multiplying_factor = (financial_dates[1].day.to_f / financial_dates[1].end_of_month.day)
-
-        financial_info.prorated_amounts << PdfTemplates::ProratedAmount.new({
-          partial_month_premium: as_dollars(multiplying_factor * total_premium),
-          partial_month_aptc: as_dollars(multiplying_factor * applied_aptc),
-          partial_month_start_date: format_date(financial_dates[1].beginning_of_month),
-          partial_month_end_date: format_date(financial_dates[1])
-        })
+        financial_info.prorated_amounts << mid_month_end_prorated_amount(financial_dates[1], total_premium, applied_aptc)
       end
 
       financial_info
+    end
+
+    def mid_month_start_prorated_amount(mid_month_start_date, total_premium, applied_aptc)
+      multiplying_factor = ((mid_month_start_date.end_of_month.day.to_f - mid_month_start_date.day.to_f + 1.0) / mid_month_start_date.end_of_month.day)
+
+      PdfTemplates::ProratedAmount.new({
+        partial_month_premium: as_dollars(multiplying_factor * total_premium),
+        partial_month_aptc: as_dollars(multiplying_factor * applied_aptc),
+        partial_month_start_date: format_date(mid_month_start_date),
+        partial_month_end_date: format_date(mid_month_start_date.end_of_month)
+        })
+    end
+
+    def mid_month_end_prorated_amount(mid_month_end_date, total_premium, applied_aptc)
+      multiplying_factor = (mid_month_end_date.day.to_f / mid_month_end_date.end_of_month.day)
+
+      PdfTemplates::ProratedAmount.new({
+        partial_month_premium: as_dollars(multiplying_factor * total_premium),
+        partial_month_aptc: as_dollars(multiplying_factor * applied_aptc),
+        partial_month_start_date: format_date(mid_month_end_date.beginning_of_month),
+        partial_month_end_date: format_date(mid_month_end_date)
+      })
     end
 
     private
