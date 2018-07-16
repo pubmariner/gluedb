@@ -1,0 +1,1859 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+
+<title>module EnrollmentAction::ReinstatementComparisonHelper - Rails Application Documentation</title>
+
+<link type="text/css" media="screen" href="../rdoc.css" rel="stylesheet">
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../";
+</script>
+
+<script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/navigation.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/search_index.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/search.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/searcher.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/darkfish.js"></script>
+
+
+<body id="top" class="module">
+<nav id="metadata">
+  <nav id="home-section" class="section">
+  <h3 class="section-header">
+    <a href="../index.html">Home</a>
+    <a href="../table_of_contents.html#classes">Classes</a>
+    <a href="../table_of_contents.html#methods">Methods</a>
+  </h3>
+</nav>
+
+
+  <nav id="search-section" class="section project-section" class="initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <h3 class="section-header">
+      <input type="text" name="search" placeholder="Search" id="search-field"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </h3>
+  </form>
+
+  <ul id="search-results" class="initially-hidden"></ul>
+</nav>
+
+
+  <div id="file-metadata">
+    <nav id="file-list-section" class="section">
+  <h3 class="section-header">Defined In</h3>
+  <ul>
+    <li>app/models/enrollment_action/reinstatement_comparison_helper.rb
+  </ul>
+</nav>
+
+    
+  </div>
+
+  <div id="class-metadata">
+    
+    
+    <!-- Included Modules -->
+<nav id="includes-section" class="section">
+  <h3 class="section-header">Included Modules</h3>
+
+  <ul class="link-list">
+  
+  
+    <li><a class="include" href="../Handlers/EnrollmentEventXmlHelper.html">Handlers::EnrollmentEventXmlHelper</a>
+  
+  
+  </ul>
+</nav>
+
+    <!-- Method Quickref -->
+<nav id="method-list-section" class="section">
+  <h3 class="section-header">Methods</h3>
+
+  <ul class="link-list">
+    
+    <li><a href="#method-i-reinstate_capable_carrier-3F">#reinstate_capable_carrier?</a>
+    
+    <li><a href="#method-i-same_carrier_reinstatement_candidates">#same_carrier_reinstatement_candidates</a>
+    
+    <li><a href="#method-i-shop_reinstatement_candidate-3F">#shop_reinstatement_candidate?</a>
+    
+    <li><a href="#method-i-shop_reinstatement_candidates">#shop_reinstatement_candidates</a>
+    
+    <li><a href="#method-i-start_and_end_dates_align">#start_and_end_dates_align</a>
+    
+  </ul>
+</nav>
+
+  </div>
+
+  <div id="project-metadata">
+    <nav id="fileindex-section" class="section project-section">
+  <h3 class="section-header">Pages</h3>
+
+  <ul>
+  
+    <li class="file"><a href="../doc/README_FOR_APP.html">README_FOR_APP</a>
+  
+  </ul>
+</nav>
+
+    <nav id="classindex-section" class="section project-section">
+  <h3 class="section-header">Class and Module Index</h3>
+
+  <ul class="link-list">
+  
+    <li><a href="../Parsers.html">Parsers</a>
+  
+    <li><a href="../Parsers/Cv.html">Parsers::Cv</a>
+  
+    <li><a href="../Parsers/Cv/Enrollee.html">Parsers::Cv::Enrollee</a>
+  
+    <li><a href="../Parsers/Cv/Namespaces.html">Parsers::Cv::Namespaces</a>
+  
+    <li><a href="../Parsers/Cv/NewEnrollment.html">Parsers::Cv::NewEnrollment</a>
+  
+    <li><a href="../Parsers/Cv/NewPolicy.html">Parsers::Cv::NewPolicy</a>
+  
+    <li><a href="../Parsers/Cv/PersonAddress.html">Parsers::Cv::PersonAddress</a>
+  
+    <li><a href="../Parsers/Cv/PersonEmail.html">Parsers::Cv::PersonEmail</a>
+  
+    <li><a href="../Parsers/Cv/PersonPhone.html">Parsers::Cv::PersonPhone</a>
+  
+    <li><a href="../Parsers/Cv/PolicyIndividual.html">Parsers::Cv::PolicyIndividual</a>
+  
+    <li><a href="../Parsers/DocumentListItem.html">Parsers::DocumentListItem</a>
+  
+    <li><a href="../Parsers/DocumentListResponse.html">Parsers::DocumentListResponse</a>
+  
+    <li><a href="../Parsers/Edi.html">Parsers::Edi</a>
+  
+    <li><a href="../Parsers/Edi/Etf.html">Parsers::Edi::Etf</a>
+  
+    <li><a href="../Parsers/Edi/Etf/BrokerLoop.html">Parsers::Edi::Etf::BrokerLoop</a>
+  
+    <li><a href="../Parsers/Edi/Etf/Category.html">Parsers::Edi::Etf::Category</a>
+  
+    <li><a href="../Parsers/Edi/Etf/EmployerLoop.html">Parsers::Edi::Etf::EmployerLoop</a>
+  
+    <li><a href="../Parsers/Edi/Etf/EtfLoop.html">Parsers::Edi::Etf::EtfLoop</a>
+  
+    <li><a href="../Parsers/Edi/Etf/FamilyParser.html">Parsers::Edi::Etf::FamilyParser</a>
+  
+    <li><a href="../Parsers/Edi/Etf/PersonLoop.html">Parsers::Edi::Etf::PersonLoop</a>
+  
+    <li><a href="../Parsers/Edi/Etf/PersonParser.html">Parsers::Edi::Etf::PersonParser</a>
+  
+    <li><a href="../Parsers/Edi/Etf/PolicyLoop.html">Parsers::Edi::Etf::PolicyLoop</a>
+  
+    <li><a href="../Parsers/Edi/Etf/ReportingCatergories.html">Parsers::Edi::Etf::ReportingCatergories</a>
+  
+    <li><a href="../Parsers/Edi/Etf/ResponsiblePartyParser.html">Parsers::Edi::Etf::ResponsiblePartyParser</a>
+  
+    <li><a href="../Parsers/Edi/EtfValidation.html">Parsers::Edi::EtfValidation</a>
+  
+    <li><a href="../Parsers/Edi/FindCarrier.html">Parsers::Edi::FindCarrier</a>
+  
+    <li><a href="../Parsers/Edi/FindPlan.html">Parsers::Edi::FindPlan</a>
+  
+    <li><a href="../Parsers/Edi/FindPolicy.html">Parsers::Edi::FindPolicy</a>
+  
+    <li><a href="../Parsers/Edi/ImportCache.html">Parsers::Edi::ImportCache</a>
+  
+    <li><a href="../Parsers/Edi/IncomingTransaction.html">Parsers::Edi::IncomingTransaction</a>
+  
+    <li><a href="../Parsers/Edi/ParserLog.html">Parsers::Edi::ParserLog</a>
+  
+    <li><a href="../Parsers/Edi/PersonLoopValidator.html">Parsers::Edi::PersonLoopValidator</a>
+  
+    <li><a href="../Parsers/Edi/Remittance.html">Parsers::Edi::Remittance</a>
+  
+    <li><a href="../Parsers/Edi/Remittance/IndividualName.html">Parsers::Edi::Remittance::IndividualName</a>
+  
+    <li><a href="../Parsers/Edi/Remittance/RemittanceDetail.html">Parsers::Edi::Remittance::RemittanceDetail</a>
+  
+    <li><a href="../Parsers/Edi/RemittanceTransmission.html">Parsers::Edi::RemittanceTransmission</a>
+  
+    <li><a href="../Parsers/Edi/TrParser.html">Parsers::Edi::TrParser</a>
+  
+    <li><a href="../Parsers/Edi/TransactionSetResult.html">Parsers::Edi::TransactionSetResult</a>
+  
+    <li><a href="../Parsers/Edi/TransmissionFile.html">Parsers::Edi::TransmissionFile</a>
+  
+    <li><a href="../Parsers/Edi/TransmissionResponse.html">Parsers::Edi::TransmissionResponse</a>
+  
+    <li><a href="../Parsers/Edi/TsrParser.html">Parsers::Edi::TsrParser</a>
+  
+    <li><a href="../Parsers/Xml.html">Parsers::Xml</a>
+  
+    <li><a href="../Parsers/Xml/Cv.html">Parsers::Xml::Cv</a>
+  
+    <li><a href="../Parsers/Xml/Cv/AddressParser.html">Parsers::Xml::Cv::AddressParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/AlternateBenefitParser.html">Parsers::Xml::Cv::AlternateBenefitParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/AlternativeBenefit.html">Parsers::Xml::Cv::AlternativeBenefit</a>
+  
+    <li><a href="../Parsers/Xml/Cv/CarrierParser.html">Parsers::Xml::Cv::CarrierParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/Deduction.html">Parsers::Xml::Cv::Deduction</a>
+  
+    <li><a href="../Parsers/Xml/Cv/DeductionParser.html">Parsers::Xml::Cv::DeductionParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/EligibilityDeterminationParser.html">Parsers::Xml::Cv::EligibilityDeterminationParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/EmailParser.html">Parsers::Xml::Cv::EmailParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/EmployeeFamilyMemberParser.html">Parsers::Xml::Cv::EmployeeFamilyMemberParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/EmployerLinkParser.html">Parsers::Xml::Cv::EmployerLinkParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/EnrolleeBenefitParser.html">Parsers::Xml::Cv::EnrolleeBenefitParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/EnrolleeMemberParser.html">Parsers::Xml::Cv::EnrolleeMemberParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/EnrolleeParser.html">Parsers::Xml::Cv::EnrolleeParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/EnrollmentParser.html">Parsers::Xml::Cv::EnrollmentParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/FamilyMemberParser.html">Parsers::Xml::Cv::FamilyMemberParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/FamilyParser.html">Parsers::Xml::Cv::FamilyParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/FinancialStatement.html">Parsers::Xml::Cv::FinancialStatement</a>
+  
+    <li><a href="../Parsers/Xml/Cv/FinancialStatementParser.html">Parsers::Xml::Cv::FinancialStatementParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/HbxEnrollmentExemptionParser.html">Parsers::Xml::Cv::HbxEnrollmentExemptionParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/HbxEnrollmentParser.html">Parsers::Xml::Cv::HbxEnrollmentParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/Income.html">Parsers::Xml::Cv::Income</a>
+  
+    <li><a href="../Parsers/Xml/Cv/IncomeByYearParser.html">Parsers::Xml::Cv::IncomeByYearParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/IncomeParser.html">Parsers::Xml::Cv::IncomeParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/Individual.html">Parsers::Xml::Cv::Individual</a>
+  
+    <li><a href="../Parsers/Xml/Cv/IrsGroupParser.html">Parsers::Xml::Cv::IrsGroupParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/NodeUtils.html">Parsers::Xml::Cv::NodeUtils</a>
+  
+    <li><a href="../Parsers/Xml/Cv/Person.html">Parsers::Xml::Cv::Person</a>
+  
+    <li><a href="../Parsers/Xml/Cv/PersonDemographicsParser.html">Parsers::Xml::Cv::PersonDemographicsParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/PersonParser.html">Parsers::Xml::Cv::PersonParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/PersonRelationshipParser.html">Parsers::Xml::Cv::PersonRelationshipParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/PhoneParser.html">Parsers::Xml::Cv::PhoneParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/PlanParser.html">Parsers::Xml::Cv::PlanParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/Policy.html">Parsers::Xml::Cv::Policy</a>
+  
+    <li><a href="../Parsers/Xml/Cv/PolicyParser.html">Parsers::Xml::Cv::PolicyParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/Relationship.html">Parsers::Xml::Cv::Relationship</a>
+  
+    <li><a href="../Parsers/Xml/Cv/Renewal.html">Parsers::Xml::Cv::Renewal</a>
+  
+    <li><a href="../Parsers/Xml/Cv/ShopMarketParser.html">Parsers::Xml::Cv::ShopMarketParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/TaxHouseholdMemberParser.html">Parsers::Xml::Cv::TaxHouseholdMemberParser</a>
+  
+    <li><a href="../Parsers/Xml/Cv/TaxHouseholdParser.html">Parsers::Xml::Cv::TaxHouseholdParser</a>
+  
+    <li><a href="../Parsers/Xml/Enrollment.html">Parsers::Xml::Enrollment</a>
+  
+    <li><a href="../Parsers/Xml/Enrollment/ChangeRequest.html">Parsers::Xml::Enrollment::ChangeRequest</a>
+  
+    <li><a href="../Parsers/Xml/Enrollment/ChangeRequestFactory.html">Parsers::Xml::Enrollment::ChangeRequestFactory</a>
+  
+    <li><a href="../Parsers/Xml/Enrollment/Enrollee.html">Parsers::Xml::Enrollment::Enrollee</a>
+  
+    <li><a href="../Parsers/Xml/Enrollment/IndividualChangeRequest.html">Parsers::Xml::Enrollment::IndividualChangeRequest</a>
+  
+    <li><a href="../Parsers/Xml/Enrollment/IndividualEnrollee.html">Parsers::Xml::Enrollment::IndividualEnrollee</a>
+  
+    <li><a href="../Parsers/Xml/Enrollment/ShopChangeRequest.html">Parsers::Xml::Enrollment::ShopChangeRequest</a>
+  
+    <li><a href="../Parsers/Xml/Enrollment/ShopEnrollee.html">Parsers::Xml::Enrollment::ShopEnrollee</a>
+  
+    <li><a href="../Parsers/Xml/Enrollment/ShopEnrollee/BeginDateOutsidePlanYearsError.html">Parsers::Xml::Enrollment::ShopEnrollee::BeginDateOutsidePlanYearsError</a>
+  
+    <li><a href="../Parsers/Xml/Reports.html">Parsers::Xml::Reports</a>
+  
+    <li><a href="../Parsers/Xml/Reports/Employer.html">Parsers::Xml::Reports::Employer</a>
+  
+    <li><a href="../Parsers/Xml/Reports/Enrollee.html">Parsers::Xml::Reports::Enrollee</a>
+  
+    <li><a href="../Parsers/Xml/Reports/Family.html">Parsers::Xml::Reports::Family</a>
+  
+    <li><a href="../Parsers/Xml/Reports/FamilyMemberLinkType.html">Parsers::Xml::Reports::FamilyMemberLinkType</a>
+  
+    <li><a href="../Parsers/Xml/Reports/GlueMappings.html">Parsers::Xml::Reports::GlueMappings</a>
+  
+    <li><a href="../Parsers/Xml/Reports/Household.html">Parsers::Xml::Reports::Household</a>
+  
+    <li><a href="../Parsers/Xml/Reports/Individual.html">Parsers::Xml::Reports::Individual</a>
+  
+    <li><a href="../Parsers/Xml/Reports/NewEnrollment.html">Parsers::Xml::Reports::NewEnrollment</a>
+  
+    <li><a href="../Parsers/Xml/Reports/NodeUtils.html">Parsers::Xml::Reports::NodeUtils</a>
+  
+    <li><a href="../Parsers/Xml/Reports/Policy.html">Parsers::Xml::Reports::Policy</a>
+  
+    <li><a href="../Parsers/Xml/Reports/PolicyLinkType.html">Parsers::Xml::Reports::PolicyLinkType</a>
+  
+    <li><a href="../Parsers/Xml/Reports/PolicyPlan.html">Parsers::Xml::Reports::PolicyPlan</a>
+  
+    <li><a href="../Parsers/Xml/Reports/QuoteLinkType.html">Parsers::Xml::Reports::QuoteLinkType</a>
+  
+    <li><a href="../HandleEnrollmentEvent.html">HandleEnrollmentEvent</a>
+  
+    <li><a href="../HandleEnrollmentEvent/BrokerDetails.html">HandleEnrollmentEvent::BrokerDetails</a>
+  
+    <li><a href="../HandleEnrollmentEvent/CreateNewMembers.html">HandleEnrollmentEvent::CreateNewMembers</a>
+  
+    <li><a href="../HandleEnrollmentEvent/CreateNewPolicy.html">HandleEnrollmentEvent::CreateNewPolicy</a>
+  
+    <li><a href="../HandleEnrollmentEvent/EmployerDetails.html">HandleEnrollmentEvent::EmployerDetails</a>
+  
+    <li><a href="../HandleEnrollmentEvent/ExtractBrokerDetails.html">HandleEnrollmentEvent::ExtractBrokerDetails</a>
+  
+    <li><a href="../HandleEnrollmentEvent/ExtractEmployerDetails.html">HandleEnrollmentEvent::ExtractEmployerDetails</a>
+  
+    <li><a href="../HandleEnrollmentEvent/ExtractEventDetails.html">HandleEnrollmentEvent::ExtractEventDetails</a>
+  
+    <li><a href="../HandleEnrollmentEvent/ExtractMemberChanges.html">HandleEnrollmentEvent::ExtractMemberChanges</a>
+  
+    <li><a href="../HandleEnrollmentEvent/ExtractMemberDetails.html">HandleEnrollmentEvent::ExtractMemberDetails</a>
+  
+    <li><a href="../HandleEnrollmentEvent/ExtractPlanDetails.html">HandleEnrollmentEvent::ExtractPlanDetails</a>
+  
+    <li><a href="../HandleEnrollmentEvent/ExtractPolicyDetails.html">HandleEnrollmentEvent::ExtractPolicyDetails</a>
+  
+    <li><a href="../HandleEnrollmentEvent/MemberChange.html">HandleEnrollmentEvent::MemberChange</a>
+  
+    <li><a href="../HandleEnrollmentEvent/MemberDetails.html">HandleEnrollmentEvent::MemberDetails</a>
+  
+    <li><a href="../HandleEnrollmentEvent/PlanDetails.html">HandleEnrollmentEvent::PlanDetails</a>
+  
+    <li><a href="../HandleEnrollmentEvent/PolicyDetails.html">HandleEnrollmentEvent::PolicyDetails</a>
+  
+    <li><a href="../HandleEnrollmentEvent/ProcessActiveRenewal.html">HandleEnrollmentEvent::ProcessActiveRenewal</a>
+  
+    <li><a href="../HandleEnrollmentEvent/ProcessAutoRenew.html">HandleEnrollmentEvent::ProcessAutoRenew</a>
+  
+    <li><a href="../HandleEnrollmentEvent/ProcessChangeProduct.html">HandleEnrollmentEvent::ProcessChangeProduct</a>
+  
+    <li><a href="../HandleEnrollmentEvent/ProcessDependentAdd.html">HandleEnrollmentEvent::ProcessDependentAdd</a>
+  
+    <li><a href="../HandleEnrollmentEvent/ProcessDependentDrop.html">HandleEnrollmentEvent::ProcessDependentDrop</a>
+  
+    <li><a href="../HandleEnrollmentEvent/ProcessInitialEnrollment.html">HandleEnrollmentEvent::ProcessInitialEnrollment</a>
+  
+    <li><a href="../HandleEnrollmentEvent/ProcessReenroll.html">HandleEnrollmentEvent::ProcessReenroll</a>
+  
+    <li><a href="../HandleEnrollmentEvent/ProcessingErrors.html">HandleEnrollmentEvent::ProcessingErrors</a>
+  
+    <li><a href="../HandleEnrollmentEvent/TransformAndEmitInitialEnrollment.html">HandleEnrollmentEvent::TransformAndEmitInitialEnrollment</a>
+  
+    <li><a href="../HandleEnrollmentEvent/TransformAndEmitMaintenance.html">HandleEnrollmentEvent::TransformAndEmitMaintenance</a>
+  
+    <li><a href="../HandleEnrollmentEvent/TransmitNewShopPolicy.html">HandleEnrollmentEvent::TransmitNewShopPolicy</a>
+  
+    <li><a href="../HandleEnrollmentEvent/TransmitShopChange.html">HandleEnrollmentEvent::TransmitShopChange</a>
+  
+    <li><a href="../HandleEnrollmentEvent/UpdatePolicy.html">HandleEnrollmentEvent::UpdatePolicy</a>
+  
+    <li><a href="../HandleEnrollmentEvent/VerifyActiveRenewalDetails.html">HandleEnrollmentEvent::VerifyActiveRenewalDetails</a>
+  
+    <li><a href="../HandleEnrollmentEvent/VerifyDependentAddDetails.html">HandleEnrollmentEvent::VerifyDependentAddDetails</a>
+  
+    <li><a href="../HandleEnrollmentEvent/VerifyInitialEnrollmentDetails.html">HandleEnrollmentEvent::VerifyInitialEnrollmentDetails</a>
+  
+    <li><a href="../HandleEnrollmentEvent/VerifyPassiveRenewalDetails.html">HandleEnrollmentEvent::VerifyPassiveRenewalDetails</a>
+  
+    <li><a href="../Api.html">Api</a>
+  
+    <li><a href="../Api/V1.html">Api::V1</a>
+  
+    <li><a href="../Api/V1/EmployersController.html">Api::V1::EmployersController</a>
+  
+    <li><a href="../Api/V1/EmployersHelper.html">Api::V1::EmployersHelper</a>
+  
+    <li><a href="../Api/V1/EventsController.html">Api::V1::EventsController</a>
+  
+    <li><a href="../Api/V1/FamiliesController.html">Api::V1::FamiliesController</a>
+  
+    <li><a href="../Api/V1/FamiliesHelper.html">Api::V1::FamiliesHelper</a>
+  
+    <li><a href="../Api/V1/HouseholdsController.html">Api::V1::HouseholdsController</a>
+  
+    <li><a href="../Api/V1/HouseholdsHelper.html">Api::V1::HouseholdsHelper</a>
+  
+    <li><a href="../Api/V1/IrsReportsController.html">Api::V1::IrsReportsController</a>
+  
+    <li><a href="../Api/V1/PeopleController.html">Api::V1::PeopleController</a>
+  
+    <li><a href="../Api/V1/PeopleHelper.html">Api::V1::PeopleHelper</a>
+  
+    <li><a href="../Api/V1/PoliciesController.html">Api::V1::PoliciesController</a>
+  
+    <li><a href="../Api/V1/PoliciesHelper.html">Api::V1::PoliciesHelper</a>
+  
+    <li><a href="../Api/V2.html">Api::V2</a>
+  
+    <li><a href="../Api/V2/EmployersController.html">Api::V2::EmployersController</a>
+  
+    <li><a href="../Api/V2/EmployersHelper.html">Api::V2::EmployersHelper</a>
+  
+    <li><a href="../Api/V2/EventsController.html">Api::V2::EventsController</a>
+  
+    <li><a href="../Api/V2/FamiliesController.html">Api::V2::FamiliesController</a>
+  
+    <li><a href="../Api/V2/FamiliesHelper.html">Api::V2::FamiliesHelper</a>
+  
+    <li><a href="../Api/V2/HouseholdsController.html">Api::V2::HouseholdsController</a>
+  
+    <li><a href="../Api/V2/HouseholdsHelper.html">Api::V2::HouseholdsHelper</a>
+  
+    <li><a href="../Api/V2/IrsReportsController.html">Api::V2::IrsReportsController</a>
+  
+    <li><a href="../Api/V2/PeopleController.html">Api::V2::PeopleController</a>
+  
+    <li><a href="../Api/V2/PeopleHelper.html">Api::V2::PeopleHelper</a>
+  
+    <li><a href="../Api/V2/PlansController.html">Api::V2::PlansController</a>
+  
+    <li><a href="../Api/V2/PoliciesController.html">Api::V2::PoliciesController</a>
+  
+    <li><a href="../Api/V2/PoliciesHelper.html">Api::V2::PoliciesHelper</a>
+  
+    <li><a href="../Api/V2/PremiumCalculatorController.html">Api::V2::PremiumCalculatorController</a>
+  
+    <li><a href="../Api/V2/QuoteGeneratorController.html">Api::V2::QuoteGeneratorController</a>
+  
+    <li><a href="../Api/V2/RenewalPoliciesController.html">Api::V2::RenewalPoliciesController</a>
+  
+    <li><a href="../EnrollmentAction.html">EnrollmentAction</a>
+  
+    <li><a href="../EnrollmentAction/ActionPublishHelper.html">EnrollmentAction::ActionPublishHelper</a>
+  
+    <li><a href="../EnrollmentAction/ActiveRenewal.html">EnrollmentAction::ActiveRenewal</a>
+  
+    <li><a href="../EnrollmentAction/AssistanceChange.html">EnrollmentAction::AssistanceChange</a>
+  
+    <li><a href="../EnrollmentAction/AssistanceComparisonHelper.html">EnrollmentAction::AssistanceComparisonHelper</a>
+  
+    <li><a href="../EnrollmentAction/Base.html">EnrollmentAction::Base</a>
+  
+    <li><a href="../EnrollmentAction/CarrierSwitch.html">EnrollmentAction::CarrierSwitch</a>
+  
+    <li><a href="../EnrollmentAction/CarrierSwitchRenewal.html">EnrollmentAction::CarrierSwitchRenewal</a>
+  
+    <li><a href="../EnrollmentAction/CobraNewPolicyReinstate.html">EnrollmentAction::CobraNewPolicyReinstate</a>
+  
+    <li><a href="../EnrollmentAction/CobraNewPolicySwitchover.html">EnrollmentAction::CobraNewPolicySwitchover</a>
+  
+    <li><a href="../EnrollmentAction/CobraReinstate.html">EnrollmentAction::CobraReinstate</a>
+  
+    <li><a href="../EnrollmentAction/CobraSwitchover.html">EnrollmentAction::CobraSwitchover</a>
+  
+    <li><a href="../EnrollmentAction/DependentAdd.html">EnrollmentAction::DependentAdd</a>
+  
+    <li><a href="../EnrollmentAction/DependentComparisonHelper.html">EnrollmentAction::DependentComparisonHelper</a>
+  
+    <li><a href="../EnrollmentAction/DependentDrop.html">EnrollmentAction::DependentDrop</a>
+  
+    <li><a href="../EnrollmentAction/EnrollmentActionIssue.html">EnrollmentAction::EnrollmentActionIssue</a>
+  
+    <li><a href="../EnrollmentAction/EnrollmentTerminationEventWriter.html">EnrollmentAction::EnrollmentTerminationEventWriter</a>
+  
+    <li><a href="../EnrollmentAction/InitialEnrollment.html">EnrollmentAction::InitialEnrollment</a>
+  
+    <li><a href="../EnrollmentAction/PassiveRenewal.html">EnrollmentAction::PassiveRenewal</a>
+  
+    <li><a href="../EnrollmentAction/PlanChange.html">EnrollmentAction::PlanChange</a>
+  
+    <li><a href="../EnrollmentAction/PlanChangeDependentAdd.html">EnrollmentAction::PlanChangeDependentAdd</a>
+  
+    <li><a href="../EnrollmentAction/PlanChangeDependentDrop.html">EnrollmentAction::PlanChangeDependentDrop</a>
+  
+    <li><a href="../EnrollmentAction/PlanComparisonHelper.html">EnrollmentAction::PlanComparisonHelper</a>
+  
+    <li><a href="../EnrollmentAction/ReinstatementComparisonHelper.html">EnrollmentAction::ReinstatementComparisonHelper</a>
+  
+    <li><a href="../EnrollmentAction/RenewalComparisonHelper.html">EnrollmentAction::RenewalComparisonHelper</a>
+  
+    <li><a href="../EnrollmentAction/RenewalDependentAdd.html">EnrollmentAction::RenewalDependentAdd</a>
+  
+    <li><a href="../EnrollmentAction/RenewalDependentDrop.html">EnrollmentAction::RenewalDependentDrop</a>
+  
+    <li><a href="../EnrollmentAction/ReselectionOfExistingCoverage.html">EnrollmentAction::ReselectionOfExistingCoverage</a>
+  
+    <li><a href="../EnrollmentAction/Termination.html">EnrollmentAction::Termination</a>
+  
+    <li><a href="../EnrollmentAction/TerminationDateHelper.html">EnrollmentAction::TerminationDateHelper</a>
+  
+    <li><a href="../HandlePolicyNotification.html">HandlePolicyNotification</a>
+  
+    <li><a href="../HandlePolicyNotification/BrokerDetails.html">HandlePolicyNotification::BrokerDetails</a>
+  
+    <li><a href="../HandlePolicyNotification/CreatePolicyOrUpdateContinuation.html">HandlePolicyNotification::CreatePolicyOrUpdateContinuation</a>
+  
+    <li><a href="../HandlePolicyNotification/DeterminePolicyActions.html">HandlePolicyNotification::DeterminePolicyActions</a>
+  
+    <li><a href="../HandlePolicyNotification/EmitOtherPolicyOperations.html">HandlePolicyNotification::EmitOtherPolicyOperations</a>
+  
+    <li><a href="../HandlePolicyNotification/EmitPrimaryEventOperation.html">HandlePolicyNotification::EmitPrimaryEventOperation</a>
+  
+    <li><a href="../HandlePolicyNotification/EmployerDetails.html">HandlePolicyNotification::EmployerDetails</a>
+  
+    <li><a href="../HandlePolicyNotification/ExtractBrokerDetails.html">HandlePolicyNotification::ExtractBrokerDetails</a>
+  
+    <li><a href="../HandlePolicyNotification/ExtractEmployerDetails.html">HandlePolicyNotification::ExtractEmployerDetails</a>
+  
+    <li><a href="../HandlePolicyNotification/ExtractMemberDetails.html">HandlePolicyNotification::ExtractMemberDetails</a>
+  
+    <li><a href="../HandlePolicyNotification/ExtractPlanDetails.html">HandlePolicyNotification::ExtractPlanDetails</a>
+  
+    <li><a href="../HandlePolicyNotification/ExtractPolicyDetails.html">HandlePolicyNotification::ExtractPolicyDetails</a>
+  
+    <li><a href="../HandlePolicyNotification/FindContinuationPolicy.html">HandlePolicyNotification::FindContinuationPolicy</a>
+  
+    <li><a href="../HandlePolicyNotification/FindInteractingPolicies.html">HandlePolicyNotification::FindInteractingPolicies</a>
+  
+    <li><a href="../HandlePolicyNotification/FindRenewalCandidates.html">HandlePolicyNotification::FindRenewalCandidates</a>
+  
+    <li><a href="../HandlePolicyNotification/MemberChange.html">HandlePolicyNotification::MemberChange</a>
+  
+    <li><a href="../HandlePolicyNotification/MemberDetails.html">HandlePolicyNotification::MemberDetails</a>
+  
+    <li><a href="../HandlePolicyNotification/PlanDetails.html">HandlePolicyNotification::PlanDetails</a>
+  
+    <li><a href="../HandlePolicyNotification/PolicyAction.html">HandlePolicyNotification::PolicyAction</a>
+  
+    <li><a href="../HandlePolicyNotification/PolicyDetails.html">HandlePolicyNotification::PolicyDetails</a>
+  
+    <li><a href="../HandlePolicyNotification/ProcessNotification.html">HandlePolicyNotification::ProcessNotification</a>
+  
+    <li><a href="../HandlePolicyNotification/ProcessingErrors.html">HandlePolicyNotification::ProcessingErrors</a>
+  
+    <li><a href="../HandlePolicyNotification/UpdatePolicies.html">HandlePolicyNotification::UpdatePolicies</a>
+  
+    <li><a href="../HandlePolicyNotification/VerifyRequiredDetailsPresent.html">HandlePolicyNotification::VerifyRequiredDetailsPresent</a>
+  
+    <li><a href="../HbxOperations.html">HbxOperations</a>
+  
+    <li><a href="../HbxOperations/AddEmployer.html">HbxOperations::AddEmployer</a>
+  
+    <li><a href="../HbxOperations/AddEnrollmentGroup.html">HbxOperations::AddEnrollmentGroup</a>
+  
+    <li><a href="../HbxOperations/AddMember.html">HbxOperations::AddMember</a>
+  
+    <li><a href="../HbxOperations/BusinessProcess.html">HbxOperations::BusinessProcess</a>
+  
+    <li><a href="../HbxOperations/CancelEnrollment.html">HbxOperations::CancelEnrollment</a>
+  
+    <li><a href="../HbxOperations/InitialEnrollment.html">HbxOperations::InitialEnrollment</a>
+  
+    <li><a href="../HbxOperations/ReenrollGroup.html">HbxOperations::ReenrollGroup</a>
+  
+    <li><a href="../HbxOperations/ReinstateGroup.html">HbxOperations::ReinstateGroup</a>
+  
+    <li><a href="../HbxOperations/Tasks.html">HbxOperations::Tasks</a>
+  
+    <li><a href="../HbxOperations/Tasks/ProcessTask.html">HbxOperations::Tasks::ProcessTask</a>
+  
+    <li><a href="../HbxOperations/Tasks/Receive834.html">HbxOperations::Tasks::Receive834</a>
+  
+    <li><a href="../HbxOperations/Tasks/Receive999.html">HbxOperations::Tasks::Receive999</a>
+  
+    <li><a href="../HbxOperations/Tasks/ReceiveTa1.html">HbxOperations::Tasks::ReceiveTa1</a>
+  
+    <li><a href="../HbxOperations/Tasks/Send834.html">HbxOperations::Tasks::Send834</a>
+  
+    <li><a href="../HbxOperations/Tasks/SendSentinelFile.html">HbxOperations::Tasks::SendSentinelFile</a>
+  
+    <li><a href="../HbxOperations/TerminateEmployer.html">HbxOperations::TerminateEmployer</a>
+  
+    <li><a href="../HbxOperations/TerminateEnrollment.html">HbxOperations::TerminateEnrollment</a>
+  
+    <li><a href="../HbxOperations/UpdateMember.html">HbxOperations::UpdateMember</a>
+  
+    <li><a href="../HbxOperations/UpdateMemberAddress.html">HbxOperations::UpdateMemberAddress</a>
+  
+    <li><a href="../HbxOperations/UpdateMemberCoverage.html">HbxOperations::UpdateMemberCoverage</a>
+  
+    <li><a href="../HbxOperations/UpdateMemberIdentifier.html">HbxOperations::UpdateMemberIdentifier</a>
+  
+    <li><a href="../Protocols.html">Protocols</a>
+  
+    <li><a href="../Protocols/Amqp.html">Protocols::Amqp</a>
+  
+    <li><a href="../Protocols/Amqp/Client.html">Protocols::Amqp::Client</a>
+  
+    <li><a href="../Protocols/Amqp/Configuration.html">Protocols::Amqp::Configuration</a>
+  
+    <li><a href="../Protocols/Amqp/EventClient.html">Protocols::Amqp::EventClient</a>
+  
+    <li><a href="../Protocols/Amqp/PersonUpdateHandler.html">Protocols::Amqp::PersonUpdateHandler</a>
+  
+    <li><a href="../Protocols/Amqp/RpcClient.html">Protocols::Amqp::RpcClient</a>
+  
+    <li><a href="../Protocols/Amqp/Settings.html">Protocols::Amqp::Settings</a>
+  
+    <li><a href="../Protocols/Csv.html">Protocols::Csv</a>
+  
+    <li><a href="../Protocols/Csv/CsvTransaction.html">Protocols::Csv::CsvTransaction</a>
+  
+    <li><a href="../Protocols/Csv/CsvTransmission.html">Protocols::Csv::CsvTransmission</a>
+  
+    <li><a href="../Protocols/Notifier.html">Protocols::Notifier</a>
+  
+    <li><a href="../Protocols/Registry.html">Protocols::Registry</a>
+  
+    <li><a href="../Protocols/X12.html">Protocols::X12</a>
+  
+    <li><a href="../Protocols/X12/PersonUpdateHandler.html">Protocols::X12::PersonUpdateHandler</a>
+  
+    <li><a href="../Protocols/X12/TransactionSetEnrollment.html">Protocols::X12::TransactionSetEnrollment</a>
+  
+    <li><a href="../Protocols/X12/TransactionSetHeader.html">Protocols::X12::TransactionSetHeader</a>
+  
+    <li><a href="../Protocols/X12/TransactionSetPremiumPayment.html">Protocols::X12::TransactionSetPremiumPayment</a>
+  
+    <li><a href="../Protocols/X12/Transmission.html">Protocols::X12::Transmission</a>
+  
+    <li><a href="../Generators.html">Generators</a>
+  
+    <li><a href="../Generators/Reports.html">Generators::Reports</a>
+  
+    <li><a href="../Generators/Reports/IrsGroupBuilder.html">Generators::Reports::IrsGroupBuilder</a>
+  
+    <li><a href="../Generators/Reports/IrsHousehold.html">Generators::Reports::IrsHousehold</a>
+  
+    <li><a href="../Generators/Reports/IrsInputBuilder.html">Generators::Reports::IrsInputBuilder</a>
+  
+    <li><a href="../Generators/Reports/IrsMonthlyManifest.html">Generators::Reports::IrsMonthlyManifest</a>
+  
+    <li><a href="../Generators/Reports/IrsMonthlySerializer.html">Generators::Reports::IrsMonthlySerializer</a>
+  
+    <li><a href="../Generators/Reports/IrsMonthlyXml.html">Generators::Reports::IrsMonthlyXml</a>
+  
+    <li><a href="../Generators/Reports/IrsTaxHousehold.html">Generators::Reports::IrsTaxHousehold</a>
+  
+    <li><a href="../Generators/Reports/IrsXmlMerger.html">Generators::Reports::IrsXmlMerger</a>
+  
+    <li><a href="../Generators/Reports/IrsYearlyManifest.html">Generators::Reports::IrsYearlyManifest</a>
+  
+    <li><a href="../Generators/Reports/IrsYearlyPdfReport.html">Generators::Reports::IrsYearlyPdfReport</a>
+  
+    <li><a href="../Generators/Reports/IrsYearlySerializer.html">Generators::Reports::IrsYearlySerializer</a>
+  
+    <li><a href="../Generators/Reports/IrsYearlyXml.html">Generators::Reports::IrsYearlyXml</a>
+  
+    <li><a href="../Generators/Reports/MultiVersionAptcLookup.html">Generators::Reports::MultiVersionAptcLookup</a>
+  
+    <li><a href="../Generators/Reports/PdfReport.html">Generators::Reports::PdfReport</a>
+  
+    <li><a href="../Generators/Reports/RenewalNoticeInputBuilder.html">Generators::Reports::RenewalNoticeInputBuilder</a>
+  
+    <li><a href="../Generators/Reports/RenewalPdfReport.html">Generators::Reports::RenewalPdfReport</a>
+  
+    <li><a href="../Handlers.html">Handlers</a>
+  
+    <li><a href="../Handlers/Base.html">Handlers::Base</a>
+  
+    <li><a href="../Handlers/EnrichHandler.html">Handlers::EnrichHandler</a>
+  
+    <li><a href="../Handlers/EnrollmentEventEnrichHandler.html">Handlers::EnrollmentEventEnrichHandler</a>
+  
+    <li><a href="../Handlers/EnrollmentEventPersistHandler.html">Handlers::EnrollmentEventPersistHandler</a>
+  
+    <li><a href="../Handlers/EnrollmentEventPublishHandler.html">Handlers::EnrollmentEventPublishHandler</a>
+  
+    <li><a href="../Handlers/EnrollmentEventReduceHandler.html">Handlers::EnrollmentEventReduceHandler</a>
+  
+    <li><a href="../Handlers/EnrollmentEventXmlHelper.html">Handlers::EnrollmentEventXmlHelper</a>
+  
+    <li><a href="../Handlers/IvlEnrichmentValidator.html">Handlers::IvlEnrichmentValidator</a>
+  
+    <li><a href="../Handlers/MemberPersistHandler.html">Handlers::MemberPersistHandler</a>
+  
+    <li><a href="../Handlers/PersistHandler.html">Handlers::PersistHandler</a>
+  
+    <li><a href="../Handlers/PolicyPersistHandler.html">Handlers::PolicyPersistHandler</a>
+  
+    <li><a href="../Handlers/PolicyUpdateHandler.html">Handlers::PolicyUpdateHandler</a>
+  
+    <li><a href="../Handlers/PublishHandler.html">Handlers::PublishHandler</a>
+  
+    <li><a href="../Handlers/ReduceHandler.html">Handlers::ReduceHandler</a>
+  
+    <li><a href="../Handlers/ShopEnrichmentValidator.html">Handlers::ShopEnrichmentValidator</a>
+  
+    <li><a href="../Handlers/TransmitEdiForEvent.html">Handlers::TransmitEdiForEvent</a>
+  
+    <li><a href="../Handlers/TransmitNfpXmlHandler.html">Handlers::TransmitNfpXmlHandler</a>
+  
+    <li><a href="../Listeners.html">Listeners</a>
+  
+    <li><a href="../Listeners/BrokerUpdatedListener.html">Listeners::BrokerUpdatedListener</a>
+  
+    <li><a href="../Listeners/CarefirstPolicyUpdate.html">Listeners::CarefirstPolicyUpdate</a>
+  
+    <li><a href="../Listeners/EdiQueueListener.html">Listeners::EdiQueueListener</a>
+  
+    <li><a href="../Listeners/EmployerDigestDropListener.html">Listeners::EmployerDigestDropListener</a>
+  
+    <li><a href="../Listeners/EmployerEventReducerListener.html">Listeners::EmployerEventReducerListener</a>
+  
+    <li><a href="../Listeners/EmployerUpdatedListener.html">Listeners::EmployerUpdatedListener</a>
+  
+    <li><a href="../Listeners/EnrollQueryResultHandler.html">Listeners::EnrollQueryResultHandler</a>
+  
+    <li><a href="../Listeners/EnrollmentCreator.html">Listeners::EnrollmentCreator</a>
+  
+    <li><a href="../Listeners/EnrollmentEventBatchHandler.html">Listeners::EnrollmentEventBatchHandler</a>
+  
+    <li><a href="../Listeners/EnrollmentEventHandler.html">Listeners::EnrollmentEventHandler</a>
+  
+    <li><a href="../Listeners/EnrollmentEventListener.html">Listeners::EnrollmentEventListener</a>
+  
+    <li><a href="../Listeners/EnrollmentValidator.html">Listeners::EnrollmentValidator</a>
+  
+    <li><a href="../Listeners/HbxEnrollmentListener.html">Listeners::HbxEnrollmentListener</a>
+  
+    <li><a href="../Listeners/IndividualEventListener.html">Listeners::IndividualEventListener</a>
+  
+    <li><a href="../Listeners/NewEnrollmentListener.html">Listeners::NewEnrollmentListener</a>
+  
+    <li><a href="../Listeners/PersonMatcher.html">Listeners::PersonMatcher</a>
+  
+    <li><a href="../Listeners/PolicyIdListListener.html">Listeners::PolicyIdListListener</a>
+  
+    <li><a href="../ExternalEvents.html">ExternalEvents</a>
+  
+    <li><a href="../ExternalEvents/EnrollmentEventNotification.html">ExternalEvents::EnrollmentEventNotification</a>
+  
+    <li><a href="../ExternalEvents/EnrollmentEventNotificationFilters.html">ExternalEvents::EnrollmentEventNotificationFilters</a>
+  
+    <li><a href="../ExternalEvents/EnrollmentEventNotificationFilters/AlreadyProcessedEvent.html">ExternalEvents::EnrollmentEventNotificationFilters::AlreadyProcessedEvent</a>
+  
+    <li><a href="../ExternalEvents/EnrollmentEventNotificationFilters/AlreadyProcessedTermination.html">ExternalEvents::EnrollmentEventNotificationFilters::AlreadyProcessedTermination</a>
+  
+    <li><a href="../ExternalEvents/EnrollmentEventNotificationFilters/BogusPlanYear.html">ExternalEvents::EnrollmentEventNotificationFilters::BogusPlanYear</a>
+  
+    <li><a href="../ExternalEvents/EnrollmentEventNotificationFilters/BogusRenewalTermination.html">ExternalEvents::EnrollmentEventNotificationFilters::BogusRenewalTermination</a>
+  
+    <li><a href="../ExternalEvents/EnrollmentEventNotificationFilters/BogusTermination.html">ExternalEvents::EnrollmentEventNotificationFilters::BogusTermination</a>
+  
+    <li><a href="../ExternalEvents/EnrollmentEventNotificationFilters/RemoveSameActionsAndSelectSilent.html">ExternalEvents::EnrollmentEventNotificationFilters::RemoveSameActionsAndSelectSilent</a>
+  
+    <li><a href="../ExternalEvents/EnrollmentEventNotificationFilters/TerminationWithoutEnd.html">ExternalEvents::EnrollmentEventNotificationFilters::TerminationWithoutEnd</a>
+  
+    <li><a href="../ExternalEvents/EventResponder.html">ExternalEvents::EventResponder</a>
+  
+    <li><a href="../ExternalEvents/ExternalMember.html">ExternalEvents::ExternalMember</a>
+  
+    <li><a href="../ExternalEvents/ExternalPolicy.html">ExternalEvents::ExternalPolicy</a>
+  
+    <li><a href="../ExternalEvents/ExternalPolicyAssistanceChange.html">ExternalEvents::ExternalPolicyAssistanceChange</a>
+  
+    <li><a href="../ExternalEvents/ExternalPolicyCobraSwitch.html">ExternalEvents::ExternalPolicyCobraSwitch</a>
+  
+    <li><a href="../ExternalEvents/ExternalPolicyMemberAdd.html">ExternalEvents::ExternalPolicyMemberAdd</a>
+  
+    <li><a href="../ExternalEvents/ExternalPolicyMemberDrop.html">ExternalEvents::ExternalPolicyMemberDrop</a>
+  
+    <li><a href="../CanonicalVocabulary.html">CanonicalVocabulary</a>
+  
+    <li><a href="../CanonicalVocabulary/EnrollmentSerializer.html">CanonicalVocabulary::EnrollmentSerializer</a>
+  
+    <li><a href="../CanonicalVocabulary/IdInfoSerializer.html">CanonicalVocabulary::IdInfoSerializer</a>
+  
+    <li><a href="../CanonicalVocabulary/IrsHouseholdSerializer.html">CanonicalVocabulary::IrsHouseholdSerializer</a>
+  
+    <li><a href="../CanonicalVocabulary/MaintenanceSerializer.html">CanonicalVocabulary::MaintenanceSerializer</a>
+  
+    <li><a href="../CanonicalVocabulary/RenewalSerializer.html">CanonicalVocabulary::RenewalSerializer</a>
+  
+    <li><a href="../CanonicalVocabulary/Renewals.html">CanonicalVocabulary::Renewals</a>
+  
+    <li><a href="../CanonicalVocabulary/Renewals/Assisted.html">CanonicalVocabulary::Renewals::Assisted</a>
+  
+    <li><a href="../CanonicalVocabulary/Renewals/AssistedNov.html">CanonicalVocabulary::Renewals::AssistedNov</a>
+  
+    <li><a href="../CanonicalVocabulary/Renewals/PolicyBuilder.html">CanonicalVocabulary::Renewals::PolicyBuilder</a>
+  
+    <li><a href="../CanonicalVocabulary/Renewals/PolicyProjection.html">CanonicalVocabulary::Renewals::PolicyProjection</a>
+  
+    <li><a href="../CanonicalVocabulary/Renewals/RenewalBuilder.html">CanonicalVocabulary::Renewals::RenewalBuilder</a>
+  
+    <li><a href="../CanonicalVocabulary/Renewals/RenewalReport.html">CanonicalVocabulary::Renewals::RenewalReport</a>
+  
+    <li><a href="../CanonicalVocabulary/Renewals/RenewalReportRowBuilder.html">CanonicalVocabulary::Renewals::RenewalReportRowBuilder</a>
+  
+    <li><a href="../CanonicalVocabulary/Renewals/Unassisted.html">CanonicalVocabulary::Renewals::Unassisted</a>
+  
+    <li><a href="../PdfTemplates.html">PdfTemplates</a>
+  
+    <li><a href="../PdfTemplates/CoverageHousehold.html">PdfTemplates::CoverageHousehold</a>
+  
+    <li><a href="../PdfTemplates/EmployerMec.html">PdfTemplates::EmployerMec</a>
+  
+    <li><a href="../PdfTemplates/Enrollee.html">PdfTemplates::Enrollee</a>
+  
+    <li><a href="../PdfTemplates/Household.html">PdfTemplates::Household</a>
+  
+    <li><a href="../PdfTemplates/IrsGroup.html">PdfTemplates::IrsGroup</a>
+  
+    <li><a href="../PdfTemplates/IrsNoticeInput.html">PdfTemplates::IrsNoticeInput</a>
+  
+    <li><a href="../PdfTemplates/IrsPolicy.html">PdfTemplates::IrsPolicy</a>
+  
+    <li><a href="../PdfTemplates/MonthlyPremium.html">PdfTemplates::MonthlyPremium</a>
+  
+    <li><a href="../PdfTemplates/NoticeAddress.html">PdfTemplates::NoticeAddress</a>
+  
+    <li><a href="../PdfTemplates/RenewalNoticeInput.html">PdfTemplates::RenewalNoticeInput</a>
+  
+    <li><a href="../PdfTemplates/TaxHousehold.html">PdfTemplates::TaxHousehold</a>
+  
+    <li><a href="../PdfTemplates/TaxHouseholdCoverage.html">PdfTemplates::TaxHouseholdCoverage</a>
+  
+    <li><a href="../PdfTemplates/YearlyPremium.html">PdfTemplates::YearlyPremium</a>
+  
+    <li><a href="../Caches.html">Caches</a>
+  
+    <li><a href="../Caches/CarrierCache.html">Caches::CarrierCache</a>
+  
+    <li><a href="../Caches/CarrierSingletonCache.html">Caches::CarrierSingletonCache</a>
+  
+    <li><a href="../Caches/CustomCache.html">Caches::CustomCache</a>
+  
+    <li><a href="../Caches/HiosCache.html">Caches::HiosCache</a>
+  
+    <li><a href="../Caches/KeyCache.html">Caches::KeyCache</a>
+  
+    <li><a href="../Caches/MemberCache.html">Caches::MemberCache</a>
+  
+    <li><a href="../Caches/MemberIdPerson.html">Caches::MemberIdPerson</a>
+  
+    <li><a href="../Caches/Mongoid.html">Caches::Mongoid</a>
+  
+    <li><a href="../Caches/Mongoid/SinglePropertyLookup.html">Caches::Mongoid::SinglePropertyLookup</a>
+  
+    <li><a href="../Caches/MongoidCache.html">Caches::MongoidCache</a>
+  
+    <li><a href="../Caches/PlanCache.html">Caches::PlanCache</a>
+  
+    <li><a href="../ChangeSets.html">ChangeSets</a>
+  
+    <li><a href="../ChangeSets/IdentityChangeTransmitter.html">ChangeSets::IdentityChangeTransmitter</a>
+  
+    <li><a href="../ChangeSets/IndividualChangeSet.html">ChangeSets::IndividualChangeSet</a>
+  
+    <li><a href="../ChangeSets/MemberRelationshipChangeSet.html">ChangeSets::MemberRelationshipChangeSet</a>
+  
+    <li><a href="../ChangeSets/PersonAddressChangeSet.html">ChangeSets::PersonAddressChangeSet</a>
+  
+    <li><a href="../ChangeSets/PersonDobChangeSet.html">ChangeSets::PersonDobChangeSet</a>
+  
+    <li><a href="../ChangeSets/PersonEmailChangeSet.html">ChangeSets::PersonEmailChangeSet</a>
+  
+    <li><a href="../ChangeSets/PersonGenderChangeSet.html">ChangeSets::PersonGenderChangeSet</a>
+  
+    <li><a href="../ChangeSets/PersonNameChangeSet.html">ChangeSets::PersonNameChangeSet</a>
+  
+    <li><a href="../ChangeSets/PersonPhoneChangeSet.html">ChangeSets::PersonPhoneChangeSet</a>
+  
+    <li><a href="../ChangeSets/PersonSsnChangeSet.html">ChangeSets::PersonSsnChangeSet</a>
+  
+    <li><a href="../ChangeSets/SimpleMaintenanceTransmitter.html">ChangeSets::SimpleMaintenanceTransmitter</a>
+  
+    <li><a href="../BusinessProcesses.html">BusinessProcesses</a>
+  
+    <li><a href="../BusinessProcesses/AffectedMember.html">BusinessProcesses::AffectedMember</a>
+  
+    <li><a href="../BusinessProcesses/EnrollmentCancellation.html">BusinessProcesses::EnrollmentCancellation</a>
+  
+    <li><a href="../BusinessProcesses/EnrollmentEventContext.html">BusinessProcesses::EnrollmentEventContext</a>
+  
+    <li><a href="../BusinessProcesses/EnrollmentEventErrors.html">BusinessProcesses::EnrollmentEventErrors</a>
+  
+    <li><a href="../BusinessProcesses/EnrollmentEventMessage.html">BusinessProcesses::EnrollmentEventMessage</a>
+  
+    <li><a href="../BusinessProcesses/EnrollmentEventMessageBatch.html">BusinessProcesses::EnrollmentEventMessageBatch</a>
+  
+    <li><a href="../BusinessProcesses/EnrollmentEventReducer.html">BusinessProcesses::EnrollmentEventReducer</a>
+  
+    <li><a href="../BusinessProcesses/EnrollmentTermination.html">BusinessProcesses::EnrollmentTermination</a>
+  
+    <li><a href="../BusinessProcesses/IvlPolicyDisposition.html">BusinessProcesses::IvlPolicyDisposition</a>
+  
+    <li><a href="../BusinessProcesses/TransformationError.html">BusinessProcesses::TransformationError</a>
+  
+    <li><a href="../Queries.html">Queries</a>
+  
+    <li><a href="../Queries/ExistingPersonQuery.html">Queries::ExistingPersonQuery</a>
+  
+    <li><a href="../Queries/ExistingResponsibleParty.html">Queries::ExistingResponsibleParty</a>
+  
+    <li><a href="../Queries/MemberByHbxIdQuery.html">Queries::MemberByHbxIdQuery</a>
+  
+    <li><a href="../Queries/PersonAssociations.html">Queries::PersonAssociations</a>
+  
+    <li><a href="../Queries/PersonByHbxIdQuery.html">Queries::PersonByHbxIdQuery</a>
+  
+    <li><a href="../Queries/PersonMatch.html">Queries::PersonMatch</a>
+  
+    <li><a href="../Queries/PersonMemberQuery.html">Queries::PersonMemberQuery</a>
+  
+    <li><a href="../Queries/PersonWithNoFamilies.html">Queries::PersonWithNoFamilies</a>
+  
+    <li><a href="../Queries/PoliciesWithNoFamilies.html">Queries::PoliciesWithNoFamilies</a>
+  
+    <li><a href="../Queries/PolicyAssociations.html">Queries::PolicyAssociations</a>
+  
+    <li><a href="../PersonMatchStrategies.html">PersonMatchStrategies</a>
+  
+    <li><a href="../PersonMatchStrategies/AmbiguousMatchError.html">PersonMatchStrategies::AmbiguousMatchError</a>
+  
+    <li><a href="../PersonMatchStrategies/Finder.html">PersonMatchStrategies::Finder</a>
+  
+    <li><a href="../PersonMatchStrategies/FirstLastDob.html">PersonMatchStrategies::FirstLastDob</a>
+  
+    <li><a href="../PersonMatchStrategies/FirstLastEmail.html">PersonMatchStrategies::FirstLastEmail</a>
+  
+    <li><a href="../PersonMatchStrategies/MemberId.html">PersonMatchStrategies::MemberId</a>
+  
+    <li><a href="../PersonMatchStrategies/MemberSsn.html">PersonMatchStrategies::MemberSsn</a>
+  
+    <li><a href="../PersonMatchStrategies/RelaxedFinder.html">PersonMatchStrategies::RelaxedFinder</a>
+  
+    <li><a href="../PersonMatchStrategies/SsnDobName.html">PersonMatchStrategies::SsnDobName</a>
+  
+    <li><a href="../RemoteResources.html">RemoteResources</a>
+  
+    <li><a href="../RemoteResources/Address.html">RemoteResources::Address</a>
+  
+    <li><a href="../RemoteResources/Email.html">RemoteResources::Email</a>
+  
+    <li><a href="../RemoteResources/EnrollmentEventResource.html">RemoteResources::EnrollmentEventResource</a>
+  
+    <li><a href="../RemoteResources/IndividualResource.html">RemoteResources::IndividualResource</a>
+  
+    <li><a href="../RemoteResources/Person.html">RemoteResources::Person</a>
+  
+    <li><a href="../RemoteResources/PersonDemographics.html">RemoteResources::PersonDemographics</a>
+  
+    <li><a href="../RemoteResources/PersonRelationship.html">RemoteResources::PersonRelationship</a>
+  
+    <li><a href="../RemoteResources/Phone.html">RemoteResources::Phone</a>
+  
+    <li><a href="../Amqp.html">Amqp</a>
+  
+    <li><a href="../Amqp/Client.html">Amqp::Client</a>
+  
+    <li><a href="../Amqp/ConfirmedPublisher.html">Amqp::ConfirmedPublisher</a>
+  
+    <li><a href="../Amqp/EventBroadcaster.html">Amqp::EventBroadcaster</a>
+  
+    <li><a href="../Amqp/Requestor.html">Amqp::Requestor</a>
+  
+    <li><a href="../Amqp/RetryClient.html">Amqp::RetryClient</a>
+  
+    <li><a href="../Amqp/UpdatePersonListener.html">Amqp::UpdatePersonListener</a>
+  
+    <li><a href="../Amqp/UriDereferenceRequestor.html">Amqp::UriDereferenceRequestor</a>
+  
+    <li><a href="../Validators.html">Validators</a>
+  
+    <li><a href="../Validators/AptcValidator.html">Validators::AptcValidator</a>
+  
+    <li><a href="../Validators/CancelTermPremiumTotalValidator.html">Validators::CancelTermPremiumTotalValidator</a>
+  
+    <li><a href="../Validators/FreeEnrolleeExtractor.html">Validators::FreeEnrolleeExtractor</a>
+  
+    <li><a href="../Validators/PremiumResponsibleValidator.html">Validators::PremiumResponsibleValidator</a>
+  
+    <li><a href="../Validators/PremiumTotalValidator.html">Validators::PremiumTotalValidator</a>
+  
+    <li><a href="../Validators/PremiumTotalValidatorFactory.html">Validators::PremiumTotalValidatorFactory</a>
+  
+    <li><a href="../Validators/PremiumValidator.html">Validators::PremiumValidator</a>
+  
+    <li><a href="../Collections.html">Collections</a>
+  
+    <li><a href="../Collections/Collection.html">Collections::Collection</a>
+  
+    <li><a href="../Collections/Collection/CollectionDelegator.html">Collections::Collection::CollectionDelegator</a>
+  
+    <li><a href="../Collections/Enrollees.html">Collections::Enrollees</a>
+  
+    <li><a href="../Collections/Policies.html">Collections::Policies</a>
+  
+    <li><a href="../Collections/Premiums.html">Collections::Premiums</a>
+  
+    <li><a href="../EmployerEvents.html">EmployerEvents</a>
+  
+    <li><a href="../EmployerEvents/CarrierFile.html">EmployerEvents::CarrierFile</a>
+  
+    <li><a href="../EmployerEvents/EmployerImporter.html">EmployerEvents::EmployerImporter</a>
+  
+    <li><a href="../EmployerEvents/EnrollmentEventTrigger.html">EmployerEvents::EnrollmentEventTrigger</a>
+  
+    <li><a href="../EmployerEvents/EventNames.html">EmployerEvents::EventNames</a>
+  
+    <li><a href="../EmployerEvents/Renderer.html">EmployerEvents::Renderer</a>
+  
+    <li><a href="../Soap.html">Soap</a>
+  
+    <li><a href="../Soap/EmployersController.html">Soap::EmployersController</a>
+  
+    <li><a href="../Soap/FamiliesController.html">Soap::FamiliesController</a>
+  
+    <li><a href="../Soap/IndividualsController.html">Soap::IndividualsController</a>
+  
+    <li><a href="../Soap/PoliciesController.html">Soap::PoliciesController</a>
+  
+    <li><a href="../Soap/SoapController.html">Soap::SoapController</a>
+  
+    <li><a href="../EmployerContributions.html">EmployerContributions</a>
+  
+    <li><a href="../EmployerContributions/DistrictOfColumbiaEmployer.html">EmployerContributions::DistrictOfColumbiaEmployer</a>
+  
+    <li><a href="../EmployerContributions/FederalContributionGroup.html">EmployerContributions::FederalContributionGroup</a>
+  
+    <li><a href="../EmployerContributions/FederalEmployer.html">EmployerContributions::FederalEmployer</a>
+  
+    <li><a href="../EmployerContributions/Strategy.html">EmployerContributions::Strategy</a>
+  
+    <li><a href="../Premiums.html">Premiums</a>
+  
+    <li><a href="../Premiums/PolicyCalculator.html">Premiums::PolicyCalculator</a>
+  
+    <li><a href="../Premiums/PolicyRequestValidator.html">Premiums::PolicyRequestValidator</a>
+  
+    <li><a href="../Premiums/PolicyRequestValidator/ProxyEnrollee.html">Premiums::PolicyRequestValidator::ProxyEnrollee</a>
+  
+    <li><a href="../Premiums/PolicyRequestValidator/ProxyPolicy.html">Premiums::PolicyRequestValidator::ProxyPolicy</a>
+  
+    <li><a href="../Resources.html">Resources</a>
+  
+    <li><a href="../Resources/V1.html">Resources::V1</a>
+  
+    <li><a href="../Resources/V1/FamiliesController.html">Resources::V1::FamiliesController</a>
+  
+    <li><a href="../Resources/V1/IndividualsController.html">Resources::V1::IndividualsController</a>
+  
+    <li><a href="../Resources/V1/PoliciesController.html">Resources::V1::PoliciesController</a>
+  
+    <li><a href="../Services.html">Services</a>
+  
+    <li><a href="../Services/CvPublisher.html">Services::CvPublisher</a>
+  
+    <li><a href="../Services/EnrollmentEventTransmitter.html">Services::EnrollmentEventTransmitter</a>
+  
+    <li><a href="../Services/NfpPublisher.html">Services::NfpPublisher</a>
+  
+    <li><a href="../Services/PolicyPublisher.html">Services::PolicyPublisher</a>
+  
+    <li><a href="../Stats.html">Stats</a>
+  
+    <li><a href="../Stats/DateDimension.html">Stats::DateDimension</a>
+  
+    <li><a href="../Stats/EnrollmentMetric.html">Stats::EnrollmentMetric</a>
+  
+    <li><a href="../Stats/MetaTime.html">Stats::MetaTime</a>
+  
+    <li><a href="../Stats/ReportDateRange.html">Stats::ReportDateRange</a>
+  
+    <li><a href="../ImportFamilies.html">ImportFamilies</a>
+  
+    <li><a href="../ImportFamilies/MemberIdGen.html">ImportFamilies::MemberIdGen</a>
+  
+    <li><a href="../ImportFamilies/PersonImportListener.html">ImportFamilies::PersonImportListener</a>
+  
+    <li><a href="../ImportFamilies/PersonMapper.html">ImportFamilies::PersonMapper</a>
+  
+    <li><a href="../PolicyInteractions.html">PolicyInteractions</a>
+  
+    <li><a href="../PolicyInteractions/InitialEnrollment.html">PolicyInteractions::InitialEnrollment</a>
+  
+    <li><a href="../PolicyInteractions/PlanChange.html">PolicyInteractions::PlanChange</a>
+  
+    <li><a href="../PolicyInteractions/Renewal.html">PolicyInteractions::Renewal</a>
+  
+    <li><a href="../PolicyStatus.html">PolicyStatus</a>
+  
+    <li><a href="../PolicyStatus/Active.html">PolicyStatus::Active</a>
+  
+    <li><a href="../PolicyStatus/ActiveRange.html">PolicyStatus::ActiveRange</a>
+  
+    <li><a href="../PolicyStatus/Terminated.html">PolicyStatus::Terminated</a>
+  
+    <li><a href="../Publishers.html">Publishers</a>
+  
+    <li><a href="../Publishers/EnrollmentEventNotificationResult.html">Publishers::EnrollmentEventNotificationResult</a>
+  
+    <li><a href="../Publishers/TradingPartnerEdi.html">Publishers::TradingPartnerEdi</a>
+  
+    <li><a href="../Publishers/TradingPartnerLegacyCv.html">Publishers::TradingPartnerLegacyCv</a>
+  
+    <li><a href="../Workflow.html">Workflow</a>
+  
+    <li><a href="../Workflow/CancelPolicy.html">Workflow::CancelPolicy</a>
+  
+    <li><a href="../Workflow/TransmitPolicy.html">Workflow::TransmitPolicy</a>
+  
+    <li><a href="../Workflow/UpdatePolicySelection.html">Workflow::UpdatePolicySelection</a>
+  
+    <li><a href="../BulkCancelTerms.html">BulkCancelTerms</a>
+  
+    <li><a href="../BulkCancelTerms/Csv.html">BulkCancelTerms::Csv</a>
+  
+    <li><a href="../BulkCancelTerms/EndCoverageCsvListener.html">BulkCancelTerms::EndCoverageCsvListener</a>
+  
+    <li><a href="../EffectiveDateChangers.html">EffectiveDateChangers</a>
+  
+    <li><a href="../EffectiveDateChangers/Console.html">EffectiveDateChangers::Console</a>
+  
+    <li><a href="../EffectiveDateChangers/Csv.html">EffectiveDateChangers::Csv</a>
+  
+    <li><a href="../MemberAddressChangers.html">MemberAddressChangers</a>
+  
+    <li><a href="../MemberAddressChangers/Console.html">MemberAddressChangers::Console</a>
+  
+    <li><a href="../MemberAddressChangers/Csv.html">MemberAddressChangers::Csv</a>
+  
+    <li><a href="../SearchAbstractor.html">SearchAbstractor</a>
+  
+    <li><a href="../SearchAbstractor/PeopleSearch.html">SearchAbstractor::PeopleSearch</a>
+  
+    <li><a href="../SearchAbstractor/PoliciesSearch.html">SearchAbstractor::PoliciesSearch</a>
+  
+    <li><a href="../AssistanceStrategies.html">AssistanceStrategies</a>
+  
+    <li><a href="../AssistanceStrategies/SetAgnosticBenchmarkPlan.html">AssistanceStrategies::SetAgnosticBenchmarkPlan</a>
+  
+    <li><a href="../Aws.html">Aws</a>
+  
+    <li><a href="../Aws/S3Storage.html">Aws::S3Storage</a>
+  
+    <li><a href="../ChangeAddress.html">ChangeAddress</a>
+  
+    <li><a href="../ChangeAddress/EligiblePolicies.html">ChangeAddress::EligiblePolicies</a>
+  
+    <li><a href="../Clients.html">Clients</a>
+  
+    <li><a href="../Clients/MemberDocumentClient.html">Clients::MemberDocumentClient</a>
+  
+    <li><a href="../EndCoverage.html">EndCoverage</a>
+  
+    <li><a href="../EndCoverage/PremiumCalcError.html">EndCoverage::PremiumCalcError</a>
+  
+    <li><a href="../ExchangeInformation.html">ExchangeInformation</a>
+  
+    <li><a href="../ExchangeInformation/MissingKeyError.html">ExchangeInformation::MissingKeyError</a>
+  
+    <li><a href="../HbxProcesses.html">HbxProcesses</a>
+  
+    <li><a href="../HbxProcesses/ChangeCarrier.html">HbxProcesses::ChangeCarrier</a>
+  
+    <li><a href="../NewEnrollment.html">NewEnrollment</a>
+  
+    <li><a href="../NewEnrollment/PersonMappingListener.html">NewEnrollment::PersonMappingListener</a>
+  
+    <li><a href="../Policies.html">Policies</a>
+  
+    <li><a href="../Policies/CreatePolicy.html">Policies::CreatePolicy</a>
+  
+    <li><a href="../Schemas.html">Schemas</a>
+  
+    <li><a href="../Schemas/OpenHbx.html">Schemas::OpenHbx</a>
+  
+    <li><a href="../ShortCircuit.html">ShortCircuit</a>
+  
+    <li><a href="../ShortCircuit/NoActionSpecifiedError.html">ShortCircuit::NoActionSpecifiedError</a>
+  
+    <li><a href="../Ability.html">Ability</a>
+  
+    <li><a href="../AddIncome.html">AddIncome</a>
+  
+    <li><a href="../AddIncomeRequest.html">AddIncomeRequest</a>
+  
+    <li><a href="../AddPerson.html">AddPerson</a>
+  
+    <li><a href="../AddStatements.html">AddStatements</a>
+  
+    <li><a href="../Address.html">Address</a>
+  
+    <li><a href="../AddressChangePropagator.html">AddressChangePropagator</a>
+  
+    <li><a href="../Ager.html">Ager</a>
+  
+    <li><a href="../AlternateBenefit.html">AlternateBenefit</a>
+  
+    <li><a href="../AmbiguousPeopleMetric.html">AmbiguousPeopleMetric</a>
+  
+    <li><a href="../AmqpConnectionProvider.html">AmqpConnectionProvider</a>
+  
+    <li><a href="../ApplicationController.html">ApplicationController</a>
+  
+    <li><a href="../ApplicationHelper.html">ApplicationHelper</a>
+  
+    <li><a href="../AptcCredit.html">AptcCredit</a>
+  
+    <li><a href="../AptcMaximum.html">AptcMaximum</a>
+  
+    <li><a href="../ArrayWindow.html">ArrayWindow</a>
+  
+    <li><a href="../AssistanceStrategy.html">AssistanceStrategy</a>
+  
+    <li><a href="../BelongsToFamilyMember.html">BelongsToFamilyMember</a>
+  
+    <li><a href="../BelongsToPrimaryApplicant.html">BelongsToPrimaryApplicant</a>
+  
+    <li><a href="../Broker.html">Broker</a>
+  
+    <li><a href="../BrokerFactory.html">BrokerFactory</a>
+  
+    <li><a href="../BrokersController.html">BrokersController</a>
+  
+    <li><a href="../BulkTerminatesController.html">BulkTerminatesController</a>
+  
+    <li><a href="../CancelTerminate.html">CancelTerminate</a>
+  
+    <li><a href="../CarefirstImportsController.html">CarefirstImportsController</a>
+  
+    <li><a href="../CarefirstPolicyUpdatesController.html">CarefirstPolicyUpdatesController</a>
+  
+    <li><a href="../CarefirstPolicyUpdatesHelper.html">CarefirstPolicyUpdatesHelper</a>
+  
+    <li><a href="../Carrier.html">Carrier</a>
+  
+    <li><a href="../CarrierProfile.html">CarrierProfile</a>
+  
+    <li><a href="../CarriersController.html">CarriersController</a>
+  
+    <li><a href="../ChangeAddressRequest.html">ChangeAddressRequest</a>
+  
+    <li><a href="../ChangeEffectiveDate.html">ChangeEffectiveDate</a>
+  
+    <li><a href="../ChangeEffectiveDateRequest.html">ChangeEffectiveDateRequest</a>
+  
+    <li><a href="../ChangeEnrolleeEndDate.html">ChangeEnrolleeEndDate</a>
+  
+    <li><a href="../ChangeEnrolleeMemberId.html">ChangeEnrolleeMemberId</a>
+  
+    <li><a href="../ChangeEnrolleeRelationship.html">ChangeEnrolleeRelationship</a>
+  
+    <li><a href="../ChangeHbxId.html">ChangeHbxId</a>
+  
+    <li><a href="../ChangeMemberAddress.html">ChangeMemberAddress</a>
+  
+    <li><a href="../ChangePolicyBroker.html">ChangePolicyBroker</a>
+  
+    <li><a href="../ChangePolicyEndDate.html">ChangePolicyEndDate</a>
+  
+    <li><a href="../ChangePolicyStartDate.html">ChangePolicyStartDate</a>
+  
+    <li><a href="../ChangeSsn.html">ChangeSsn</a>
+  
+    <li><a href="../ChangeVocabulariesController.html">ChangeVocabulariesController</a>
+  
+    <li><a href="../ChangeVocabulary.html">ChangeVocabulary</a>
+  
+    <li><a href="../ChannelProvider.html">ChannelProvider</a>
+  
+    <li><a href="../Comment.html">Comment</a>
+  
+    <li><a href="../CommentsController.html">CommentsController</a>
+  
+    <li><a href="../CostSharingVariant.html">CostSharingVariant</a>
+  
+    <li><a href="../CoverageHousehold.html">CoverageHousehold</a>
+  
+    <li><a href="../CoverageHouseholdMember.html">CoverageHouseholdMember</a>
+  
+    <li><a href="../CreateEmployer.html">CreateEmployer</a>
+  
+    <li><a href="../CreateOrRetainPerson.html">CreateOrRetainPerson</a>
+  
+    <li><a href="../CreateOrUpdatePerson.html">CreateOrUpdatePerson</a>
+  
+    <li><a href="../CreatePerson.html">CreatePerson</a>
+  
+    <li><a href="../CreatePolicyRequest.html">CreatePolicyRequest</a>
+  
+    <li><a href="../CreatePolicyRequestFactory.html">CreatePolicyRequestFactory</a>
+  
+    <li><a href="../CsvRequest.html">CsvRequest</a>
+  
+    <li><a href="../CsvTransactionsController.html">CsvTransactionsController</a>
+  
+    <li><a href="../Dashboard.html">Dashboard</a>
+  
+    <li><a href="../DashboardsController.html">DashboardsController</a>
+  
+    <li><a href="../Deduction.html">Deduction</a>
+  
+    <li><a href="../DeleteAddress.html">DeleteAddress</a>
+  
+    <li><a href="../DeletionDeltaExtractor.html">DeletionDeltaExtractor</a>
+  
+    <li><a href="../DescriptionListHelper.html">DescriptionListHelper</a>
+  
+    <li><a href="../DocumentValidator.html">DocumentValidator</a>
+  
+    <li><a href="../DuplicateEmployerCleanup.html">DuplicateEmployerCleanup</a>
+  
+    <li><a href="../EdiBody.html">EdiBody</a>
+  
+    <li><a href="../EdiOpsTransaction.html">EdiOpsTransaction</a>
+  
+    <li><a href="../EdiOpsTransactionsController.html">EdiOpsTransactionsController</a>
+  
+    <li><a href="../EdiTransactionSetPaymentsController.html">EdiTransactionSetPaymentsController</a>
+  
+    <li><a href="../EdiTransactionSetsController.html">EdiTransactionSetsController</a>
+  
+    <li><a href="../EdiTransactionSetsHelper.html">EdiTransactionSetsHelper</a>
+  
+    <li><a href="../EdiTransactionsController.html">EdiTransactionsController</a>
+  
+    <li><a href="../EdiTransmissionsController.html">EdiTransmissionsController</a>
+  
+    <li><a href="../EditFamilyForm.html">EditFamilyForm</a>
+  
+    <li><a href="../EffectiveDateChangesController.html">EffectiveDateChangesController</a>
+  
+    <li><a href="../ElectedPlan.html">ElectedPlan</a>
+  
+    <li><a href="../EligibilityDetermination.html">EligibilityDetermination</a>
+  
+    <li><a href="../Email.html">Email</a>
+  
+    <li><a href="../EmployeesController.html">EmployeesController</a>
+  
+    <li><a href="../Employer.html">Employer</a>
+  
+    <li><a href="../EmployerElectedPlansMerger.html">EmployerElectedPlansMerger</a>
+  
+    <li><a href="../EmployerEvent.html">EmployerEvent</a>
+  
+    <li><a href="../EmployerEventsController.html">EmployerEventsController</a>
+  
+    <li><a href="../EmployerFactory.html">EmployerFactory</a>
+  
+    <li><a href="../EmployerFeinChange.html">EmployerFeinChange</a>
+  
+    <li><a href="../EmployerFeinRemoval.html">EmployerFeinRemoval</a>
+  
+    <li><a href="../EmployerImport.html">EmployerImport</a>
+  
+    <li><a href="../EmployerRequest.html">EmployerRequest</a>
+  
+    <li><a href="../EmployersController.html">EmployersController</a>
+  
+    <li><a href="../EmployersHelper.html">EmployersHelper</a>
+  
+    <li><a href="../EndCoverageAction.html">EndCoverageAction</a>
+  
+    <li><a href="../EndCoverageRequest.html">EndCoverageRequest</a>
+  
+    <li><a href="../Enrollee.html">Enrollee</a>
+  
+    <li><a href="../EnrollmentActionIssuesController.html">EnrollmentActionIssuesController</a>
+  
+    <li><a href="../EnrollmentActionIssuesHelper.html">EnrollmentActionIssuesHelper</a>
+  
+    <li><a href="../EnrollmentAddress.html">EnrollmentAddress</a>
+  
+    <li><a href="../EnrollmentAddressesController.html">EnrollmentAddressesController</a>
+  
+    <li><a href="../EnrollmentAddressesHelper.html">EnrollmentAddressesHelper</a>
+  
+    <li><a href="../EnrollmentCvProxy.html">EnrollmentCvProxy</a>
+  
+    <li><a href="../EnrollmentEventClient.html">EnrollmentEventClient</a>
+  
+    <li><a href="../EnrollmentEventProcessingClient.html">EnrollmentEventProcessingClient</a>
+  
+    <li><a href="../EnrollmentGroupsController.html">EnrollmentGroupsController</a>
+  
+    <li><a href="../EnrollmentPeriod.html">EnrollmentPeriod</a>
+  
+    <li><a href="../EnrollmentTransmissionUpdate.html">EnrollmentTransmissionUpdate</a>
+  
+    <li><a href="../EnrollmentTransmissionUpdatesController.html">EnrollmentTransmissionUpdatesController</a>
+  
+    <li><a href="../EnrollmentValidator.html">EnrollmentValidator</a>
+  
+    <li><a href="../EnrollmentsController.html">EnrollmentsController</a>
+  
+    <li><a href="../EventNotification.html">EventNotification</a>
+  
+    <li><a href="../EventParser.html">EventParser</a>
+  
+    <li><a href="../EventPublisher.html">EventPublisher</a>
+  
+    <li><a href="../EventRoute.html">EventRoute</a>
+  
+    <li><a href="../ExcelReportBuilder.html">ExcelReportBuilder</a>
+  
+    <li><a href="../Exchange.html">Exchange</a>
+  
+    <li><a href="../ExposesBrokerXml.html">ExposesBrokerXml</a>
+  
+    <li><a href="../ExposesContactXml.html">ExposesContactXml</a>
+  
+    <li><a href="../ExposesEmployerXml.html">ExposesEmployerXml</a>
+  
+    <li><a href="../ExposesPlanXml.html">ExposesPlanXml</a>
+  
+    <li><a href="../FamiliesController.html">FamiliesController</a>
+  
+    <li><a href="../Family.html">Family</a>
+  
+    <li><a href="../FamilyBuilder.html">FamilyBuilder</a>
+  
+    <li><a href="../FamilyMember.html">FamilyMember</a>
+  
+    <li><a href="../FamilyWithGivenPolicy.html">FamilyWithGivenPolicy</a>
+  
+    <li><a href="../FileString.html">FileString</a>
+  
+    <li><a href="../FinancialStatement.html">FinancialStatement</a>
+  
+    <li><a href="../FlatuiproDemoController.html">FlatuiproDemoController</a>
+  
+    <li><a href="../FplPercentage.html">FplPercentage</a>
+  
+    <li><a href="../GenerateAudits.html">GenerateAudits</a>
+  
+    <li><a href="../HasFamilyMembers.html">HasFamilyMembers</a>
+  
+    <li><a href="../HbxEnrollment.html">HbxEnrollment</a>
+  
+    <li><a href="../HbxEnrollmentExemption.html">HbxEnrollmentExemption</a>
+  
+    <li><a href="../HbxEnrollmentMember.html">HbxEnrollmentMember</a>
+  
+    <li><a href="../Household.html">Household</a>
+  
+    <li><a href="../HouseholdsController.html">HouseholdsController</a>
+  
+    <li><a href="../HouseholdsHelper.html">HouseholdsHelper</a>
+  
+    <li><a href="../ImportBrokers.html">ImportBrokers</a>
+  
+    <li><a href="../ImportEmployerDemographics.html">ImportEmployerDemographics</a>
+  
+    <li><a href="../Income.html">Income</a>
+  
+    <li><a href="../IndividualQualifyingLifeEvent.html">IndividualQualifyingLifeEvent</a>
+  
+    <li><a href="../IrsGroup.html">IrsGroup</a>
+  
+    <li><a href="../IrsGroupBuilder.html">IrsGroupBuilder</a>
+  
+    <li><a href="../MassSilentCancelsController.html">MassSilentCancelsController</a>
+  
+    <li><a href="../MassSilentCancelsHelper.html">MassSilentCancelsHelper</a>
+  
+    <li><a href="../MayBlank.html">MayBlank</a>
+  
+    <li><a href="../Maybe.html">Maybe</a>
+  
+    <li><a href="../Member.html">Member</a>
+  
+    <li><a href="../MemberAddressChangesController.html">MemberAddressChangesController</a>
+  
+    <li><a href="../MembersHelper.html">MembersHelper</a>
+  
+    <li><a href="../MergeDuplicatePeople.html">MergeDuplicatePeople</a>
+  
+    <li><a href="../MergingModel.html">MergingModel</a>
+  
+    <li><a href="../MoneyMath.html">MoneyMath</a>
+  
+    <li><a href="../MongoidMigrationTask.html">MongoidMigrationTask</a>
+  
+    <li><a href="../Mongorder.html">Mongorder</a>
+  
+    <li><a href="../NameMatcher.html">NameMatcher</a>
+  
+    <li><a href="../NewEnrollmentRequest.html">NewEnrollmentRequest</a>
+  
+    <li><a href="../NullExposesContactXml.html">NullExposesContactXml</a>
+  
+    <li><a href="../NullListener.html">NullListener</a>
+  
+    <li><a href="../NullPolicyMaintenance.html">NullPolicyMaintenance</a>
+  
+    <li><a href="../PeopleController.html">PeopleController</a>
+  
+    <li><a href="../PeopleHelper.html">PeopleHelper</a>
+  
+    <li><a href="../Person.html">Person</a>
+  
+    <li><a href="../PersonDiff.html">PersonDiff</a>
+  
+    <li><a href="../PersonRelationship.html">PersonRelationship</a>
+  
+    <li><a href="../Phone.html">Phone</a>
+  
+    <li><a href="../Plan.html">Plan</a>
+  
+    <li><a href="../PlanMetric.html">PlanMetric</a>
+  
+    <li><a href="../PlanMetricsController.html">PlanMetricsController</a>
+  
+    <li><a href="../PlanYear.html">PlanYear</a>
+  
+    <li><a href="../PlanYearDateFixer.html">PlanYearDateFixer</a>
+  
+    <li><a href="../PlansController.html">PlansController</a>
+  
+    <li><a href="../PlansHelper.html">PlansHelper</a>
+  
+    <li><a href="../PoliciesController.html">PoliciesController</a>
+  
+    <li><a href="../PoliciesHelper.html">PoliciesHelper</a>
+  
+    <li><a href="../Policy.html">Policy</a>
+  
+    <li><a href="../PolicyBuilder.html">PolicyBuilder</a>
+  
+    <li><a href="../PolicyDisposition.html">PolicyDisposition</a>
+  
+    <li><a href="../PolicyForm.html">PolicyForm</a>
+  
+    <li><a href="../PolicyLoopValidator.html">PolicyLoopValidator</a>
+  
+    <li><a href="../PolicyQueries.html">PolicyQueries</a>
+  
+    <li><a href="../PremiumPayment.html">PremiumPayment</a>
+  
+    <li><a href="../PremiumTable.html">PremiumTable</a>
+  
+    <li><a href="../ProcessAudits.html">ProcessAudits</a>
+  
+    <li><a href="../QualificationUpdate.html">QualificationUpdate</a>
+  
+    <li><a href="../QualifyingLifeEvent.html">QualifyingLifeEvent</a>
+  
+    <li><a href="../QuoteCvProxy.html">QuoteCvProxy</a>
+  
+    <li><a href="../QuoteValidator.html">QuoteValidator</a>
+  
+    <li><a href="../RemovePolicyEndDate.html">RemovePolicyEndDate</a>
+  
+    <li><a href="../RenewalDetermination.html">RenewalDetermination</a>
+  
+    <li><a href="../RenewalReports.html">RenewalReports</a>
+  
+    <li><a href="../RenewalsGenerator.html">RenewalsGenerator</a>
+  
+    <li><a href="../ResponseMetric.html">ResponseMetric</a>
+  
+    <li><a href="../ResponsibleParty.html">ResponsibleParty</a>
+  
+    <li><a href="../SetCobraEligibilityDateForPolicy.html">SetCobraEligibilityDateForPolicy</a>
+  
+    <li><a href="../ShopQualifyingLifeEvent.html">ShopQualifyingLifeEvent</a>
+  
+    <li><a href="../SimpleConverters.html">SimpleConverters</a>
+  
+    <li><a href="../SpecialEnrollmentPeriod.html">SpecialEnrollmentPeriod</a>
+  
+    <li><a href="../SpecialEnrollmentPeriodsController.html">SpecialEnrollmentPeriodsController</a>
+  
+    <li><a href="../SpecialEnrollmentPeriodsHelper.html">SpecialEnrollmentPeriodsHelper</a>
+  
+    <li><a href="../State.html">State</a>
+  
+    <li><a href="../TaxHousehold.html">TaxHousehold</a>
+  
+    <li><a href="../TaxHouseholdMember.html">TaxHouseholdMember</a>
+  
+    <li><a href="../TerminatePlanYear.html">TerminatePlanYear</a>
+  
+    <li><a href="../ToolsController.html">ToolsController</a>
+  
+    <li><a href="../ToolsHelper.html">ToolsHelper</a>
+  
+    <li><a href="../TransactionSetEnrollmentMetric.html">TransactionSetEnrollmentMetric</a>
+  
+    <li><a href="../TransformSimpleEdiFileSet.html">TransformSimpleEdiFileSet</a>
+  
+    <li><a href="../TransmitPolicyMaintenance.html">TransmitPolicyMaintenance</a>
+  
+    <li><a href="../UpdateEmployer.html">UpdateEmployer</a>
+  
+    <li><a href="../UpdateKindForPolicyToCoverall.html">UpdateKindForPolicyToCoverall</a>
+  
+    <li><a href="../UpdatePerson.html">UpdatePerson</a>
+  
+    <li><a href="../UpdatePersonAddress.html">UpdatePersonAddress</a>
+  
+    <li><a href="../UpdatePersonAddressRequest.html">UpdatePersonAddressRequest</a>
+  
+    <li><a href="../UpdatePersonErrorCatcher.html">UpdatePersonErrorCatcher</a>
+  
+    <li><a href="../UpdatePersonRequest.html">UpdatePersonRequest</a>
+  
+    <li><a href="../UpdatePolicyStatus.html">UpdatePolicyStatus</a>
+  
+    <li><a href="../User.html">User</a>
+  
+    <li><a href="../UsersController.html">UsersController</a>
+  
+    <li><a href="../VocabUpload.html">VocabUpload</a>
+  
+    <li><a href="../VocabUploadsController.html">VocabUploadsController</a>
+  
+    <li><a href="../VocabularyRequest.html">VocabularyRequest</a>
+  
+    <li><a href="../VocabularyRequestsController.html">VocabularyRequestsController</a>
+  
+    <li><a href="../WelcomeController.html">WelcomeController</a>
+  
+  </ul>
+</nav>
+
+  </div>
+</nav>
+
+<div id="documentation">
+  <h1 class="module">module EnrollmentAction::ReinstatementComparisonHelper</h1>
+
+  <div id="description" class="description">
+    
+  </div><!-- description -->
+
+  
+  
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+
+    <!-- Methods -->
+    
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section section">
+      <h3 class="section-header">Public Instance Methods</h3>
+
+    
+      <div id="method-i-reinstate_capable_carrier-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">reinstate_capable_carrier?</span><span
+            class="method-args">(enrollment_event)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code" id="reinstate_capable_carrier-3F-source">
+            <pre><span class="ruby-comment"># File app/models/enrollment_action/reinstatement_comparison_helper.rb, line 5</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">reinstate_capable_carrier?</span>(<span class="ruby-identifier">enrollment_event</span>)
+  <span class="ruby-identifier">policy_cv</span> = <span class="ruby-identifier">enrollment_event</span>.<span class="ruby-identifier">policy_cv</span>
+  <span class="ruby-identifier">carrier_id</span> = <span class="ruby-identifier">extract_carrier_id</span>(<span class="ruby-identifier">policy_cv</span>)
+  <span class="ruby-comment"># CF is the only one that isn&#39;t capable, across both exchanges</span>
+  <span class="ruby-operator">!</span>(<span class="ruby-string">&quot;116036&quot;</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">carrier_id</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- reinstate_capable_carrier-3F-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- reinstate_capable_carrier-3F-method -->
+
+    
+      <div id="method-i-same_carrier_reinstatement_candidates" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">same_carrier_reinstatement_candidates</span><span
+            class="method-args">(enrollment_event)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code" id="same_carrier_reinstatement_candidates-source">
+            <pre><span class="ruby-comment"># File app/models/enrollment_action/reinstatement_comparison_helper.rb, line 26</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">same_carrier_reinstatement_candidates</span>(<span class="ruby-identifier">enrollment_event</span>)
+  <span class="ruby-identifier">shop_reinstatement_candidates</span>(<span class="ruby-identifier">enrollment_event</span>.<span class="ruby-identifier">policy_cv</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- same_carrier_reinstatement_candidates-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- same_carrier_reinstatement_candidates-method -->
+
+    
+      <div id="method-i-shop_reinstatement_candidate-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">shop_reinstatement_candidate?</span><span
+            class="method-args">(pol, plan, employer, subscriber_id, subscriber_start)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code" id="shop_reinstatement_candidate-3F-source">
+            <pre><span class="ruby-comment"># File app/models/enrollment_action/reinstatement_comparison_helper.rb, line 44</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">shop_reinstatement_candidate?</span>(<span class="ruby-identifier">pol</span>, <span class="ruby-identifier">plan</span>, <span class="ruby-identifier">employer</span>, <span class="ruby-identifier">subscriber_id</span>, <span class="ruby-identifier">subscriber_start</span>)
+  <span class="ruby-keyword">return</span> <span class="ruby-keyword">false</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">pol</span>.<span class="ruby-identifier">employer_id</span>.<span class="ruby-identifier">blank?</span>
+  <span class="ruby-keyword">return</span> <span class="ruby-keyword">false</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">pol</span>.<span class="ruby-identifier">subscriber</span>.<span class="ruby-identifier">blank?</span>
+  <span class="ruby-keyword">return</span> <span class="ruby-keyword">false</span> <span class="ruby-keyword">if</span> (<span class="ruby-identifier">pol</span>.<span class="ruby-identifier">subscriber</span>.<span class="ruby-identifier">m_id</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">subscriber_id</span>)
+  <span class="ruby-keyword">return</span> <span class="ruby-keyword">false</span> <span class="ruby-keyword">unless</span> (<span class="ruby-identifier">plan</span>.<span class="ruby-identifier">coverage_type</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">pol</span>.<span class="ruby-identifier">plan</span>.<span class="ruby-identifier">coverage_type</span>)
+  <span class="ruby-keyword">return</span> <span class="ruby-keyword">false</span> <span class="ruby-keyword">unless</span> (<span class="ruby-identifier">pol</span>.<span class="ruby-identifier">employer_id</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">employer</span>.<span class="ruby-identifier">id</span>)
+  <span class="ruby-keyword">return</span> <span class="ruby-keyword">false</span> <span class="ruby-keyword">unless</span> (<span class="ruby-identifier">plan</span>.<span class="ruby-identifier">year</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">pol</span>.<span class="ruby-identifier">plan</span>.<span class="ruby-identifier">year</span>)
+  <span class="ruby-keyword">return</span> <span class="ruby-keyword">false</span> <span class="ruby-keyword">unless</span> (<span class="ruby-identifier">plan</span>.<span class="ruby-identifier">carrier_id</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">pol</span>.<span class="ruby-identifier">plan</span>.<span class="ruby-identifier">carrier_id</span>) 
+  <span class="ruby-identifier">pol</span>.<span class="ruby-identifier">coverage_period</span>.<span class="ruby-identifier">end</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">subscriber_start</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>.<span class="ruby-identifier">day</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- shop_reinstatement_candidate-3F-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- shop_reinstatement_candidate-3F-method -->
+
+    
+      <div id="method-i-shop_reinstatement_candidates" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">shop_reinstatement_candidates</span><span
+            class="method-args">(policy_cv)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code" id="shop_reinstatement_candidates-source">
+            <pre><span class="ruby-comment"># File app/models/enrollment_action/reinstatement_comparison_helper.rb, line 30</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">shop_reinstatement_candidates</span>(<span class="ruby-identifier">policy_cv</span>)
+  <span class="ruby-identifier">subscriber_enrollee</span> = <span class="ruby-identifier">extract_subscriber</span>(<span class="ruby-identifier">policy_cv</span>)
+  <span class="ruby-identifier">subscriber_start</span> = <span class="ruby-identifier">extract_enrollee_start</span>(<span class="ruby-identifier">subscriber_enrollee</span>)
+  <span class="ruby-identifier">subscriber_id</span> = <span class="ruby-identifier">extract_member_id</span>(<span class="ruby-identifier">subscriber_enrollee</span>)
+  <span class="ruby-identifier">subscriber_person</span> = <span class="ruby-constant">Person</span>.<span class="ruby-identifier">find_by_member_id</span>(<span class="ruby-identifier">subscriber_id</span>)
+  <span class="ruby-identifier">employer</span> = <span class="ruby-identifier">find_employer</span>(<span class="ruby-identifier">policy_cv</span>)
+  <span class="ruby-identifier">plan_year</span> = <span class="ruby-identifier">find_employer_plan_year</span>(<span class="ruby-identifier">policy_cv</span>)
+  <span class="ruby-keyword">return</span> [] <span class="ruby-keyword">if</span> <span class="ruby-identifier">subscriber_person</span>.<span class="ruby-identifier">nil?</span>
+  <span class="ruby-identifier">plan</span> = <span class="ruby-identifier">extract_plan</span>(<span class="ruby-identifier">policy_cv</span>)
+  <span class="ruby-identifier">subscriber_person</span>.<span class="ruby-identifier">policies</span>.<span class="ruby-identifier">select</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">pol</span><span class="ruby-operator">|</span>
+    <span class="ruby-identifier">shop_reinstatement_candidate?</span>(<span class="ruby-identifier">pol</span>, <span class="ruby-identifier">plan</span>, <span class="ruby-identifier">employer</span>, <span class="ruby-identifier">subscriber_id</span>, <span class="ruby-identifier">subscriber_start</span>)
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- shop_reinstatement_candidates-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- shop_reinstatement_candidates-method -->
+
+    
+      <div id="method-i-start_and_end_dates_align" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">start_and_end_dates_align</span><span
+            class="method-args">(chunk)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code" id="start_and_end_dates_align-source">
+            <pre><span class="ruby-comment"># File app/models/enrollment_action/reinstatement_comparison_helper.rb, line 12</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">start_and_end_dates_align</span>(<span class="ruby-identifier">chunk</span>)
+  <span class="ruby-identifier">enrollment_event_term</span> = <span class="ruby-identifier">chunk</span>.<span class="ruby-identifier">first</span>
+  <span class="ruby-identifier">enrollment_event_start</span> = <span class="ruby-identifier">chunk</span>.<span class="ruby-identifier">last</span>
+  <span class="ruby-identifier">term_policy</span> = <span class="ruby-identifier">enrollment_event_term</span>.<span class="ruby-identifier">policy_cv</span>
+  <span class="ruby-identifier">start_policy</span> = <span class="ruby-identifier">enrollment_event_start</span>.<span class="ruby-identifier">policy_cv</span>
+  <span class="ruby-identifier">term_subscriber</span> = <span class="ruby-identifier">extract_subscriber</span>(<span class="ruby-identifier">term_policy</span>)
+  <span class="ruby-identifier">start_subscriber</span> = <span class="ruby-identifier">extract_subscriber</span>(<span class="ruby-identifier">start_policy</span>)
+  <span class="ruby-keyword">return</span> <span class="ruby-keyword">false</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">term_subscriber</span>.<span class="ruby-identifier">blank?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">start_subscriber</span>.<span class="ruby-identifier">blank?</span>
+  <span class="ruby-identifier">subscriber_end</span> = <span class="ruby-identifier">extract_enrollee_end</span>(<span class="ruby-identifier">term_subscriber</span>)
+  <span class="ruby-identifier">subscriber_start</span> = <span class="ruby-identifier">extract_enrollee_start</span>(<span class="ruby-identifier">start_subscriber</span>)
+  <span class="ruby-keyword">return</span> <span class="ruby-keyword">false</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">subscriber_start</span>.<span class="ruby-identifier">blank?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">subscriber_end</span>.<span class="ruby-identifier">blank?</span>
+  <span class="ruby-identifier">subscriber_end</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">subscriber_start</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>.<span class="ruby-identifier">day</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- start_and_end_dates_align-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- start_and_end_dates_align-method -->
+
+    
+    </section><!-- public-instance-method-details -->
+  
+  </section><!-- 5Buntitled-5D -->
+
+</div><!-- documentation -->
+
+
+<footer id="validator-badges">
+  <p><a href="http://validator.w3.org/check/referer">[Validate]</a>
+  <p>Generated by <a href="https://github.com/rdoc/rdoc">RDoc</a> 3.12.2.
+  <p>Generated with the <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish Rdoc Generator</a> 3.
+</footer>
+
