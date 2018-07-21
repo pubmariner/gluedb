@@ -65,20 +65,22 @@ class TransformSimpleEdiFileSet
 end
 
 
-out_path = "transformed_x12s"
-transformer = TransformSimpleEdiFileSet.new(out_path)
 
-in_path = "source_xmls"
+  out_path = "transformed_x12s"
+  transformer = TransformSimpleEdiFileSet.new(out_path)
 
-dir_glob = Dir.glob(File.join(in_path, "*.xml"))
+  in_path = "source_xmls"
 
-error_file = File.new('error_file.sh','w')
+  dir_glob = Dir.glob(File.join(in_path, "*.xml"))
 
-dir_glob.each do |f|
-  begin
-    transformer.transform(f)
-  rescue Exception => e
-    puts "#{f} - #{e.inspect}"
-    error_file.puts("mv #{f} failed_transforms/")
-  end
+  error_file = File.new('error_file.sh','w')
+
+  dir_glob.each do |f|
+    begin
+      transformer.transform(f)
+    rescue Exception => e
+      puts "#{f} - #{e.inspect}"
+      error_file.puts("mv #{f} failed_transforms/")
+    end
+  
 end
