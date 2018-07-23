@@ -1,4 +1,6 @@
 # Simple class to do transforms
+
+
 class TransformSimpleEdiFileSet
   include Handlers::EnrollmentEventXmlHelper
 
@@ -68,8 +70,8 @@ end
 
   out_path = "transformed_x12s"
   transformer = TransformSimpleEdiFileSet.new(out_path)
-
   in_path = "source_xmls"
+  
 
   dir_glob = Dir.glob(File.join(in_path, "*.xml"))
 

@@ -2,7 +2,7 @@ class GenerateCV21s
 
   def initialize(eg_ids,reason_code)
     @eg_ids = eg_ids
-    @reason_code =  "urn:openhbx:terms:v1:enrollment#{reason_code}"
+    @reason_code =  "urn:openhbx:terms:v1:enrollment##{reason_code}"
   end
 
   def generate_transaction_id
@@ -41,8 +41,9 @@ class GenerateCV21s
       f = File.open("#{policy.eg_id}_#{@reason_code.split('#').last}.xml","w")
       f.puts(cv_render)
       f.close
-      `mv #{file_name} ../../../source_xmls`
+      `rm -f source_xmls/*.xml` 
+      `mv #{file_name} source_xmls`
+    end
   end
 
-  end
 end

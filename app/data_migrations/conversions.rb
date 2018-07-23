@@ -11,7 +11,7 @@ class Conversions < MongoidMigrationTask
     eg_ids = ENV['eg_ids'].split(',').map(&:to_i)
     reason_code = ENV['reason_code']
     cv21 = GenerateCV21s.new(eg_ids,reason_code).run
-    `rails r script/transform_edi_files.rb`
+     `rails r script/transform_edi_files.rb`
 
   end
 end
