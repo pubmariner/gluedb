@@ -1,6 +1,6 @@
 # Simple class to do transforms
 
-
+require 'pry'
 class TransformSimpleEdiFileSet
   include Handlers::EnrollmentEventXmlHelper
 
@@ -15,12 +15,16 @@ class TransformSimpleEdiFileSet
     enrollment_event_cv = enrollment_event_cv_for(action_xml)
     if is_publishable?(enrollment_event_cv)
       edi_builder = EdiCodec::X12::BenefitEnrollment.new(action_xml)
+      
+      # binding.pry
+      
       x12_xml = edi_builder.call.to_xml
       publish_to_file(enrollment_event_cv, x12_xml)
     end
   end
 
   def publish_to_file(enrollment_event_cv, x12_payload)
+        
     file_name = determine_file_name(enrollment_event_cv)
     File.open(File.join(@out_path, file_name), 'w') do |f|
       f.write(x12_payload)
@@ -74,6 +78,7 @@ end
   
 
   dir_glob = Dir.glob(File.join(in_path, "*.xml"))
+
 
   error_file = File.new('error_file.sh','w')
 
