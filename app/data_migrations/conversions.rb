@@ -14,12 +14,10 @@ class GenerateTransforms
     Dir.mkdir("source_xmls")
     Dir.mkdir("transformed_x12s")
     
-    # transformer_2 = TransformSimpleEdiFileSetCv1.new('transformed_x12s')
-    
-    
-    
     cv21s = GenerateCv21s.new([ENV['eg_ids']],ENV['reason_code']).run
     transformer_1 = TransformSimpleEdiFileSet.new('transformed_x12s')
+  end
+
     # transformer_1.transform('source_xmls/*.xml')
     # transformer_1.transform 
     # transformer_2.transform
@@ -33,7 +31,6 @@ class GenerateTransforms
     #   transformer_1.transform(cv_render)
     #   transformer_2.transform(cv_render)
     # end
-  end
 
   # def select_enrollees(policy)
   #   enrollees = policy.enrollees
