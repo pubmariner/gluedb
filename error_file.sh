@@ -1,1 +1,1 @@
-mv source_xmls/6_reinstate_enrollment.xml failed_transforms/
+mv source_xmls/2_reinstate_enrollment.xml failed_transforms/
