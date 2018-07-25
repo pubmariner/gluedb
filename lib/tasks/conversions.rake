@@ -1,6 +1,6 @@
 
 # This rake task updates the kind field for the given policy to "coverall".
-# format RAILS_ENV=production bundle exec rake migrations:create_aptc_credits eg_id="abc123" start_on="1/1/2018" end_on="2/3/108" aptc=100.0 pre_amt_tot=2222 tot_res_amt=123
+# format RAILS_ENV=production  bundle exec rake migrations:conversions eg_ids="1234" reason_code="reinstate_enrollment"
 namespace :migrations do 
   desc "Generate Transforms"
   task :conversions => :environment do 
