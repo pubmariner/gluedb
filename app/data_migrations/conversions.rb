@@ -16,6 +16,7 @@ class GenerateTransforms
     
     cv21s = GenerateCv21s.new([ENV['eg_ids']],ENV['reason_code']).run
     transformer_1 = TransformSimpleEdiFileSet.new('transformed_x12s')
+
   end
 
     # transformer_1.transform('source_xmls/*.xml')
@@ -78,7 +79,6 @@ class TransformSimpleEdiFileSet
     enrollment_event_cv = enrollment_event_cv_for(action_xml)
     if is_publishable?(enrollment_event_cv)
       edi_builder = EdiCodec::X12::BenefitEnrollment.new(action_xml)
-      binding.pry
       x12_xml = edi_builder.call.to_xml
       publish_to_file(enrollment_event_cv, x12_xml)
     end
