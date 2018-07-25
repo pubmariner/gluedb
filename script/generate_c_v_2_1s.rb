@@ -1,5 +1,6 @@
 
-require 'pry'
+# require 'pry'
+
 # eg_ids = %w(2) 
 
 # reason_code = "urn:openhbx:terms:v1:enrollment#terminate_enrollment"
@@ -40,6 +41,7 @@ require 'pry'
 #   f = File.open("#{policy.eg_id}_#{reason_code.split('#').last}.xml","w")
 #   f.puts(cv_render)
 #   f.close
+#   `mkdir source_xmls`
 #   `rm -f source_xmls/*.xml` 
 #   `mv #{file_name} source_xmls`
 # end
