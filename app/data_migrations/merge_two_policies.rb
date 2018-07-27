@@ -32,11 +32,14 @@ class MergeTwoPolicies < MongoidMigrationTask
     policy_to_keep.hbx_enrollment_ids << policy_to_remove.hbx_enrollment_ids
     
     
+    
     policy_to_keep.update_attributes!(pre_amt_tot: pre_amt_tot,
                                       tot_emp_res_amt: tot_emp_res_amt,
                                       tot_res_amt: tot_res_amt,
                                       rating_area: rating_area,
                                       composite_rating_tier: composite_rating_tier)
+
+
                                     
 
     policy_to_keep.hbx_enrollment_ids.uniq!
