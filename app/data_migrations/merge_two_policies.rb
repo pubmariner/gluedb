@@ -3,47 +3,30 @@ require File.join(Rails.root, "lib/mongoid_migration_task")
 
 class MergeTwoPolicies < MongoidMigrationTask
 
-  def migrate 
-    
-    if ENV['policy_to_keep'].present? && ENV['policy_to_remove'].present? && ENV['policy_of_final_tot_res_amt'].present? && ENV['policy_of_final_pre_amt_tot'].present? && ENV['policy_of_final_tot_emp_res_amt'].present? && ENV['policy_of_final_rating_area'].present? && ENV['policy_of_final_composite_rating_tier'].present?
-
+  def migrate
+    begin
       policy_to_keep = Policy.where(eg_id: ENV['policy_to_keep']).first
       policy_to_remove = Policy.where(eg_id: ENV['policy_to_remove']).first
-        
-      if policy_to_keep.blank? || policy_to_remove.blank?
-        p 'We cannot find a policy with that id'
-      else
-        policy_merge(policy_to_keep,policy_to_remove)
+      fields_from_policy_to_remove = ENV['fields_from_policy_to_remove'].split(", ")
+      if (policy_to_keep.present? && policy_to_remove.present? && fields_from_policy_to_remove.present? && policy_to_keep != policy_to_remove)
+        merge_two_policies(policy_to_keep, policy_to_remove, fields_from_policy_to_remove)
+      else 
+        raise "Policy_to_keep or Policy_to_keep or fields_from_policy_to_remove - not found or You have entered same eg_id" unless Rails.env.test?
       end
-    else 
-        p "You are missing a policy for input please check your rake again"
+    rescue => e
+      puts "Errors: #{e}" unless Rails.env.test?
     end
   end
 
-  def policy_merge(policy_to_keep, policy_to_remove)
-    tot_res_amt = Policy.where(eg_id:ENV['policy_of_final_tot_res_amt']).first.tot_res_amt
-    pre_amt_tot = Policy.where(eg_id:ENV['policy_of_final_pre_amt_tot']).first.pre_amt_tot
-    tot_emp_res_amt = Policy.where(eg_id:ENV['policy_of_final_tot_emp_res_amt']).first.tot_emp_res_amt
-    rating_area = Policy.where(eg_id:ENV['policy_of_final_rating_area']).first.rating_area
-    composite_rating_tier = Policy.where(eg_id:ENV['policy_of_final_composite_rating_tier']).first.composite_rating_tier
+  def merge_two_policies(policy_to_keep, policy_to_remove, fields_from_policy_to_remove)
     existing_enrollees = policy_to_keep.enrollees.map(&:m_id)
     enrollees_to_move = policy_to_remove.enrollees.where(:m_id => {"$nin" => existing_enrollees}).to_a
-    policy_to_keep.enrollees << enrollees_to_move
-    policy_to_keep.hbx_enrollment_ids << policy_to_remove.hbx_enrollment_ids
-    
-    
-    
-    policy_to_keep.update_attributes!(pre_amt_tot: pre_amt_tot,
-                                      tot_emp_res_amt: tot_emp_res_amt,
-                                      tot_res_amt: tot_res_amt,
-                                      rating_area: rating_area,
-                                      composite_rating_tier: composite_rating_tier)
-
-
-                                    
-
-    policy_to_keep.hbx_enrollment_ids.uniq!
-    policy_to_keep.hbx_enrollment_ids.flatten!
+    policy_to_keep.enrollees += enrollees_to_move
+    policy_to_keep.hbx_enrollment_ids += policy_to_remove.hbx_enrollment_ids
+    policy_to_keep.hbx_enrollment_ids = policy_to_keep.hbx_enrollment_ids.uniq
+    fields_from_policy_to_remove.each do |field|
+      policy_to_keep.assign_attributes(field.to_sym => policy_to_remove.send(field.to_sym))
+    end
     
     policy_to_remove.update_attributes!(eg_id: "#{policy_to_remove.eg_id} - DO NOT USE")
     
@@ -53,8 +36,6 @@ class MergeTwoPolicies < MongoidMigrationTask
     end
 
     policy_to_keep.save!
-    
+    puts "updated sucessfully with policy values #{policy_to_keep} " unless Rails.env.test? 
   end
-
-
 end
