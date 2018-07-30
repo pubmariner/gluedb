@@ -20,17 +20,15 @@ describe MergeTwoPolicies, dbclean: :after_each do
     end
   end
 
-  context 'merge two policies happy path' do 
-
-    before(:each) do 
-      ENV['policy_to_keep'] = policy_to_keep.eg_id
-      ENV['policy_to_remove'] = policy_to_remove.eg_id
+  context 'merge two policies' do 
+    before(:each)  do 
+      allow(ENV).to receive(:[]).with("policy_to_keep").and_return(policy_to_keep.eg_id)
+      allow(ENV).to receive(:[]).with("policy_to_remove").and_return(policy_to_remove.eg_id)
+      allow(ENV).to receive(:[]).with("fields_from_policy_to_remove").and_return("tot_res_amt, pre_amt_tot, tot_emp_res_amt, rating_area, composite_rating_tier")
     end
     
     it 'should merge two policies' do
-
-      ENV['fields_from_policy_to_remove'] = "tot_res_amt, pre_amt_tot, tot_emp_res_amt, rating_area, composite_rating_tier"
-      
+      expected_values = policy_to_keep.hbx_enrollment_ids + policy_to_remove.hbx_enrollment_ids
       subject.migrate
       policy_to_keep.reload
       policy_to_remove.reload
@@ -41,53 +39,52 @@ describe MergeTwoPolicies, dbclean: :after_each do
       expect(policy_to_keep.rating_area).to eq "A050"
       expect(policy_to_keep.composite_rating_tier).to eq "2"
       expect(policy_to_keep.enrollees.map(&:m_id)).to eq ['1','2','3','4']
-      expect(policy_to_keep.hbx_enrollment_ids).to eq ['1','2']
+      expect(policy_to_keep.hbx_enrollment_ids).to eq expected_values
       expect(policy_to_remove.hbx_enrollment_ids).to eq ["2 - DO NOT USE"]
       expect(policy_to_remove.eg_id).to eq "2 - DO NOT USE"
-
     end
+  end
 
+  context 'merge another two policies' do 
+    before(:each)  do 
+      allow(ENV).to receive(:[]).with("policy_to_keep").and_return(policy_to_keep.eg_id)
+      allow(ENV).to receive(:[]).with("policy_to_remove").and_return(another_policy_to_remove.eg_id)
+      allow(ENV).to receive(:[]).with("fields_from_policy_to_remove").and_return("tot_emp_res_amt, rating_area, composite_rating_tier")
+    end
+    
     it 'should merge another two policies together ' do
-      ENV['policy_to_remove'] = another_policy_to_remove.eg_id
-      ENV['fields_from_policy_to_remove'] = "tot_emp_res_amt, rating_area, composite_rating_tier"
-
+      expected_values = policy_to_keep.hbx_enrollment_ids + another_policy_to_remove.hbx_enrollment_ids
       subject.migrate
       policy_to_keep.reload
       another_policy_to_remove.reload
-      
       
       expect(policy_to_keep.tot_res_amt).to eq 111.11.to_d
       expect(policy_to_keep.pre_amt_tot).to eq 666.66.to_d
       expect(policy_to_keep.tot_emp_res_amt).to eq 520.to_d
       expect(policy_to_keep.rating_area).to eq "C050"
       expect(policy_to_keep.composite_rating_tier).to eq "24"
-      expect(policy_to_keep.hbx_enrollment_ids).to eq ['3','5']
-      expect(another_policy_to_remove.hbx_enrollment_ids).to eq ["5 - DO NOT USE"]
-      expect(another_policy_to_remove.eg_id).to eq "5 - DO NOT USE"
-
+      expect(policy_to_keep.hbx_enrollment_ids).to eq expected_values
+      expect(another_policy_to_remove.hbx_enrollment_ids).to eq ["4 - DO NOT USE"]
+      expect(another_policy_to_remove.eg_id).to eq "4 - DO NOT USE"
     end
 
-    it 'should merge attributes of two policies together  ' do
-      ENV['policy_to_remove'] = another_policy_to_remove.eg_id
-      ENV['fields_from_policy_to_remove'] = "tot_emp_res_amt"
-
+    it 'should merge other attributes of two policies together' do
+      allow(ENV).to receive(:[]).with("fields_from_policy_to_remove").and_return("tot_emp_res_amt")
+      expected_values = policy_to_keep.hbx_enrollment_ids + another_policy_to_remove.hbx_enrollment_ids
       subject.migrate
       policy_to_keep.reload
       another_policy_to_remove.reload
-      
       
       expect(policy_to_keep.tot_res_amt).to eq 111.11.to_d
       expect(policy_to_keep.pre_amt_tot).to eq 666.66.to_d
       expect(policy_to_keep.tot_emp_res_amt).to eq 520.to_d
       expect(policy_to_keep.rating_area).to eq "100"
       expect(policy_to_keep.composite_rating_tier).to eq "rspec-mock"
-      expect(policy_to_keep.hbx_enrollment_ids).to eq ['6','8']
-      expect(another_policy_to_remove.hbx_enrollment_ids).to eq ["8 - DO NOT USE"]
-      expect(another_policy_to_remove.eg_id).to eq "8 - DO NOT USE"
-
+      expect(policy_to_keep.hbx_enrollment_ids).to eq expected_values
+      expect(another_policy_to_remove.hbx_enrollment_ids).to eq ["6 - DO NOT USE"]
+      expect(another_policy_to_remove.eg_id).to eq "6 - DO NOT USE"
     end
   end
-
 end
 
 
