@@ -9,6 +9,8 @@ describe MergeTwoPolicies, dbclean: :after_each do
   let(:policy_to_keep_enrollees){ policy_to_keep.enrollees  }
   let(:policy_to_remove) { FactoryGirl.create(:policy, tot_res_amt:300, pre_amt_tot:400,tot_emp_res_amt:500,rating_area:"A050", composite_rating_tier:"2") }
   let(:policy_to_remove_enrollees){policy_to_remove.enrollees }
+  let(:another_policy_to_remove) { FactoryGirl.create(:policy, tot_res_amt:220, pre_amt_tot:420, tot_emp_res_amt:520,rating_area:"C050", composite_rating_tier:"24") }
+  let(:another_policy_to_remove_enrollees){policy_to_remove.enrollees }
 
   subject { MergeTwoPolicies.new(given_task_name, double(:current_scope => nil)) }
 
@@ -23,15 +25,11 @@ describe MergeTwoPolicies, dbclean: :after_each do
     before(:each) do 
       ENV['policy_to_keep'] = policy_to_keep.eg_id
       ENV['policy_to_remove'] = policy_to_remove.eg_id
-      ENV['policy_of_final_tot_res_amt'] = policy_to_remove.eg_id
-      ENV['policy_of_final_pre_amt_tot'] = policy_to_remove.eg_id
-      ENV['policy_of_final_tot_emp_res_amt'] = policy_to_remove.eg_id
-      ENV['policy_of_final_rating_area'] = policy_to_remove.eg_id
-      ENV['policy_of_final_composite_rating_tier'] = policy_to_remove.eg_id
     end
     
     it 'should merge two policies' do
-      
+
+      ENV['fields_from_policy_to_remove'] = "tot_res_amt, pre_amt_tot, tot_emp_res_amt, rating_area, composite_rating_tier"
       
       subject.migrate
       policy_to_keep.reload
@@ -50,75 +48,45 @@ describe MergeTwoPolicies, dbclean: :after_each do
     end
 
     it 'should merge another two policies together ' do
-      ENV['policy_to_keep'] = policy_to_keep.eg_id
-      ENV['policy_to_remove'] = policy_to_remove.eg_id
-      ENV['policy_of_final_tot_res_amt'] = policy_to_keep.eg_id
-      ENV['policy_of_final_pre_amt_tot'] = policy_to_keep.eg_id
-      ENV['policy_of_final_tot_emp_res_amt'] = policy_to_remove.eg_id
-      ENV['policy_of_final_rating_area'] = policy_to_remove.eg_id
-      ENV['policy_of_final_composite_rating_tier'] = policy_to_remove.eg_id
+      ENV['policy_to_remove'] = another_policy_to_remove.eg_id
+      ENV['fields_from_policy_to_remove'] = "tot_emp_res_amt, rating_area, composite_rating_tier"
 
       subject.migrate
       policy_to_keep.reload
-      policy_to_remove.reload
+      another_policy_to_remove.reload
       
-
+      
       expect(policy_to_keep.tot_res_amt).to eq 111.11.to_d
       expect(policy_to_keep.pre_amt_tot).to eq 666.66.to_d
-      expect(policy_to_keep.tot_emp_res_amt).to eq 500.to_d
-      expect(policy_to_keep.rating_area).to eq "A050"
-      expect(policy_to_keep.composite_rating_tier).to eq "2"
-      expect(policy_to_keep.hbx_enrollment_ids).to eq ['3','4']
-      expect(policy_to_remove.hbx_enrollment_ids).to eq ["4 - DO NOT USE"]
-      expect(policy_to_remove.eg_id).to eq "4 - DO NOT USE"
+      expect(policy_to_keep.tot_emp_res_amt).to eq 520.to_d
+      expect(policy_to_keep.rating_area).to eq "C050"
+      expect(policy_to_keep.composite_rating_tier).to eq "24"
+      expect(policy_to_keep.hbx_enrollment_ids).to eq ['3','5']
+      expect(another_policy_to_remove.hbx_enrollment_ids).to eq ["5 - DO NOT USE"]
+      expect(another_policy_to_remove.eg_id).to eq "5 - DO NOT USE"
 
     end
 
-  context 'merge two policies sad path' do 
-    
-    it 'should error if there are missing policy inputs' do
-      ENV['policy_to_remove'] = ""     
-      
-      subject.migrate
-      policy_to_keep.reload
-      
-      expect(subject.migrate).to eq "You are missing a policy for input please check your rake again"
-
-    end
-
-    it 'should error if it cannot find the policy' do
-      ENV['policy_to_remove'] = "10"
+    it 'should merge attributes of two policies together  ' do
+      ENV['policy_to_remove'] = another_policy_to_remove.eg_id
+      ENV['fields_from_policy_to_remove'] = "tot_emp_res_amt"
 
       subject.migrate
       policy_to_keep.reload
+      another_policy_to_remove.reload
       
-      expect(subject.migrate).to eq  'We cannot find a policy with that id'
+      
+      expect(policy_to_keep.tot_res_amt).to eq 111.11.to_d
+      expect(policy_to_keep.pre_amt_tot).to eq 666.66.to_d
+      expect(policy_to_keep.tot_emp_res_amt).to eq 520.to_d
+      expect(policy_to_keep.rating_area).to eq "100"
+      expect(policy_to_keep.composite_rating_tier).to eq "rspec-mock"
+      expect(policy_to_keep.hbx_enrollment_ids).to eq ['6','8']
+      expect(another_policy_to_remove.hbx_enrollment_ids).to eq ["8 - DO NOT USE"]
+      expect(another_policy_to_remove.eg_id).to eq "8 - DO NOT USE"
 
     end
-
-
   end
-  
-
-# describe MergeTwoPolicies, dbclean: :before_each do
-#   let(:given_task_name) { "merge_two_policies" }
-#   let(:policy_to_keep) { FactoryGirl.create(:policy) }
-#   let(:policy_to_keep_enrollees){ policy_to_keep.enrollees  }
-#   let(:policy_to_remove) { FactoryGirl.create(:policy, tot_res_amt:300, pre_amt_tot:400,tot_emp_res_amt:500,rating_area:"D050", composite_rating_tier:"100") }
-#   let(:policy_to_remove_enrollees){policy_to_remove.enrollees }
-
-#   subject { MergeTwoPolicies.new(given_task_name, double(:current_scope => nil)) }
-  
-  # context 'merging two policies together using a mix of policies attributes to keep' do 
-
-  #   before(:each) do 
-      
-  #   end
-    
-
-    
-  # end
-end
 
 end
 

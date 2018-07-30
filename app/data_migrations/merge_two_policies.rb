@@ -23,7 +23,7 @@ class MergeTwoPolicies < MongoidMigrationTask
     enrollees_to_move = policy_to_remove.enrollees.where(:m_id => {"$nin" => existing_enrollees}).to_a
     policy_to_keep.enrollees += enrollees_to_move
     policy_to_keep.hbx_enrollment_ids += policy_to_remove.hbx_enrollment_ids
-    policy_to_keep.hbx_enrollment_ids = policy_to_keep.hbx_enrollment_ids.uniq
+    policy_to_keep.hbx_enrollment_ids.uniq!
     fields_from_policy_to_remove.each do |field|
       policy_to_keep.assign_attributes(field.to_sym => policy_to_remove.send(field.to_sym))
     end
