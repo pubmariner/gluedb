@@ -1,4 +1,4 @@
-year = '2017'
+year = '2018'
 
 puts "Importing #{year} plans"
 plan_file = File.open("db/seedfiles/#{year}_plans.json", "r")
