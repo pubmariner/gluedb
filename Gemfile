@@ -49,7 +49,6 @@ group :development, :test do
 end
 
 group :test do
-  gem 'pry'
   gem 'test-unit'
 	gem 'mongoid-rspec'
   gem 'rspec-rails', '3.3.3'

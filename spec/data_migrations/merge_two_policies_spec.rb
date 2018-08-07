@@ -1,4 +1,3 @@
-require 'pry'
 require "rails_helper"
 require File.join(Rails.root,"app","data_migrations","merge_two_policies")
 
@@ -69,7 +68,7 @@ describe MergeTwoPolicies, dbclean: :after_each do
     end
 
     it 'should merge other attributes of two policies together' do
-      allow(ENV).to receive(:[]).with("fields_from_policy_to_remove").and_return("tot_emp_res_amt")
+          allow(ENV).to receive(:[]).with("fields_from_policy_to_remove").and_return("tot_emp_res_amt")
       expected_values = policy_to_keep.hbx_enrollment_ids + another_policy_to_remove.hbx_enrollment_ids
       subject.migrate
       policy_to_keep.reload
