@@ -38,9 +38,9 @@ module Generators::Reports
       xml['air5.0'].RecordSequenceNum @notice.policy_id.to_i
       xml['irs'].TaxYr 2017
       xml['irs'].CorrectedInd corrected_record_sequence_num.present?
-      xml['air5.0'].CorrectedRecordSequenceNum corrected_record_sequence_num
+      xml['air5.0'].CorrectedRecordSequenceNum corrected_record_sequence_num if corrected_record_sequence_num.present?
       xml['air5.0'].VoidInd (voided_record_sequence_num.present? ? 1 : 0)
-      xml['air5.0'].VoidedRecordSequenceNum voided_record_sequence_num
+      xml['air5.0'].VoidedRecordSequenceNum voided_record_sequence_num if voided_record_sequence_num.present?
       xml['air5.0'].MarketplaceId "02.DC*.SBE.001.001"  
     end
 
