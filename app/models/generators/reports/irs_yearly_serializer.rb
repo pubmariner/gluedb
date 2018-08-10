@@ -145,7 +145,7 @@ module Generators::Reports
       create_new_irs_folder
 
       @corrected_h41_policies = {}
-      CSV.foreach("#{Rails.root}/2018_H41_Corrected_20180607.csv") do |row|
+      CSV.foreach("#{Rails.root}/2018_H41_Corrected_20180807.csv") do |row|
         @corrected_h41_policies[row[0].strip] = row[1].strip
       end
 
@@ -172,7 +172,9 @@ module Generators::Reports
           if policy.responsible_party_id.present?
             puts "found responsible party #{policy.id}"
           end
-            
+          
+          notice_params[:type] = 'corrected'
+   
           if @npt_policies.include?(policy.id.to_s)
             notice_params[:npt] = true
           else
@@ -187,14 +189,13 @@ module Generators::Reports
       end
       merge_and_validate_xmls(@folder_count)
       create_manifest
-
     end
 
     def process_voided_h41
       create_new_irs_folder
 
       @void_policies = {}
-      CSV.foreach("#{Rails.root}/2018_H41_Voided_20180607.csv") do |row|
+      CSV.foreach("#{Rails.root}/2018_H41_Voided_20180807.csv") do |row|
         @void_policies[row[0].strip] = row[1].strip
       end
 
@@ -354,11 +355,10 @@ module Generators::Reports
 
     def build_notice_input(policy)
       if notice_params[:type] == 'void'
-      irs_input = Generators::Reports::IrsInputBuilder.new(policy, {void: true})
-    else
-            irs_input = Generators::Reports::IrsInputBuilder.new(policy, { notice_type: notice_params[:type], npt_policy: notice_params[:npt] })
-
-    end
+        irs_input = Generators::Reports::IrsInputBuilder.new(policy, {void: true})
+      else
+        irs_input = Generators::Reports::IrsInputBuilder.new(policy, { notice_type: notice_params[:type], npt_policy: notice_params[:npt] })
+      end
 
       irs_input.carrier_hash = @carriers
 
@@ -551,8 +551,6 @@ module Generators::Reports
     end
 
     def render_xml(notice)
-
-      puts notice.inspect
       yearly_xml_generator = Generators::Reports::IrsYearlyXml.new(notice)
       yearly_xml_generator.corrected_record_sequence_num = @corrected_h41_policies[notice.policy_id] if @corrected_h41_policies.present?
       yearly_xml_generator.voided_record_sequence_num = @void_policies[notice.policy_id] if @void_policies.present?
