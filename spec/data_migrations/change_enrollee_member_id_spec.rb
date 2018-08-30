@@ -6,6 +6,7 @@ describe ChangeEnrolleeMemberId, dbclean: :after_each do
   let(:policy) { FactoryGirl.create(:policy) }
   let(:enrollee) { policy.enrollees.first }
   let(:new_member_id) { "123456" }
+  let(:person) { FactoryGirl.create(:person)}
   subject { ChangeEnrolleeMemberId.new(given_task_name, double(:current_scope => nil)) }
 
   describe "given a task name" do 
@@ -17,9 +18,12 @@ describe ChangeEnrolleeMemberId, dbclean: :after_each do
   describe "update the member ID" do 
 
     before(:each) do 
+      allow(ENV).to receive(:[]).with("policy_id").and_return(policy.id)
       allow(ENV).to receive(:[]).with("eg_id").and_return(policy.eg_id)
       allow(ENV).to receive(:[]).with("old_hbx_id").and_return(enrollee.m_id)
       allow(ENV).to receive(:[]).with("new_hbx_id").and_return(new_member_id)
+      person.members.first.update_attributes(:hbx_member_id => enrollee.m_id)
+      person.members.last.update_attributes(:hbx_member_id => new_member_id)
     end
 
     it 'should change the member id' do 
