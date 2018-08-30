@@ -28,8 +28,10 @@ module Generators::Reports
       xml.EffectuationIndicator sbmi_policy.effectuation_status
       xml.InsuranceLineCode sbmi_policy.insurance_line_code
 
-      sbmi_policy.coverage_household.each do |covered_individual|
-        serialize_covered_individual(xml, covered_individual)
+      grouped_members = sbmi_policy.coverage_household.group_by{|sbmi_member| sbmi_member.exchange_assigned_memberId}
+
+      grouped_members.each do |member_id, covered_individuals|
+        serialize_covered_individual(xml, covered_individuals)
       end
 
       sbmi_policy.financial_loops.each do |financial_info|
@@ -37,8 +39,12 @@ module Generators::Reports
       end
     end
 
-    def serialize_covered_individual(xml, individual)
+    def serialize_covered_individual(xml, grouped_individuals)
+      individual = grouped_individuals[0]
       puts "missing zip #{sbmi_policy.record_control_number}" if individual.postal_code.blank?
+
+      grouped_individuals = grouped_individuals.sort_by{|individual| individual.member_start_date}.group_by{|individual| individual.member_start_date}.collect{|k, v| v[0]}
+
       xml.MemberInformation do |xml|
         xml.ExchangeAssignedMemberId individual.exchange_assigned_memberId
         xml.SubscriberIndicator individual.subscriber_indicator
@@ -50,9 +56,12 @@ module Generators::Reports
         xml.SocialSecurityNumber prepend_zeros(individual.social_security_number, 9)
         xml.PostalCode individual.postal_code
         xml.GenderCode individual.gender_code
-        xml.MemberDates do |xml|
-          xml.MemberStartDate individual.member_start_date
-          xml.MemberEndDate individual.member_end_date
+
+        grouped_individuals.each do |individual|
+          xml.MemberDates do |xml|
+            xml.MemberStartDate individual.member_start_date
+            xml.MemberEndDate individual.member_end_date
+          end
         end
       end
     end
