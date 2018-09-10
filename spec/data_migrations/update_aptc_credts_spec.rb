@@ -21,11 +21,11 @@ describe UpdateAptcCredits, dbclean: :after_each do
       allow(ENV).to receive(:[]).with("start_on").and_return("4/2/2018")
       allow(ENV).to receive(:[]).with("tot_res_amt").and_return("23")
       allow(ENV).to receive(:[]).with("pre_amt_tot").and_return("765")
-
-      allow(ENV).to receive(:[]).with("eg_id").and_return(policy.eg_id)
-
+    
     end
-    it 'updates credits ' do  
+    
+    it 'updates aptc credits ' do  
+      policy.aptc_credits.create!(start_on:"4/2/2018", end_on:"6/2/2018", pre_amt_tot:"123", tot_res_amt:"245")
       subject.migrate
       policy.reload
       credit.reload
