@@ -21,15 +21,27 @@ describe UpdateAptcCredits, dbclean: :after_each do
       allow(ENV).to receive(:[]).with("start_on").and_return("4/2/2018")
       allow(ENV).to receive(:[]).with("tot_res_amt").and_return("23")
       allow(ENV).to receive(:[]).with("pre_amt_tot").and_return("765")
+      allow(ENV).to receive(:[]).with("aptc").and_return("889")
     
+      policy.aptc_credits.create!(start_on:"4/2/2018", end_on:"6/2/2018", pre_amt_tot:"123", tot_res_amt:"245", aptc:"67") 
     end
-    
+
     it 'updates aptc credits ' do  
-      policy.aptc_credits.create!(start_on:"4/2/2018", end_on:"6/2/2018", pre_amt_tot:"123", tot_res_amt:"245")
       subject.migrate
       policy.reload
       credit.reload
+      
+      expect(credit.pre_amt_tot).to eq 765.to_d
+      expect(credit.tot_res_amt).to eq 23.to_d
+    end
+    
+    it 'finds and updates the aptc credit by date' do 
 
+      policy.aptc_credits.create!(start_on:"2/2/2018", end_on:"6/2/2018", pre_amt_tot:"12", tot_res_amt:"245", aptc:"67")
+      subject.migrate
+      policy.reload
+      credit.reload
+      
       expect(credit.pre_amt_tot).to eq 765.to_d
       expect(credit.tot_res_amt).to eq 23.to_d
     end
