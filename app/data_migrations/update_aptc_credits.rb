@@ -18,13 +18,13 @@ class UpdateAptcCredits < MongoidMigrationTask
         else  
           puts "missing a valid number"
         end
-        else  
+      else  
         puts "There are no matching aptc credits for this policy" unless Rails.env.test?
-        end
-      else 
-        puts "Could not find a policy with the id #{ENV['eg_id']}"  unless Rails.env.test?
       end
+    else 
+      puts "Could not find a policy with the id #{ENV['eg_id']}"  unless Rails.env.test?
     end
+  end
 
   def is_number?(string)
     true if Float(string) rescue false
