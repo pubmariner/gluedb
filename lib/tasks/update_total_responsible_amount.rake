@@ -2,7 +2,7 @@ require File.join(Rails.root,"app","data_migrations","update_total_responsible_a
 
 # This rake task updates the kind field for the given policy to "coverall".
 
-# format RAILS_ENV=production bundle exec rake migrations:update_total_responsible_amount eg_id="eg_id" total_responsible_amount="total_responsible_amount" premium_amount_total="premium_amount_total" applied_aptc="applied_aptc"
+# RAILS_ENV=production bundle exec rake migrations:update_total_responsible_amount eg_id="102933" total_responsible_amount="578.32" premium_amount_total="1285.16" employer_contribution="706.84" applied_aptc="applied_aptc" 
 
 namespace :migrations do
   desc "Update Total Responsible Amount"
