@@ -1,0 +1,30 @@
+require File.join(Rails.root, "lib/mongoid_migration_task")
+
+class ChangeEnrolleeStartDate < MongoidMigrationTask
+  
+  def input_valid?
+    true if ENV['eg_id'].present? && ENV['m_id'].present? && ENV['start_date'].present? && ENV['new_start_date'].present?
+  end
+  
+  def migrate
+    if input_valid?
+      policy = Policy.where(eg_id: ENV['eg_id']).first
+      m_id = ENV['m_id']
+      start_on = Date.strptime(ENV['start_date'].to_s, '%m/%d/%Y')
+      new_start_on = Date.strptime(ENV['new_start_date'].to_s, "%m/%d/%Y")
+      if policy.blank?
+        puts "No hbx_enrollment was found with the given hbx_id" unless Rails.env.test?
+      else
+        if ENV['enrollee_mongo_id'].present?
+          enrollee = policy.enrollees.detect{|en| en.id == ENV['enrollee_mongo_id']}
+        else
+          enrollee = policy.enrollees.where(m_id: m_id, coverage_start: start_on).first
+        end
+        enrollee.update_attributes!(coverage_start: new_start_on)
+          puts "enrollee #{enrollee.m_id} coverage start modified to #{enrollee.coverage_start}!" unless Rails.env.test?
+      end
+    else 
+      puts "You are missing an Environment variable, please check your input" unless Rails.env.test?
+    end
+  end
+end
