@@ -15,7 +15,11 @@ class ChangeEnrolleeEndDate < MongoidMigrationTask
       if policy.blank?
         puts "No hbx_enrollment was found with the given hbx_id" unless Rails.env.test?
       else
-        enrollee=policy.enrollees.where(m_id: m_id, coverage_start: start_on).first
+        if ENV['enrollee_mongo_id'].present?
+          enrollee = policy.enrollees.detect{|en| en.id == ENV['enrollee_mongo_id']}
+        else
+          enrollee = policy.enrollees.where(m_id: m_id, coverage_start: start_on).first
+        end
         enrollee.update_attributes!(coverage_end: end_on)
           puts "enrollee coverage end modified...!" unless Rails.env.test?
       end
