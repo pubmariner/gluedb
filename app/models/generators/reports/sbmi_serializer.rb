@@ -55,7 +55,8 @@ module Generators::Reports
           next if pol.policy_start < Date.new(CALENDER_YEAR, 1, 1)
           next if pol.policy_start > Date.new(CALENDER_YEAR, 12, 31)
           next if !pol.belong_to_authority_member?
-          next if policies_to_skip.include?(pol.id)
+          next if policies_to_skip.include?(pol.id.to_s)
+          next if pol.kind == 'coverall'
           
           count +=1 
           if count % 100 == 0
