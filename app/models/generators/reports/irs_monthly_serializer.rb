@@ -73,6 +73,7 @@ module Generators::Reports
           active_enrollments = family.active_household.enrollments_for_year(CALENDER_YEAR)
           active_enrollments.reject!{|e| e.policy.subscriber.coverage_start >= Date.today.beginning_of_month }
           active_enrollments.reject!{|e| policies_to_skip.include?(e.policy.id.to_s) }
+          active_enrollments.reject!{|e| e.policy.kind == "coverall" }
           active_enrollments.reject! do |en|
             if en.policy.enrollees.any?{|en| en.person.authority_member.blank?}
               puts "#{en.policy.id} authority member missing!!"
