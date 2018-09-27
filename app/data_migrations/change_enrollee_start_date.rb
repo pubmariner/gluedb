@@ -16,7 +16,8 @@ class ChangeEnrolleeStartDate < MongoidMigrationTask
         puts "No hbx_enrollment was found with the given hbx_id" unless Rails.env.test?
       else
         if ENV['enrollee_mongo_id'].present?
-          enrollee = policy.enrollees.detect{|en| en.id == ENV['enrollee_mongo_id']}
+          binding.pry
+          enrollee = policy.enrollees.detect{|en| en.id.to_s == ENV['enrollee_mongo_id']}
         else
           enrollee = policy.enrollees.where(m_id: m_id, coverage_start: start_on).first
         end
