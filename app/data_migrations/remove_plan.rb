@@ -9,7 +9,7 @@ class RemovePlan < MongoidMigrationTask
     if plan.present? 
       begin 
         plan.destroy
-        puts 'Plan has been deleted'
+        puts 'Plan has been deleted' unless Rails.env.test?
       rescue Exception => e
         puts e.message unless Rails.env.test?
       end
