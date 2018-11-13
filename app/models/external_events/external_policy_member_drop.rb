@@ -160,7 +160,7 @@ module ExternalEvents
                          end
     end
 
-    def handle_aptc_changes(policy)
+    def populate_aptc_credit_changes(policy)
         new_aptc_date = policy.enrollees.map(&:coverage_end).uniq.compact.sort.last + 1.day
         tot_res_amt = policy.tot_res_amt
         pre_amt_tot = policy.pre_amt_tot
@@ -171,6 +171,7 @@ module ExternalEvents
 
     def persist
       pol = policy_to_update
+      populate_aptc_credit_changes(pol) unless (pol.is_shop? && pol.aptc_credits.empty?)
       pol.update_attributes!({
         :pre_amt_tot => extract_pre_amt_tot,
         :tot_res_amt => extract_tot_res_amt
@@ -179,7 +180,7 @@ module ExternalEvents
       @policy_node.enrollees.each do |en|
         term_enrollee(pol, en)
       end
-      handle_aptc_changes(pol) unless pol.is_shop?
+      populate_aptc_credit_changes(pol) unless pol.is_shop?
       true
     end
   end
