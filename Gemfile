@@ -57,6 +57,8 @@ group :test do
   gem 'rspec-collection_matchers', '1.1.2'
   gem 'capybara', '2.4.4'
   gem "capybara-webkit"
+  gem 'factory_girl_rails', '4.5.0'
+  gem 'factory_girl', '4.5.0'
   gem 'database_cleaner', '1.5.3'
   gem 'ci_reporter', '2.0.0'
   gem 'savon', '2.7'
