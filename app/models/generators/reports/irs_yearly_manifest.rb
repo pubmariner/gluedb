@@ -37,7 +37,7 @@ module Generators::Reports
     def attachments
       Dir.glob(@folder+'/*.xml').inject([]) do |data, file|
         data << OpenStruct.new({
-          checksum: Digest::MD5.file(file).hexdigest,
+          checksum: Digest::SHA256.file(file).hexdigest,
           binarysize: File.size(file),
           filename: File.basename(file),
           sequence_id: File.basename(file).match(/\d{5}/)[0]
@@ -74,7 +74,7 @@ module Generators::Reports
       xml['ns4'].Attachment do |xml|
         xml['ns5'].DocumentBinary do |xml|
           xml['ns3'].ChecksumAugmentation do |xml|
-            xml.MD5ChecksumText file.checksum
+            xml.ChecksumAugmentationNum file.checksum
           end
           xml['ns3'].BinarySizeValue file.binarysize
         end
