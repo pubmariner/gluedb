@@ -156,8 +156,8 @@ module Generators::Reports
           xml['irs'].MonthlyPremiumSLCSPAmt month_premium.premium_amount_slcsp.to_f.round(2)
           xml['irs'].MonthlyAdvancedPTCAmt month_premium.monthly_aptc.to_f.round(2)
         else
-          xml['irs'].MonthlyPremiumSLCSPAmt 0.0
-          xml['irs'].MonthlyAdvancedPTCAmt 0.0 
+          xml['irs'].MonthlyPremiumSLCSPAmt 0.00
+          xml['irs'].MonthlyAdvancedPTCAmt 0.00
         end
       else
         blank_preimums(xml)
@@ -165,9 +165,9 @@ module Generators::Reports
     end
 
     def blank_preimums(xml)
-      xml['irs'].MonthlyPremiumAmt 0.0
-      xml['irs'].MonthlyPremiumSLCSPAmt 0.0
-      xml['irs'].MonthlyAdvancedPTCAmt 0.0 
+      xml['irs'].MonthlyPremiumAmt 0.00
+      xml['irs'].MonthlyPremiumSLCSPAmt 0.00
+      xml['irs'].MonthlyAdvancedPTCAmt 0.00 
     end
 
     def serialize_annual_premiums(xml)
@@ -176,8 +176,8 @@ module Generators::Reports
         xml['irs'].AnnualPremiumSLCSPAmt @notice.yearly_premium.slcsp_premium_amount.to_f.round(2)
         xml['irs'].AnnualAdvancedPTCAmt @notice.yearly_premium.aptc_amount.to_f.round(2)
       else
-        xml['irs'].AnnualPremiumSLCSPAmt 0.0
-        xml['irs'].AnnualAdvancedPTCAmt 0.0
+        xml['irs'].AnnualPremiumSLCSPAmt 0.00
+        xml['irs'].AnnualAdvancedPTCAmt 0.00
       end
     end
 
