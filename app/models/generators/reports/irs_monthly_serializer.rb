@@ -3,7 +3,7 @@ require 'csv'
 module Generators::Reports  
   class IrsMonthlySerializer
 
-    CALENDER_YEAR = 2017
+    CALENDER_YEAR = 2018
 
     def initialize
       @logger = Logger.new("#{Rails.root}/log/h36_exceptions.log")
