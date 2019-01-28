@@ -13,91 +13,86 @@ module Generators::Reports
       @policy_id = nil
       @hbx_member_id = nil
 
+      @report_names = {}
       @xml_output = false
 
-      @report_names = {}
-      @policies = []
-      @plans    = nil
-
-      @position = 0
-      @pdf_set  = 1
+      @pdf_set  = 0
       @irs_set  = 0
-      @aptc_versions = []
-      @skip_notices = true
 
       @notice_params = options
 
       if options.empty?
         irs_path = "#{Rails.root.to_s}/irs/irs_EOY_#{Time.now.strftime('%m_%d_%Y_%H_%M')}"
-        @irs_pdf_path = irs_path + "/irs1095a/"
-
         create_directory irs_path
-        # create_directory @irs_pdf_path
 
-        @irs_xml_path = irs_path + "/h41/"
-        create_directory @irs_xml_path
-        create_directory @irs_xml_path + "/transmission"
+        if xml_output
+          @irs_xml_path = irs_path + "/h41/"
+          create_directory @irs_xml_path
+          create_directory @irs_xml_path + "/transmission"
+        else
+          @irs_pdf_path = irs_path + "/irs1095a/"
+          create_directory @irs_pdf_path
+        end
       end
 
       @carriers = Carrier.all.inject({}){|hash, carrier| hash[carrier.id] = carrier.name; hash}
       @settings = YAML.load(File.read("#{Rails.root}/config/irs_settings.yml")).with_indifferent_access
     end
 
+    def load_npt_data
+      book = Spreadsheet.open "#{Rails.root}/2018_NPT_data.xls"
+      @npt_list = book.worksheets.first.inject([]){|data, row| data << row[0].to_s.strip.to_i}.compact
+      puts "Found #{@npt_list.count} in npt_list"
+    end
 
-    def generate_notices
+    def load_responsible_party_data
+      book = Spreadsheet.open "#{Rails.root}/2018_RP_data.xls"
+      @responsible_party_data = book.worksheets.first.inject({}) do |data, row|
+        if row[3].to_s.strip.match(/Responsible Party SSN/i) || (row[3].to_s.strip.blank? && row[5].to_s.strip.blank?)
+        else
+          data[row[0].to_s.strip.to_i] = [prepend_zeros(row[3].to_i.to_s, 9), Date.strptime(row[4].to_s.split("T")[0], "%m/%d/%Y")]
+        end
+        data
+      end
+      puts "Found #{@responsible_party_data.keys.count} RP entries"
+    end
 
+    def create_enclosed_folder
       if xml_output
         create_new_irs_folder
       else
         create_new_pdf_folder
       end
+    end
 
-      # book = Spreadsheet.open "#{Rails.root}/KP_2016_1095_COMPILED_EXCLUSION_LIST_SET2.xls"
-      # skip_list = book.worksheets.first.inject([]){|data, row| data << row[2].to_s.strip.to_i}.compact
+    def build_notice_params(policy)
+      @notice_params[:npt]  =  @npt_list.include?(policy.id)
+      @notice_params[:type] = 'new'
+    end
 
-      # puts "Found #{skip_list.count} in skip_list"
+    def create_excel_workbook
+      workbook = Spreadsheet::Workbook.new
+      @sheet = workbook.create_worksheet :name => 'QHP'
+      columns = ['POLICY ID', 'Subscriber Hbx ID', 'Recipient Address']
+      5.times {|i| columns += ["NAME#{i+1}", "SSN#{i+1}", "DOB#{i+1}", "BEGINDATE#{i+1}", "ENDDATE#{i+1}"]}
+      columns += ['ISSUER NAME']
+      12.times {|i| columns += ["PREMIUM#{i+1}", "SLCSP#{i+1}", "APTC#{i+1}"]}
+      @sheet.row(@count).concat columns
+      workbook
+    end
 
-      # book = Spreadsheet.open "#{Rails.root}/2016_H41_RP_Policy_Info.xls"
-      # inclusion_list = book.worksheets.first.inject([]){|data, row| data << row[0].to_s.strip.to_i}.compact
-
-      # puts "Found #{inclusion_list.count} in responsible_party_list"
-
-
-      # book = Spreadsheet.open "#{Rails.root}/2016_1095_NPT_Policies_For_2016_H41.xls"
-      # @npt_list = book.worksheets.first.inject([]){|data, row| data << row[0].to_s.strip.to_i}.compact
-      # puts "Found #{@npt_list.count} in npt_list"
-
-      # book = Spreadsheet.open "#{Rails.root}/2016_H41_RP_Policy_Info.xls"
-      # @responsible_party_data = book.worksheets.first.inject({}) do |data, row|
-      #   if row[2].to_s.strip.match(/Responsible Party SSN/i) || (row[2].to_s.strip.blank? && row[4].to_s.strip.blank?)
-      #   else
-      #     data[row[0].to_s.strip.to_i] = [prepend_zeros(row[2].to_i.to_s, 9), Date.strptime(row[3].to_s.split("T")[0], "%Y-%m-%d")]
-      #   end
-      #   data
-      # end
-
-
-      # book = Spreadsheet.open "#{Rails.root}/2017_RP_UQHP_1095A_Data.xls"
-      @responsible_party_data = []
-      # @responsible_party_data = book.worksheets.first.inject({}) do |data, row|
-      #   if row[2].to_s.strip.match(/Responsible Party SSN/i) || (row[2].to_s.strip.blank? && row[4].to_s.strip.blank?)
-      #   else
-      #     data[row[0].to_s.strip.to_i] = [prepend_zeros(row[2].to_i.to_s, 9), Date.strptime(row[3].to_s.strip.split("T")[0], "%Y-%m-%d")]
-      #   end
-      #   data
-      # end
-
-      @npt_policies = []
-      # CSV.foreach("#{Rails.root}/2017_NPT_UQHP_20180126.csv", headers: :true) do |row|
-      #   @npt_policies << row[0].strip
-      # end
+    def generate_notices
+      create_enclosed_folder
+      load_npt_data
+      load_responsible_party_data
+      workbook = create_excel_workbook
 
       count = 0
       @folder_count = 1
 
-      notice_params[:type] = 'new'
       policies_by_subscriber.each do |row, policies|
         policies.each do |policy|
+
           begin
             next if policy.plan.metal_level =~ /catastrophic/i
             next if policy.kind == 'coverall'
@@ -107,33 +102,19 @@ module Generators::Reports
               puts count
             end
 
-            # next unless inclusion_list.include?(policy.id)
+            next if count > 300
 
+            if policy.responsible_party_id.present?
+              if @responsible_party_data[policy.id].blank?
+                puts "RP data missing for #{policy.id}"
+                next
+              end
+            end
 
-            # next if skip_list.include?(policy.id)
-
-            # if policy.responsible_party_id.present?
-            #   # puts "found responsible party #{policy.id}"
-            #   next
-            # end
+            build_notice_params(policy)
 
             # next if (policy.applied_aptc > 0 || policy.multi_aptc?)
-            # next unless kaiser_plans.include?(policy.plan_id)
-            # next if policy.subscriber.coverage_end.present? && (policy.subscriber.coverage_end < policy.subscriber.coverage_start)
             # next unless (policy.subscriber.coverage_end.present? && (policy.subscriber.coverage_end.end_of_month != policy.subscriber.coverage_end))
-            # next if policy.canceled?
-            # next if rejected_policy?(policy)
-
-            # if @responsible_party_data[policy.id].blank?
-            #   puts "data missing for #{policy.id}"
-            #   next
-            # end
-            
-            if @npt_policies.include?(policy.id.to_s)
-              notice_params[:npt] = true
-            else
-              notice_params[:npt] = false
-            end
 
             process_policy(policy)
 
@@ -143,10 +124,14 @@ module Generators::Reports
           end
         end
       end
-      # merge_and_validate_xmls(@folder_count)
-      # create_manifest
-    end
 
+      workbook.write "#{Rails.root.to_s}/IVL_QHP_1095A_#{Time.now.strftime("%m_%d_%Y_%H_%M")}.xls"
+
+      if xml_output
+        merge_and_validate_xmls(@folder_count)
+        create_manifest
+      end
+    end
 
     def process_corrected_h41
       create_new_irs_folder
@@ -217,7 +202,7 @@ module Generators::Reports
       @void_policies.keys.each do |policy_id|
         policy = Policy.find(policy_id)
 
-        # begin
+        begin
           next if policy.plan.metal_level =~ /catastrophic/i
           next if policy.kind == 'coverall'
 
@@ -239,10 +224,10 @@ module Generators::Reports
           end
 
           process_policy(policy)
-        # rescue Exception => e
-        #   puts policy.id
-        #   puts e.to_s.inspect
-        # end
+        rescue Exception => e
+          puts policy.id
+          puts e.to_s.inspect
+        end
       end
       merge_and_validate_xmls(@folder_count)
       create_manifest
@@ -250,7 +235,7 @@ module Generators::Reports
 
     def process_policy_ids(ids)
       create_new_pdf_folder
-      # create_new_irs_folder
+      create_new_irs_folder
 
       # book = Spreadsheet.open "#{Rails.root}/Responsible_Party_3_10.xls"
       # @responsible_party_data = book.worksheets.first.inject({}) do |data, row|
@@ -262,53 +247,30 @@ module Generators::Reports
       # end
 
 
-      # book = Spreadsheet.open "#{Rails.root}/CF_Responsible_Party_1095A_February_Standard_Assisted_20170224.xls"
-      # @responsible_party_data = book.worksheets.first.inject({}) do |data, row|
-      #   if row[2].to_s.strip.match(/Responsible Party SSN/i) || (row[2].to_s.strip.blank? && row[3].to_s.strip.blank?)
-      #   else
-      #     if row[2].to_s.strip.blank?
-      #       data[row[0].to_s.strip.to_i] = [nil, Date.strptime(row[3].to_s.split("T")[0], "%Y-%m-%d")]
-      #     else
-      #       data[row[0].to_s.strip.to_i] = [prepend_zeros(row[2].to_i.to_s, 9), Date.strptime(row[3].to_s.split("T")[0], "%Y-%m-%d")]
-      #     end
-      #   end
-      #   data
-      # end
-
-      # puts @responsible_party_data.inspect
-
-
-      book = Spreadsheet.open "#{Rails.root}/2017_RP_AQHP_1095A_Data.xls"
+      book = Spreadsheet.open "#{Rails.root}/CF_Responsible_Party_1095A_February_Standard_Assisted_20170224.xls"
       @responsible_party_data = book.worksheets.first.inject({}) do |data, row|
-        if row[2].to_s.strip.match(/Responsible Party SSN/i) || (row[2].to_s.strip.blank? && row[4].to_s.strip.blank?)
+        if row[2].to_s.strip.match(/Responsible Party SSN/i) || (row[2].to_s.strip.blank? && row[3].to_s.strip.blank?)
         else
-          data[row[0].to_s.strip.to_i] = [prepend_zeros(row[2].to_i.to_s, 9), Date.strptime(row[3].to_s.strip, "%m-%d-%Y")]
+          if row[2].to_s.strip.blank?
+            data[row[0].to_s.strip.to_i] = [nil, Date.strptime(row[3].to_s.split("T")[0], "%Y-%m-%d")]
+          else
+            data[row[0].to_s.strip.to_i] = [prepend_zeros(row[2].to_i.to_s, 9), Date.strptime(row[3].to_s.split("T")[0], "%Y-%m-%d")]
+          end
         end
         data
       end
 
-      @npt_policies = []
-      CSV.foreach("#{Rails.root}/2017_NPT_AQHP_20180129.csv", headers: :true) do |row|
-        @npt_policies << row[0].strip
-      end
+      puts @responsible_party_data.inspect
 
-      notice_params[:type] = 'new'
       ids.each do |id|
-        if @npt_policies.include?(id.to_s)
-          notice_params[:npt] = true
-        else
-          notice_params[:npt] = false
-        end
-
         id = Policy.find(id)
         process_policy(id)
       end
     end
 
-    # Generators::Reports::IrsYearlySerializer.new({policy_id: 123584, type: 'new', npt: false}).generate_notice
-
     def generate_notice
       set_default_directory
+
       policy = Policy.find(notice_params[:policy_id])
 
       if policy.responsible_party_id.present?
@@ -322,11 +284,13 @@ module Generators::Reports
           policy.id => [ssn, notice_params[:responsible_party_dob]]
         }
       end
+
       if notice_params[:type] == 'void'
         process_canceled_policy(policy, notice_params[:void_cancelled_policy_ids].join(','), notice_params[:void_active_policy_ids].join(','))
       else
         process_policy(policy)
       end
+
       notice_absolute_path
     end
 
@@ -341,16 +305,11 @@ module Generators::Reports
     end
 
     def valid_policy?(policy)
-      return true
-
       active_enrollees = policy.enrollees.reject{|en| en.canceled?}
-
-      if active_enrollees.empty?
-        return false
-      end
+      return false if active_enrollees.empty?
 
       if rejected_policy?(policy) || policy.canceled? || !policy.belong_to_authority_member?
-        return false 
+        return false
       end
 
       if policy.subscriber.coverage_end.present? && (policy.subscriber.coverage_end < policy.subscriber.coverage_start)
@@ -361,29 +320,17 @@ module Generators::Reports
     end
 
     def build_notice_input(policy)
-      if notice_params[:type] == 'void'
-        irs_input = Generators::Reports::IrsInputBuilder.new(policy, {void: true})
-      else
-        irs_input = Generators::Reports::IrsInputBuilder.new(policy, { notice_type: notice_params[:type], npt_policy: notice_params[:npt] })
-      end
-
+      irs_input = Generators::Reports::IrsInputBuilder.new(policy, { notice_type: notice_params[:type], npt_policy: notice_params[:npt] })
       irs_input.carrier_hash = @carriers
-
-      if @npt_policies.include?(policy.id.to_s)
-        irs_input.npt_policy = true
-        puts "found NPT policy ---- #{policy.id}"
-      end
-
-      # irs_input.settings = @settings
+      irs_input.settings = @settings
       irs_input.process
       irs_input
     end
 
     def process_policy(policy)
       if valid_policy?(policy)
-
         @calender_year = policy.subscriber.coverage_start.year
-        @qhp_type = ((policy.applied_aptc > 0 || policy.multi_aptc?) ? 'assisted' : 'unassisted')
+        @qhp_type  = ((policy.applied_aptc > 0 || policy.multi_aptc?) ? 'assisted' : 'unassisted')
         @policy_id = policy.id
         @hbx_member_id = policy.subscriber.person.authority_member.hbx_member_id
 
@@ -409,7 +356,6 @@ module Generators::Reports
         notice.canceled_policies = []
 
         create_report_names
-
         if xml_output
           render_xml(notice)
 
@@ -420,13 +366,15 @@ module Generators::Reports
           end
         else
           render_pdf(notice)
+          append_report_row(notice)
 
           if notice.covered_household.size > 5
             create_report_names
-            render_pdf(notice, true)          
+            render_pdf(notice, true)
+            append_report_row(notice, true)   
           end
 
-          if @count != 0 &&  (@count % 250 == 0)
+          if @count != 0 && (@count % 1000 == 0)
             create_new_pdf_folder
           end
         end
@@ -434,6 +382,10 @@ module Generators::Reports
         notice = nil
         policy = nil
       end
+    end
+
+    def append_report_row(notice, multiple = false)
+      @sheet.row(@count).concat Generators::Reports::IrsInputExportBuilder.new(notice, multiple).excel_row
     end
 
     def process_canceled_pols
@@ -580,17 +532,11 @@ module Generators::Reports
         options = { multiple: multiple, calender_year: calender_year, qhp_type: qhp_type, notice_type: notice_params[:type]}
       end
 
-      notice.subscriber_hbx_id = Policy.find(notice.policy_id).subscriber.m_id
       if notice.active_policies.blank?
         options.merge!({void_type: 'active_false'})
       else
         options.merge!({void_type: 'active_true'})
       end
-      if notice.policy_id.to_s == "163830"
-        @skip_notices = false
-      end
-
-      return if @skip_notices
 
       pdf_notice = Generators::Reports::IrsYearlyPdfReport.new(notice, options)
       pdf_notice.settings = @settings
@@ -637,23 +583,19 @@ module Generators::Reports
       p_repo = {}
 
       # p_map = Person.collection.aggregate([{"$unwind"=> "$members"}, {"$project" => {"_id" => 0, member_id: "$members.hbx_member_id", person_id: "$_id"}}])
-
-   Person.each do |person|
-      person.members.each do |member|
-          p_repo[member.hbx_member_id] = person._id
-      end
-    end
-
       # p_map.each do |val|
       #   p_repo[val["member_id"]] = val["person_id"]
       # end
 
-      pols = PolicyStatus::Active.between(Date.new(2016,12,31), Date.new(2017,12,31)).results.where({
+      Person.no_timeout.each do |person|
+        person.members.each do |member|
+          p_repo[member.hbx_member_id] = person._id
+        end
+      end
+
+      pols = PolicyStatus::Active.between(Date.new(2017,12,31), Date.new(2018,12,31)).results.where({
         :plan_id => {"$in" => plans}, :employer_id => nil
         }).group_by { |p| p_repo[p.subscriber.m_id] }
-
-      p_repo = {}
-      pols
     end
 
     def merge_and_validate_xmls(folder_count)

@@ -46,7 +46,7 @@ tax_document:
   documents_folder: 'irs_notices' 
 
   2018:
-    slcsp: "86052DC0400001-01"
+    slcsp: "94506DC0390014-01"
     new:
       template:
         unassisted: "2018-1095A-NEW-UQHP.pdf"
