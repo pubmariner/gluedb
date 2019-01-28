@@ -2,9 +2,8 @@ module Generators::Reports
   class IrsInputBuilder
     include MoneyMath
 
-    attr_accessor :notice, :carrier_hash, :npt_policy
+    attr_accessor :notice, :carrier_hash, :npt_policy, :settings, :calender_year, :notice_type
  
-    IRS_YEAR = 2018
     REPORT_MONTHS = 12
 
     SLCSP_CORRECTIONS = {
@@ -18,16 +17,26 @@ module Generators::Reports
     }
 
     def initialize(policy, options = {})
-      multi_version = options[:multi_version] || false
-      @void = options[:void] || false
-      @carrier_hash = {}
+      @notice_type = options[:notice_type] || false
+      @npt_policy = options[:npt_policy] || false
+
+      # multi_version = options[:multi_version] || false
+      # @void = options[:void] || false
+      # @void = false
+      # @carrier_hash = {}
       @policy = policy
       @policy_disposition = PolicyDisposition.new(policy)
       @subscriber = @policy.subscriber.person
+      @calender_year = policy.subscriber.coverage_start.year
 
-      if multi_version
-        @multi_version_pol = Generators::Reports::MultiVersionAptcLookup.new(policy)
-      end
+      # multi_version = options[:multi_version] || false
+      # if multi_version
+      #   @multi_version_pol = Generators::Reports::MultiVersionAptcLookup.new(policy)
+      # end
+    end
+
+    def void_notice
+      notice_type == 'void'
     end
 
     def process
@@ -43,6 +52,7 @@ module Generators::Reports
       # @policy.plan.carrier.name
       @notice.qhp_id = @policy.plan.hios_plan_id.gsub('-','')
       @notice.policy_id = prepend_zeros(@policy.id.to_s, 6)
+      @notice.subscriber_hbx_id = @policy.subscriber.m_id
 
       if @policy.responsible_party_id.present?
         append_responsible_party_address
@@ -54,7 +64,7 @@ module Generators::Reports
       if @policy.canceled?
         append_void_monthly_premiums
       else
-        @void ? append_void_monthly_premiums : append_monthly_premiums
+        void_notice ? append_void_monthly_premiums : append_monthly_premiums
       end
 
       append_yearly_premiums
@@ -106,12 +116,7 @@ module Generators::Reports
         @notice.recipient = build_enrollee_ele(@policy.subscriber)
         @notice.spouse = build_enrollee_ele(@policy.spouse)
       end
-
-      if @void
-        @notice.covered_household = [build_enrollee_ele(@policy.subscriber)]
-      else
-        @notice.covered_household = @policy_disposition.enrollees.map{ |enrollee| build_enrollee_ele(enrollee) }.compact
-      end
+      @notice.covered_household = @policy_disposition.enrollees.map{ |enrollee| build_enrollee_ele(enrollee) }.compact unless void_notice
     end
 
     def build_responsible_party(person)
@@ -160,7 +165,7 @@ module Generators::Reports
       coverage_end_month = @policy_disposition.end_date.month
       # coverage_end_month = coverage_end_month - 1 if (@policy_disposition.end_date.day == 1)
 
-      if @policy_disposition.end_date.year != IRS_YEAR || coverage_end_month > REPORT_MONTHS
+      if @policy_disposition.end_date.year != calender_year || coverage_end_month > REPORT_MONTHS
         coverage_end_month = REPORT_MONTHS
       end
 
@@ -179,7 +184,7 @@ module Generators::Reports
       # Commented to generate premiums only for REPORT_MONTHS
       @notice.monthly_premiums = (@policy_disposition.start_date.month..coverage_end_month).inject([]) do |data, i|
 
-        premium_amount = @policy_disposition.as_of(Date.new(IRS_YEAR, i, 1)).ehb_premium
+        premium_amount = @policy_disposition.as_of(Date.new(calender_year, i, 1)).ehb_premium
 
         # if coverage_end_month == i && has_middle_of_month_coverage_end
         #   premium_amount = as_dollars((@policy_disposition.end_date.day.to_f / @policy_disposition.end_date.end_of_month.day) * premium_amount)
@@ -235,10 +240,10 @@ module Generators::Reports
         # @notice.has_aptc = if @multi_version_pol.present? # && @multi_version_pol.assisted?
         #   true ##@multi_version_pol
         # else
-        #   @policy_disposition.as_of(Date.new(IRS_YEAR, i, 1)).applied_aptc > 0
+        #   @policy_disposition.as_of(Date.new(calender_year, i, 1)).applied_aptc > 0
         # end
 
-        @notice.has_aptc = @policy_disposition.as_of(Date.new(IRS_YEAR, i, 1)).applied_aptc > 0
+        @notice.has_aptc = @policy_disposition.as_of(Date.new(calender_year, i, 1)).applied_aptc > 0
 
         if @notice.has_aptc
           # silver_plan_premium = 0
@@ -246,21 +251,27 @@ module Generators::Reports
           #   silver_plan_premium = SLCSP_CORRECTIONS[@policy.id]
           # else
           #   silver_plan = Plan.where({ "year" => 2014, "hios_plan_id" => "94506DC0390006-01" }).first
-          #   silver_plan_premium = @policy_disposition.as_of(Date.new(IRS_YEAR, i, 1), silver_plan).ehb_premium
+          #   silver_plan_premium = @policy_disposition.as_of(Date.new(calender_year, i, 1), silver_plan).ehb_premium
           # end
 
           # aptc_amt = @multi_version_pol.nil? ? 
-          # @policy_disposition.as_of(Date.new(IRS_YEAR, i, 1)).applied_aptc :
-          # @multi_version_pol.aptc_as_of(Date.new(IRS_YEAR, i, 1))
+          # @policy_disposition.as_of(Date.new(calender_year, i, 1)).applied_aptc :
+          # @multi_version_pol.aptc_as_of(Date.new(calender_year, i, 1))
 
           # silver_plan = Plan.where({ "year" => 2014, "hios_plan_id" => "94506DC0390006-01" }).first
+          # silver_plan_premium = @policy_disposition.as_of(Date.new(calender_year, i, 1), silver_plan).ehb_premium
+
           # silver_plan = Plan.where({ "year" => 2015, "hios_plan_id" => "94506DC0390006-01" }).first
+          # silver_plan_premium = @policy_disposition.as_of(Date.new(calender_year, i, 1), silver_plan).ehb_premium
+
           # silver_plan = Plan.where({ "year" => 2016, "hios_plan_id" => "94506DC0390006-01" }).first
-          # silver_plan = Plan.where({ "year" => 2017, "hios_plan_id" => "86052DC0400001-01" }).first
-          silver_plan = Plan.where({ "year" => 2018, "hios_plan_id" => "94506DC0390014-01" }).first
-          silver_plan_premium = @policy_disposition.as_of(Date.new(IRS_YEAR, i, 1), silver_plan).ehb_premium
- 
-          aptc_amt = @policy_disposition.as_of(Date.new(IRS_YEAR, i, 1)).applied_aptc
+          # silver_plan_premium = @policy_disposition.as_of(Date.new(calender_year, i, 1), silver_plan).ehb_premium
+
+          silver_plan = Plan.where({:year => calender_year, :hios_plan_id => settings[:tax_document][calender_year][:slcsp]}).first
+          silver_plan_premium = @policy_disposition.as_of(Date.new(calender_year, i, 1), silver_plan).ehb_premium
+
+
+          aptc_amt = @policy_disposition.as_of(Date.new(calender_year, i, 1)).applied_aptc
 
           # Prorated Start Dates
           if @policy_disposition.start_date.month == i && has_middle_of_month_coverage_begin

@@ -14,6 +14,7 @@ module PdfTemplates
     attribute :active_policies, String
     attribute :canceled_policies, String
     attribute :corrected_record_seq_num, String
+    attribute :subscriber_hbx_id, String
     
     def covered_household_as_of(month, year)
       month_begin = Date.new(year, month, 1)
@@ -38,22 +39,9 @@ module PdfTemplates
     end
 
     def issuer_fein
-      carrier_feins = {
-        'Aetna' =>  '066033492',
-        'CareFirst' => '530078070',
-        'Kaiser' => '520954463',
-        'United Health Care' => '362739571',
-        'Dominion Dental' => '541808292',
-        'Dominion' => '541808292',
-        'Dentegra Dental' => '751233841',
-        'Dentegra' => '751233841',
-        'Delta Dental' => '942761537',
-        'CareFirst BlueChoice' => '521358219'
-      }
-
-      carrier_feins[self.issuer_name]
+      carrier_feins = YAML.load(File.read("#{Rails.root}/config/issuer_feins.yml")).with_indifferent_access
+      carrier_feins[self.issuer_name.split.join]
     end
-
 
     def issuer_dc_name
       carrier_names = {
