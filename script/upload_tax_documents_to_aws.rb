@@ -21,8 +21,8 @@ end
 
 def process_folder(folder, csv)
   Dir.entries(folder).each do |file|
-    next unless File.file?(file, csv)
-    upload_to_s3(file)
+    next unless File.file?(file)
+    upload_to_s3(file, csv)
   end
 end
 
