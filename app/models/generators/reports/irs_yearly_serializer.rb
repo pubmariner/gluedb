@@ -6,12 +6,14 @@ module Generators::Reports
     IRS_XML_PATH = "#{@irs_path}/h41/"
     IRS_PDF_PATH = "#{@irs_path}/irs1095a/"
 
-    attr_accessor :notice_params, :calender_year, :qhp_type, :notice_absolute_path
+    attr_accessor :notice_params, :calender_year, :qhp_type, :notice_absolute_path, :xml_output
 
     def initialize(options = {})
       @count = 0
       @policy_id = nil
       @hbx_member_id = nil
+
+      @xml_output = false
 
       @report_names = {}
       @policies = []
@@ -43,8 +45,12 @@ module Generators::Reports
 
 
     def generate_notices
-      create_new_pdf_folder
-      # create_new_irs_folder
+
+      if xml_output
+        create_new_irs_folder
+      else
+        create_new_pdf_folder
+      end
 
       # book = Spreadsheet.open "#{Rails.root}/KP_2016_1095_COMPILED_EXCLUSION_LIST_SET2.xls"
       # skip_list = book.worksheets.first.inject([]){|data, row| data << row[2].to_s.strip.to_i}.compact
@@ -71,19 +77,20 @@ module Generators::Reports
       # end
 
 
-      book = Spreadsheet.open "#{Rails.root}/2017_RP_UQHP_1095A_Data.xls"
-      @responsible_party_data = book.worksheets.first.inject({}) do |data, row|
-        if row[2].to_s.strip.match(/Responsible Party SSN/i) || (row[2].to_s.strip.blank? && row[4].to_s.strip.blank?)
-        else
-          data[row[0].to_s.strip.to_i] = [prepend_zeros(row[2].to_i.to_s, 9), Date.strptime(row[3].to_s.strip.split("T")[0], "%Y-%m-%d")]
-        end
-        data
-      end
+      # book = Spreadsheet.open "#{Rails.root}/2017_RP_UQHP_1095A_Data.xls"
+      @responsible_party_data = []
+      # @responsible_party_data = book.worksheets.first.inject({}) do |data, row|
+      #   if row[2].to_s.strip.match(/Responsible Party SSN/i) || (row[2].to_s.strip.blank? && row[4].to_s.strip.blank?)
+      #   else
+      #     data[row[0].to_s.strip.to_i] = [prepend_zeros(row[2].to_i.to_s, 9), Date.strptime(row[3].to_s.strip.split("T")[0], "%Y-%m-%d")]
+      #   end
+      #   data
+      # end
 
       @npt_policies = []
-      CSV.foreach("#{Rails.root}/2017_NPT_UQHP_20180126.csv", headers: :true) do |row|
-        @npt_policies << row[0].strip
-      end
+      # CSV.foreach("#{Rails.root}/2017_NPT_UQHP_20180126.csv", headers: :true) do |row|
+      #   @npt_policies << row[0].strip
+      # end
 
       count = 0
       @folder_count = 1
@@ -110,7 +117,7 @@ module Generators::Reports
             #   next
             # end
 
-            next if (policy.applied_aptc > 0 || policy.multi_aptc?)
+            # next if (policy.applied_aptc > 0 || policy.multi_aptc?)
             # next unless kaiser_plans.include?(policy.plan_id)
             # next if policy.subscriber.coverage_end.present? && (policy.subscriber.coverage_end < policy.subscriber.coverage_start)
             # next unless (policy.subscriber.coverage_end.present? && (policy.subscriber.coverage_end.end_of_month != policy.subscriber.coverage_end))
@@ -374,6 +381,7 @@ module Generators::Reports
 
     def process_policy(policy)
       if valid_policy?(policy)
+
         @calender_year = policy.subscriber.coverage_start.year
         @qhp_type = ((policy.applied_aptc > 0 || policy.multi_aptc?) ? 'assisted' : 'unassisted')
         @policy_id = policy.id
@@ -401,27 +409,26 @@ module Generators::Reports
         notice.canceled_policies = []
 
         create_report_names
-        render_xml(notice)
 
-        # render_pdf(notice)
+        if xml_output
+          render_xml(notice)
 
-        # if notice.covered_household.size > 5
-        #   create_report_names
-        #   render_pdf(notice, true)          
-        # end
-
-        if @count !=0
-          if (@count % 250 == 0)
-            # create_new_pdf_folder
-          elsif (@count % 4000 == 0)
+          if @count != 0 && @count % 4000 == 0
+            merge_and_validate_xmls(@folder_count)
+            @folder_count += 1
             create_new_irs_folder
           end
-        end
+        else
+          render_pdf(notice)
 
-        if @count % 4000 == 0
-          merge_and_validate_xmls(@folder_count)
-          @folder_count += 1
-          create_new_irs_folder
+          if notice.covered_household.size > 5
+            create_report_names
+            render_pdf(notice, true)          
+          end
+
+          if @count != 0 &&  (@count % 250 == 0)
+            create_new_pdf_folder
+          end
         end
 
         notice = nil
