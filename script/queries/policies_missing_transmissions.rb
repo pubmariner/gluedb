@@ -1,12 +1,5 @@
 ct_cache = Caches::Mongoid::SinglePropertyLookup.new(Plan, "coverage_type")
 
-p_repo = {}
-
-p_map = Person.collection.aggregate([{"$unwind"=> "$members"}, {"$project" => {"_id" => 0, member_id: "$members.hbx_member_id", person_id: "$_id"}}])
-p_map.each do |val|
-    p_repo[val["member_id"]] = val["person_id"]
-end
-
 all_pol_ids = Protocols::X12::TransactionSetHeader.collection.aggregate([
   {"$match" => {
     "policy_id" => { "$ne" => nil }
@@ -21,8 +14,8 @@ puts pols_2015.length
 
 untransmitted_pols = []
 
-if File.exist?("policy_blacklist.txt")
-  excluded_policies = File.read("policy_blacklist.txt").split("\n").map(&:strip)
+if File.exists?("policy_blacklist.txt")
+  excluded_policies = File.read("policy_blacklist.txt").split("\n").map(&:strip).map(&:to_i)
 else
   excluded_policies = []
 end
@@ -33,13 +26,13 @@ CSV.open("policies_without_transmissions_#{timestamp}.csv","w") do |csv|
   csv << ["Created At", "Enrollment Group ID", "Carrier", "Employer", "Subscriber Name", "Subscriber HBX ID"]
   pols_2015.each do |pol|
     if !all_pol_ids.include?(pol.id)
-      if !pol.canceled?
+      if pol.subscriber.present? && !pol.canceled?
         unless excluded_policies.include? pol.id
           created_at = pol.created_at
           eg_id = pol.eg_id
           carrier = pol.plan.carrier.abbrev
           employer = pol.try(:employer).try(:name)
-          subscriber_name = pol.subscriber.person.full_name
+          subscriber_name = pol.subscriber.person.full_name rescue ""
           subscriber_hbx_id = pol.subscriber.m_id
           csv << [created_at,eg_id,carrier,employer,subscriber_name,subscriber_hbx_id]
         end

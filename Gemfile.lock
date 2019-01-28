@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: git@github.com:dchbx/edi_codec.git
-  revision: dec274d70b0187525948dd83d3ebb13600c7a308
+  revision: 9cae104c4d9144edf9cd411d7f7ccb0a3ab888fe
   specs:
     edi_codec (0.1.2)
       activesupport (>= 3.2)
@@ -17,7 +17,7 @@ GIT
 
 GIT
   remote: https://github.com/dchbx/openhbx_cv2.git
-  revision: b37151b063dd36d17d7455e46611465ba1161663
+  revision: d9c7f60eb789d7eee7719302875b77ad93d774d2
   specs:
     openhbx_cv2 (0.0.1)
       activesupport (>= 3.2)
@@ -104,9 +104,6 @@ GEM
       rack (>= 1.0.0)
       rack-test (>= 0.5.4)
       xpath (~> 2.0)
-    capybara-webkit (1.11.1)
-      capybara (>= 2.3.0, < 2.8.0)
-      json
     carrierwave (0.10.0)
       activemodel (>= 3.2.0)
       activesupport (>= 3.2.0)
@@ -127,6 +124,7 @@ GEM
       sexp_processor
     codeclimate-engine-rb (0.4.0)
       virtus (~> 1.0)
+    coderay (1.1.2)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
     coffee-rails (3.2.2)
@@ -224,6 +222,7 @@ GEM
     mail (2.5.5)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
+    method_source (0.9.0)
     mime-types (1.25.1)
     mini_portile2 (2.1.0)
     mongoid (3.1.7)
@@ -241,7 +240,7 @@ GEM
     mongoid_auto_increment (0.1.2)
       mongoid (>= 2.0)
     moped (1.5.3)
-    multi_json (1.12.2)
+    multi_json (1.13.1)
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
     net-sftp (2.1.2)
@@ -277,6 +276,11 @@ GEM
     prawn (0.11.1)
       pdf-reader (>= 0.9.0)
       ttfunk (~> 1.0.0)
+    pry (0.11.3)
+      coderay (~> 1.1.0)
+      method_source (~> 0.9.0)
+    pry-rails (0.3.6)
+      pry (>= 0.10.4)
     psych (2.0.5)
     public_suffix (2.0.5)
     rack (1.4.7)
@@ -447,7 +451,6 @@ DEPENDENCIES
   cancancan (~> 1.9)
   capistrano (= 2.15.4)
   capybara (= 2.4.4)
-  capybara-webkit
   carrierwave-mongoid (= 0.7.1)
   celluloid (= 0.15.2)
   ci_reporter (= 2.0.0)
@@ -483,6 +486,7 @@ DEPENDENCIES
   parallel_tests
   pd_x12
   prawn (~> 0.11.1)
+  pry-rails
   psych (= 2.0.5)
   rails (= 3.2.22.5)
   rails_best_practices
@@ -509,4 +513,4 @@ DEPENDENCIES
   virtus
 
 BUNDLED WITH
-   1.15.1
+   1.16.2

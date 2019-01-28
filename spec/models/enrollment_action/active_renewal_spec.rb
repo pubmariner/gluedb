@@ -156,22 +156,25 @@ describe EnrollmentAction::ActiveRenewal, "#persist" do
   let(:action) { instance_double(
     ::ExternalEvents::EnrollmentEventNotification,
     :policy_cv => policy_cv ,
-    :existing_plan => plan
+    :existing_plan => plan,
+    :is_cobra? => false
     )
   }
+
   let(:policy_updater) { instance_double(ExternalEvents::ExternalPolicy) }
   subject { EnrollmentAction::ActiveRenewal.new(nil,action) }
 
   before :each do
     allow(ExternalEvents::ExternalMember).to receive(:new).with(member).and_return(db_record)
-    allow(ExternalEvents::ExternalPolicy).to receive(:new).with(policy_cv, plan).and_return(policy_updater)
+    allow(ExternalEvents::ExternalPolicy).to receive(:new).with(policy_cv, plan, false, market_from_payload: subject.action).and_return(policy_updater)
+    allow(subject.action).to receive(:kind).and_return(action)
     allow(policy_updater).to receive(:persist).and_return(true)
   end
 
   context "successfuly persisted" do
     let(:db_record) { instance_double(ExternalEvents::ExternalMember, :persist => true) }
 
-    before(:each) do 
+    before(:each) do
       allow(subject.action).to receive(:existing_policy).and_return(false)
     end
 
@@ -182,7 +185,7 @@ describe EnrollmentAction::ActiveRenewal, "#persist" do
   context "failed to persist" do
     let(:db_record) { instance_double(ExternalEvents::ExternalMember, :persist => false) }
 
-    before(:each) do 
+    before(:each) do
       allow(subject.action).to receive(:existing_policy).and_return(true)
     end
 

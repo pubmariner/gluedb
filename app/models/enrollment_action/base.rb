@@ -25,6 +25,7 @@ module EnrollmentAction
         ::EnrollmentAction::ActiveRenewal,
         ::EnrollmentAction::CarrierSwitch,
         ::EnrollmentAction::CarrierSwitchRenewal,
+        ::EnrollmentAction::MarketChange,
         ::EnrollmentAction::DependentAdd,
         ::EnrollmentAction::DependentDrop,
         ::EnrollmentAction::PlanChange,
@@ -32,12 +33,16 @@ module EnrollmentAction
         ::EnrollmentAction::PlanChangeDependentDrop,
         ::EnrollmentAction::RenewalDependentAdd,
         ::EnrollmentAction::RenewalDependentDrop,
+        ::EnrollmentAction::CobraNewPolicySwitchover,
+        ::EnrollmentAction::CobraNewPolicyReinstate,
+        ::EnrollmentAction::CobraSwitchover,
+        ::EnrollmentAction::CobraReinstate,
         ::EnrollmentAction::AssistanceChange,
         ::EnrollmentAction::InitialEnrollment,
         ::EnrollmentAction::Termination,
         ::EnrollmentAction::ReselectionOfExistingCoverage
       ].detect { |kls| kls.qualifies?(chunk) }
-      
+
       if selected_action
         puts selected_action.inspect
         selected_action.construct(chunk)
@@ -56,7 +61,7 @@ module EnrollmentAction
       self.new(term, action)
     end
 
-    # Check if an enrollment already exists - if it does and you don't want to send out a new transaction, call this method. 
+    # Check if an enrollment already exists - if it does and you don't want to send out a new transaction, call this method.
     def check_already_exists
       if @action && action.existing_policy
         errors.add(:action, "enrollment already exists")

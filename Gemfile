@@ -30,6 +30,7 @@ group 'development', 'test' do
 end
 
 group :development, :assets, :test do
+  gem 'pry-rails'
   gem 'libv8'
   gem 'therubyracer', '0.12.2', :platforms => :ruby
   gem 'sass-rails',   '~> 3.2.3'
@@ -54,7 +55,6 @@ group :test do
   gem 'rspec-rails', '3.3.3'
   gem 'rspec-collection_matchers', '1.1.2'
   gem 'capybara', '2.4.4'
-  gem "capybara-webkit"
   gem 'factory_girl_rails', '4.5.0'
   gem 'factory_girl', '4.5.0'
   gem 'database_cleaner', '1.5.3'
@@ -95,4 +95,5 @@ gem 'rgl', '0.5.2'
 gem 'aws-sdk'
 
 # configuration support
+
 gem "config", '~> 1.0.0'
