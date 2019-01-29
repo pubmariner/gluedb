@@ -6,7 +6,7 @@ field_names  = %w(doc_uri uploaded_file_name)
 
 def upload_to_s3(file_name, csv)
   base_name = File.basename(file_name)
-  doc_uri = Aws::S3Storage.save(file_name, "tax-documents", base_name)
+  doc_uri = ::Aws::S3Storage.save(file_name, "tax-documents", base_name)
   if doc_uri
     @counter += 1
     csv << [
@@ -24,13 +24,16 @@ CSV.open(file_name, "w", force_quotes: true) do |csv|
   folder_paths.split(',').each do |folder_path|
     folder_path = folder_path.strip
     begin
-      Dir.foreach(folder_path).each do |file_name|
+      Dir.entries(folder_path).each do |file_name|
         next if file_name == ('.' || '..')
         file_name = folder_path + file_name.insert(0, '/')
         upload_to_s3(file_name, csv) if File.file?(file_name)
       end
     rescue => e
-      puts "Unable to process file or folder, error reason: #{e.backtrace}" unless Rails.env.test?
+      unless Rails.env.test?
+          puts "Unable to process file or folder, error reason: #{e}"
+          puts "Backtrace: #{e.backtrace}"
+      end
     end
   end
 
