@@ -26,11 +26,7 @@ module PeopleHelper
   end
 
   def policy_status(policy)
-    status = policy.aasm_state.capitalize
-    if (policy.term_for_np == true) && (policy.aasm_state == "terminated")
-      status << " (NPT)"
-    end
-    status
+   policy.aasm_state.capitalize
     # raw(<span class="label label-warning">status</span>) if ["Canceled", "Terminated"].include?(status)
   end
 
