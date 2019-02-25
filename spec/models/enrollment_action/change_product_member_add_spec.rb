@@ -68,6 +68,7 @@ describe EnrollmentAction::PlanChangeDependentAdd, "given a qualified enrollment
     ) }
 
   let(:policy_updater) { instance_double(ExternalEvents::ExternalPolicy) }
+  let(:expected_termination_date) { double }
 
   subject do
     EnrollmentAction::PlanChangeDependentAdd.new(termination_event, dependent_add_event)
@@ -77,16 +78,22 @@ describe EnrollmentAction::PlanChangeDependentAdd, "given a qualified enrollment
     allow(ExternalEvents::ExternalMember).to receive(:new).with(member_primary).and_return(primary_db_record)
     allow(ExternalEvents::ExternalMember).to receive(:new).with(member_secondary).and_return(secondary_db_record)
     allow(ExternalEvents::ExternalMember).to receive(:new).with(member_new).and_return(new_db_record)
-
-    allow(ExternalEvents::ExternalPolicy).to receive(:new).with(new_policy_cv, plan, false).and_return(policy_updater)
+    allow(ExternalEvents::ExternalPolicy).to receive(:new).with(new_policy_cv, plan, false, market_from_payload: subject.action).and_return(policy_updater)
     allow(policy_updater).to receive(:persist).and_return(true)
-    allow(termination_event.existing_policy).to receive(:terminate_as_of).and_return(true)
+    allow(termination_event.existing_policy).to receive(:terminate_as_of).with(expected_termination_date).and_return(true)
     allow(termination_event).to receive(:subscriber_end).and_return(false)
     allow(subject.action).to receive(:existing_policy).and_return(false)
+    allow(subject.action).to receive(:kind).and_return(dependent_add_event)
+    allow(subject).to receive(:select_termination_date).and_return(expected_termination_date)
   end
 
   it "successfully creates the new policy" do
     expect(subject.persist).to be_truthy
+  end
+
+  it "terminates with the correct end date" do
+    expect(subject).to receive(:select_termination_date).and_return(expected_termination_date)
+    subject.persist
   end
 end
 

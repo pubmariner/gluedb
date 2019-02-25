@@ -2,6 +2,8 @@ module EnrollmentAction
   class PlanChange < Base
     extend PlanComparisonHelper
     extend DependentComparisonHelper
+    include TerminationDateHelper
+
     def self.qualifies?(chunk)
       return false if chunk.length < 2
       return false if same_plan?(chunk)
@@ -18,10 +20,11 @@ module EnrollmentAction
       unless members_persisted.all?
         return false
       end
-      ep = ExternalEvents::ExternalPolicy.new(action.policy_cv, action.existing_plan, action.is_cobra?)
+      ep = ExternalEvents::ExternalPolicy.new(action.policy_cv, action.existing_plan, action.is_cobra?, market_from_payload: action.kind)
       return false unless ep.persist
       policy_to_term = termination.existing_policy
-      policy_to_term.terminate_as_of(termination.subscriber_end)
+      termination_date = select_termination_date
+      policy_to_term.terminate_as_of(termination_date)
     end
 
     def publish

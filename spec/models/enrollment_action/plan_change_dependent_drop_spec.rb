@@ -113,6 +113,7 @@ describe EnrollmentAction::PlanChangeDependentDrop, "given a valid enrollment se
     all_member_ids: [1, 2, 3]
   ) }
   let(:policy_updater) { instance_double(ExternalEvents::ExternalPolicyMemberDrop) }
+  let(:expected_termination_date) { double }
 
   subject { EnrollmentAction::PlanChangeDependentDrop.new(termination_event, dependent_drop_event) }
 
@@ -120,11 +121,13 @@ describe EnrollmentAction::PlanChangeDependentDrop, "given a valid enrollment se
     allow(ExternalEvents::ExternalMember).to receive(:new).with(primary_member).and_return(db_record)
     allow(ExternalEvents::ExternalMember).to receive(:new).with(secondary_member).and_return(db_record)
     allow(ExternalEvents::ExternalMember).to receive(:new).with(dropped_member).and_return(db_record)
-    allow(ExternalEvents::ExternalPolicy).to receive(:new).with(new_policy_cv, plan, false).and_return(policy_updater)
+    allow(ExternalEvents::ExternalPolicy).to receive(:new).with(new_policy_cv, plan, false, market_from_payload: subject.action).and_return(policy_updater)
     allow(policy_updater).to receive(:persist).and_return(true)
     allow(termination_event).to receive(:subscriber_end).and_return(false)
     allow(termination_event.existing_policy).to receive(:terminate_as_of).and_return(true)
     allow(subject.action).to receive(:existing_policy).and_return(false)
+    allow(subject).to receive(:select_termination_date).and_return(expected_termination_date)
+    allow(subject.action).to receive(:kind).and_return(dependent_drop_event)
   end
 
   it "persists when all members persist" do
@@ -168,6 +171,7 @@ describe EnrollmentAction::PlanChangeDependentDrop, "given a valid enrollment" d
     EnrollmentAction::ActionPublishHelper,
     to_xml: termination_helper_result_xml
   ) }
+  let(:expected_end_date) { double }
 
   subject { EnrollmentAction::PlanChangeDependentDrop.new(termination_event, dependent_drop_event) }
 
@@ -177,6 +181,7 @@ describe EnrollmentAction::PlanChangeDependentDrop, "given a valid enrollment" d
     allow(termination_publish_helper).to receive(:set_policy_id).with(policy.id)
     allow(termination_publish_helper).to receive(:filter_affected_members).with([3]).and_return(true)
     allow(termination_publish_helper).to receive(:keep_member_ends).with([3])
+    allow(termination_publish_helper).to receive(:set_member_ends).with(expected_end_date)
     allow(termination_publish_helper).to receive(:set_member_starts).with({1 => enrollee.coverage_start, 2 => new_enrollee.coverage_start, 3 => dropped_enrollee.coverage_start})
     allow(termination_publish_helper).to receive(:swap_qualifying_event).with(event_xml)
     allow(termination_publish_helper).to receive(:recalculate_premium_totals_excluding_dropped_dependents).with([1,2])
@@ -185,6 +190,7 @@ describe EnrollmentAction::PlanChangeDependentDrop, "given a valid enrollment" d
     allow(action_helper).to receive(:set_event_action).with("urn:openhbx:terms:v1:enrollment#change_product")
     allow(action_helper).to receive(:keep_member_ends).with([])
     allow(subject).to receive(:publish_edi).with(amqp_connection, action_helper_result_xml, dependent_drop_event.hbx_enrollment_id, dependent_drop_event.employer_hbx_id)
+    allow(subject).to receive(:select_termination_date).and_return(expected_end_date)
   end
 
   it "sets the action on the new enrollment" do

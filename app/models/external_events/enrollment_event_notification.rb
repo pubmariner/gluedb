@@ -90,7 +90,17 @@ module ExternalEvents
     def has_bogus_plan_year?
       return false unless is_shop?
       plan_year = find_employer_plan_year(policy_cv)
-      plan_year.nil?
+      return false if plan_year.present?
+
+      if plan_year.nil? && is_termination?
+        employer = find_employer(policy_cv)
+        plan_year = employer.plan_years.to_a.detect do |py|
+          (py.start_date <= subscriber_start) && ((py.start_date + 1.year - 1.day) >= subscriber_start)
+        end
+        plan_year.nil?
+      else
+        true
+      end
     end
 
     def clean_ivars
@@ -299,6 +309,10 @@ module ExternalEvents
       @active_year ||= extract_active_year(policy_cv)
     end
 
+    def kind
+      @kind ||= extract_market_kind(enrollment_event_xml)
+    end
+
     def is_adjacent_to?(other)
       return false unless active_year == other.active_year
       case [is_termination?, other.is_termination?]
@@ -327,6 +341,11 @@ module ExternalEvents
       !employer_hbx_id.blank?
     end
     
+    def submitted_at_time
+      timestamp_value = Maybe.new(enrollment_event_xml).header.submitted_timestamp.value
+      Time.strptime(timestamp_value, "%Y-%m-%dT%H:%M:%S") rescue nil
+    end
+
     def submitted_at_time
       timestamp_value = Maybe.new(enrollment_event_xml).header.submitted_timestamp.value
       Time.strptime(timestamp_value, "%Y-%m-%dT%H:%M:%S") rescue nil
