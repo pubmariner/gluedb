@@ -281,6 +281,11 @@ module ExternalEvents
       extract_enrollee_start(subscriber) >= extract_enrollee_end(subscriber)
     end
 
+    def is_earlier_termination? # terminating policy again with earlier termination date
+      return false unless (enrollment_action == "urn:openhbx:terms:v1:enrollment#terminate_enrollment")
+      (existing_policy.terminated? && existing_policy.policy_end >= extract_enrollee_end(subscriber))
+    end
+
     def enrollment_action
       @enrollment_action ||= extract_enrollment_action(enrollment_event_xml)
     end
@@ -389,6 +394,7 @@ module ExternalEvents
       return false unless is_termination?
       return false if existing_policy.blank?
       return true if existing_policy.canceled?
+      return false if is_earlier_termination?
       if existing_policy.terminated?
         !is_cancel?
       else
