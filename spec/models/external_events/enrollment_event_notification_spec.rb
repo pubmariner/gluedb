@@ -603,3 +603,79 @@ describe ExternalEvents::EnrollmentEventNotification, "that is a term with an ac
     expect(subject.already_processed_termination?).to be_falsey
   end
 end
+
+
+describe ExternalEvents::EnrollmentEventNotification, "that is termination with a terminated enrollment with earlier end date" do
+  let(:m_tag) { double('m_tag') }
+  let(:t_stamp) { double('t_stamp') }
+  let(:e_xml) { double('e_xml') }
+  let(:headers) { double('headers') }
+  let(:responder) { instance_double('::ExternalEvents::EventResponder') }
+  let(:existing_policy) { instance_double(Policy, :canceled? => false, :terminated? => true) }
+
+  subject do
+    ::ExternalEvents::EnrollmentEventNotification.new responder, m_tag, t_stamp, e_xml, headers
+  end
+
+  before :each do
+    allow(subject).to receive(:is_termination?).and_return(true)
+    allow(subject).to receive(:existing_policy).and_return(existing_policy)
+    allow(subject).to receive(:is_earlier_termination?).and_return(true)
+  end
+
+  it "is an already processed termination" do
+    expect(subject.already_processed_termination?).to be_falsey
+  end
+end
+
+describe "is_earlier_termination?" do
+  let(:start_date) {Date.today.beginning_of_month}
+  let(:enrollee) {double}
+  let(:policy_cv) { instance_double(::Openhbx::Cv2::Policy) }
+
+  let(:m_tag) { double('m_tag') }
+  let(:t_stamp) { double('t_stamp') }
+  let(:e_xml) { double('e_xml') }
+  let(:headers) { double('headers') }
+  let(:responder) { instance_double('::ExternalEvents::EventResponder') }
+
+  let :subject do
+    ::ExternalEvents::EnrollmentEventNotification.new responder, m_tag, t_stamp, e_xml, headers
+  end
+
+  context "with new past end date" do
+
+    let(:existing_policy) { instance_double(Policy, :terminated? => true, :policy_end => Date.today.next_month) }
+
+    before :each do
+      allow(subject).to receive(:enrollment_action).and_return("urn:openhbx:terms:v1:enrollment#terminate_enrollment")
+      allow(subject).to receive(:existing_policy).and_return(existing_policy)
+      allow(subject).to receive(:subscriber).and_return(enrollee)
+      allow_any_instance_of(Handlers::EnrollmentEventXmlHelper).to receive(:extract_enrollee_end).with(enrollee).and_return(start_date)
+    end
+
+    it "should return true" do
+      expect(subject.is_earlier_termination?).to be_truthy
+    end
+
+  end
+
+  context "with new future end date" do
+
+    let(:start_date) {Date.today.beginning_of_month + 2.months}
+    let(:existing_policy) { instance_double(Policy, :terminated? => true, :policy_end => Date.today.next_month) }
+
+    before :each do
+      allow(subject).to receive(:enrollment_action).and_return("urn:openhbx:terms:v1:enrollment#terminate_enrollment")
+      allow(subject).to receive(:existing_policy).and_return(existing_policy)
+      allow(subject).to receive(:subscriber).and_return(enrollee)
+      allow_any_instance_of(Handlers::EnrollmentEventXmlHelper).to receive(:extract_enrollee_end).with(enrollee).and_return(start_date)
+    end
+
+    it "should return true" do
+      expect(subject.is_earlier_termination?).to be_falsey
+    end
+
+  end
+
+end
