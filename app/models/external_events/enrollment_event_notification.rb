@@ -287,7 +287,7 @@ module ExternalEvents
 
     def is_reterm_with_earlier_date? # terminating policy again with earlier termination date
       return false unless (enrollment_action == "urn:openhbx:terms:v1:enrollment#terminate_enrollment")
-      (existing_policy.present? && existing_policy.terminated? && existing_policy.policy_end >= extract_enrollee_end(subscriber))
+      (existing_policy.present? && existing_policy.terminated? && existing_policy.policy_end >= subscriber_end)
     end
 
     def enrollment_action

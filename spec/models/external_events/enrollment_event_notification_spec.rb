@@ -1,4 +1,5 @@
 require "rails_helper"
+require 'pry'
 
 describe ::ExternalEvents::EnrollmentEventNotification do
   let(:m_tag) { double('m_tag') }
@@ -6,7 +7,6 @@ describe ::ExternalEvents::EnrollmentEventNotification do
   let(:e_xml) { double('e_xml') }
   let(:headers) { double('headers') }
   let(:responder) { instance_double('::ExternalEvents::EventResponder') }
-
   let :enrollment_event_notification do
     ::ExternalEvents::EnrollmentEventNotification.new responder, m_tag, t_stamp, e_xml, headers
   end
@@ -631,7 +631,7 @@ describe ExternalEvents::EnrollmentEventNotification, "that is termination with 
   end
 end
 
-describe "is_earlier_termination?" do
+describe "#is_reterm_with_earlier_date?" do
   let(:start_date) {Date.today.beginning_of_month}
   let(:enrollee) {double}
   let(:policy_cv) { instance_double(::Openhbx::Cv2::Policy) }
@@ -678,7 +678,60 @@ describe "is_earlier_termination?" do
     it "should return true" do
       expect(subject.is_reterm_with_earlier_date?).to be_falsey
     end
+  end
+end
 
+describe "#drop_if_already_processed" do
+  let(:start_date) {Date.today.beginning_of_month}
+  let(:enrollee) {double}
+  let(:policy_cv) { instance_double(::Openhbx::Cv2::Policy) }
+
+  let(:m_tag) { double('m_tag') }
+  let(:t_stamp) { double('t_stamp') }
+  let(:e_xml) { double('e_xml') }
+  let(:headers) { double('headers') }
+  let(:responder) { instance_double('::ExternalEvents::EventResponder') }
+  let(:policy) { FactoryGirl.create(:policy) }
+  let(:hbx_enrollment_id) { policy.hbx_enrollment_ids.first }
+  let(:result_publisher) { double :drop_bogus_plan_year! => true }
+  let!(:enrollment_action_issue) do
+    ::EnrollmentAction::EnrollmentActionIssue.create(
+      :hbx_enrollment_id => hbx_enrollment_id,
+      :enrollment_action_uri => "urn:openhbx:terms:v1:enrollment#terminate_enrollment"
+    )
+  end
+  
+  let :subject do
+    ::ExternalEvents::EnrollmentEventNotification.new responder, m_tag, t_stamp, e_xml, headers
   end
 
+  context "policy end date is greater to or equal than subscriber end date" do
+    before do
+      allow(subject).to receive(:is_termination?).and_return(true)
+      allow(subject).to receive(:hbx_enrollment_id).and_return(hbx_enrollment_id)
+      allow(subject).to receive(:enrollment_action).and_return("urn:openhbx:terms:v1:enrollment#terminate_enrollment")
+      allow(subject).to receive(:subscriber_end).and_return(subject.existing_policy.policy_end)
+    end
+
+    it "does not drop the policy if a previously processed termination is created" do
+      expect(subject.drop_if_already_processed!).to be_false
+    end
+  end
+
+  context "policy end date is less than the subscriber end date" do
+    let!(:result_publisher) { double :drop_if_already_processed! => true }
+    
+    before do
+      allow(subject).to receive(:is_termination?).and_return(true)
+      allow(subject).to receive('response_with_publisher').and_yield(result_publisher)
+      allow(subject).to receive(:hbx_enrollment_id).and_return(hbx_enrollment_id)
+      allow(subject).to receive(:enrollment_action).and_return("urn:openhbx:terms:v1:enrollment#terminate_enrollment")
+      allow(subject).to receive(:subscriber_end).and_return((subject.existing_policy.policy_end + 3.years))
+    end
+
+    it "drops the policy if a previously if there is no previously processed termination created" do
+      expect(result_publisher).to receive(:drop_already_processed!).with(subject)
+      subject.drop_if_already_processed!
+    end
+  end
 end
