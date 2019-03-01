@@ -398,9 +398,12 @@ module ExternalEvents
       return false unless is_termination?
       return false if existing_policy.blank?
       return true if existing_policy.canceled?
-      return false if is_reterm_with_earlier_date?
       if existing_policy.terminated?
-        !is_cancel?
+        if is_reterm_with_earlier_date?
+          false
+        else
+          !is_cancel?
+        end
       else
         false
       end
