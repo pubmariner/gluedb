@@ -551,6 +551,7 @@ describe ExternalEvents::EnrollmentEventNotification, "that is termination with 
     allow(subject).to receive(:is_termination?).and_return(true)
     allow(subject).to receive(:is_cancel?).and_return(false)
     allow(subject).to receive(:existing_policy).and_return(existing_policy)
+    allow(subject).to receive(:is_reterm_with_earlier_date?).and_return(false)
   end
 
   it "is an already processed termination" do
@@ -572,6 +573,7 @@ describe ExternalEvents::EnrollmentEventNotification, "that is a cancel with a t
 
   before :each do
     allow(subject).to receive(:is_termination?).and_return(true)
+    allow(subject).to receive(:is_reterm_with_earlier_date?).and_return(false)
     allow(subject).to receive(:is_cancel?).and_return(true)
     allow(subject).to receive(:existing_policy).and_return(existing_policy)
   end
@@ -597,6 +599,7 @@ describe ExternalEvents::EnrollmentEventNotification, "that is a term with an ac
     allow(subject).to receive(:is_termination?).and_return(true)
     allow(subject).to receive(:is_cancel?).and_return(false)
     allow(subject).to receive(:existing_policy).and_return(existing_policy)
+    allow(subject).to receive(:is_reterm_with_earlier_date?).and_return(false)
   end
 
   it "is not an already processed termination" do
@@ -620,7 +623,7 @@ describe ExternalEvents::EnrollmentEventNotification, "that is termination with 
   before :each do
     allow(subject).to receive(:is_termination?).and_return(true)
     allow(subject).to receive(:existing_policy).and_return(existing_policy)
-    allow(subject).to receive(:is_earlier_termination?).and_return(true)
+    allow(subject).to receive(:is_reterm_with_earlier_date?).and_return(true)
   end
 
   it "is an already processed termination" do
@@ -655,7 +658,7 @@ describe "is_earlier_termination?" do
     end
 
     it "should return true" do
-      expect(subject.is_earlier_termination?).to be_truthy
+      expect(subject.is_reterm_with_earlier_date?).to be_truthy
     end
 
   end
@@ -673,7 +676,7 @@ describe "is_earlier_termination?" do
     end
 
     it "should return true" do
-      expect(subject.is_earlier_termination?).to be_falsey
+      expect(subject.is_reterm_with_earlier_date?).to be_falsey
     end
 
   end

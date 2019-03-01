@@ -65,8 +65,12 @@ module ExternalEvents
         :enrollment_action_uri => enrollment_action
       )
       if found_event.any?
-        response_with_publisher do |result_publisher|
-          result_publisher.drop_already_processed!(self)
+        if is_reterm_with_earlier_date?
+          false
+        else
+          response_with_publisher do |result_publisher|
+            result_publisher.drop_already_processed!(self)
+          end
         end
       else
         false
@@ -281,9 +285,9 @@ module ExternalEvents
       extract_enrollee_start(subscriber) >= extract_enrollee_end(subscriber)
     end
 
-    def is_earlier_termination? # terminating policy again with earlier termination date
+    def is_reterm_with_earlier_date? # terminating policy again with earlier termination date
       return false unless (enrollment_action == "urn:openhbx:terms:v1:enrollment#terminate_enrollment")
-      (existing_policy.terminated? && existing_policy.policy_end >= extract_enrollee_end(subscriber))
+      (existing_policy.present? && existing_policy.terminated? && existing_policy.policy_end >= extract_enrollee_end(subscriber))
     end
 
     def enrollment_action
@@ -394,7 +398,7 @@ module ExternalEvents
       return false unless is_termination?
       return false if existing_policy.blank?
       return true if existing_policy.canceled?
-      return false if is_earlier_termination?
+      return false if is_reterm_with_earlier_date?
       if existing_policy.terminated?
         !is_cancel?
       else
