@@ -1,5 +1,4 @@
 require "rails_helper"
-require 'pry'
 
 describe ::ExternalEvents::EnrollmentEventNotification do
   let(:m_tag) { double('m_tag') }
@@ -693,32 +692,34 @@ describe "#drop_if_already_processed" do
   let(:responder) { instance_double('::ExternalEvents::EventResponder') }
   let(:policy) { FactoryGirl.create(:policy) }
   let(:hbx_enrollment_id) { policy.hbx_enrollment_ids.first }
-  let(:result_publisher) { double :drop_bogus_plan_year! => true }
+
   let!(:enrollment_action_issue) do
     ::EnrollmentAction::EnrollmentActionIssue.create(
       :hbx_enrollment_id => hbx_enrollment_id,
       :enrollment_action_uri => "urn:openhbx:terms:v1:enrollment#terminate_enrollment"
     )
   end
+
+  let(:existing_policy) { instance_double(Policy, :terminated? => true, :policy_end => Date.today.next_month) }
   
   let :subject do
     ::ExternalEvents::EnrollmentEventNotification.new responder, m_tag, t_stamp, e_xml, headers
   end
 
-  context "policy end date is greater to or equal than subscriber end date" do
+  context "termination event received for already terminated policy and eligible for re-termination" do
     before do
       allow(subject).to receive(:is_termination?).and_return(true)
       allow(subject).to receive(:hbx_enrollment_id).and_return(hbx_enrollment_id)
       allow(subject).to receive(:enrollment_action).and_return("urn:openhbx:terms:v1:enrollment#terminate_enrollment")
-      allow(subject).to receive(:subscriber_end).and_return(subject.existing_policy.policy_end)
+       allow(subject).to receive(:is_reterm_with_earlier_date?).and_return(true)
     end
 
-    it "does not drop the policy if a previously processed termination is created" do
+    it "returns false" do
       expect(subject.drop_if_already_processed!).to be_false
     end
   end
 
-  context "policy end date is less than the subscriber end date" do
+  context "termination event received for already terminated policy and not eligble for re-termination" do
     let!(:result_publisher) { double :drop_if_already_processed! => true }
     
     before do
@@ -726,10 +727,10 @@ describe "#drop_if_already_processed" do
       allow(subject).to receive('response_with_publisher').and_yield(result_publisher)
       allow(subject).to receive(:hbx_enrollment_id).and_return(hbx_enrollment_id)
       allow(subject).to receive(:enrollment_action).and_return("urn:openhbx:terms:v1:enrollment#terminate_enrollment")
-      allow(subject).to receive(:subscriber_end).and_return((subject.existing_policy.policy_end + 3.years))
+      allow(subject).to receive(:is_reterm_with_earlier_date?).and_return(false)
     end
 
-    it "drops the policy if a previously if there is no previously processed termination created" do
+    it "returns notify event already processed" do
       expect(result_publisher).to receive(:drop_already_processed!).with(subject)
       subject.drop_if_already_processed!
     end
