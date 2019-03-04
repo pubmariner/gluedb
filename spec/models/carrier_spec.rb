@@ -14,7 +14,8 @@ describe Carrier do
     :policies,
     :premium_payments,
     :brokers,
-    :carrier_profiles
+    :carrier_profiles,
+    :requires_reinstate_for_earlier_termination
   ].each do |attribute|
     it { should respond_to attribute }
   end
