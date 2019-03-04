@@ -1,6 +1,4 @@
 require "rails_helper"
-require 'pry'
-
 require File.join(Rails.root, "script", "migrations", "plan_year_data_population_script")
 
 describe 'PlanYearDataPopulationScript', :dbclean => :after_each do
