@@ -18,7 +18,7 @@ class PlanYearDataPopulationScript
   end
 
   def export_csv
-    field_names = %w(employer_hbx_id employer_fein plan_year_start plan_year_end carrier_hbx_id carrier_fein matched results)
+    field_names = %w(employer_hbx_id employer_fein plan_year_start plan_year_end carrier_hbx_id carrier_fein status results)
     timestamp = Time.now.strftime('%Y%m%d%H%M')
     export_csv_path = File.expand_path("#{Rails.root}/plan_year_data_population_#{timestamp}.csv")
     CSV.open(export_csv_path, 'w', write_headers: true, headers: field_names) do |csv|
