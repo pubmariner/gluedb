@@ -3,9 +3,11 @@ require 'csv'
 
 class AuditReportBuilder
 
+  CALENDER_YEAR = 2017
+
   def qhp_audit_report
     workbook = Spreadsheet::Workbook.new
-    sheet = workbook.create_worksheet :name => '2016 QHP Policies'
+    sheet = workbook.create_worksheet :name => "#{CALENDER_YEAR} QHP Policies"
     index = 1
     @carriers = Carrier.all.inject({}){|hash, carrier| hash[carrier.id] = carrier.name; hash}
 
@@ -17,9 +19,13 @@ class AuditReportBuilder
     12.times {|i| columns += ["PREMIUM#{i+1}", "APTC#{i+1}"]}
 
     @npt_policies = []
-    CSV.foreach("#{Rails.root}/2016_1095_NPT_20170206.csv", headers: :true) do |row|
+    CSV.foreach("#{Rails.root}/2018_NPT_data.csv", headers: :true) do |row|
       @npt_policies << row[0].strip
     end
+
+    # CSV.foreach("#{Rails.root}/2016_1095_NPT_20170206.csv", headers: :true) do |row|
+    #   @npt_policies << row[0].strip
+    # end
 
     # @npt_policies = []
     # CSV.foreach("#{Rails.root}/2017_NPT_UQHP_20180126.csv", headers: :true) do |row|
@@ -35,6 +41,7 @@ class AuditReportBuilder
     sheet.row(0).concat columns
     count = 0
     # process = false
+
     policies_by_subscriber.each do |id, policies|
       policies.each do |policy|
 
@@ -65,11 +72,18 @@ class AuditReportBuilder
           # next if policy.subscriber.coverage_start >= Date.new(2016, 1, 1) && policy.subscriber.coverage_start < Date.new(2016, 10, 1)
           # next unless policy.belong_to_authority_member?
 
-          next if !valid_policy?(policy)
+          next unless valid_policy?(policy)
           # next if !valid_canceled_policy?(policy)
           # next unless (policy.applied_aptc > 0 || policy.multi_aptc?)
 
-          irs_input = Generators::Reports::IrsInputBuilder.new(policy, { notice_type: "new", npt_policy: @npt_policies.include?(policy.id.to_s) })
+          npt_policy = false
+
+          if @npt_policies.include?(policy.id.to_s)
+            npt_policy = true
+            puts "Found npt policy #{policy.id}"
+          end
+
+          irs_input = Generators::Reports::IrsInputBuilder.new(policy, { notice_type: "new", npt_policy: npt_policy })
           irs_input.carrier_hash = @carriers
           irs_input.settings = @settings
           irs_input.process
@@ -83,7 +97,7 @@ class AuditReportBuilder
       end
     end
 
-    workbook.write "#{Rails.root.to_s}/aa_audit_report_2016.xls"
+    workbook.write "#{Rails.root.to_s}/audit_report_#{CALENDER_YEAR}.xls"
   end
 
   private
@@ -100,7 +114,7 @@ class AuditReportBuilder
     # end
 
     # plans = Plan.where({:metal_level => {"$not" => /catastrophic/i}, :coverage_type => /health/i, :year => 2017}).map(&:id)
-    plans = Plan.where({:year => 2016}).map(&:id)
+    plans = Plan.where({:year => CALENDER_YEAR}).map(&:id)
 
     p_repo = {}
     Person.each do |person|
@@ -109,11 +123,19 @@ class AuditReportBuilder
       end
     end
 
-    pols = PolicyStatus::Active.between(Date.new(2016,9,30), Date.new(2016,12,31)).results.where({
+    pols = PolicyStatus::Active.between(Date.new(CALENDER_YEAR,9,30), Date.new(CALENDER_YEAR,12,31)).results.where({
       :plan_id => {"$in" => plans}, :employer_id => nil
-      }).group_by { |p| p_repo[p.subscriber.m_id] }
-  end
+      }) #.group_by { |p| p_repo[p.subscriber.m_id] }
 
+    # pols = PolicyStatus::Active.between(Date.new(CALENDER_YEAR - 1,12,31), Date.new(CALENDER_YEAR,9,30)).results.where({
+    #   :plan_id => {"$in" => plans}, :employer_id => nil
+    #   })
+
+    puts "Found....#{pols.size}"
+
+    pols.group_by { |p| p_repo[p.subscriber.m_id] }
+  end
+ 
   def build_business_audit_row(policy, notice)
     person = policy.subscriber.person
     data = [
@@ -135,11 +157,13 @@ class AuditReportBuilder
       notice.recipient.coverage_termination_date
     ]
 
-
     data = data + (1..12).inject([]) do |data, index|
       monthly_premium = notice.monthly_premiums.detect{|p| p.serial == index}
       data << ((monthly_premium.blank? || index < 10) ? nil : monthly_premium.premium_amount)
       data << ((monthly_premium.blank? || index < 10) ? nil : monthly_premium.monthly_aptc)
+
+      # data << (monthly_premium.blank? ? nil : monthly_premium.premium_amount)
+      # data << (monthly_premium.blank? ? nil : monthly_premium.monthly_aptc)
 
       # data << ((monthly_premium.blank?) ? nil : monthly_premium.premium_amount)
       # data << ((monthly_premium.blank?) ? nil : monthly_premium.monthly_aptc)
