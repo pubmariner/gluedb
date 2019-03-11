@@ -653,7 +653,7 @@ describe "#is_reterm_with_earlier_date?" do
       allow(subject).to receive(:enrollment_action).and_return("urn:openhbx:terms:v1:enrollment#terminate_enrollment")
       allow(subject).to receive(:existing_policy).and_return(existing_policy)
       allow(subject).to receive(:subscriber).and_return(enrollee)
-      allow_any_instance_of(Handlers::EnrollmentEventXmlHelper).to receive(:extract_enrollee_end).with(enrollee).and_return(start_date)
+      allow(subject).to receive(:extract_enrollee_end).with(enrollee).and_return(start_date)
     end
 
     it "should return true" do
@@ -671,10 +671,27 @@ describe "#is_reterm_with_earlier_date?" do
       allow(subject).to receive(:enrollment_action).and_return("urn:openhbx:terms:v1:enrollment#terminate_enrollment")
       allow(subject).to receive(:existing_policy).and_return(existing_policy)
       allow(subject).to receive(:subscriber).and_return(enrollee)
-      allow_any_instance_of(Handlers::EnrollmentEventXmlHelper).to receive(:extract_enrollee_end).with(enrollee).and_return(start_date)
+      allow(subject).to receive(:extract_enrollee_end).with(enrollee).and_return(start_date)
     end
 
-    it "should return true" do
+    it "should return false" do
+      expect(subject.is_reterm_with_earlier_date?).to be_falsey
+    end
+  end
+
+  context "with no end date" do
+
+    let(:start_date) {nil}
+    let(:existing_policy) { instance_double(Policy, :terminated? => true, :policy_end => Date.today.next_month) }
+
+    before :each do
+      allow(subject).to receive(:enrollment_action).and_return("urn:openhbx:terms:v1:enrollment#terminate_enrollment")
+      allow(subject).to receive(:existing_policy).and_return(existing_policy)
+      allow(subject).to receive(:subscriber).and_return(enrollee)
+      allow(subject).to receive(:extract_enrollee_end).with(enrollee).and_return(start_date)
+    end
+
+    it "should return false" do
       expect(subject.is_reterm_with_earlier_date?).to be_falsey
     end
   end
