@@ -5,8 +5,18 @@ describe EnrollmentAction::TerminatePolicyWithEarlierDate, "given an EnrollmentA
   - has one element that has future termination date
   - has more than one element" do
 
+  let(:plan_1) { instance_double(Plan, :id => 1, :carrier_id => 1) }
+  let(:plan_2) { instance_double(Plan, :id => 2, :carrier_id => 2) }
+
+  let(:member_ids_1) { [1,2] }
+  let(:member_ids_2) { [1,2,3] }
+
   let(:event_1) { instance_double(ExternalEvents::EnrollmentEventNotification, is_termination?: true, is_reterm_with_earlier_date?: true) }
   let(:event_2) { instance_double(ExternalEvents::EnrollmentEventNotification, is_termination?: true, is_reterm_with_earlier_date?: false) }
+
+  let(:event_3) { instance_double(ExternalEvents::EnrollmentEventNotification, is_termination?: false, :existing_plan => plan_1, :all_member_ids => member_ids_1) }
+  let(:event_4) { instance_double(ExternalEvents::EnrollmentEventNotification, is_termination?: false, :existing_plan => plan_2, :all_member_ids => member_ids_2) }
+  let(:event_set) { [event_3, event_4] }
 
   subject { EnrollmentAction::TerminatePolicyWithEarlierDate }
 
@@ -19,7 +29,7 @@ describe EnrollmentAction::TerminatePolicyWithEarlierDate, "given an EnrollmentA
   end
 
   it "does not qualify" do
-    expect(subject.qualifies?([event_1, event_2])).to be_false
+    expect(subject.qualifies?([event_set, event_1])).to be_false
   end
 end
 
@@ -39,8 +49,8 @@ describe EnrollmentAction::TerminatePolicyWithEarlierDate, "given a valid enroll
     ) }
 
     before do
-      allow(termination_event.existing_policy).to receive(:terminate_as_of).and_return(true)
-      allow(termination_event).to receive(:subscriber_end).and_return(false)
+      allow(termination_event).to receive(:subscriber_end).and_return(Date.today)
+      allow(termination_event.existing_policy).to receive(:terminate_as_of).with(termination_event.subscriber_end).and_return(true)
     end
 
     subject do
