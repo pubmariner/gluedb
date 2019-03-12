@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'rails_helper'
 
-describe Carrier do
+describe Carrier , :dbclean => :after_each do
   subject(:carrier) { build :carrier }
   [
     :name,
@@ -19,6 +19,10 @@ describe Carrier do
     :requires_reinstate_for_earlier_termination
   ].each do |attribute|
     it { should respond_to attribute }
+  end
+
+  it 'should return default value FALSE for attribute requires_reinstate_for_earlier_termination' do
+    expect(subject.requires_reinstate_for_earlier_termination).to eq false
   end
 
   it 'retrieves carriers in individual health market' do
