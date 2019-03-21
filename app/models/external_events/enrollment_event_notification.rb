@@ -340,6 +340,11 @@ module ExternalEvents
     def is_shop?
       !employer_hbx_id.blank?
     end
+    
+    def submitted_at_time
+      timestamp_value = Maybe.new(enrollment_event_xml).header.submitted_timestamp.value
+      Time.strptime(timestamp_value, "%Y-%m-%dT%H:%M:%S") rescue nil
+    end
 
     def submitted_at_time
       timestamp_value = Maybe.new(enrollment_event_xml).header.submitted_timestamp.value
