@@ -46,7 +46,6 @@ end
 
 group :development, :test do
   gem "parallel_tests", "~> 2.13.0"
-  gem 'factory_girl_rails', '4.5.0'
   gem 'factory_girl', '4.5.0'
 end
 
