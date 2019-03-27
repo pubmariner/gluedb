@@ -25,5 +25,4 @@ class ChangeEnrolleeMemberId < MongoidMigrationTask
     enrollee.person.comments << c
     c.save
   end
-  
 end
