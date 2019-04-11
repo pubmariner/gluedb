@@ -54,6 +54,7 @@ class Policy
   validates_presence_of :plan_id
 
   embeds_many :aptc_credits
+  embeds_many :federal_transmissions
   embeds_many :aptc_maximums
   embeds_many :cost_sharing_variants
 
