@@ -14,7 +14,7 @@ module ExternalEvents
 
     def update_policy_information
       @existing_policy.update_attributes!({
-        :aasm_state => "submitted"
+        :aasm_state => "resubmitted"
       })
       @existing_policy.hbx_enrollment_ids << extract_enrollment_group_id(@policy_node)
       @existing_policy.save!
