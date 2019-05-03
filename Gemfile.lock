@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: git@github.com:dchbx/edi_codec.git
-  revision: 712da33e41a24abd4b0e32ef12918a79dc412298
+  revision: ef729024de063458be0bb8875ff378b0c4180e54
   specs:
     edi_codec (0.1.2)
       activesupport (>= 3.2)
@@ -17,7 +17,7 @@ GIT
 
 GIT
   remote: https://github.com/dchbx/openhbx_cv2.git
-  revision: 8a40ef249e7a717290cd84ede24feb806947fecd
+  revision: b2b71b74190f75c23098634fe609dbd6a14050e7
   specs:
     openhbx_cv2 (0.0.1)
       activesupport (>= 3.2)
