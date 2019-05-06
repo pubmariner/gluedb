@@ -33,7 +33,7 @@ describe ExternalEvents::ExternalPolicyReinstate, "given:
 
   let(:expected_policy_update_args) do
       {
-        :aasm_state => "submitted"
+        :aasm_state => "resubmitted"
       }
   end
 
