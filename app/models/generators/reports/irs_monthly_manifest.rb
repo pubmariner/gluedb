@@ -73,7 +73,7 @@ module Generators::Reports
       xml['ns4'].Attachment do |xml|
         xml['ns3'].DocumentBinary do |xml|
           xml['ns2'].ChecksumAugmentation do |xml|
-            xml.SHA256HashValueText file.checksum
+            xml['ns4'].SHA256HashValueText file.checksum
           end
           xml['ns2'].BinarySizeValue file.binarysize
         end
