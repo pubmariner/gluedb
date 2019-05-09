@@ -48,10 +48,10 @@ module Generators::Reports
       xml.MemberInformation do |xml|
         xml.ExchangeAssignedMemberId individual.exchange_assigned_memberId
         xml.SubscriberIndicator individual.subscriber_indicator
-        xml.MemberLastName individual.person_last_name
-        xml.MemberFirstName individual.person_first_name
-        xml.MemberMiddleName individual.person_middle_name
-        xml.NameSuffix individual.person_name_suffix
+        xml.MemberLastName chop_special_characters(individual.person_last_name)
+        xml.MemberFirstName chop_special_characters(individual.person_first_name)
+        xml.MemberMiddleName chop_special_characters(individual.person_middle_name)
+        xml.NameSuffix chop_special_characters(individual.person_name_suffix)
         xml.BirthDate individual.birth_date
         xml.SocialSecurityNumber prepend_zeros(individual.social_security_number, 9)
         xml.PostalCode individual.postal_code
@@ -105,6 +105,10 @@ module Generators::Reports
     def date_formatter(date)
       return if date.nil?
       Date.strptime(date,'%m/%d/%Y').strftime("%Y-%m-%d")
+    end
+
+    def chop_special_characters(name)
+      name.gsub(/[!@#$%^&*()-=_+|;':",.<>?`']/, '').gsub(/[ñáéè]/, {"ñ" => "n", "á" => "a", "é" => "e", "è" => "e"})
     end
   end
 end
