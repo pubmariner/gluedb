@@ -23,6 +23,8 @@ module EnrollmentAction
       selected_action = [
         ::EnrollmentAction::PassiveRenewal,
         ::EnrollmentAction::ActiveRenewal,
+        ::EnrollmentAction::NewPolicyReinstate,
+        ::EnrollmentAction::Reinstate,
         ::EnrollmentAction::CarrierSwitch,
         ::EnrollmentAction::CarrierSwitchRenewal,
         ::EnrollmentAction::MarketChange,
@@ -39,6 +41,7 @@ module EnrollmentAction
         ::EnrollmentAction::CobraReinstate,
         ::EnrollmentAction::AssistanceChange,
         ::EnrollmentAction::InitialEnrollment,
+        ::EnrollmentAction::TerminatePolicyWithEarlierDate,
         ::EnrollmentAction::Termination,
         ::EnrollmentAction::ReselectionOfExistingCoverage
       ].detect { |kls| kls.qualifies?(chunk) }
@@ -142,14 +145,22 @@ module EnrollmentAction
       [self]
     end
 
-    def publish_edi(amqp_connection, event_xml, hbx_enrollment_id, employer_id)
+    def publish_edi(amqp_connection, event_xml, hbx_enrollment_id, employer_id, send_to_carrier = true, send_to_payment_processor = true)
       publisher = Publishers::TradingPartnerEdi.new(amqp_connection, event_xml)
       publish_result = false
-      publish_result = publisher.publish
+
+      if send_to_carrier
+        publish_result = publisher.publish
+      else
+        publish_result = true
+      end
+
       if publish_result
          publisher2 = Publishers::TradingPartnerLegacyCv.new(amqp_connection, event_xml, hbx_enrollment_id, employer_id)
-         unless publisher2.publish
-           return [false, publisher2.errors.to_hash]
+         if send_to_payment_processor
+           unless publisher2.publish
+             return [false, publisher2.errors.to_hash]
+           end
          end
       end
       [publish_result, publisher.errors.to_hash]
