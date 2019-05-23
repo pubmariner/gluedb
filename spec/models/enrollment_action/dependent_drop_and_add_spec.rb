@@ -22,7 +22,9 @@ describe EnrollmentAction::DependentDropAndAdd, "given an enrollment even set th
   end
 end
 
-describe EnrollmentAction::DependentDropAndAdd, "given a qualified enrollment set, being persisted" do 
+describe EnrollmentAction::DependentDropAndAdd, "given a qualified enrollment set, being persisted" do
+  let(:plan_cv) { instance_double(Openhbx::Cv2::PlanLink, :alias_ids => alias_ids) }
+  let(:alias_ids) { nil }
   let(:member_primary) { instance_double(Openhbx::Cv2::EnrolleeMember, id: "1") }
   let(:member_secondary) { instance_double(Openhbx::Cv2::EnrolleeMember, id: "2") }
   let(:member_drop) { instance_double(Openhbx::Cv2::EnrolleeMember, id: 3) }
@@ -38,9 +40,12 @@ describe EnrollmentAction::DependentDropAndAdd, "given a qualified enrollment se
 
   let(:terminated_policy_cv) { instance_double(Openhbx::Cv2::Policy, :enrollees => [enrollee_primary, enrollee_secondary, enrollee_drop])}
   let(:shop_market) { nil }
+  let(:rating_area) { nil }
   let(:individual_market) { instance_double(Openhbx::Cv2::PolicyEnrollmentIndividualMarket, :is_carrier_to_bill => true, :applied_aptc_amount => "23.45" ) }
   let(:new_policy_enrollment) { instance_double(Openhbx::Cv2::PolicyEnrollment, 
-                                                :premium_total_amount => "123.45", 
+                                                :premium_total_amount => "123.45",
+                                                :plan => plan_cv,
+                                                :rating_area => rating_area,
                                                 :total_responsible_amount => "100.00", 
                                                 :shop_market => shop_market, 
                                                 :individual_market => individual_market )}
