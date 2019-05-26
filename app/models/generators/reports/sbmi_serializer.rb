@@ -3,7 +3,7 @@ require 'csv'
 module Generators::Reports  
   class SbmiSerializer
 
-    CALENDER_YEAR = 2018
+    CALENDER_YEAR = 2019
     CANCELED_DATE = Date.new(2017,12,8)
 
     attr_accessor :pbp_final
