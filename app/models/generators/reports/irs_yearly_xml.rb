@@ -91,7 +91,7 @@ module Generators::Reports
       end
 
       xml['irs'].SSN individual.ssn unless individual.ssn.blank?
-      xml['irs'].BirthDt date_formatter(individual.dob) unless individual.dob.blank?
+      xml['air5.0'].BirthDt date_formatter(individual.dob) unless individual.dob.blank?
     end
 
     def serialize_address(xml, address)
@@ -151,13 +151,13 @@ module Generators::Reports
 
     def serialize_monthly_premiums(xml, month)
       if month_premium = @notice.monthly_premiums.detect{|p| p.serial == month}
-        xml['irs'].MonthlyPremiumAmt month_premium.premium_amount.to_f.round(2)
+        xml['irs'].MonthlyPremiumAmt two_decimal_number(month_premium.premium_amount)
         if @notice.has_aptc
-          xml['irs'].MonthlyPremiumSLCSPAmt month_premium.premium_amount_slcsp.to_f.round(2)
-          xml['irs'].MonthlyAdvancedPTCAmt month_premium.monthly_aptc.to_f.round(2)
+          xml['irs'].MonthlyPremiumSLCSPAmt two_decimal_number(month_premium.premium_amount_slcsp)
+          xml['irs'].MonthlyAdvancedPTCAmt two_decimal_number(month_premium.monthly_aptc)
         else
-          xml['irs'].MonthlyPremiumSLCSPAmt 0.00
-          xml['irs'].MonthlyAdvancedPTCAmt 0.00
+          xml['irs'].MonthlyPremiumSLCSPAmt '0.00'
+          xml['irs'].MonthlyAdvancedPTCAmt '0.00'
         end
       else
         blank_preimums(xml)
@@ -165,25 +165,29 @@ module Generators::Reports
     end
 
     def blank_preimums(xml)
-      xml['irs'].MonthlyPremiumAmt 0.00
-      xml['irs'].MonthlyPremiumSLCSPAmt 0.00
-      xml['irs'].MonthlyAdvancedPTCAmt 0.00 
+      xml['irs'].MonthlyPremiumAmt '0.00'
+      xml['irs'].MonthlyPremiumSLCSPAmt '0.00'
+      xml['irs'].MonthlyAdvancedPTCAmt '0.00'
     end
 
     def serialize_annual_premiums(xml)
-      xml['irs'].AnnualPremiumAmt @notice.yearly_premium.premium_amount.to_f.round(2)
+      xml['irs'].AnnualPremiumAmt two_decimal_number(@notice.yearly_premium.premium_amount)
       if @notice.has_aptc
-        xml['irs'].AnnualPremiumSLCSPAmt @notice.yearly_premium.slcsp_premium_amount.to_f.round(2)
-        xml['irs'].AnnualAdvancedPTCAmt @notice.yearly_premium.aptc_amount.to_f.round(2)
+        xml['irs'].AnnualPremiumSLCSPAmt two_decimal_number(@notice.yearly_premium.slcsp_premium_amount)
+        xml['irs'].AnnualAdvancedPTCAmt two_decimal_number(@notice.yearly_premium.aptc_amount)
       else
-        xml['irs'].AnnualPremiumSLCSPAmt 0.00
-        xml['irs'].AnnualAdvancedPTCAmt 0.00
+        xml['irs'].AnnualPremiumSLCSPAmt '0.00'
+        xml['irs'].AnnualAdvancedPTCAmt '0.00'
       end
     end
 
     def date_formatter(date)
       return if date.nil?
       Date.parse(date).strftime("%Y-%m-%d")
+    end
+
+    def two_decimal_number(price)
+      number_with_precision(price.to_f, precision: 2)
     end
   end
 end
