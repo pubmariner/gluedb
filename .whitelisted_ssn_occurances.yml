@@ -1,0 +1,2 @@
+- file: some/file/some/where.rb
+  exceptions: '123456789'
