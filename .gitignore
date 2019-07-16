@@ -35,6 +35,13 @@ config/settings.local.yml
 config/settings/*.local.yml
 config/environments/*.local.yml
 
+# Ignore files
+# add w/ git add --force if actually needed
+*.csv
+*.txt
 *.xml
 *.xls
+*.xlst
 *.xlsx
+*.doc
+*.docx
