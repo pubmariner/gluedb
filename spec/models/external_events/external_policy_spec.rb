@@ -239,4 +239,18 @@ describe ExternalEvents::ExternalPolicy, "with reinstated policy cv", dbclean: :
     subject.persist
     expect(Policy.where(:eg_id => policy_id).first.aasm_state).to eq("resubmitted")
   end
+
+  context 'reset_npt_flag' do
+    let(:policy10) { FactoryGirl.create(:policy, term_for_np: true) }
+
+    before :each do
+      allow(subject).to receive(:existing_policy).and_return(policy10)
+    end
+
+    it "should set the termination non payment flag to false for existing policy" do
+      expect(policy10.term_for_np).to eq(true)
+      subject.persist
+      expect(policy10.term_for_np).to eq(false)
+    end
+  end
 end

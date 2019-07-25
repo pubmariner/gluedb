@@ -211,6 +211,10 @@ module ExternalEvents
       responsible_person.responsible_parties.first if responsible_party_exists?
     end
 
+    def reset_npt_flag
+      existing_policy.update_attributes!(term_for_np: false)
+    end
+
     def persist
       return true if policy_exists?
 
@@ -233,6 +237,8 @@ module ExternalEvents
       # reinstated policy aasm state need to be resubmitted
       if @policy_node.previous_policy_id.present?
         policy.aasm_state = "resubmitted"
+        policy.term_for_np = false
+        reset_npt_flag
       end
 
       build_subscriber(policy)
