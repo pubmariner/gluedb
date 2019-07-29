@@ -3,8 +3,6 @@ module EnrollmentAction
     XML_NS = { :cv => "http://openhbx.org/api/terms/1.0" }
     attr_reader :event_xml_doc
 
-    delegate :to_xml, :to => :event_xml_doc
-
     include MoneyMath
 
     def initialize(xml_string)
