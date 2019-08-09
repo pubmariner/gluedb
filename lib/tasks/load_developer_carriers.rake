@@ -20,19 +20,20 @@ namespace :developer do
         })
       ]
     })
-    seed_tp = TradingPartner.create!({
-      name: "Seed Trading Partner",
-      trading_profiles: [
-        TradingProfile.new({
-          profile_name: "SEED_IVL",
-          profile_code: "999999001"
-        }),
-        TradingProfile.new({
-          profile_name: "SEED_SHP",
-          profile_code: "999999001"
-        })
-      ]
-    })
+    # TODO: There are no Trading Partners in DC Gluedb
+    # seed_tp = TradingPartner.create!({
+    #  name: "Seed Trading Partner",
+    #  trading_profiles: [
+    #    TradingProfile.new({
+    #      profile_name: "SEED_IVL",
+    #      profile_code: "999999001"
+    #    }),
+    #    TradingProfile.new({
+    #      profile_name: "SEED_SHP",
+    #      profile_code: "999999001"
+    #    })
+    #  ]
+    # })
     exchange_carrier = Carrier.create!({
       hbx_carrier_id: "20000",
       name: "Seed Exchange",
@@ -48,18 +49,18 @@ namespace :developer do
         })
       ]
     })
-    exchange_tp = TradingPartner.create!({
-      name: "Seed Trading Partner",
-      trading_profiles: [
-        TradingProfile.new({
-          profile_name: "EXCHANGE_IVL",
-          profile_code: "999999999"
-        }),
-        TradingProfile.new({
-          profile_name: "EXCHANGE_IVL",
-          profile_code: "999999999"
-        })
-      ]
-    })
+    # exchange_tp = TradingPartner.create!({
+    #  name: "Seed Trading Partner",
+    #  trading_profiles: [
+    #    TradingProfile.new({
+    #      profile_name: "EXCHANGE_IVL",
+    #      profile_code: "999999999"
+    #    }),
+    #    TradingProfile.new({
+    #      profile_name: "EXCHANGE_IVL",
+    #      profile_code: "999999999"
+    #    })
+    #  ]
+    # })
   end
 end

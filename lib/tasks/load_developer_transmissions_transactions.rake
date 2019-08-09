@@ -15,20 +15,21 @@ namespace :developer do
     edi_transaction_set.ts_implementation_convention_reference = "1"
     edi_transaction_set.transmission = transmission
     edi_transaction_set.save!
+    # TODO: Trading Partners don't exist for DC Gluedb
     # Sender
-    trading_partner = TradingPartner.create!(name: "Sender")
-    trading_partner = TradingPartner.last
-    trading_profile = trading_partner.trading_profiles.build
-    trading_profile.profile_code = "1"
-    trading_profile.profile_name = "Sender Profile"
-    trading_profile.save!
+    # trading_partner = TradingPartner.create!(name: "Sender")
+    # trading_partner = TradingPartner.last
+    # trading_profile = trading_partner.trading_profiles.build
+    # trading_profile.profile_code = "1"
+    # trading_profile.profile_name = "Sender Profile"
+    # trading_profile.save!
     # Receiver
-    trading_partner = TradingPartner.create!(name: "Receiver")
-    trading_partner = TradingPartner.where(name: "Receiver").first
-    trading_profile = trading_partner.trading_profiles.build
-    trading_profile.profile_code = "2"
-    trading_profile.profile_name = "Receiver Profile"
-    trading_profile.save!
+    # trading_partner = TradingPartner.create!(name: "Receiver")
+    # trading_partner = TradingPartner.where(name: "Receiver").first
+    # trading_profile = trading_partner.trading_profiles.build
+    # trading_profile.profile_code = "2"
+    # trading_profile.profile_name = "Receiver Profile"
+    # trading_profile.save!
     puts("Transmission and edi_transaction_set created for first policy.")
   end
 end
