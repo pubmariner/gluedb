@@ -1,4 +1,5 @@
 require "multi_forkr"
+
 Rails.application.eager_load!
 MultiForkr.new({
  Listeners::EmployerEventReducerListener => 1,
