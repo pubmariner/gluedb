@@ -48,7 +48,7 @@ module EmployerEvents
         Date.strptime(node.xpath("cv:plan_year_start", {:cv => XML_NS}).first.content,"%Y%m%d") rescue nil
       end
       last_plan_year = sorted_plan_years.last
-      if last_plan_year.present? && last_plan_year.xpath("//cv:elected_plans/cv:elected_plan/cv:carrier/cv:id/cv:id[text() = '#{carrier.hbx_carrier_id}']", {:cv => XML_NS}).any?
+      if last_plan_year.present? && last_plan_year.xpath(".//cv:elected_plans/cv:elected_plan/cv:carrier/cv:id/cv:id[text() = '#{carrier.hbx_carrier_id}']", {:cv => XML_NS}).any?
         start_date = Date.strptime(last_plan_year.xpath("cv:plan_year_start", {:cv => XML_NS}).first.content,"%Y%m%d") rescue nil
         end_date = Date.strptime(last_plan_year.xpath("cv:plan_year_end", {:cv => XML_NS}).first.content,"%Y%m%d") rescue nil
         return false if start_date.blank? || end_date.blank?
