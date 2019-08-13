@@ -15,6 +15,7 @@ module ExternalEvents
       @plan = p_record
       @cobra = cobra_reinstate
       @kind = parsing_options[:market_from_payload]
+      @policy_reinstate = parsing_options[:policy_reinstate]
     end
 
     def extract_pre_amt_tot
@@ -231,7 +232,7 @@ module ExternalEvents
       }.merge(extract_other_financials).merge(extract_rating_details).merge(responsible_party_attributes))
 
       # reinstated policy aasm state need to be resubmitted
-      if @policy_node.previous_policy_id.present?
+      if @policy_node.previous_policy_id.present? && @policy_reinstate
         policy.aasm_state = "resubmitted"
       end
 

@@ -214,7 +214,7 @@ describe ExternalEvents::ExternalPolicy, "with reinstated policy cv", dbclean: :
   end
   let(:policy_id) {'rspec-eg-id'}
   let(:dependent_relationship_uri) { "urn:openhbx:terms:v1:individual_relationship#spouse" }
-  subject { ExternalEvents::ExternalPolicy.new(policy_cv, plan) }
+  subject { ExternalEvents::ExternalPolicy.new(policy_cv, plan, false, policy_reinstate: true) }
 
   before :each do
     allow(subject).to receive(:extract_enrollment_group_id).with(policy_cv).and_return(policy_id)
