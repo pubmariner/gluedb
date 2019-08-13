@@ -89,7 +89,7 @@ describe EnrollmentAction::NewPolicyReinstate, "with a reinstate enrollment even
 
   before :each do
     allow(ExternalEvents::ExternalMember).to receive(:new).with(member_from_xml).and_return(member_database_record)
-    allow(ExternalEvents::ExternalPolicy).to receive(:new).with(policy_cv, existing_plan).and_return(policy_database_record)
+    allow(ExternalEvents::ExternalPolicy).to receive(:new).with(policy_cv, existing_plan, false, policy_reinstate: true).and_return(policy_database_record)
     allow(subject.action).to receive(:existing_policy).and_return(false)
   end
 
