@@ -85,20 +85,20 @@
   <!-- Transaction pills -->
   <ul class="nav nav-tabs nav-justified" role="tablist">
     <li class="nav-item">
-      <a class="nav-link nav-link-color" id="edi-transactions-tab" data-toggle="tab" role="tab" aria-controls="edi-transactions" href="#edi_transactions_list" aria-selected="true">EDI Transactions</a>
+      <a class="nav-link nav-link-color active" id="edi-transactions-tab-policy-<%= p.id.to_s %>" data-toggle="tab" role="tab" aria-controls="edi-transactions-<%= p.id.to_s %>" href="#edi_transactions_list_<%= p.id.to_s %>" aria-selected="true">EDI Transactions</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link nav-link-color" id="payment-processor-transactions-tab" data-toggle="tab" role="tab" aria-controls="payment-processor-transactions" href="#payment_processor_transactions_list" aria-selected="false">Payment Processor Transactions</a>
+      <a class="nav-link nav-link-color" id="payment-processor-transactions-tab-<%= p.id.to_s %>" data-toggle="tab" role="tab" aria-controls="payment-processor-transactions-<%= p.id.to_s %>" href="#payment_processor_transactions_list_<%= p.id.to_s %>" aria-selected="false">Payment Processor Transactions</a>
     </li>
   </ul>
 
   <!-- Tab panes -->
   <div class="tab-content tab-content-bordered">
-    <div id="edi_transactions_list" role="tabpanel" aria-labelledby="edi-transactions-tab" class="container tab-pane active"><br>
+    <div id="edi_transactions_list_<%= p.id.to_s %>" role="tabpanel" aria-labelledby="edi-transactions-tab-<%= p.id.to_s %>" class="container tab-pane active"><br>
       <% t = p.transaction_list %>
       <%= render 'edi_transaction_table', transactions: t %>
     </div>
-    <div id="payment_processor_transactions_list" role="tabpanel" aria-controls="payment-processor-transactions-tab" class="container tab-pane fade"><br>
+    <div id="payment_processor_transactions_list_<%= p.id.to_s %>" role="tabpanel" aria-controls="payment-processor-transactions-tab-<%= p.id.to_s %>" class="container tab-pane fade"><br>
       <% legacy_cv_transactions = p.legacy_cv_transactions.sort_by(&:submitted_at).reverse %>
       <%= render 'legacy_cv_transaction_table', transactions: legacy_cv_transactions %>
     </div>
