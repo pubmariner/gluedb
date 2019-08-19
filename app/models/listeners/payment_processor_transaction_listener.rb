@@ -48,6 +48,17 @@ module Listeners
       q
     end
 
+    def self.run
+      Process.setproctitle("%s - %s" % [self.name , $$])
+      conn = AmqpConnectionProvider.start_connection
+      chan = conn.create_channel
+      q = create_queues(chan)
+      create_bindings(chan, q)
+      chan.prefetch(1)
+      self.new(chan, q).subscribe(:block => true, :manual_ack => true, :ack => true)
+      conn.close
+    end
+
      def on_message(delivery_info, properties, body)
       m_headers = (properties.headers || {}).to_hash.stringify_keys
 
