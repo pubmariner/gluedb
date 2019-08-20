@@ -11,18 +11,10 @@ bundle install
 ```
 
 ###Setup Flat-UI
-We need Nodejs and Bower
-```
-brew install node
-npm install bower -g (this is needed to build flat-ui)
-```
 
-Get a copy of fuip-dev-1.3.0 (ask a team member)
+This is now done by installing a custom version of the gem from a private repository.
 
-```
-cd fuip-dev-1.3.0/HTML/UI/
-bower install
-```
+Consult devops for access.
 
 ###Setup Mongodb
 ```
