@@ -1,3 +1,4 @@
+<div class='container-fluid'>
 <% if transactions.count < 1 %>
   <div class="row"><div class="col-md-offset-1 col-md-2"><p>None found</p></div></div>
 <% else %>
@@ -20,7 +21,7 @@
         <td><span class="fui-export">&nbsp;</span> <%= trans.transaction_kind.humanize %></td>
         <td class='capitalize-text'><%= trans_aasm_state(trans) %></td>
         <td><%= trans.submitted_at.to_s %></td>
-        <td><%= trans.location %></td>
+        <td><%= trans.location.length > 30 ? trans.location[0..30] + "..." : trans.location %></td>
         <td>
           <% if can? :read, current_user %>
             <%= link_to 'View Detail', legacy_cv_transaction_path(trans) %>
@@ -32,3 +33,4 @@
   </table>
   </div>
 <% end %>
+</div>
