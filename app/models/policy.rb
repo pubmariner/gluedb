@@ -709,8 +709,13 @@ class Policy
     end_dates.uniq.length > 1 || aptc_credits.present?
   end
 
+  def effectuated?
+    edi_transactions = edi_transaction_sets
+    edi_transactions.any?{|transaction| transaction.transaction_kind == 'effectuation'}
+  end
+
   def rejected?
-    edi_transactions = Protocols::X12::TransactionSetEnrollment.where({ "policy_id" => self.id })
+    edi_transactions = edi_transaction_sets
     (edi_transactions.count == 1 && edi_transactions.first.aasm_state == 'rejected') ? true : false
   end
 

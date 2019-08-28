@@ -26,11 +26,17 @@ module Generators::Reports
       sbmi_policy.exchange_subscriber_id = policy.subscriber.m_id
       sbmi_policy.coverage_start = format_date(policy.policy_start)
       sbmi_policy.coverage_end = format_date(policy.policy_end)
-      if policy.canceled?
-        sbmi_policy.effectuation_status = 'N'
+      
+      sbmi_policy.effectuation_status = if policy.canceled?
+        'N'
       else
-        sbmi_policy.effectuation_status = 'Y'
+        if policy.subscriber.coverage_start > Date.new(2020, 12, 31)
+          (sbmi_policy.terminated? || sbmi_policy.effectuated?) ? 'Y' : 'N'
+        else
+          'Y'
+        end
       end
+
       sbmi_policy.insurance_line_code = (policy.plan.coverage_type =~ /health/i ? 'HLT' : 'DEN')
     end
 
