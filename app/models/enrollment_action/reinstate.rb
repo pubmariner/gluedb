@@ -15,6 +15,7 @@ module EnrollmentAction
     def persist
       @existing_policy = any_market_reinstatement_candidates(action).first
       policy_updater = ExternalEvents::ExternalPolicyReinstate.new(action.policy_cv, @existing_policy)
+      ::Listeners::PolicyUpdatedObserver.notify(@existing_policy)
       policy_updater.persist
     end
 

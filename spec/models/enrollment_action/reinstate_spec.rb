@@ -87,12 +87,13 @@ describe EnrollmentAction::Reinstate, "given:
 end
 
 describe EnrollmentAction::Reinstate, "with an cobra reinstate enrollment event, being persisted" do
+  let(:plan) { instance_double(Plan, :id => 1, carrier_id: 1, year: Date.today.year, coverage_type: "health") }
   let(:policy_cv) { instance_double(Openhbx::Cv2::Policy) }
   let(:enrollment_event) { instance_double(
     ::ExternalEvents::EnrollmentEventNotification,
     :policy_cv => policy_cv
   ) }
-  let(:existing_policy) { instance_double(Policy) }
+  let(:existing_policy) { instance_double(Policy, market:"individual", plan: plan) }
   let(:policy_updater) { instance_double(ExternalEvents::ExternalPolicyCobraSwitch) }
 
   subject do
@@ -103,6 +104,7 @@ describe EnrollmentAction::Reinstate, "with an cobra reinstate enrollment event,
     allow(subject).to receive(:any_market_reinstatement_candidates).with(enrollment_event).and_return([existing_policy])
     allow(ExternalEvents::ExternalPolicyReinstate).to receive(:new).with(policy_cv, existing_policy).and_return(policy_updater)
     allow(policy_updater).to receive(:persist).and_return(true)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
   end
 
   it "successfully creates the new policy" do

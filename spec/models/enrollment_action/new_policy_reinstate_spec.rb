@@ -70,6 +70,7 @@ end
 
 describe EnrollmentAction::NewPolicyReinstate, "with a reinstate enrollment event, being persisted" do
   let(:member_from_xml) { instance_double(Openhbx::Cv2::EnrolleeMember) }
+  let(:plan) { instance_double(Plan, :id => 1, carrier_id: 1, year: Date.today.year, coverage_type: "health") }
   let(:enrollee) { instance_double(::Openhbx::Cv2::Enrollee, :member => member_from_xml) }
   let(:enrollees) { [enrollee] }
   let(:policy_cv) { instance_double(Openhbx::Cv2::Policy,:enrollees => enrollees) }
@@ -91,6 +92,8 @@ describe EnrollmentAction::NewPolicyReinstate, "with a reinstate enrollment even
     allow(ExternalEvents::ExternalMember).to receive(:new).with(member_from_xml).and_return(member_database_record)
     allow(ExternalEvents::ExternalPolicy).to receive(:new).with(policy_cv, existing_plan, false, policy_reinstate: true).and_return(policy_database_record)
     allow(subject.action).to receive(:existing_policy).and_return(false)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+    allow(policy_database_record).to receive(:created_policy)
   end
 
   it "successfully creates the new policy" do
