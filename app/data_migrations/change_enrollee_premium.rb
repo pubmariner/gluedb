@@ -15,9 +15,10 @@ class ChangeEnrolleePremium < MongoidMigrationTask
       if policy.blank?
         puts "No hbx_enrollment was found with the given hbx_id" unless Rails.env.test?
       else
-        enrollee=policy.enrollees.where(m_id: m_id, coverage_start: start_on).first
+        enrollee = policy.enrollees.where(m_id: m_id, coverage_start: start_on).first
         enrollee.update_attributes!(pre_amt: premium)
-          puts "Successfully updated premium amount of an enrollee...!" unless Rails.env.test?
+        ::Listeners::PolicyUpdatedObserver.notify(policy)
+        puts "Successfully updated premium amount of an enrollee...!" unless Rails.env.test?
       end
     else 
       puts "You are missing an Environment variable, please check your input" unless Rails.env.test?

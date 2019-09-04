@@ -13,6 +13,7 @@ class UpdateTotalResponsibleAmount < MongoidMigrationTask
       policy.update_attributes(pre_amt_tot: premium_amount_total) if is_number?(premium_amount_total)
       policy.update_attributes(applied_aptc: applied_aptc) if is_number?(applied_aptc)
       policy.save!
+      ::Listeners::PolicyUpdatedObserver.notify(policy)
     elsif policy.blank?
       puts "Policy not found for eg_id #{ENV['eg_id']}"
     elsif policy.aptc_credits.size > 0

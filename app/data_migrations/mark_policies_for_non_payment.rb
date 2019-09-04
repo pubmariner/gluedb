@@ -11,6 +11,7 @@ class MarkPoliciesForNonPayment < MongoidMigrationTask
           p.term_for_np = true
         end
         p.save!
+        ::Listeners::PolicyUpdatedObserver.notify(p)
       end
       policies.close
     else
@@ -20,6 +21,7 @@ class MarkPoliciesForNonPayment < MongoidMigrationTask
         p.term_for_np = true
       end
       p.save!
+      ::Listeners::PolicyUpdatedObserver.notify(p)
     end
   end
 end

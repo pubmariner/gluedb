@@ -6,5 +6,6 @@ class UpdateKindForPolicyToCoverall < MongoidMigrationTask
     policy = Policy.where(eg_id: ENV['eg_id']).first
     policy.kind = "coverall"
     policy.save!
+    ::Listeners::PolicyUpdatedObserver.notify(policy)
   end
 end

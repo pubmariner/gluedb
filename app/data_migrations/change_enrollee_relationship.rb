@@ -9,6 +9,7 @@ class ChangeEnrolleeRelationship < MongoidMigrationTask
     enrollee = policy.enrollees.detect{|en| en.m_id == ENV['hbx_id']}
     (raise "This enrollee cannot be found." if enrollee.blank?) unless Rails.env.test? 
     enrollee.update_attributes(:rel_code => ENV['new_relationship'])
+    ::Listeners::PolicyUpdatedObserver.notify(policy) if policy.present?
     puts "Relationship of enrollee is now #{enrollee.rel_code}" unless Rails.env.test?
   end
   

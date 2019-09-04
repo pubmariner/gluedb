@@ -5,6 +5,7 @@ class ChangePolicyBroker < MongoidMigrationTask
   def migrate
     broker = Broker.find_by_npn(ENV['broker_npn'])
     policy = Policy.where(eg_id: ENV['eg_id']).first
+    ::Listeners::PolicyUpdatedObserver.notify(policy) if policy.present?
     policy.broker = broker
     policy.save!
   end

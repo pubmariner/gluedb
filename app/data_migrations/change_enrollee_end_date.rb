@@ -18,7 +18,8 @@ class ChangeEnrolleeEndDate < MongoidMigrationTask
       else
         enrollee = policy.enrollees.where(m_id: m_id).first
         enrollee.update_attributes!(coverage_end: end_on)
-          puts "enrollee coverage end modified...!" unless Rails.env.test?
+        puts "enrollee coverage end modified...!" unless Rails.env.test?
+        ::Listeners::PolicyUpdatedObserver.notify(policy)
       end
     else 
       puts "You are missing an Environment variable, please check your input" unless Rails.env.test?

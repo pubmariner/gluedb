@@ -9,6 +9,7 @@ class RemovePolicyEndDate < MongoidMigrationTask
       enrollee.coverage_status = "active"
       enrollee.coverage_end = nil
       enrollee.save!
+      ::Listeners::PolicyUpdatedObserver.notify(policy)
     end
   end
 
@@ -16,6 +17,7 @@ class RemovePolicyEndDate < MongoidMigrationTask
     policy = Policy.where(eg_id: ENV['eg_id']).first
     policy.aasm_state = ENV['aasm_state']
     policy.save!
+    ::Listeners::PolicyUpdatedObserver.notify(policy)
   end
 
   def migrate

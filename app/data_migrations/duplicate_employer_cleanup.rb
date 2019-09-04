@@ -62,6 +62,7 @@ class DuplicateEmployerCleanup < MongoidMigrationTask
     bad_employer_policies.each do |policy|
       policy.employer = good_employer
       policy.save
+      ::Listeners::PolicyUpdatedObserver.notify(policy)
     end
   end
 

@@ -17,7 +17,8 @@ class ChangePolicyStartDate < MongoidMigrationTask
       puts "Policy #{ENV['eg_id']} not found." unless Rails.env.test?
     else
       policy = Policy.where(eg_id: ENV['eg_id']).first
-        move_effective_date(policy,ENV['new_start_date'])
+      move_effective_date(policy,ENV['new_start_date'])
+      ::Listeners::PolicyUpdatedObserver.notify(policy)
     end
   end
 end

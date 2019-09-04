@@ -30,6 +30,7 @@ class UpdateAptcCredits < MongoidMigrationTask
     if credit && credit.end_on == end_on
       credit.update_attributes!(aptc: aptc) 
       calculate_amounts(credit, policy)
+      ::Listeners::PolicyUpdatedObserver.notify(policy)
       puts "APTC credit has been updated to pre_amt_tot: #{credit.pre_amt_tot}, tot_res_amt #{credit.tot_res_amt}, aptc amount: #{credit.aptc}" unless Rails.env.test?
     elsif credit && end_on != credit.end_on 
       credit.update_attributes!(aptc: aptc, end_on: end_on) 

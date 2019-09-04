@@ -11,11 +11,12 @@ class RemoveEnrolleeFromEnrollment < MongoidMigrationTask
     (puts "No hbx_enrollment was found with the given hbx_id" unless Rails.env.test?) if policy.blank?
 
     m_id = ENV['m_id']
-    removal_enrollee = find_enrollee_to_remove(policy.enrollees,m_id)
+    removal_enrollee = find_enrollee_to_remove(policy.enrollees, m_id)
     (puts "Enrollee not found" unless Rails.env.test?) if removal_enrollee.blank?
 
     removal_enrollee.destroy
     policy.save
+    ::Listeners::PolicyUpdatedObserver.notify(policy)
     (puts "Enrollee #{m_id} has been removed." unless policy.enrollees.map(&:m_id).include?(m_id)) unless Rails.env.test?  
   end
 end

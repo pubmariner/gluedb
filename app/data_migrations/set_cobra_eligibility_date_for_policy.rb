@@ -15,6 +15,7 @@ class SetCobraEligibilityDateForPolicy < MongoidMigrationTask
       Policy.limit(limit_count).offset(offset_count).each do |policy|
         begin
           if Policy.where("enrollee.ben_stat" => "cobra", "cobra_eligibility_date" => nil)
+            ::Listeners::PolicyUpdatedObserver.notify(policy)
             policy.cobra_eligibility_date = policy.subscriber.coverage_start
             if policy.save!
               @logger.info "policy: #{policy.eg_id} updated with cobra eligibility date" unless Rails.env.test?
