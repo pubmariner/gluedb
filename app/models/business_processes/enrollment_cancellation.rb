@@ -30,6 +30,7 @@ module BusinessProcesses
         end
       end
       t_policy.save!
+      ::Listeners::PolicyUpdatedObserver.notify(policy)
     end
 
     def transaction_id
