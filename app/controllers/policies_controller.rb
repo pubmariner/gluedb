@@ -34,10 +34,12 @@ class PoliciesController < ApplicationController
 
   def update
     raise params.inspect
+    ::Listeners::PolicyUpdatedObserver.notify(Policy.find(params[:id]))
   end
 
   def cancelterminate
     @cancel_terminate = CancelTerminate.new(params)
+    ::Listeners::PolicyUpdatedObserver.notify(Policy.find(params[:id]))
   end
 
   def transmit
@@ -46,6 +48,8 @@ class PoliciesController < ApplicationController
     if @cancel_terminate.valid?
       request = EndCoverageRequest.from_form(params, current_user.email)
       EndCoverage.new(EndCoverageAction).execute(request)
+      ::Listeners::PolicyUpdatedObserver.notify(Policy.find(params[:id]))
+
       redirect_to person_path(Policy.find(params[:id]).subscriber.person)
     else
       @cancel_terminate.errors.full_messages.each do |msg|
@@ -110,6 +114,7 @@ class PoliciesController < ApplicationController
   end
 
   def download_tax_document
+    ::Listeners::PolicyUpdatedObserver.notify(Policy.find(params[:id]))
     if params[:file_name].blank?
       redirect_to generate_tax_document_form_policy_path(Policy.find(params[:id]), {person_id: Person.find(params[:person_id])}), :flash => { :error=> "Could not generate preview. No file name present in URL. Please try again." }
       return
@@ -118,6 +123,7 @@ class PoliciesController < ApplicationController
   end
 
   def upload_tax_document_to_S3
+    ::Listeners::PolicyUpdatedObserver.notify(Policy.find(params[:id]))
     if params[:file_name].blank?
       redirect_to generate_tax_document_form_policy_path(Policy.find(params[:id]), {person_id: Person.find(params[:person_id])}), :flash => { :error=> "Could not upload document. Request missing essential parameter. Please try again." }
       return
