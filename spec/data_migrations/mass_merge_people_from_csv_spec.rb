@@ -36,7 +36,7 @@ describe MassMergePeopleFromCSV, dbclean: :after_each do
     subject { MassMergePeopleFromCSV.new(given_task_name, double(:current_scope => nil)) }
 
     it "runs the generated rake tasks as system commands" do
-      expect { subject.migrate }.not_to raise_error
+      subject.migrate
       # Confirms that rake task ran successfully
       non_authority_member_hbx_ids.each do |person_to_remove_hbx_id|
         person_to_remove = Person.where(authority_member_id: person_to_remove_hbx_id).first
