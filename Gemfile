@@ -29,7 +29,9 @@ group 'development', 'test' do
 end
 
 group :development, :assets, :test do
+gem 'pry'
   gem 'libv8', "~> 3.16.14.17"
+  gem 'rb-readline'
   gem 'therubyracer', '0.12.2', :platforms => :ruby
   gem 'sass-rails',   '~> 3.2.3'
   gem 'coffee-rails', '~> 3.2.1'
