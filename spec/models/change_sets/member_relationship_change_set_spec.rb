@@ -6,8 +6,28 @@ describe ChangeSets::MemberRelationshipChangeSet, "given:
   let(:member) { instance_double(Member, :hbx_member_id => hbx_member_id) }
   let(:person_resource) { instance_double(::RemoteResources::IndividualResource, :hbx_member_id => hbx_member_id, :relationships => [relationship_1, relationship_2]) }
   let(:possible_policies) { [matching_policy, non_matching_policy] }
-  let(:matching_policy) { instance_double(Policy, :active_member_ids => hbx_member_ids, :is_shop? => false, :enrollees => [subscriber_enrollee, dependent_enrollee], :subscriber => subscriber_enrollee) }
-  let(:non_matching_policy) { instance_double(Policy, :active_member_ids => [hbx_member_id, hbx_member_id_2, hbx_member_id_3], :is_shop? => false, :enrollees => [subscriber_enrollee, non_matching_dependent_enrollee, other_unrelated_enrollee], :subscriber => subscriber_enrollee ) }
+  let(:plan) { instance_double(Plan, :id => 1, carrier_id: 1, year: Date.today.year, coverage_type: "health") }
+  let(:matching_policy) do
+    instance_double(
+      Policy,
+      :active_member_ids => hbx_member_ids,
+      :is_shop? => false,
+      :enrollees => [subscriber_enrollee, dependent_enrollee],
+      :subscriber => subscriber_enrollee,
+      market: 'individual',
+      plan: plan
+    )
+  end
+  let(:non_matching_policy) do
+    instance_double(
+      Policy,
+      :active_member_ids => [hbx_member_id, hbx_member_id_2, hbx_member_id_3],
+      :is_shop? => false, :enrollees => [subscriber_enrollee, non_matching_dependent_enrollee, other_unrelated_enrollee],
+      :subscriber => subscriber_enrollee,
+      market: 'individual',
+      plan: plan
+    )
+  end
   let(:hbx_member_ids) { [hbx_member_id, hbx_member_id_2] }
   let(:hbx_member_id) { "some random member id wahtever" }
   let(:hbx_member_id_2) { "some other, differently random member id wahtever" }
@@ -53,8 +73,29 @@ describe ChangeSets::MemberRelationshipChangeSet, "given:
 
   let(:member) { instance_double(Member, :hbx_member_id => hbx_member_id) }
   let(:person_resource) { instance_double(::RemoteResources::IndividualResource, :hbx_member_id => hbx_member_id, :relationships => [relationship_1, relationship_2]) }
-  let(:wrong_spouse_policy) { instance_double(Policy, :active_member_ids => hbx_member_ids, :is_shop? => false, :enrollees => [subscriber_enrollee, wrong_spouse_enrollee, correct_child_enrollee], :subscriber => subscriber_enrollee) }
-  let(:wrong_child_policy) { instance_double(Policy, :active_member_ids => hbx_member_ids, :is_shop? => false, :enrollees => [subscriber_enrollee, correct_spouse_enrollee, wrong_child_enrollee], :subscriber => subscriber_enrollee ) }
+  let(:plan) { instance_double(Plan, :id => 1, carrier_id: 1, year: Date.today.year, coverage_type: "health") }
+  let(:wrong_spouse_policy) do
+    instance_double(
+      Policy, 
+      :active_member_ids => hbx_member_ids,
+      :is_shop? => false,
+      :enrollees => [subscriber_enrollee, wrong_spouse_enrollee, correct_child_enrollee],
+      :subscriber => subscriber_enrollee,
+      market: 'individual',
+      plan: plan
+    )
+  end
+  let(:wrong_child_policy) do
+    instance_double(
+      Policy,
+      :active_member_ids => hbx_member_ids,
+      :is_shop? => false,
+      :enrollees => [subscriber_enrollee, correct_spouse_enrollee, wrong_child_enrollee],
+      :subscriber => subscriber_enrollee,
+      market: 'individual',
+      plan: plan
+    )
+  end
   let(:applicable_policies) { [wrong_spouse_policy, wrong_child_policy] }
   let(:hbx_member_ids) { [hbx_member_id, hbx_member_id_2, hbx_member_id_3] }
   let(:hbx_member_id) { "some random member id wahtever" }
@@ -93,6 +134,7 @@ describe ChangeSets::MemberRelationshipChangeSet, "given:
     allow(wrong_child_enrollee).to receive(:update_attributes!).with({:rel_code => "child"})
     allow(subject).to receive(:notify_policies).with("change", "personnel_data", hbx_member_id_2, [wrong_spouse_policy], relationship_change_uri)
     allow(subject).to receive(:notify_policies).with("change", "personnel_data", hbx_member_id_3, [wrong_child_policy], relationship_change_uri)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
   end
 
   it "updates the incorrect spouse enrollee" do

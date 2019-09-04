@@ -6,7 +6,10 @@ describe ChangeSets::PersonDobChangeSet do
     let(:member) { instance_double("::Member", :dob => old_dob) }
     let(:person_resource) { instance_double("::RemoteResources::IndividualResource", :hbx_member_id => hbx_member_id, :dob => new_dob) }
     let(:policies_to_notify) { [policy_to_notify] }
-    let(:policy_to_notify) { instance_double("Policy", :eg_id => policy_hbx_id, :active_member_ids => hbx_member_ids, :is_shop? => true, :enrollees => []) }
+    let(:policy_to_notify) do
+      instance_double("Policy", :eg_id => policy_hbx_id, :active_member_ids => hbx_member_ids, :is_shop? => true, :enrollees => [], market: 'individual', plan: plan)
+    end
+    let(:plan) { instance_double(Plan, :id => 1, carrier_id: 1, year: Date.today.year, coverage_type: "health") }
     let(:hbx_member_ids) { [hbx_member_id, hbx_member_id_2] }
     let(:policy_hbx_id) { "some randome_policy id whatevers" }
     let(:hbx_member_id) { "some random member id wahtever" }
@@ -37,6 +40,7 @@ describe ChangeSets::PersonDobChangeSet do
       ).and_return(identity_change_transmitter)
       allow(member).to receive(:update_attributes).with({"dob" => new_dob}).and_return(update_result)
       allow(subject).to receive(:update_enrollments_for).and_return true
+      allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
     end
 
     describe "with an invalid new dob" do
@@ -54,6 +58,7 @@ describe ChangeSets::PersonDobChangeSet do
         ).and_return(policy_serializer)
         allow(policy_serializer).to receive(:serialize).and_return(policy_cv)
         allow(::Services::NfpPublisher).to receive(:new).and_return(cv_publisher)
+        allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
       end
 
       it "should update the person" do
@@ -96,6 +101,7 @@ describe ChangeSets::PersonDobChangeSet do
       allow(changeset).to receive(:work_phone_changed?).and_return(false)
       allow(changeset).to receive(:mobile_phone_changed?).and_return(false)
       allow(Amqp::Requestor).to receive(:default).and_return(instance_double(Amqp::Requestor))
+      allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
     end
 
     it 'should work' do
@@ -139,6 +145,7 @@ describe ChangeSets::PersonDobChangeSet do
         allow(policy).to receive(:pre_amt_tot=).with(new_pre_amt_tot)
         allow(policy).to receive(:tot_res_amt=).with(new_tot_res_amt)
         allow(policy).to receive(:save!)
+        allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
       end
 
     describe "for a shop policy" do

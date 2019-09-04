@@ -33,6 +33,7 @@ module ChangeSets
        transmitter = ::Services::EnrollmentEventTransmitter.new
        transmitter.call(conn, render_result)
        conn.close
+       ::Listeners::PolicyUpdatedObserver.notify(@policy)
     end
 
     def transaction_id

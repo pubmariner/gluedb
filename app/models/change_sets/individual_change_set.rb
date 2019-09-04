@@ -234,6 +234,7 @@ module ChangeSets
         end
         acc
       end
+      selected_policies.each { |policy| ::Listeners::PolicyUpdatedObserver.notify(policy) }
       selected_policies.values
     end
 

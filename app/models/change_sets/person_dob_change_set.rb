@@ -13,6 +13,7 @@ module ChangeSets
 
       policies_to_notify.each do |pol|
         if pol.active_member_ids.include?(person_resource.hbx_member_id)
+          ::Listeners::PolicyUpdatedObserver.notify(pol)
           af = ::BusinessProcesses::AffectedMember.new({
             :policy => pol
           }.merge(old_values_hash.first))

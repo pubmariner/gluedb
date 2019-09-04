@@ -19,6 +19,7 @@ module ChangeSets
             cv = serializer.serialize
             pubber = ::Services::NfpPublisher.new
             pubber.publish(true, "#{pol.eg_id}.xml", cv)
+            ::Listeners::PolicyUpdatedObserver.notify(pol)
           end
         end
       end

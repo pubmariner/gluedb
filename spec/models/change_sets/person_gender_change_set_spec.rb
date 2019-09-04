@@ -6,7 +6,10 @@ describe ChangeSets::PersonGenderChangeSet do
     let(:member) { instance_double("::Member", :gender => old_gender) }
     let(:person_resource) { instance_double("::RemoteResources::IndividualResource", :hbx_member_id => hbx_member_id, :gender => new_gender) }
     let(:policies_to_notify) { [policy_to_notify] }
-    let(:policy_to_notify) { instance_double("Policy", :eg_id => policy_hbx_id, :active_member_ids => hbx_member_ids, :is_shop? => true, :enrollees => []) }
+    let(:plan) { instance_double(Plan, :id => 1, carrier_id: 1, year: Date.today.year, coverage_type: "health") }
+    let(:policy_to_notify) do
+      instance_double("Policy", :eg_id => policy_hbx_id, :active_member_ids => hbx_member_ids, :is_shop? => true, :enrollees => [], market: 'individual', plan: plan)
+    end
     let(:hbx_member_ids) { [hbx_member_id, hbx_member_id_2] }
     let(:policy_hbx_id) { "some randome_policy id whatevers" }
     let(:hbx_member_id) { "some random member id wahtever" }
@@ -36,6 +39,7 @@ describe ChangeSets::PersonGenderChangeSet do
         "urn:openhbx:terms:v1:enrollment#change_member_name_or_demographic"
       ).and_return(identity_change_transmitter)
       allow(member).to receive(:update_attributes).with({"gender" => new_gender}).and_return(update_result)
+      allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
     end
 
     describe "with an invalid new gender" do
@@ -53,6 +57,7 @@ describe ChangeSets::PersonGenderChangeSet do
         ).and_return(policy_serializer)
         allow(policy_serializer).to receive(:serialize).and_return(policy_cv)
         allow(::Services::NfpPublisher).to receive(:new).and_return(cv_publisher)
+        allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
       end
 
       it "should update the person" do

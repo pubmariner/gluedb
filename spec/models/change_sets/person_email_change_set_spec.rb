@@ -7,7 +7,18 @@ describe ChangeSets::PersonEmailChangeSet do
     let(:person) { instance_double("::Person", :save => address_update_result) }
     let(:person_resource) { instance_double("::RemoteResources::IndividualResource", :emails => [], :hbx_member_id => hbx_member_id) }
     let(:policies_to_notify) { [policy_to_notify] }
-    let(:policy_to_notify) { instance_double("Policy", :eg_id => policy_hbx_id, :active_member_ids => hbx_member_ids, :is_shop? => true, :enrollees => nil) }
+    let(:plan) { instance_double(Plan, :id => 1, carrier_id: 1, year: Date.today.year, coverage_type: "health") }
+    let(:policy_to_notify) do
+      instance_double(
+        "Policy",
+        :eg_id => policy_hbx_id,
+        :active_member_ids => hbx_member_ids,
+        :is_shop? => true,
+        :enrollees => nil,
+        market: 'individual',
+        plan: plan
+      )
+    end
     let(:hbx_member_ids) { [hbx_member_id, hbx_member_id_2] }
     let(:policy_hbx_id) { "some randome_policy id whatevers" }
     let(:hbx_member_id) { "some random member id wahtever" }
@@ -34,6 +45,7 @@ describe ChangeSets::PersonEmailChangeSet do
       ).and_return(policy_serializer)
       allow(policy_serializer).to receive(:serialize).and_return(policy_cv)
       allow(::Services::NfpPublisher).to receive(:new).and_return(cv_publisher)
+      allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
     end
 
     it "should update the person" do
@@ -55,7 +67,10 @@ describe ChangeSets::PersonEmailChangeSet do
     let(:person_resource) { instance_double("::RemoteResources::IndividualResource", :emails => [updated_email_resource], :hbx_member_id => hbx_member_id) }
     let(:updated_email_resource) { double(:to_hash => {:email_type => email_kind}, :email_type => email_kind) }
     let(:policies_to_notify) { [policy_to_notify] }
-    let(:policy_to_notify) { instance_double("Policy", :eg_id => policy_hbx_id, :active_member_ids => hbx_member_ids, :is_shop? => true) }
+    let(:plan) { instance_double(Plan, :id => 1, carrier_id: 1, year: Date.today.year, coverage_type: "health") }
+    let(:policy_to_notify) do
+      instance_double("Policy", :eg_id => policy_hbx_id, :active_member_ids => hbx_member_ids, :is_shop? => true, plan: plan, market: 'individual')
+    end
     let(:hbx_member_ids) { [hbx_member_id, hbx_member_id_2] }
     let(:policy_hbx_id) { "some randome_policy id whatevers" }
     let(:hbx_member_id) { "some random member id wahtever" }
@@ -70,6 +85,7 @@ describe ChangeSets::PersonEmailChangeSet do
     before :each do
       allow(Email).to receive(:new).with({:email_type => email_kind}).and_return(new_email)
       allow(person).to receive(:set_email).with(new_email)
+      allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
     end
 
     describe "updating a home email" do
@@ -101,6 +117,7 @@ describe ChangeSets::PersonEmailChangeSet do
           ).and_return(policy_serializer)
           allow(policy_serializer).to receive(:serialize).and_return(policy_cv)
           allow(::Services::NfpPublisher).to receive(:new).and_return(cv_publisher)
+          allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
         end
 
         it "should update the person" do
@@ -144,6 +161,7 @@ describe ChangeSets::PersonEmailChangeSet do
           ).and_return(policy_serializer)
           allow(policy_serializer).to receive(:serialize).and_return(policy_cv)
           allow(::Services::NfpPublisher).to receive(:new).and_return(cv_publisher)
+          allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
         end
 
         it "should update the person" do

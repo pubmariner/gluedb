@@ -20,6 +20,7 @@ module ChangeSets
       end
       return false unless update_result
       notify_policies("change", edi_change_reason, person_update.hbx_member_id, policies_to_notify, cv_change_reason)
+      policies_to_notify.each { |policy| ::Listeners::PolicyUpdatedObserver.notify(policy) }
       true
     end
 

@@ -7,7 +7,8 @@ describe ChangeSets::PersonAddressChangeSet do
     let(:person) { instance_double("::Person", :save => address_update_result) }
     let(:person_resource) { instance_double("::RemoteResources::IndividualResource", :addresses => [], :hbx_member_id => hbx_member_id) }
     let(:policies_to_notify) { [policy_to_notify] }
-    let(:policy_to_notify) { instance_double("Policy", :eg_id => policy_hbx_id, :active_member_ids => hbx_member_ids, :is_shop? => true) }
+    let(:plan) { instance_double(Plan, :id => 1, carrier_id: 1, year: Date.today.year, coverage_type: "health") }
+    let(:policy_to_notify) { instance_double("Policy", :eg_id => policy_hbx_id, :active_member_ids => hbx_member_ids, :is_shop? => true, market: 'individual', plan: plan) }
     let(:hbx_member_ids) { [hbx_member_id, hbx_member_id_2] }
     let(:policy_hbx_id) { "some randome_policy id whatevers" }
     let(:hbx_member_id) { "some random member id wahtever" }
@@ -34,6 +35,7 @@ describe ChangeSets::PersonAddressChangeSet do
       ).and_return(identity_change_transmitter)
       allow(policy_serializer).to receive(:serialize).and_return(policy_cv)
       allow(::Services::NfpPublisher).to receive(:new).and_return(cv_publisher)
+      allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
     end
 
     it "should update the person" do
@@ -55,7 +57,8 @@ describe ChangeSets::PersonAddressChangeSet do
     let(:person_resource) { instance_double("::RemoteResources::IndividualResource", :addresses => [updated_address_resource], :hbx_member_id => hbx_member_id) }
     let(:updated_address_resource) { double(:to_hash => {:address_type => address_kind}, :address_type => address_kind) }
     let(:policies_to_notify) { [policy_to_notify] }
-    let(:policy_to_notify) { instance_double("Policy", :eg_id => policy_hbx_id, :active_member_ids => hbx_member_ids, :is_shop? => true) }
+    let(:plan) { instance_double(Plan, :id => 1, carrier_id: 1, year: Date.today.year, coverage_type: "health") }
+    let(:policy_to_notify) { instance_double("Policy", :eg_id => policy_hbx_id, :active_member_ids => hbx_member_ids, :is_shop? => true, market: 'individual', plan: plan) }
     let(:hbx_member_ids) { [hbx_member_id, hbx_member_id_2] }
     let(:policy_hbx_id) { "some randome_policy id whatevers" }
     let(:hbx_member_id) { "some random member id wahtever" }
@@ -79,10 +82,11 @@ describe ChangeSets::PersonAddressChangeSet do
       ).and_return(identity_change_transmitter)
       allow(Address).to receive(:new).with({:address_type => address_kind}).and_return(new_address)
       allow(person).to receive(:set_address).with(new_address)
+      allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
     end
 
     describe "updating a home address" do
-      let(:address_kind) { "home" }
+    let(:address_kind) { "home" }
     let(:identity_change_transmitter) { instance_double(::ChangeSets::IdentityChangeTransmitter, :publish => nil) }
     let(:affected_member) { instance_double(::BusinessProcesses::AffectedMember) }
     let(:cv_change_reason) { "urn:openhbx:terms:v1:enrollment#change_member_address" }
@@ -111,6 +115,7 @@ describe ChangeSets::PersonAddressChangeSet do
           ).and_return(policy_serializer)
           allow(policy_serializer).to receive(:serialize).and_return(policy_cv)
           allow(::Services::NfpPublisher).to receive(:new).and_return(cv_publisher)
+          allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
         end
 
         it "should update the person" do
@@ -155,6 +160,7 @@ describe ChangeSets::PersonAddressChangeSet do
           ).and_return(policy_serializer)
           allow(policy_serializer).to receive(:serialize).and_return(policy_cv)
           allow(::Services::NfpPublisher).to receive(:new).and_return(cv_publisher)
+          allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
         end
 
         it "should update the person" do

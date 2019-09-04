@@ -2,7 +2,8 @@ require "rails_helper"
 
 describe ChangeSets::IdentityChangeTransmitter do
   let(:affected_member) { instance_double(::BusinessProcesses::AffectedMember, :member_id => affected_member_id) }
-  let(:policy) { instance_double(Policy, :enrollees => [], :active_member_ids => active_member_ids) }
+  let(:policy) { instance_double(Policy, id: 1, eg_id: 1, :enrollees => [], :active_member_ids => active_member_ids, market: 'individual', plan: plan) }
+  let(:plan) { instance_double(Plan, :id => 1, carrier_id: 1, year: Date.today.year, coverage_type: "health") }
   let(:event_kind) { "some event kind" }
   let(:active_member_ids) { ["member id 1", "member id 2"] }
   let(:enrollees) { [] }
@@ -44,6 +45,7 @@ describe ChangeSets::IdentityChangeTransmitter do
       allow(::AmqpConnectionProvider).to receive(:start_connection).and_return(amqp_connection)
       allow(amqp_connection).to receive(:close)
       allow(subject).to receive(:transaction_id).and_return(transaction_id)
+      allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
     end
 
     it "publishes the rendered template" do
