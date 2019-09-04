@@ -32,8 +32,8 @@ describe EnrollmentAction::DependentAdd, "given a qualified enrollment set, bein
 
   let(:terminated_policy_cv) { instance_double(Openhbx::Cv2::Policy, :enrollees => [enrollee_primary, enrollee_secondary])}
   let(:new_policy_cv) { instance_double(Openhbx::Cv2::Policy, :enrollees => [enrollee_primary, enrollee_secondary, enrollee_new]) }
-  let(:plan) { instance_double(Plan, :id => 1) }
-  let(:policy) { instance_double(Policy, :hbx_enrollment_ids => [1,2]) }
+  let(:plan) { instance_double(Plan, :id => 1, year: Date.today.year, coverage_type: "health") }
+  let(:policy) { instance_double(Policy, :hbx_enrollment_ids => [1,2], market: "individual", plan: plan) }
   let(:primary_db_record) { instance_double(ExternalEvents::ExternalMember, :persist => true) }
   let(:secondary_db_record) { instance_double(ExternalEvents::ExternalMember, :persist => true) }
   let(:new_db_record) { instance_double(ExternalEvents::ExternalMember, :persist => true) }
@@ -64,6 +64,7 @@ describe EnrollmentAction::DependentAdd, "given a qualified enrollment set, bein
     allow(ExternalEvents::ExternalMember).to receive(:new).with(member_secondary).and_return(secondary_db_record)
     allow(ExternalEvents::ExternalMember).to receive(:new).with(member_new).and_return(new_db_record)
 
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
     allow(policy).to receive(:save!).and_return(true)
     allow(ExternalEvents::ExternalPolicyMemberAdd).to receive(:new).with(policy, new_policy_cv, [3]).and_return(policy_updater)
     allow(policy_updater).to receive(:persist).and_return(true)

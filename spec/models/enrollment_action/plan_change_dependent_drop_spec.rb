@@ -112,7 +112,7 @@ describe EnrollmentAction::PlanChangeDependentDrop, "given a valid enrollment se
     existing_policy: policy,
     all_member_ids: [1, 2, 3]
   ) }
-  let(:policy_updater) { instance_double(ExternalEvents::ExternalPolicyMemberDrop) }
+  let(:policy_updater) { instance_double(ExternalEvents::ExternalPolicy) }
   let(:expected_termination_date) { double }
 
   subject { EnrollmentAction::PlanChangeDependentDrop.new(termination_event, dependent_drop_event) }
@@ -123,6 +123,7 @@ describe EnrollmentAction::PlanChangeDependentDrop, "given a valid enrollment se
     allow(ExternalEvents::ExternalMember).to receive(:new).with(dropped_member).and_return(db_record)
     allow(ExternalEvents::ExternalPolicy).to receive(:new).with(new_policy_cv, plan, false, market_from_payload: subject.action).and_return(policy_updater)
     allow(policy_updater).to receive(:persist).and_return(true)
+    allow(policy_updater).to receive(:created_policy)
     allow(termination_event).to receive(:subscriber_end).and_return(false)
     allow(termination_event.existing_policy).to receive(:terminate_as_of).and_return(true)
     allow(subject.action).to receive(:existing_policy).and_return(false)

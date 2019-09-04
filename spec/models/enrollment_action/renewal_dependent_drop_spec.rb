@@ -28,9 +28,9 @@ describe EnrollmentAction::RenewalDependentDrop, "given a qualified enrollent se
   let(:member_primary) { instance_double(Openhbx::Cv2::EnrolleeMember, id: 1) }
   let(:member_secondary) { instance_double(Openhbx::Cv2::EnrolleeMember, id: 2) }
   let(:enrollee_primary) { instance_double(::Openhbx::Cv2::Enrollee, :member => member_primary) }
-  let(:plan) { instance_double(Plan, :id => 1) }
+  let(:plan) { instance_double(Plan, :id => 1, year: Date.today.year, coverage_type: "health") }
   let(:new_policy_cv) { instance_double(Openhbx::Cv2::Policy, :enrollees => [enrollee_primary]) }
-  let(:old_policy) { instance_double(Policy, :active_member_ids => [1, 2]) }
+  let(:old_policy) { instance_double(Policy, :active_member_ids => [1, 2], market: "individual", plan: plan) }
   let(:primary_db_record) { instance_double(ExternalEvents::ExternalMember, :persist => true) }
   let(:policy_updater) { instance_double(ExternalEvents::ExternalPolicy) }
 
@@ -62,6 +62,11 @@ describe EnrollmentAction::RenewalDependentDrop, "given a qualified enrollent se
     allow(policy_updater).to receive(:persist).and_return(true)
     allow(old_policy).to receive(:terminate_member_id_on).with(2, member_end_date).and_return(true)
     allow(subject.action).to receive(:kind).and_return(action_event)
+    allow(policy_updater).to receive(:created_policy)
+
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+
+
   end
 
   it "creates the new policy" do

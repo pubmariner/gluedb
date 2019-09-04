@@ -49,14 +49,14 @@ describe EnrollmentAction::PlanChange, "given an enrollment event set that:
 --  provides a new plan id
 --  with no dependents changed
 --  with no carrier change" do
-  let(:plan) { instance_double(Plan, :id => 1, carrier_id: 1) }
+  let(:plan) { instance_double(Plan, :id => 1, carrier_id: 1, year: Date.today.year, coverage_type: "health") }
   let(:new_plan) { instance_double(Plan, :id => 2, carrier_id: 1) }
   let(:member_primary) { instance_double(Openhbx::Cv2::EnrolleeMember, id: 1) }
   let(:enrollee_primary) { instance_double(::Openhbx::Cv2::Enrollee, :member => member_primary) }
   let(:primary_db_record) { instance_double(ExternalEvents::ExternalMember, :persist => true) }
 
   let(:new_policy_cv) { instance_double(Openhbx::Cv2::Policy, :enrollees => [enrollee_primary]) }
-  let(:policy) { instance_double(Policy, :hbx_enrollment_ids => [1], :policy_start => policy_start) }
+  let(:policy) { instance_double(Policy, :hbx_enrollment_ids => [1], :policy_start => policy_start, :market => "individual", :plan => plan) }
 
   let(:plan_change_event) { instance_double(
     ::ExternalEvents::EnrollmentEventNotification,
@@ -86,6 +86,7 @@ describe EnrollmentAction::PlanChange, "given an enrollment event set that:
     allow(policy).to receive(:terminate_as_of).with(termination_date).
       and_return(true)
     allow(policy_updater).to receive(:persist).and_return(true)
+    allow(policy_updater).to receive(:created_policy)
     allow(subject.action).to receive(:existing_policy).and_return(false)
     allow(subject.action).to receive(:kind).and_return(plan_change_event)
   end

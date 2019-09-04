@@ -12,6 +12,7 @@ module EnrollmentAction
     def persist
       policy_to_change = termination.existing_policy
       policy_to_change.hbx_enrollment_ids << action.hbx_enrollment_id
+      ::Listeners::PolicyUpdatedObserver.notify(policy_to_change)
       policy_to_change.save
     end
 

@@ -31,9 +31,11 @@ end
 
 describe EnrollmentAction::TerminatePolicyWithEarlierDate, "given a valid enrollment" do
   let(:member) { instance_double(Openhbx::Cv2::EnrolleeMember, id: 1) }
+  let(:plan) { instance_double(Plan, :id => 1, carrier_id: 1, year: Date.today.year, coverage_type: "health") }
+
   let(:enrollee) { instance_double(::Openhbx::Cv2::Enrollee, member: member) }
   let(:terminated_policy_cv) { instance_double(Openhbx::Cv2::Policy, enrollees: [enrollee])}
-  let(:policy) { instance_double(Policy, hbx_enrollment_ids: [1]) }
+  let(:policy) { instance_double(Policy, hbx_enrollment_ids: [1], market: "individual", plan: plan) }
 
   context "when policy found" do
 
@@ -45,6 +47,7 @@ describe EnrollmentAction::TerminatePolicyWithEarlierDate, "given a valid enroll
     ) }
 
     before do
+      allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
       allow(termination_event).to receive(:subscriber_end).and_return(Date.today)
       allow(termination_event.existing_policy).to receive(:terminate_as_of).with(termination_event.subscriber_end).and_return(true)
     end

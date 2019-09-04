@@ -9,6 +9,7 @@ module EnrollmentAction
     def persist
       if termination.existing_policy
         policy_to_term = termination.existing_policy
+        ::Listeners::PolicyUpdatedObserver.notify(policy_to_term)
         return policy_to_term.terminate_as_of(termination.subscriber_end)
       end
       true

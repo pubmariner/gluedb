@@ -136,9 +136,11 @@ end
 
 describe EnrollmentAction::AssistanceChange, "being persisted" do
   let(:hbx_enrollment_id) { double }
+  let(:plan) { instance_double(Plan, :id => 1, carrier_id: 1, year: Date.today.year, coverage_type: "health") }
+
   let(:policy_cv) { double }
   let(:existing_enrollment_ids) { double }
-  let(:policy) { instance_double(Policy, :hbx_enrollment_ids => existing_enrollment_ids) }
+  let(:policy) { instance_double(Policy, :hbx_enrollment_ids => existing_enrollment_ids, market: "individual", plan: plan) }
 
   let(:termination_event) do
     instance_double(
@@ -163,6 +165,8 @@ describe EnrollmentAction::AssistanceChange, "being persisted" do
   end
 
   before :each do
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+
     allow(ExternalEvents::ExternalPolicyAssistanceChange).to receive(:new).with(policy, new_enrollment_event).and_return(policy_updater)
     allow(policy).to receive(:save!).and_return(true)
     allow(policy_updater).to receive(:persist).and_return(true)

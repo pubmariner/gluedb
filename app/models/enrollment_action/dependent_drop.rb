@@ -15,7 +15,9 @@ module EnrollmentAction
       policy_to_change.save
       pol_updater = ExternalEvents::ExternalPolicyMemberDrop.new(policy_to_change, termination.policy_cv, dropped_dependents)
       pol_updater.use_totals_from(action.policy_cv)
-      pol_updater.persist
+      persistance_result = pol_updater.persist
+      ::Listeners::PolicyUpdatedObserver.notify(policy_to_change)
+      persistance_result
     end
 
     def dropped_dependents

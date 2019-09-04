@@ -29,7 +29,10 @@ module EnrollmentAction
                       policy_to_change,
                       action.policy_cv,
                       added_dependents)
-      pol_updater.persist
+
+      persistance_result = pol_updater.persist
+      ::Listeners::PolicyUpdatedObserver.notify(policy_to_change)
+      persistance_result
     end
 
     def publish

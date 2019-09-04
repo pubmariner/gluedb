@@ -47,8 +47,8 @@ describe EnrollmentAction::DependentDrop, "given a qualified enrollment set, bei
 
   let(:terminated_policy_cv) { instance_double(Openhbx::Cv2::Policy, :enrollees => [member_primary, member_secondary, member_drop])}
   let(:new_policy_cv) { instance_double(Openhbx::Cv2::Policy, :enrollees => [member_primary, member_secondary]) }
-  let(:plan) { instance_double(Plan, :id => 1) }
-  let(:policy) { instance_double(Policy, :hbx_enrollment_ids => [1,2,3]) }
+  let(:plan) { instance_double(Plan, :id => 1, year: Date.today.year, coverage_type: "health") }
+  let(:policy) { instance_double(Policy, :hbx_enrollment_ids => [1,2,3], market: "individual", plan: plan) }
 
   let(:dependent_drop_event) { instance_double(
     ::ExternalEvents::EnrollmentEventNotification,
@@ -71,6 +71,7 @@ describe EnrollmentAction::DependentDrop, "given a qualified enrollment set, bei
   end
 
   before :each do
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
 
     allow(policy).to receive(:save).and_return(true)
     allow(ExternalEvents::ExternalPolicyMemberDrop).to receive(:new).with(termination_event.existing_policy, termination_event.policy_cv, [3]).and_return(policy_updater)

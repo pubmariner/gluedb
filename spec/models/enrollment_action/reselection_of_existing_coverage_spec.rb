@@ -130,8 +130,8 @@ end
 
 
 describe EnrollmentAction::ReselectionOfExistingCoverage, "given a qualified enrollment set, being persisted" do
-  let(:plan) { instance_double(Plan, :id => 1) }
-  let(:policy) { instance_double(Policy, :hbx_enrollment_ids => existing_hbx_enrollment_ids) }
+  let(:plan) { instance_double(Plan, :id => 1, year: Date.today.year, coverage_type: "health") }
+  let(:policy) { instance_double(Policy, :hbx_enrollment_ids => existing_hbx_enrollment_ids, market: "individual", plan: plan) }
 
   let(:new_purchase_event) { instance_double(
     ::ExternalEvents::EnrollmentEventNotification,
@@ -152,6 +152,8 @@ describe EnrollmentAction::ReselectionOfExistingCoverage, "given a qualified enr
   end
 
   before :each do
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+
     allow(policy).to receive(:save).and_return(true)
     allow(existing_hbx_enrollment_ids).to receive(:<<).with(3)
   end

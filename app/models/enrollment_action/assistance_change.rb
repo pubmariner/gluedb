@@ -23,6 +23,9 @@ module EnrollmentAction
         action
       )
       policy_updater.persist
+      persistance_result = policy_updater.persist
+      ::Listeners::PolicyUpdatedObserver.notify(policy)
+      persistance_result
     end
 
     # publish: here we need to:
