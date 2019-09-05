@@ -180,6 +180,7 @@ module Parsers
           policy.merge_enrollee(enrollee, policy_loop.action)
         end
         policy.save!
+        ::Listeners::PolicyUpdatedObserver.notify(policy)
 
         policy
       end

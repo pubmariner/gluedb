@@ -14,6 +14,9 @@ module Parsers
           :hios_plan_id => subscriber_policy_loop.hios_id
         })
 
+        policy_record = Policy.find(eg_id: subscriber_policy_loop.eg_id).first
+        ::Listeners::PolicyUpdatedObserver.notify(policy_record)
+
         person_loop_validator = PersonLoopValidator.new
         etf.people.each do |person_loop|
           person_loop_validator.validate(person_loop, incoming_transaction, policy)
