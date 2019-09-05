@@ -39,7 +39,7 @@ module EnrollmentAction
       end
       ep = ExternalEvents::ExternalPolicy.new(action.policy_cv, action.existing_plan, action.is_cobra?, market_from_payload: action.kind)
       persistance_result = ep.persist
-      ::Listeners::PolicyUpdatedObserver.notify(ep.created_policy)
+      ::Listeners::PolicyUpdatedObserver.notify(ep.existing_policy)
       persistance_result
     end
 

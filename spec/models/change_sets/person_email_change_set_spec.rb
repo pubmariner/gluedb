@@ -29,6 +29,7 @@ describe ChangeSets::PersonEmailChangeSet do
     let(:email_kind) { "home" }
     let(:identity_change_transmitter) { instance_double(::ChangeSets::IdentityChangeTransmitter, :publish => nil) }
     let(:affected_member) { instance_double(::BusinessProcesses::AffectedMember) }
+
     subject { ChangeSets::PersonEmailChangeSet.new(email_kind) }
 
     before :each do
@@ -46,20 +47,22 @@ describe ChangeSets::PersonEmailChangeSet do
       allow(policy_serializer).to receive(:serialize).and_return(policy_cv)
       allow(::Services::NfpPublisher).to receive(:new).and_return(cv_publisher)
       allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+      allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(policy_to_notify)
     end
 
     it "should update the person" do
       allow(cv_publisher).to receive(:publish).with(true, "#{policy_hbx_id}.xml", policy_cv)
       expect(person).to receive(:remove_email_of).with(email_kind)
       expect(subject.perform_update(person, person_resource, policies_to_notify)).to eq true
+      expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(policy_to_notify).at_least(:once)
     end
 
     it "should send out policy notifications" do
       expect(cv_publisher).to receive(:publish).with(true, "#{policy_hbx_id}.xml", policy_cv)
       allow(person).to receive(:remove_email_of).with(email_kind)
       subject.perform_update(person, person_resource, policies_to_notify)
+      expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(policy_to_notify).at_least(:once)
     end
-
   end
 
   describe "with an updated email" do
@@ -86,6 +89,7 @@ describe ChangeSets::PersonEmailChangeSet do
       allow(Email).to receive(:new).with({:email_type => email_kind}).and_return(new_email)
       allow(person).to receive(:set_email).with(new_email)
       allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+      allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(policy_to_notify)
     end
 
     describe "updating a home email" do
@@ -93,8 +97,10 @@ describe ChangeSets::PersonEmailChangeSet do
 
       describe "with an invalid new email" do
         let(:address_update_result) { false }
+
         it "should fail to process the update" do
           expect(subject.perform_update(person, person_resource, policies_to_notify)).to eq false
+          expect(::Listeners::PolicyUpdatedObserver).to_not have_received(:notify).with(policy_to_notify)
         end
       end
 
@@ -118,16 +124,19 @@ describe ChangeSets::PersonEmailChangeSet do
           allow(policy_serializer).to receive(:serialize).and_return(policy_cv)
           allow(::Services::NfpPublisher).to receive(:new).and_return(cv_publisher)
           allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+          allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(policy_to_notify)
         end
 
         it "should update the person" do
           allow(cv_publisher).to receive(:publish).with(true, "#{policy_hbx_id}.xml", policy_cv)
           expect(subject.perform_update(person, person_resource, policies_to_notify)).to eq true
+          expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(policy_to_notify).at_least(:once)
         end
 
         it "should send out policy notifications" do
           expect(cv_publisher).to receive(:publish).with(true, "#{policy_hbx_id}.xml", policy_cv)
           subject.perform_update(person, person_resource, policies_to_notify)
+          expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(policy_to_notify).at_least(:once)
         end
       end
     end
@@ -162,15 +171,18 @@ describe ChangeSets::PersonEmailChangeSet do
           allow(policy_serializer).to receive(:serialize).and_return(policy_cv)
           allow(::Services::NfpPublisher).to receive(:new).and_return(cv_publisher)
           allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+          allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(policy_to_notify)
         end
 
         it "should update the person" do
           expect(subject.perform_update(person, person_resource, policies_to_notify)).to eq true
+          expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(policy_to_notify).at_least(:once)
         end
 
         it "should not send out policy notifications" do
           expect(cv_publisher).not_to receive(:publish).with(true, "#{policy_hbx_id}.xml", policy_cv)
           subject.perform_update(person, person_resource, policies_to_notify)
+          expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(policy_to_notify).at_least(:once)
         end
       end
     end

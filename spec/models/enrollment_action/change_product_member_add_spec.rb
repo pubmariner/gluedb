@@ -43,7 +43,7 @@ describe EnrollmentAction::PlanChangeDependentAdd, "given a qualified enrollment
   let(:enrollee_primary) { instance_double(::Openhbx::Cv2::Enrollee, :member => member_primary) }
   let(:enrollee_secondary) { instance_double(::Openhbx::Cv2::Enrollee, :member => member_secondary) }
   let(:enrollee_new) { instance_double(::Openhbx::Cv2::Enrollee, :member => member_new) }
-
+  let(:existing_policy) { instance_double('Policy') }
   let(:terminated_policy_cv) { instance_double(Openhbx::Cv2::Policy, :enrollees => [enrollee_primary, enrollee_secondary])}
   let(:new_policy_cv) { instance_double(Openhbx::Cv2::Policy, :enrollees => [enrollee_primary, enrollee_secondary, enrollee_new]) }
   let(:plan) { instance_double(Plan, :id => 1) }
@@ -87,15 +87,28 @@ describe EnrollmentAction::PlanChangeDependentAdd, "given a qualified enrollment
     allow(subject.action).to receive(:existing_policy).and_return(false)
     allow(subject.action).to receive(:kind).and_return(dependent_add_event)
     allow(subject).to receive(:select_termination_date).and_return(expected_termination_date)
+    allow(ExternalEvents::ExternalPolicy.new(new_policy_cv, plan, false, market_from_payload: subject.action)).to receive(:existing_policy).and_return(
+      existing_policy
+    )
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(
+      ExternalEvents::ExternalPolicy.new(new_policy_cv, plan, false, market_from_payload: subject.action).existing_policy
+    )
   end
 
   it "successfully creates the new policy" do
     expect(subject.persist).to be_truthy
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(
+      ExternalEvents::ExternalPolicy.new(new_policy_cv, plan, false, market_from_payload: subject.action).existing_policy
+    ).at_least(:once)
   end
 
   it "terminates with the correct end date" do
     expect(subject).to receive(:select_termination_date).and_return(expected_termination_date)
     subject.persist
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(
+      ExternalEvents::ExternalPolicy.new(new_policy_cv, plan, false, market_from_payload: subject.action).existing_policy
+    ).at_least(:once)
   end
 end
 

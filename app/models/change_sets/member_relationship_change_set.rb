@@ -24,9 +24,9 @@ module ChangeSets
             if member_ids_to_search.include?(en.m_id)
               if relationship_mapping.has_key?(en.m_id)
                 if relationship_mapping[en.m_id] != en.rel_code
+                  ::Listeners::PolicyUpdatedObserver.notify(pol)
                   en.update_attributes!({:rel_code => relationship_mapping[en.m_id]})
                   notify_policies("change", "personnel_data", en.m_id, [pol], "urn:openhbx:terms:v1:enrollment#change_relationship")
-                  ::Listeners::PolicyUpdatedObserver.notify(pol)
                 end
               end
             end

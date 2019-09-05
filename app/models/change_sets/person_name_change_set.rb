@@ -12,6 +12,7 @@ module ChangeSets
           }.merge(old_id_hash))
           ict = IdentityChangeTransmitter.new(af, pol, "urn:openhbx:terms:v1:enrollment#change_member_name_or_demographic")
           ict.publish
+          ::Listeners::PolicyUpdatedObserver.notify(pol)
           if pol.is_shop?
             serializer = ::CanonicalVocabulary::IdInfoSerializer.new(
               pol, "change", "change_in_identifying_data_elements", [person_resource.hbx_member_id], pol.active_member_ids, old_values_hash
@@ -19,7 +20,6 @@ module ChangeSets
             cv = serializer.serialize
             pubber = ::Services::NfpPublisher.new
             pubber.publish(true, "#{pol.eg_id}.xml", cv)
-            ::Listeners::PolicyUpdatedObserver.notify(pol)
           end
         end
       end

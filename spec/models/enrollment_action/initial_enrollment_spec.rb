@@ -27,7 +27,7 @@ describe EnrollmentAction::InitialEnrollment, "with an initial enrollment event,
     :is_cobra? => false,
     :kind => "coverall"
   ) }
-
+  let(:created_policy) { instance_double('Policy') }
   let(:existing_plan) { double }
   let(:member_database_record) { instance_double(ExternalEvents::ExternalMember, :persist => true) }
   let(:policy_database_record) { instance_double(ExternalEvents::ExternalPolicy, :persist => true) }
@@ -41,12 +41,15 @@ describe EnrollmentAction::InitialEnrollment, "with an initial enrollment event,
     allow(ExternalEvents::ExternalMember).to receive(:new).with(member_from_xml).and_return(member_database_record)
     allow(ExternalEvents::ExternalPolicy).to receive(:new).with(policy_cv, existing_plan, false, market_from_payload: subject.action.kind).and_return(policy_database_record)
     allow(subject.action).to receive(:existing_policy).and_return(false)
+    allow(ExternalEvents::ExternalPolicy.new(policy_cv, existing_plan, false, market_from_payload: subject.action.kind)).to receive(:created_policy).and_return(created_policy)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(created_policy)
   end
 
   it "successfully creates the new policy" do
     expect(subject.persist).to be_truthy
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(created_policy).at_least(:once)
   end
-
 end
 
 describe EnrollmentAction::InitialEnrollment, "with an initial enrollment event, being published" do

@@ -29,7 +29,7 @@ describe EnrollmentAction::DependentAdd, "given a qualified enrollment set, bein
   let(:enrollee_primary) { instance_double(::Openhbx::Cv2::Enrollee, :member => member_primary) }
   let(:enrollee_secondary) { instance_double(::Openhbx::Cv2::Enrollee, :member => member_secondary) }
   let(:enrollee_new) { instance_double(::Openhbx::Cv2::Enrollee, :member => member_new) }
-
+  let(:existing_policy) { instance_double('Policy', id: 1) }
   let(:terminated_policy_cv) { instance_double(Openhbx::Cv2::Policy, :enrollees => [enrollee_primary, enrollee_secondary])}
   let(:new_policy_cv) { instance_double(Openhbx::Cv2::Policy, :enrollees => [enrollee_primary, enrollee_secondary, enrollee_new]) }
   let(:plan) { instance_double(Plan, :id => 1, year: Date.today.year, coverage_type: "health") }
@@ -68,10 +68,13 @@ describe EnrollmentAction::DependentAdd, "given a qualified enrollment set, bein
     allow(policy).to receive(:save!).and_return(true)
     allow(ExternalEvents::ExternalPolicyMemberAdd).to receive(:new).with(policy, new_policy_cv, [3]).and_return(policy_updater)
     allow(policy_updater).to receive(:persist).and_return(true)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(policy)
   end
 
   it "successfully creates the new policy" do
     expect(subject.persist).to be_truthy
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(policy).at_least(:once)
   end
 end
 
@@ -84,7 +87,7 @@ describe EnrollmentAction::DependentAdd, "given a qualified enrollment set, bein
 
   let(:plan) { instance_double(Plan, :id => 1) }
   let(:policy) { instance_double(Policy, :enrollees => [enrollee_primary, enrollee_new], :eg_id => 1) }
-
+  let(:existing_policy) { double('Policy') }
   let(:dependent_add_event) { instance_double(
     ::ExternalEvents::EnrollmentEventNotification,
     :event_xml => event_xml,
@@ -114,6 +117,7 @@ describe EnrollmentAction::DependentAdd, "given a qualified enrollment set, bein
     allow(action_publish_helper).to receive(:set_member_starts).with({ 1 => :one_month_ago, 2 => :one_month_ago })
     allow(action_publish_helper).to receive(:keep_member_ends).with([])
     allow(subject).to receive(:publish_edi).with(amqp_connection, action_helper_result_xml, termination_event.hbx_enrollment_id, termination_event.employer_hbx_id)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
   end
 
   subject do
@@ -123,6 +127,7 @@ describe EnrollmentAction::DependentAdd, "given a qualified enrollment set, bein
   it "publishes an event of type add dependents" do
     expect(action_publish_helper).to receive(:set_event_action).with("urn:openhbx:terms:v1:enrollment#change_member_add")
     subject.publish
+
   end
 
   it "sets member start dates" do

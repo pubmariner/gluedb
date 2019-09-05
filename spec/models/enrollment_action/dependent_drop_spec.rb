@@ -77,15 +77,19 @@ describe EnrollmentAction::DependentDrop, "given a qualified enrollment set, bei
     allow(ExternalEvents::ExternalPolicyMemberDrop).to receive(:new).with(termination_event.existing_policy, termination_event.policy_cv, [3]).and_return(policy_updater)
     allow(policy_updater).to receive(:use_totals_from).with(new_policy_cv)
     allow(policy_updater).to receive(:persist).and_return(true)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(policy)
   end
 
   it "uses the xml from the new enrollment for totals" do
     expect(policy_updater).to receive(:use_totals_from).with(new_policy_cv)
     subject.persist
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(policy).at_least(:once)
   end
 
   it "successfully creates the new policy" do
     expect(subject.persist).to be_truthy
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(policy).at_least(:once)
   end
 end
 

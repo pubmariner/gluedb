@@ -26,10 +26,10 @@ module EnrollmentAction
       policy_to_change.hbx_enrollment_ids << action.hbx_enrollment_id
       policy_to_change.save!
       pol_updater = ExternalEvents::ExternalPolicyMemberAdd.new(
-                      policy_to_change,
-                      action.policy_cv,
-                      added_dependents)
-
+        policy_to_change,
+        action.policy_cv,
+        added_dependents
+      )
       persistance_result = pol_updater.persist
       ::Listeners::PolicyUpdatedObserver.notify(policy_to_change)
       persistance_result

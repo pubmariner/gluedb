@@ -20,9 +20,9 @@ module ChangeSets
       end
       return false unless update_result
       return true if (@address_kind == "work")
+      policies_to_notify.each { |policy| ::Listeners::PolicyUpdatedObserver.notify(policy) } if update_result
       if transmit
         notify_policies("change", "personnel_data", person_update.hbx_member_id, policies_to_notify, "urn:openhbx:terms:v1:enrollment#change_member_communication_numbers")
-        policies_to_notify.each { |policy| ::Listeners::PolicyUpdatedObserver.notify(policy) }
       end
       true
     end

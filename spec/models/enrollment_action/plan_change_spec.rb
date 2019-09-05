@@ -89,10 +89,13 @@ describe EnrollmentAction::PlanChange, "given an enrollment event set that:
     allow(policy_updater).to receive(:created_policy)
     allow(subject.action).to receive(:existing_policy).and_return(false)
     allow(subject.action).to receive(:kind).and_return(plan_change_event)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(policy)
   end
 
   it "persists the change" do
     expect(subject.persist).to be_truthy
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(policy).at_least(:once)
   end
 end
 

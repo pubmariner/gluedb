@@ -83,7 +83,7 @@ describe EnrollmentAction::NewPolicyReinstate, "with a reinstate enrollment even
   let(:existing_plan) { double }
   let(:member_database_record) { instance_double(ExternalEvents::ExternalMember, :persist => true) }
   let(:policy_database_record) { instance_double(ExternalEvents::ExternalPolicy, :persist => true) }
-
+  let(:existing_policy) { instance_double(Policy, :hbx_enrollment_ids => [1], market: "individual", plan: plan) }
   subject do
     EnrollmentAction::NewPolicyReinstate.new(nil, enrollment_event)
   end
@@ -93,11 +93,13 @@ describe EnrollmentAction::NewPolicyReinstate, "with a reinstate enrollment even
     allow(ExternalEvents::ExternalPolicy).to receive(:new).with(policy_cv, existing_plan, false, policy_reinstate: true).and_return(policy_database_record)
     allow(subject.action).to receive(:existing_policy).and_return(false)
     allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
-    allow(policy_database_record).to receive(:created_policy)
+    allow(policy_database_record).to receive(:existing_policy).and_return(existing_policy)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(existing_policy)
   end
 
   it "successfully creates the new policy" do
     expect(subject.persist).to be_truthy
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(existing_policy).at_least(:once)
   end
 end
 

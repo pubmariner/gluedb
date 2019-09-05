@@ -16,24 +16,25 @@ module ChangeSets
     end
 
     def publish
-       return true unless @policy.active_member_ids.include?(@affected_member.member_id)
-       render_result = ApplicationController.new.render_to_string(
-         :layout => "enrollment_event",
-         :partial => "enrollment_events/enrollment_event",
-         :format => :xml,
-         :locals => {
-           :affected_members => [affected_member],
-           :policy => policy,
-           :enrollees => enrollees,
-           :event_type => event_kind,
-           :transaction_id => transaction_id
-         })
-#       Rails.logger.error { "RENDERED RESULT: #{render_result}" }
-       conn = AmqpConnectionProvider.start_connection
-       transmitter = ::Services::EnrollmentEventTransmitter.new
-       transmitter.call(conn, render_result)
-       conn.close
-       ::Listeners::PolicyUpdatedObserver.notify(@policy)
+      return true unless @policy.active_member_ids.include?(@affected_member.member_id)
+      render_result = ApplicationController.new.render_to_string(
+        :layout => "enrollment_event",
+        :partial => "enrollment_events/enrollment_event",
+        :format => :xml,
+        :locals => {
+          :affected_members => [affected_member],
+          :policy => policy,
+          :enrollees => enrollees,
+          :event_type => event_kind,
+          :transaction_id => transaction_id
+       }
+      )
+#     Rails.logger.error { "RENDERED RESULT: #{render_result}" }
+      conn = AmqpConnectionProvider.start_connection
+      transmitter = ::Services::EnrollmentEventTransmitter.new
+      transmitter.call(conn, render_result)
+      ::Listeners::PolicyUpdatedObserver.notify(@policy)
+      conn.close
     end
 
     def transaction_id

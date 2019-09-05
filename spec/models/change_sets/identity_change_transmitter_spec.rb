@@ -46,11 +46,13 @@ describe ChangeSets::IdentityChangeTransmitter do
       allow(amqp_connection).to receive(:close)
       allow(subject).to receive(:transaction_id).and_return(transaction_id)
       allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+      allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(policy)
     end
 
     it "publishes the rendered template" do
       expect(enrollment_event_transmitter).to receive(:call).with(amqp_connection, template_result)
       subject.publish
+      expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(policy).at_least(:once)
     end
   end
 end

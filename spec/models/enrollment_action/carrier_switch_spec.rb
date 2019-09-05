@@ -35,7 +35,7 @@ describe EnrollmentAction::CarrierSwitch, "given a qualified enrollment set, bei
   let(:secondary_db_record) { instance_double(ExternalEvents::ExternalMember, :persist => true) }
   let(:new_db_record) { instance_double(ExternalEvents::ExternalMember, :persist => true) }
   let(:subscriber_end) { Date.today - 1.day }
-
+  let(:existing_policy) { instance_double('Policy') }
   let(:action_event) { instance_double(
     ::ExternalEvents::EnrollmentEventNotification,
     :policy_cv => new_policy_cv,
@@ -69,10 +69,20 @@ describe EnrollmentAction::CarrierSwitch, "given a qualified enrollment set, bei
     allow(policy_updater).to receive(:created_policy).and_return(policy)
     allow(subject.action).to receive(:existing_policy).and_return(false)
     allow(subject.action).to receive(:kind).and_return(action_event)
+    allow(ExternalEvents::ExternalPolicy.new(new_policy_cv, plan, false, market_from_payload: subject.action)).to receive(:existing_policy).and_return(
+      existing_policy
+    )
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(
+      ExternalEvents::ExternalPolicy.new(new_policy_cv, plan, false, market_from_payload: subject.action).existing_policy
+    )
   end
 
   it "successfully creates the new policy" do
     expect(subject.persist).to be_truthy
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(
+      ExternalEvents::ExternalPolicy.new(new_policy_cv, plan, false, market_from_payload: subject.action).existing_policy
+    ).at_least(:once)
   end
 end
 

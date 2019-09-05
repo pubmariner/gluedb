@@ -135,26 +135,31 @@ describe ChangeSets::MemberRelationshipChangeSet, "given:
     allow(subject).to receive(:notify_policies).with("change", "personnel_data", hbx_member_id_2, [wrong_spouse_policy], relationship_change_uri)
     allow(subject).to receive(:notify_policies).with("change", "personnel_data", hbx_member_id_3, [wrong_child_policy], relationship_change_uri)
     allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(wrong_spouse_policy)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(wrong_child_policy)
   end
 
   it "updates the incorrect spouse enrollee" do
     expect(wrong_spouse_enrollee).to receive(:update_attributes!).with({:rel_code => "spouse"})
     subject.perform_update(member, person_resource, applicable_policies)
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(wrong_spouse_policy).at_least(:once)
   end
 
   it "updates the incorrect child enrollee" do
     expect(wrong_child_enrollee).to receive(:update_attributes!).with({:rel_code => "child"})
     subject.perform_update(member, person_resource, applicable_policies)
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(wrong_child_policy).at_least(:once)
   end
 
   it "transmits the update spouse enrollment" do
     expect(subject).to receive(:notify_policies).with("change", "personnel_data", hbx_member_id_2, [wrong_spouse_policy], relationship_change_uri)
     subject.perform_update(member, person_resource, applicable_policies)
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(wrong_spouse_policy).at_least(:once)
   end
 
   it "transmits the updated child enrollment" do
     expect(subject).to receive(:notify_policies).with("change", "personnel_data", hbx_member_id_3, [wrong_child_policy], relationship_change_uri)
     subject.perform_update(member, person_resource, applicable_policies)
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(wrong_child_policy).at_least(:once)
   end
-
 end

@@ -18,11 +18,11 @@ module ChangeSets
         person.set_email(Email.new(new_address.to_hash))
         update_result = person.save
       end
+      policies_to_notify.each { |policy| ::Listeners::PolicyUpdatedObserver.notify(policy) } if update_result
       return false unless update_result
       return true if (@address_kind == "work")
       if transmit
         notify_policies("change", "personnel_data", person_update.hbx_member_id, policies_to_notify, "urn:openhbx:terms:v1:enrollment#change_member_communication_numbers")
-        policies_to_notify.each { |policy| ::Listeners::PolicyUpdatedObserver.notify(policy) }
       end
       true
     end

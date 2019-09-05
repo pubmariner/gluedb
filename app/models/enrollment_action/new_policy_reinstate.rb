@@ -23,7 +23,7 @@ module EnrollmentAction
         #cobra_reinstate = true
         ep = ExternalEvents::ExternalPolicy.new(action.policy_cv, action.existing_plan, false, policy_reinstate: true)
         persistance_result = ep.persist
-        ::Listeners::PolicyUpdatedObserver.notify(ep.created_policy)
+        ::Listeners::PolicyUpdatedObserver.notify(ep.existing_policy)
         persistance_result
     end
 

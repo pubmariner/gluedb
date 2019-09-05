@@ -152,7 +152,7 @@ describe EnrollmentAction::ActiveRenewal, "#persist" do
 
   let(:plan) { instance_double(Plan, :id => 1, year: Date.today.year, coverage_type: "health") }
   let(:policy_cv) { instance_double(Policy, :enrollees => [enrollee], market: "individual", plan: plan ) }
-
+  let(:created_policy) { instance_double(Policy) }
   let(:action) { instance_double(
     ::ExternalEvents::EnrollmentEventNotification,
     :policy_cv => policy_cv ,
@@ -167,10 +167,14 @@ describe EnrollmentAction::ActiveRenewal, "#persist" do
   before :each do
     allow(ExternalEvents::ExternalMember).to receive(:new).with(member).and_return(db_record)
     allow(ExternalEvents::ExternalPolicy).to receive(:new).with(policy_cv, plan, false, market_from_payload: subject.action).and_return(policy_updater)
+    allow(ExternalEvents::ExternalPolicy.new(policy_cv, plan, false, market_from_payload: subject.action)).to receive(:created_policy).and_return(created_policy)
     allow(subject.action).to receive(:kind).and_return(action)
     allow(policy_updater).to receive(:persist).and_return(true)
     allow(policy_updater).to receive(:created_policy).and_return(policy_cv)
     allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(
+      ExternalEvents::ExternalPolicy.new(policy_cv, plan, false, market_from_payload: subject.action).created_policy
+    )
   end
 
   context "successfuly persisted" do
@@ -182,6 +186,9 @@ describe EnrollmentAction::ActiveRenewal, "#persist" do
 
     it "returns true" do
       expect(subject.persist).to be_truthy
+      expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(
+        ExternalEvents::ExternalPolicy.new(policy_cv, plan, false, market_from_payload: subject.action).created_policy
+      ).at_least(:once)
     end
   end
   context "failed to persist" do
@@ -189,10 +196,16 @@ describe EnrollmentAction::ActiveRenewal, "#persist" do
 
     before(:each) do
       allow(subject.action).to receive(:existing_policy).and_return(true)
-    end
-
+      allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+      allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(
+      ExternalEvents::ExternalPolicy.new(policy_cv, plan, false, market_from_payload: subject.action).created_policy
+    )
+  end
     it "returns false" do
       expect(subject.persist).to be_falsey
+      expect(::Listeners::PolicyUpdatedObserver).to_not have_received(:notify).with(
+        ExternalEvents::ExternalPolicy.new(policy_cv, plan, false, market_from_payload: subject.action).created_policy
+      )
     end
   end
 end

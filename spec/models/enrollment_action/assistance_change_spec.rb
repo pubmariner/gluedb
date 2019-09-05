@@ -166,7 +166,7 @@ describe EnrollmentAction::AssistanceChange, "being persisted" do
 
   before :each do
     allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
-
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(policy)
     allow(ExternalEvents::ExternalPolicyAssistanceChange).to receive(:new).with(policy, new_enrollment_event).and_return(policy_updater)
     allow(policy).to receive(:save!).and_return(true)
     allow(policy_updater).to receive(:persist).and_return(true)
@@ -176,10 +176,12 @@ describe EnrollmentAction::AssistanceChange, "being persisted" do
   it "adds the hbx_enrollment_id to the list on the policy" do
     expect(existing_enrollment_ids).to receive(:<<).with(hbx_enrollment_id)
     subject.persist
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(policy).at_least(:once)
   end
 
   it "updates the assistance" do
     expect(policy_updater).to receive(:persist).and_return(true)
     subject.persist
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(policy).at_least(:once)
   end
 end

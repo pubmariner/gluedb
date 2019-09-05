@@ -22,8 +22,8 @@ module EnrollmentAction
       end
       ep = ExternalEvents::ExternalPolicy.new(action.policy_cv, action.existing_plan, action.is_cobra?, market_from_payload: action.kind)
       return false unless ep.persist
-      ::Listeners::PolicyUpdatedObserver.notify(ep.created_policy)
       policy_to_term = termination.existing_policy
+      ::Listeners::PolicyUpdatedObserver.notify(policy_to_term)
       termination_date = select_termination_date
       policy_to_term.terminate_as_of(termination_date)
     end

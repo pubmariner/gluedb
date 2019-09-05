@@ -41,12 +41,15 @@ describe ChangeSets::PersonDobChangeSet do
       allow(member).to receive(:update_attributes).with({"dob" => new_dob}).and_return(update_result)
       allow(subject).to receive(:update_enrollments_for).and_return true
       allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+      allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(policy_to_notify)
     end
 
     describe "with an invalid new dob" do
       let(:update_result) { false }
       it "should fail to process the update" do
         expect(subject.perform_update(member, person_resource, policies_to_notify)).to eq false
+        # This is only called if the record is updated
+        expect(::Listeners::PolicyUpdatedObserver).to_not have_received(:notify).with(policy_to_notify)
       end
     end
 
@@ -59,16 +62,20 @@ describe ChangeSets::PersonDobChangeSet do
         allow(policy_serializer).to receive(:serialize).and_return(policy_cv)
         allow(::Services::NfpPublisher).to receive(:new).and_return(cv_publisher)
         allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+        allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(policy_to_notify)
       end
 
       it "should update the person" do
         allow(cv_publisher).to receive(:publish).with(true, "#{policy_hbx_id}.xml", policy_cv)
         expect(subject.perform_update(member, person_resource, policies_to_notify)).to eq true
+        expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(policy_to_notify).at_least(:once)
+
       end
 
       it "should send out policy notifications" do
         expect(cv_publisher).to receive(:publish).with(true, "#{policy_hbx_id}.xml", policy_cv)
         subject.perform_update(member, person_resource, policies_to_notify)
+        expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(policy_to_notify).at_least(:once)
       end
     end
   end
@@ -146,6 +153,7 @@ describe ChangeSets::PersonDobChangeSet do
         allow(policy).to receive(:tot_res_amt=).with(new_tot_res_amt)
         allow(policy).to receive(:save!)
         allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+        allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(policy)
       end
 
     describe "for a shop policy" do

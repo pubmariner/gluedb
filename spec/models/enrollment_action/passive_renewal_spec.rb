@@ -63,10 +63,12 @@ describe EnrollmentAction::PassiveRenewal, "persists enrollment set for passive 
     allow(subject.action).to receive(:existing_policy).and_return(false)
     allow(subject.action).to receive(:kind).and_return(passive_renewal_event)
     allow(policy_updater).to receive(:created_policy).and_return(policy)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(policy)
   end
 
   it "passive renewal persists" do
     expect(subject.persist).to be_truthy
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(policy).at_least(:once)
   end
 end
 

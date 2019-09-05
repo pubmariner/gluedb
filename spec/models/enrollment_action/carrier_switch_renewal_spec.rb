@@ -31,7 +31,7 @@ describe EnrollmentAction::CarrierSwitchRenewal, "given a qualified enrollment s
   let(:member_secondary) { instance_double(Openhbx::Cv2::EnrolleeMember, id: 2) }
   let(:enrollee_primary) { instance_double(::Openhbx::Cv2::Enrollee, :member => member_primary) }
   let(:enrollee_secondary) { instance_double(::Openhbx::Cv2::Enrollee, :member => member_secondary) }
-
+  let(:existing_policy) { instance_double('Policy') }
   let(:new_policy_cv) { instance_double(Openhbx::Cv2::Policy, :enrollees => [enrollee_primary, enrollee_secondary]) }
   let(:plan) { instance_double(Plan, :id => 1, year: Date.today.year, coverage_type: "health") }
   let(:primary_db_record) { instance_double(ExternalEvents::ExternalMember, :persist => true) }
@@ -62,26 +62,42 @@ describe EnrollmentAction::CarrierSwitchRenewal, "given a qualified enrollment s
     allow(ExternalEvents::ExternalMember).to receive(:new).with(member_primary).and_return(primary_db_record)
     allow(ExternalEvents::ExternalMember).to receive(:new).with(member_secondary).and_return(secondary_db_record)
     allow(ExternalEvents::ExternalPolicy).to receive(:new).with(new_policy_cv, plan, false, market_from_payload: subject.action).and_return(policy_updater)
+    allow(ExternalEvents::ExternalPolicy.new(new_policy_cv, plan, false, market_from_payload: subject.action)).to receive(:existing_policy).and_return(
+      existing_policy
+    )
     allow(policy_updater).to receive(:persist).and_return(true)
     allow(policy_updater).to receive(:created_policy)
     allow(EnrollmentAction::CarrierSwitchRenewal).to receive(:other_carrier_renewal_candidates).with(action_event).and_return([other_carrier_term_candidate])
     allow(other_carrier_term_candidate).to receive(:terminate_as_of).with(subscriber_end).and_return(true)
     allow(subject.action).to receive(:existing_policy).and_return(false)
     allow(subject.action).to receive(:kind).and_return(action_event)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(
+      ExternalEvents::ExternalPolicy.new(new_policy_cv, plan, false, market_from_payload: subject.action).existing_policy
+    )
   end
 
   it "successfully creates the new policy" do
     expect(subject.persist).to be_truthy
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(
+      ExternalEvents::ExternalPolicy.new(new_policy_cv, plan, false, market_from_payload: subject.action).existing_policy
+    ).at_least(:once)
   end
 
   it "terminates the old carrier policy" do
     expect(other_carrier_term_candidate).to receive(:terminate_as_of).with(subscriber_end).and_return(true)
     subject.persist
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(
+      ExternalEvents::ExternalPolicy.new(new_policy_cv, plan, false, market_from_payload: subject.action).existing_policy
+    ).at_least(:once)
   end
 
   it "assigns the termination information" do
     subject.persist
     expect(subject.terminated_policy_information).to eq [[other_carrier_term_candidate, [1,2]]]
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(
+      ExternalEvents::ExternalPolicy.new(new_policy_cv, plan, false, market_from_payload: subject.action).existing_policy
+    ).at_least(:once)
   end
 end
 

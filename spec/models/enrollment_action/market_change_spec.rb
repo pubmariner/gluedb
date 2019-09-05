@@ -38,7 +38,7 @@ describe EnrollmentAction::MarketChange, "given a qualified enrollment set, bein
   let(:secondary_db_record) { instance_double(ExternalEvents::ExternalMember, :persist => true) }
   let(:new_db_record) { instance_double(ExternalEvents::ExternalMember, :persist => true) }
   let(:subscriber_end) { Date.today - 1.day }
-
+  let(:existing_policy) { instance_double('Policy') }
   let(:action_event) { instance_double(
     ::ExternalEvents::EnrollmentEventNotification,
     :policy_cv => new_policy_cv,
@@ -71,10 +71,13 @@ describe EnrollmentAction::MarketChange, "given a qualified enrollment set, bein
     allow(policy_updater).to receive(:persist).and_return(true)
     allow(subject.action).to receive(:existing_policy).and_return(false)
     allow(subject.action).to receive(:kind).and_return(action_event)
+    allow(policy_updater).to receive(:existing_policy).and_return(existing_policy)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(existing_policy)
   end
-
   it "successfully creates the new policy" do
     expect(subject.persist).to be_truthy
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(existing_policy).at_least(:once)
   end
 end
 

@@ -129,10 +129,14 @@ describe EnrollmentAction::PlanChangeDependentDrop, "given a valid enrollment se
     allow(subject.action).to receive(:existing_policy).and_return(false)
     allow(subject).to receive(:select_termination_date).and_return(expected_termination_date)
     allow(subject.action).to receive(:kind).and_return(dependent_drop_event)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+    allow(policy_updater).to receive(:existing_policy).and_return(policy)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(policy)
   end
 
   it "persists when all members persist" do
     expect(subject.persist).to be_truthy
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(policy).at_least(:once)
   end
 end
 

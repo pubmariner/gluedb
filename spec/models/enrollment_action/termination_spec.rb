@@ -41,6 +41,7 @@ describe EnrollmentAction::Termination, "given a valid enrollment" do
     allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
     allow(termination_event.existing_policy).to receive(:terminate_as_of).and_return(true)
     allow(termination_event).to receive(:subscriber_end).and_return(false)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(policy)
   end
 
   subject do
@@ -49,6 +50,7 @@ describe EnrollmentAction::Termination, "given a valid enrollment" do
 
   it "persists" do
     expect(subject.persist).to be_truthy
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(policy).at_least(:once)
   end
 end
 

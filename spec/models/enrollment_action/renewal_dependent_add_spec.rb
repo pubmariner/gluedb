@@ -105,6 +105,7 @@ describe EnrollmentAction::RenewalDependentAdd, "#persist" do
     )
   }
   let(:policy_updater) { instance_double(ExternalEvents::ExternalPolicy) }
+  let(:policy) { instance_double('Policy') }
   subject { EnrollmentAction::RenewalDependentAdd.new(nil,action) }
 
   before :each do
@@ -114,6 +115,8 @@ describe EnrollmentAction::RenewalDependentAdd, "#persist" do
     allow(subject.action).to receive(:existing_policy).and_return(false)
     allow(subject.action).to receive(:kind).and_return(action)
     allow(policy_updater).to receive(:created_policy)
+    allow(policy_updater).to receive(:created_policy).and_return(policy)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(policy)
   end
 
   context "successfuly persisted" do
@@ -121,6 +124,7 @@ describe EnrollmentAction::RenewalDependentAdd, "#persist" do
 
     it "returns true" do
       expect(subject.persist).to be_truthy
+      expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(policy).at_least(:once)
     end
   end
   context "failed to persist" do
@@ -128,6 +132,7 @@ describe EnrollmentAction::RenewalDependentAdd, "#persist" do
 
     it "returns false" do
       expect(subject.persist).to be_falsey
+      expect(::Listeners::PolicyUpdatedObserver).to_not have_received(:notify)
     end
   end
 end

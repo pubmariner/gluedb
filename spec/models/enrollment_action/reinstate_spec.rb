@@ -105,10 +105,13 @@ describe EnrollmentAction::Reinstate, "with an cobra reinstate enrollment event,
     allow(ExternalEvents::ExternalPolicyReinstate).to receive(:new).with(policy_cv, existing_policy).and_return(policy_updater)
     allow(policy_updater).to receive(:persist).and_return(true)
     allow(::Listeners::PolicyUpdatedObserver).to receive(:broadcast).and_return(nil)
+    allow(::Listeners::PolicyUpdatedObserver).to receive(:notify).with(existing_policy)
+
   end
 
   it "successfully creates the new policy" do
     expect(subject.persist).to be_truthy
+    expect(::Listeners::PolicyUpdatedObserver).to have_received(:notify).with(existing_policy).at_least(:once)
   end
 end
 
