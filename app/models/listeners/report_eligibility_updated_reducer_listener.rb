@@ -20,13 +20,13 @@ module Listeners
       resource_event_broadcast("error", event_key, r_code, body, other_headers)
     end
 
-    def process_retrieved_resource(delivery_info, policy_id, hbx_enrollment_id, event_resource, m_headers, event_name, event_time)
-      resource_event_broadcast("info", "event_stored", "200", event_resource, m_headers.merge({:event_name => event_name, :event_time => event_time.to_i.to_s}))
+    def process_retrieved_resource(delivery_info, policy_id, eg_id, event_resource, m_headers, event_name, event_time)
+      resource_event_broadcast("info", "event_stored", "200", event_resource, m_headers.merge({:policy_id => policy_id, :eg_id => eg_id, :event_name => event_name, :event_time => event_time.to_i.to_s}))
 
-      ReportEligibility.store_and_yield_deleted(policy_id, hbx_enrollment_id, event_name, event_time, event_resource) do |destroyed_event|
+      PolicyReportEligibilityUpdated.store_and_yield_deleted(policy_id, eg_id, event_name, event_time, event_resource) do |destroyed_event|
         resource_event_broadcast("info", "event_reduced", "200", destroyed_event.resource_body, {
           :policy_id => destroyed_event.policy_id,
-          :hbx_enrollment_id => destroyed_event.hbx_enrollment_id,
+          :eg_id => destroyed_event.eg_id,
           :event_name => destroyed_event.event_name,
           :event_time => destroyed_event.event_time.to_i.to_s
         })
@@ -34,9 +34,9 @@ module Listeners
       channel.ack(delivery_info.delivery_tag, false)
     end
 
-    def request_resource(policy_id, hbx_enrollment_id)
+    def request_resource(policy_id, eg_id)
       begin
-        di, rprops, resp_body = request({:headers => {:policy_id => policy_id, :hbx_enrollment_id => hbx_enrollment_id}, :routing_key => "resource.report_eligibility_updated"},"", 30)
+        di, rprops, resp_body = request({:headers => {:policy_id => policy_id, :eg_id => eg_id}, :routing_key => "resource.report_eligibility_updated"},"", 30)
         r_headers = (rprops.headers || {}).to_hash.stringify_keys
         r_code = r_headers['return_status'].to_s
         if r_code == "200"
@@ -52,7 +52,7 @@ module Listeners
     def on_message(delivery_info, properties, body)
       m_headers = (properties.headers || {}).to_hash.stringify_keys
       policy_id = m_headers["policy_id"].to_s
-      hbx_enrollment_id = m_headers["hbx_enrollment_id"].to_s
+      eg_id = m_headers["eg_id"].to_s
       event_name = delivery_info.routing_key.split("report_eligibility_updated.").last
       if !event_name.blank?
         if (event_name =~ /nfp\./) || (event_name =~ /nfp_/)
@@ -61,11 +61,11 @@ module Listeners
         end
       end
       event_time = get_timestamp(properties)
-      if ReportEligibility.newest_event?(policy_id, hbx_enrollment_id, event_name, event_time)
-        r_code, resource_or_body = request_resource(policy_id, hbx_enrollment_id)
+      if PolicyReportEligibilityUpdated.newest_event?(policy_id, eg_id, event_name, event_time)
+        r_code, resource_or_body = request_resource(policy_id, eg_id)
         case r_code.to_s
         when "200"
-          process_retrieved_resource(delivery_info, policy_id, hbx_enrollment_id, resource_or_body, m_headers, event_name, event_time)
+          process_retrieved_resource(delivery_info, policy_id, eg_id, resource_or_body, m_headers, event_name, event_time)
         when "404"
           resource_error_broadcast("resource_not_found", r_code, m_headers, m_headers)
           channel.ack(delivery_info.delivery_tag, false)
@@ -77,7 +77,7 @@ module Listeners
           channel.ack(delivery_info.delivery_tag, false)
         end
       else
-        resource_event_broadcast("info", "event_reduced", "200", resource_or_body, m_headers.merge({:event_name => event_name}))
+        resource_event_broadcast("info", "event_reduced", "200", resource_or_body, m_headers.merge({:event_name => event_name, :policy_id => policy_id, :eg_id => eg_id}))
         channel.ack(delivery_info.delivery_tag, false)
       end
     end
