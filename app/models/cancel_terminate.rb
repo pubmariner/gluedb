@@ -25,6 +25,7 @@ class CancelTerminate
 
   def initialize(props = {})
     @policy = Policy.find(props[:id])
+    ::Listeners::PolicyUpdatedObserver.notify(Policy.find(props[:id]))
     detail = props[:cancel_terminate]
 
     unless detail.nil?

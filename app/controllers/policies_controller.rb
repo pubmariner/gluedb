@@ -39,7 +39,6 @@ class PoliciesController < ApplicationController
 
   def cancelterminate
     @cancel_terminate = CancelTerminate.new(params)
-    ::Listeners::PolicyUpdatedObserver.notify(Policy.find(params[:id]))
   end
 
   def transmit
@@ -48,7 +47,6 @@ class PoliciesController < ApplicationController
     if @cancel_terminate.valid?
       request = EndCoverageRequest.from_form(params, current_user.email)
       EndCoverage.new(EndCoverageAction).execute(request)
-      ::Listeners::PolicyUpdatedObserver.notify(Policy.find(params[:id]))
 
       redirect_to person_path(Policy.find(params[:id]).subscriber.person)
     else
