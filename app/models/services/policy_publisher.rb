@@ -6,6 +6,7 @@ module Services
 
     def self.publish(q_reason_uri, p_id)
       policy = Policy.where(:id => p_id).first
+      ::Listeners::PolicyUpdatedObserver.notify(policy)
       p_action = policy_action(policy)
       reason = (p_action.downcase == "initial_enrollment") ? "initial_enrollment" : p_action.downcase
       operation = (p_action.downcase == "initial_enrollment") ? "add" : "change"
