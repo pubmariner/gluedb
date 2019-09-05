@@ -2,8 +2,9 @@ module Listeners
   class PolicyUpdatedObserver < ::Amqp::Client
 
     def self.notify(policy)
-      if policy.present? 
-        if policy.market == "individual" && policy.plan.coverage_type == "health" && policy.plan.year.in?([Date.today.prev_year.year, Date.today.year])
+      if policy.present?
+        year_range = [Date.today.prev_year.year, Date.today.year]
+        if policy.market == "individual" && policy.plan.coverage_type == "health" && policy.plan.year.in?(year_range)
           broadcast(policy)
         end
       end
@@ -24,5 +25,4 @@ module Listeners
     )
     end 
   end 
-  
 end

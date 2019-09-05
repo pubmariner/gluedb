@@ -50,9 +50,11 @@ module Handlers
       enrollment_event_cv = enrollment_event_cv_for(action_xml)
       update_bgn = (context.terminations.any? || context.cancellations.any?)
       context.terminations.each do |term|
+        ::Listeners::PolicyUpdatedObserver.notify(term.policy)
         send_single_termination(context, term)
       end
       context.cancellations.each do |cancel|
+        ::Listeners::PolicyUpdatedObserver.notify(cancel.policy)
         send_single_termination(context, cancel)
       end
       if is_publishable?(enrollment_event_cv)

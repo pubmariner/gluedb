@@ -3,11 +3,13 @@ module Handlers
     def call(context)
       if context.terminations.any?
         context.terminations.each do |term|
+          ::Listeners::PolicyUpdatedObserver.notify(term.policy)
           term.execute!
         end
       end
       if context.cancellations.any?
         context.cancellations.each do |term|
+          ::Listeners::PolicyUpdatedObserver.notify(term.policy)
           term.execute!
         end
       end
