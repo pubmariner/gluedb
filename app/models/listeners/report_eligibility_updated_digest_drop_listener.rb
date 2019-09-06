@@ -22,34 +22,23 @@ module Listeners
 
     def on_message(delivery_info, properties, body)
       m_headers = (properties.headers || {}).to_hash.stringify_keys
-      ec = ExchangeInformation
       time_boundry = Time.now
-      ReportEligibility.with_digest_payloads(time_boundry) do |payload|
-        Amqp::ConfirmedPublisher.with_confirmed_channel(connection) do |chan|
-          ex = chan.fanout(ec.event_publish_exchange, {:durable => true})
-          ex.publish(
-            payload,
-            {routing_key: "info.events.policy.report_eligibility_updated.published"}
-          )
-        end
-      end
-      ReportEligibility.execute_pending_enrollment_requests(connection, time_boundry)
-      ReportEligibility.clear_before(time_boundry)
+      # Here is where we add our error logging, we will invoke 
+      # #resource_error_broadcast with a response code of "500" and
+      # a body that is a json payload of our error description if there is
+      # a crash
+      
+      ReportEligiblityProcessor.run
+
       channel.ack(delivery_info.delivery_tag, false)
     end
 
-    def get_timestamp(msg_properties)
-      message_ts = msg_properties.timestamp
-      return Time.now if message_ts.blank?
-      return Time.at(message_ts) if message_ts.kind_of?(Fixnum) || message_ts.kind_of?(Integer)
-      message_ts 
-    end
 
     def self.create_bindings(chan, q)
       ec = ExchangeInformation
       event_topic_exchange_name = "#{ec.hbx_id}.#{ec.environment}.e.topic.events"
       event_topic_exchange = chan.topic(event_topic_exchange_name, {:durable => true})
-      q.bind(event_topic_exchange, {:routing_key => "info.events.policy.report_eligibility_updatedt.requested"})
+      q.bind(event_topic_exchange, {:routing_key => "info.events.policy.report_eligibility_updated.requested"})
     end
 
     def self.create_queues(chan)
