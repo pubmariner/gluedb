@@ -24,7 +24,7 @@ describe ReportEligiblityProcessor do
   let(:enrollee) {double(Enrollee, m_id: member.hbx_member_id, rel_code: "self", coverage_start: Date.today.prev_year, coverage_end: (Date.today - 1.day))}
   let(:federal_transmission) {double(FederalTransmission)}
   let(:federal_transmissions) {[federal_transmission]}
-  let(:policy_report_eligibility_updateds) {[PolicyReportEligibilityUpdated]}
+  let(:policy_report_eligibility_updateds) {[ReportEligibility]}
   let(:policy_report_eligibility_updated_policy_eg_ids) {["1",'2','3']}
   let(:federal_transmission){ double(FederalTransmission, policy: canceled_policy)}
   let(:federal_transmissions){[federal_transmission]}
@@ -35,7 +35,7 @@ describe ReportEligiblityProcessor do
   subject { ReportEligiblityProcessor.new }
 
   before(:each) do
-    allow(PolicyReportEligibilityUpdated).to receive(:all).and_return(policy_report_eligibility_updateds)
+    allow(ReportEligibility).to receive(:all).and_return(policy_report_eligibility_updateds)
     allow(policy_report_eligibility_updateds).to receive(:map).and_return(policy_report_eligibility_updated_policy_eg_ids)
     allow(Policy).to receive(:where).with({:eg_id=>"1"}).and_return([submitted_policy])
     allow(Policy).to receive(:where).with({:eg_id=>"2"}).and_return([terminated_policy])

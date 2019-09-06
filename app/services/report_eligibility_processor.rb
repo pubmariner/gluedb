@@ -1,7 +1,7 @@
 class ReportEligiblityProcessor 
 
   def trigger_1095_creation
-    PolicyReportEligibilityUpdated.all.map(&:eg_id).each do |eg_id|
+    ReportEligibility.all.map(&:hbx_enrollment_id).each do |eg_id|
       policy = Policy.where(eg_id: eg_id).first
       if policy.present? 
         if policy.aasm_state.in?(["canceled", "carrier_canceled"])
