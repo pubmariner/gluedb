@@ -61,7 +61,6 @@ describe EnrollmentAction::CarrierSwitchRenewal, "given a qualified enrollment s
   before :each do
     allow(ExternalEvents::ExternalMember).to receive(:new).with(member_primary).and_return(primary_db_record)
     allow(ExternalEvents::ExternalMember).to receive(:new).with(member_secondary).and_return(secondary_db_record)
-
     allow(ExternalEvents::ExternalPolicy).to receive(:new).with(new_policy_cv, plan, false, market_from_payload: subject.action).and_return(policy_updater)
     allow(policy_updater).to receive(:persist).and_return(true)
     allow(EnrollmentAction::CarrierSwitchRenewal).to receive(:other_carrier_renewal_candidates).with(action_event).and_return([other_carrier_term_candidate])
