@@ -1,4 +1,9 @@
-class ReportEligiblityProcessor 
+class ReportEligiblityProcessor
+
+  def self.run
+    PolicyEvents::ReportingEligibilityUpdated.events_for_processing do |record|
+    end
+  end
 
   def trigger_1095_creation
     PolicyReportEligibilityUpdated.all.map(&:eg_id).each do |eg_id|
