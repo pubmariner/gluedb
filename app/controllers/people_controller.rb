@@ -24,8 +24,8 @@ class PeopleController < ApplicationController
 
   def show
     Caches::MongoidCache.allocate(Carrier)
-		@person = Person.find(params[:id])
-    @member_documents = []
+    @person = Person.find(params[:id])
+    @member_documents = Clients::MemberDocumentClient.call(@person.authority_member)
 	  respond_to do |format|
 		  format.html # index.html.erb
 		  format.json { render json: @person }
