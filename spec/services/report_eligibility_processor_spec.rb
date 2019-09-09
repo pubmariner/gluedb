@@ -5,11 +5,11 @@ describe ReportEligiblityProcessor do
   let(:plan) { instance_double(Plan, carrier: carrier, year: 2018, coverage_type: "health", hios_plan_id: "1212") }
   let(:carrier) { instance_double(Carrier, abbrev: "GhmSi") }
 
-  ["submitted", 'terminated', 'canceled'].each_with_index do |status , i|
+  ["submitted", 'terminated', 'canceled'].each do |status|
     let!(:"#{status}_policy") {double(Policy, aasm_state: status, 
     responsible_party_id:"",
-    id: (i + 1).to_s,
-    eg_id: (i + 1).to_s,
+    id: Moped::BSON::ObjectId.new,
+    eg_id: Moped::BSON::ObjectId.new,
     enrollees: [enrollee],
     plan: plan,
     spouse:"",
@@ -18,27 +18,33 @@ describe ReportEligiblityProcessor do
     )}
   end
 
-  let!(:policies) {[submitted_policy, terminated_policy, canceled_policy]}
+  let!(:records) {[ double(PolicyEvents::ReportingEligibilityUpdated,policy_id: submitted_policy.id),
+                    double(PolicyEvents::ReportingEligibilityUpdated,policy_id: terminated_policy.id),
+                    double(PolicyEvents::ReportingEligibilityUpdated,policy_id: canceled_policy.id)
+                  ]}
+
+  let(:policies){[submitted_policy,terminated_policy,canceled_policy]}
   let(:person) {double(Person, authority_member_id:"456")}
   let(:member) {double(Member, person: person, id:"1233", hbx_member_id:"456")}
   let(:enrollee) {double(Enrollee, m_id: member.hbx_member_id, rel_code: "self", coverage_start: Date.today.prev_year, coverage_end: (Date.today - 1.day))}
   let(:federal_transmission) {double(FederalTransmission)}
   let(:federal_transmissions) {[federal_transmission]}
   let(:policy_report_eligibility_updateds) {[PolicyReportEligibilityUpdated]}
-  let(:policy_report_eligibility_updated_policy_ids) {["1",'2','3']}
+  let(:policy_report_eligibility_updated_policy_ids) {[submitted_policy.id,terminated_policy.id,canceled_policy.id]}
   let(:federal_transmission){ double(FederalTransmission, policy: canceled_policy)}
   let(:federal_transmissions){[federal_transmission]}
-  let(:void_params) {{:policy_id=>"3", :type=>"void", :void_cancelled_policy_ids=>["3"], :void_active_policy_ids=>["1", "2"], :npt=>false}}
-  let(:corrected_params) {{:policy_id=>"1", :type=>"corrected", :void_cancelled_policy_ids=>["3"], :void_active_policy_ids=>["1", "2"], :npt=>false}}
-  let(:original_params) {{:policy_id=>"2", :type=>"original", :void_cancelled_policy_ids=>["3"], :void_active_policy_ids=>["1", "2"], :npt=>false}}
+  let(:void_params) {{:policy_id=> canceled_policy.id, :type=>"void", :void_cancelled_policy_ids=> [canceled_policy.id], :void_active_policy_ids=>[submitted_policy.id, terminated_policy.id], :npt=> false}}
+  let(:corrected_params) {{:policy_id=> submitted_policy.id, :type=>"corrected", :void_cancelled_policy_ids=> [canceled_policy.id], :void_active_policy_ids=>[submitted_policy.id, terminated_policy.id], :npt=> false}}
+  let(:original_params) {{:policy_id=> terminated_policy.id, :type=>"original", :void_cancelled_policy_ids=>[canceled_policy.id], :void_active_policy_ids=>[submitted_policy.id, terminated_policy.id], :npt=>false}}
 # 
   subject { ReportEligiblityProcessor }
 
   before(:each) do
-    allow(PolicyEvents::ReportingEligibilityUpdated).to receive(:events_for_processing).and_return(policies)
-    allow(Policy).to receive(:find).with("1").and_return(submitted_policy)
-    allow(Policy).to receive(:find).with("2").and_return(terminated_policy)
-    allow(Policy).to receive(:find).with("3").and_return(canceled_policy)
+    allow(policies) {[]}
+    allow(PolicyEvents::ReportingEligibilityUpdated).to receive(:events_for_processing).and_return(records)
+    allow(Policy).to receive(:find).with(submitted_policy.id).and_return(submitted_policy)
+    allow(Policy).to receive(:find).with(terminated_policy.id).and_return(terminated_policy)
+    allow(Policy).to receive(:find).with(canceled_policy.id).and_return(canceled_policy)
     allow(canceled_policy).to receive(:federal_transmissions).and_return(federal_transmissions)
     allow(canceled_policy).to receive(:subscriber).and_return(enrollee)
     allow(terminated_policy).to receive(:subscriber).and_return(enrollee)
@@ -60,8 +66,8 @@ describe ReportEligiblityProcessor do
     allow(subject).to receive(:generate_1095A_pdf).with(original_params).and_return(true) 
   end
   
-  context "creating 1095s" do
-    it 'send the the correct params to the 1095 generator' do
+  context "creating 1095As" do
+    it 'send the the correct params to the 1095A generator' do
       allow(subject).to receive(:transmit)
       allow(subject).to receive(:transmit)
       allow(subject).to receive(:transmit)  
