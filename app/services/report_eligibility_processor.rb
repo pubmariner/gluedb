@@ -4,7 +4,7 @@ class ReportEligiblityProcessor
 
   def self.run
     PolicyEvents::ReportingEligibilityUpdated.events_for_processing.each do |record|
-      policy = Policy.find(record.id)
+      policy = Policy.find(record.policy_id)
       if policy.present? 
         if policy.aasm_state.in?(["canceled", "carrier_canceled"])
           void_params = get_doc_params(policy, "void") 
@@ -47,7 +47,7 @@ class ReportEligiblityProcessor
   end
 
   def self.upload_to_s3(file_name, bucket_name)
-    Aws::S3Storage.save(file_name, bucket_name, File.basename(file_name))
+    Aws::S3Storage.save(file_name, bucket_name, File.basename(file_name), "h41")
   end
 
   def self.publish_to_sftp(file_name, bucket_name)
@@ -62,6 +62,7 @@ class ReportEligiblityProcessor
     params[:type] = 'new' if params[:type] == 'original'
     @file_name = Generators::Reports::IrsYearlySerializer.new(params).generate_notice
   end
+ 
 
   def self.persist_new_doc
     federal_report = Generators::Reports::Importers::FederalReportIngester.new
@@ -75,7 +76,7 @@ class ReportEligiblityProcessor
          publish_to_sftp(@file_name, "tax-documents")
          persist_new_doc
          delete_1095A_pdf(@file_name)
-         PolicyReportEligibilityUpdated.delete_all
+         PolicyReportEligibilityUpdated.where(status: "processed").delete_all
       else
         raise("File upload failed")
       end
