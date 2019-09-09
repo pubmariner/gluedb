@@ -20,6 +20,7 @@ module PolicyEvents
       }).first
       if old_record
         old_record.update_attributes!({event_time: event_time})
+        old_record
       else
         self.create!({
           policy_id: policy_id,
