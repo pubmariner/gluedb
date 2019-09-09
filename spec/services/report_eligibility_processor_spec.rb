@@ -52,26 +52,31 @@ describe ReportEligiblityProcessor do
     allow(person).to receive(:authority_member).and_return(member)
     allow_any_instance_of(Generators::Reports::IrsYearlySerializer).to receive(:generate_notice).and_return("file_name")
     allow(subject).to receive(:upload_to_s3).and_return(true)
-    allow(subject).to receive(:persist_new_doc)
-    
+    allow(subject).to receive(:publish_to_sftp).and_return(true)
+    allow(subject).to receive(:persist_new_doc).and_return(true)
+    allow(subject).to receive(:persist_new_doc).and_return(true)
+    allow(subject).to receive(:generate_1095A_pdf).with(void_params).and_return(true)
+    allow(subject).to receive(:generate_1095A_pdf).with(corrected_params).and_return(true)
+    allow(subject).to receive(:generate_1095A_pdf).with(original_params).and_return(true) 
   end
   
   context "creating 1095s" do
     it 'send the the correct params to the 1095 generator' do
-      allow(subject).to receive(:generate_1095A_pdf).with(void_params)
-      allow(subject).to receive(:generate_1095A_pdf).with(corrected_params)
-      allow(subject).to receive(:generate_1095A_pdf).with(original_params)
-      
+      allow(subject).to receive(:transmit)
+      allow(subject).to receive(:transmit)
+      allow(subject).to receive(:transmit)  
       subject.run
-      
-      expect(subject).to have_received(:generate_1095A_pdf).with(void_params)
-      expect(subject).to have_received(:generate_1095A_pdf).with(corrected_params)
-      expect(subject).to have_received(:generate_1095A_pdf).with(original_params)
+      expect(subject).to have_received(:transmit).with(void_params)
+      expect(subject).to have_received(:transmit).with(corrected_params)
+      expect(subject).to have_received(:transmit).with(original_params)
     end
 
-    it 'persists the created doc' do
+    it 'transmits the 1095A' do
       subject.run
       expect(subject).to have_received(:persist_new_doc).exactly(3).times
+      expect(subject).to have_received(:upload_to_s3).exactly(3).times
+      expect(subject).to have_received(:publish_to_sftp).exactly(3).times
     end
+
   end
 end
