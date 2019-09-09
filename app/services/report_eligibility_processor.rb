@@ -1,13 +1,10 @@
 class ReportEligiblityProcessor
+#This class calls all of the ReportingEligibilityUpdated documents and generates the correct 1095As and H41s for them
+#please see 33567
 
   def self.run
-    PolicyEvents::ReportingEligibilityUpdated.events_for_processing do |record|
-    end
-  end
-
-  def trigger_1095_creation
-    PolicyReportEligibilityUpdated.all.map(&:eg_id).each do |eg_id|
-      policy = Policy.where(eg_id: eg_id).first
+    PolicyEvents::ReportingEligibilityUpdated.events_for_processing.each do |record|
+      policy = Policy.find(record.id)
       if policy.present? 
         if policy.aasm_state.in?(["canceled", "carrier_canceled"])
           void_params = get_doc_params(policy, "void") 
@@ -21,7 +18,7 @@ class ReportEligiblityProcessor
     end
   end
 
-  def get_doc_params(policy, type)
+  def self.get_doc_params(policy, type)
     {
       policy_id: policy.id,
       type: type,
@@ -31,38 +28,37 @@ class ReportEligiblityProcessor
     } 
   end
 
-  def get_void_cancelled_policy_ids(policy)
+  def self.get_void_cancelled_policy_ids(policy)
     policy.subscriber.policies.select do |policy|
       base_conditional(policy) && policy.aasm_state == 'canceled'
     end.map(&:id)
   end
 
-  def get_void_active_policy_ids(policy)
+  def self.get_void_active_policy_ids(policy)
     policy.subscriber.policies.select do |policy|
       base_conditional(policy) && policy.aasm_state.in?(['submitted','terminated'])
     end.map(&:id)
   end
 
-  def base_conditional(policy)
+  def self.base_conditional(policy)
     policy.plan.year == Date.today.prev_year.year &&
     policy.market == "individual" &&
     policy.plan.coverage_type == "health"
   end
 
-  def upload_to_s3(file_name, bucket_name)
+  def self.upload_to_s3(file_name, bucket_name)
     Aws::S3Storage.save(file_name, bucket_name, File.basename(file_name))
   end
 
-  def delete_1095A_pdf(file_name)
+  def self.delete_1095A_pdf(file_name)
     File.delete(file_name)
   end
 
-  def generate_1095A_pdf(params)
+  def self.generate_1095A_pdf(params)
     params[:type] = 'new' if params[:type] == 'original'
     @file_name = Generators::Reports::IrsYearlySerializer.new(params).generate_notice
     begin
-      if upload_to_s3(@file_name, "tax-documents")
-         persist_new_doc
+      if upload_to_s3(@file_name, "tax-documents") && persist_new_doc
          delete_1095A_pdf(@file_name)
          PolicyReportEligibilityUpdated.delete_all
       else
@@ -73,7 +69,7 @@ class ReportEligiblityProcessor
     end
   end
 
-  def persist_new_doc
+  def self.persist_new_doc
     federal_report = Generators::Reports::Importers::FederalReportIngester.new
     federal_report.federal_report_ingester
   end
