@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe Listeners::PolicyUpdatedObserver do
-  let(:good_plan) { build(:plan, coverage_type: "health", year: Date.today.year)}
+  let(:good_plan) { build(:plan, coverage_type: "health", year: Date.today.prev_year.year)}
   let(:bad_plan) { build(:plan, coverage_type: "dental", year: (Date.today.year - 3.years))}
   let(:good_policy) { FactoryGirl.create(:policy, plan: good_plan) }
   let(:bad_policy) { FactoryGirl.create(:policy, plan: bad_plan) }

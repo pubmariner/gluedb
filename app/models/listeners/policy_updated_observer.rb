@@ -3,7 +3,7 @@ module Listeners
 
     def self.notify(policy)
       if policy.present?
-        year_range = [Date.today.prev_year.year, Date.today.year]
+        year_range = [Date.today.prev_year.year]
         if policy.market == "individual" && policy.plan.coverage_type == "health" && policy.plan.year.in?(year_range)
           broadcast(policy)
         end
