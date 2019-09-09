@@ -18,28 +18,27 @@ describe ReportEligiblityProcessor do
     )}
   end
 
-  let(:policies) {[submitted_policy, terminated_policy, canceled_policy]}
+  let!(:policies) {[submitted_policy, terminated_policy, canceled_policy]}
   let(:person) {double(Person, authority_member_id:"456")}
   let(:member) {double(Member, person: person, id:"1233", hbx_member_id:"456")}
   let(:enrollee) {double(Enrollee, m_id: member.hbx_member_id, rel_code: "self", coverage_start: Date.today.prev_year, coverage_end: (Date.today - 1.day))}
   let(:federal_transmission) {double(FederalTransmission)}
   let(:federal_transmissions) {[federal_transmission]}
   let(:policy_report_eligibility_updateds) {[PolicyReportEligibilityUpdated]}
-  let(:policy_report_eligibility_updated_policy_eg_ids) {["1",'2','3']}
+  let(:policy_report_eligibility_updated_policy_ids) {["1",'2','3']}
   let(:federal_transmission){ double(FederalTransmission, policy: canceled_policy)}
   let(:federal_transmissions){[federal_transmission]}
   let(:void_params) {{:policy_id=>"3", :type=>"void", :void_cancelled_policy_ids=>["3"], :void_active_policy_ids=>["1", "2"], :npt=>false}}
   let(:corrected_params) {{:policy_id=>"1", :type=>"corrected", :void_cancelled_policy_ids=>["3"], :void_active_policy_ids=>["1", "2"], :npt=>false}}
   let(:original_params) {{:policy_id=>"2", :type=>"original", :void_cancelled_policy_ids=>["3"], :void_active_policy_ids=>["1", "2"], :npt=>false}}
 # 
-  subject { ReportEligiblityProcessor.new }
+  subject { ReportEligiblityProcessor }
 
   before(:each) do
-    allow(PolicyReportEligibilityUpdated).to receive(:all).and_return(policy_report_eligibility_updateds)
-    allow(policy_report_eligibility_updateds).to receive(:map).and_return(policy_report_eligibility_updated_policy_eg_ids)
-    allow(Policy).to receive(:where).with({:eg_id=>"1"}).and_return([submitted_policy])
-    allow(Policy).to receive(:where).with({:eg_id=>"2"}).and_return([terminated_policy])
-    allow(Policy).to receive(:where).with({:eg_id=>"3"}).and_return([canceled_policy])
+    allow(PolicyEvents::ReportingEligibilityUpdated).to receive(:events_for_processing).and_return(policies)
+    allow(Policy).to receive(:find).with("1").and_return(submitted_policy)
+    allow(Policy).to receive(:find).with("2").and_return(terminated_policy)
+    allow(Policy).to receive(:find).with("3").and_return(canceled_policy)
     allow(canceled_policy).to receive(:federal_transmissions).and_return(federal_transmissions)
     allow(canceled_policy).to receive(:subscriber).and_return(enrollee)
     allow(terminated_policy).to receive(:subscriber).and_return(enrollee)
@@ -62,14 +61,16 @@ describe ReportEligiblityProcessor do
       allow(subject).to receive(:generate_1095A_pdf).with(void_params)
       allow(subject).to receive(:generate_1095A_pdf).with(corrected_params)
       allow(subject).to receive(:generate_1095A_pdf).with(original_params)
-      subject.trigger_1095_creation
+      
+      subject.run
+      
       expect(subject).to have_received(:generate_1095A_pdf).with(void_params)
       expect(subject).to have_received(:generate_1095A_pdf).with(corrected_params)
       expect(subject).to have_received(:generate_1095A_pdf).with(original_params)
     end
 
     it 'persists the created doc' do
-      subject.trigger_1095_creation
+      subject.run
       expect(subject).to have_received(:persist_new_doc).exactly(3).times
     end
   end
