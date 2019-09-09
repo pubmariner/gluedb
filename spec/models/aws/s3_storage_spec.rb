@@ -37,6 +37,17 @@ describe Aws::S3Storage do
       end
     end
 
+
+    context "successfull h41 upload" do
+      it 'returns the URI of saved file'do
+        allow(object).to receive(:upload_file).with(file_path, :server_side_encryption => 'AES256').and_return(nil)
+        allow_any_instance_of(Aws::S3Storage).to receive(:get_object).and_return(object)
+        expect(subject.save(file_path, bucket_name)).to include("urn:openhbx:terms:v1:file_storage:s3:bucket:")
+
+      end
+    end
+
+
     context "failed upload with exception" do
       let(:exception) {StandardError.new}
 
@@ -46,7 +57,6 @@ describe Aws::S3Storage do
         expect { subject.save(file_path, bucket_name) }.to raise_error(exception)
       end
     end
-
   end
 
   describe "find()" do

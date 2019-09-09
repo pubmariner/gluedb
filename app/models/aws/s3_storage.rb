@@ -9,8 +9,8 @@ module Aws
     # If success, return URI which has the s3 bucket key
     # else return nil
     # raises exception if exception occurs
-    def save(file_path, bucket_name, key=SecureRandom.uuid)
-      bucket_name = env_bucket_name(bucket_name)
+    def save(file_path, bucket_name, key=SecureRandom.uuid, h41 = nil)
+      h41.present? ? bucket_name = env_bucket_name(bucket_name, "h41") : bucket_name = env_bucket_name(bucket_name)
       uri = "urn:openhbx:terms:v1:file_storage:s3:bucket:#{bucket_name}##{key}"
       begin
         object = get_object(bucket_name, key)
@@ -88,8 +88,8 @@ module Aws
       ENV['AWS_ENV'] || "local"
     end
 
-    def env_bucket_name(bucket_name)
-      "dchbx-gluedb-#{bucket_name}-#{aws_env}"
+    def env_bucket_name(bucket_name, h41 = nil)
+     h41.present? ? "#{Settings.abbrev}-#{aws_env}-aca-internal-artifact-transport" : "dchbx-gluedb-#{bucket_name}-#{aws_env}" 
     end
 
     def setup
