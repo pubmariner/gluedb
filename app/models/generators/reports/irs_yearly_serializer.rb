@@ -8,7 +8,7 @@ module Generators::Reports
 
     attr_accessor :notice_params, :calender_year, :qhp_type, :notice_absolute_path, :xml_output
 
-    def initialize(options = {})
+    def initialize(options = {}, render_H41 = false)
       @count = 0
       @policy_id = nil
       @hbx_member_id = nil
@@ -18,7 +18,6 @@ module Generators::Reports
 
       @pdf_set  = 0
       @irs_set  = 0
-
       @notice_params = options
 
       if options.empty?
