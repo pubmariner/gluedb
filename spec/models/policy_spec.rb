@@ -38,6 +38,10 @@ describe Policy, :dbclean => :after_each do
       expect(subject.hbx_enrollment_ids).to eq [subject.eg_id]
     end
 
+    it "has the correct default carrier_to_bill value" do
+      expect(subject.carrier_to_bill).to eq(true)
+    end
+
     it "has the correct rating_area value" do
       expect(subject.rating_area).to eq "100"
       subject.update_attributes(rating_area: "101")
@@ -277,7 +281,7 @@ describe Policy, :dbclean => :after_each do
         expect(found_policy.tot_res_amt).to eq tot_res_amt
         expect(found_policy.pre_amt_tot).to eq pre_amt_tot
         expect(found_policy.employer_contribution).to eq employer_contribution
-        expect(found_policy.carrier_to_bill).to eq carrier_to_bill
+        expect(found_policy.carrier_to_bill).to eq true
       end
     end
 
