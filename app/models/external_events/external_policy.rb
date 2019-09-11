@@ -4,6 +4,8 @@ module ExternalEvents
     attr_reader :plan
     attr_reader :kind
 
+    attr_reader :created_policy
+
     include Handlers::EnrollmentEventXmlHelper
 
     # p_node : Openhbx::Cv2::Policy

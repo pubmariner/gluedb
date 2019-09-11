@@ -38,10 +38,16 @@ describe EnrollmentAction::Termination, "given a valid enrollment" do
   before :each do
     allow(termination_event.existing_policy).to receive(:terminate_as_of).and_return(true)
     allow(termination_event).to receive(:subscriber_end).and_return(false)
+    allow(Observers::PolicyUpdated).to receive(:notify).with(policy)
   end
 
   subject do
     EnrollmentAction::Termination.new(termination_event, nil)
+  end
+
+  it "notifies of the termination" do
+    expect(Observers::PolicyUpdated).to receive(:notify).with(policy)
+    subject.persist
   end
 
   it "persists" do

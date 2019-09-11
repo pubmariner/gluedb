@@ -67,6 +67,7 @@ describe EnrollmentAction::CarrierSwitchRenewal, "given a qualified enrollment s
     allow(other_carrier_term_candidate).to receive(:terminate_as_of).with(subscriber_end).and_return(true)
     allow(subject.action).to receive(:existing_policy).and_return(false)
     allow(subject.action).to receive(:kind).and_return(action_event)
+    allow(Observers::PolicyUpdated).to receive(:notify).with(other_carrier_term_candidate)
   end
 
   it "successfully creates the new policy" do
@@ -75,6 +76,11 @@ describe EnrollmentAction::CarrierSwitchRenewal, "given a qualified enrollment s
 
   it "terminates the old carrier policy" do
     expect(other_carrier_term_candidate).to receive(:terminate_as_of).with(subscriber_end).and_return(true)
+    subject.persist
+  end
+
+  it "notifies of termination" do
+    expect(Observers::PolicyUpdated).to receive(:notify).with(other_carrier_term_candidate)
     subject.persist
   end
 
