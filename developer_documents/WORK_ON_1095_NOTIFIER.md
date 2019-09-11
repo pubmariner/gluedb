@@ -1,5 +1,13 @@
 1. ~~Observer~~
 2. Individual Updates
+   1. member_relationship_change_set.rb
+   2. person_address_change_set.rb
+   3. person_dob_change_set.rb
+   4. person_email_change_set.rb
+   5. person_gender_change_set.rb
+   6. person_name_change_set.rb
+   7. person_phone_change_set.rb
+   8.  person_ssn_change_set.rb
 3. Enrollment Actions
    1. active_renewal.rb
    2. assistance_change.rb
