@@ -5,6 +5,11 @@ describe ExternalEvents::ExternalPolicy, "given:
 - a plan
 " do
 
+  after :each do
+    Plan.where({}).delete_all
+    Policy.where({}).delete_all
+  end
+
   let(:plan_cv) { instance_double(Openhbx::Cv2::PlanLink, :alias_ids => alias_ids) }
   let!(:policy_enrollment) { instance_double(Openhbx::Cv2::PolicyEnrollment, :rating_area => rating_area, :plan => plan_cv, :shop_market => shop_market) }
   let(:policy_cv) { instance_double(Openhbx::Cv2::Policy, :policy_enrollment => policy_enrollment, :enrollees =>[enrollees1, enrollees2]) }
@@ -103,7 +108,7 @@ describe ExternalEvents::ExternalPolicy, "given:
     end
   end
 
-  describe ".Persist" do
+  describe "#persist" do
     let!(:responsible_party) { ResponsibleParty.new(entity_identifier: "responsible party") }
     let!(:person) { FactoryGirl.create(:person,responsible_parties:[responsible_party])}
 
@@ -111,6 +116,19 @@ describe ExternalEvents::ExternalPolicy, "given:
       let!(:plan) {FactoryGirl.create(:plan, carrier_id:'01') }
       let(:applied_aptc) { {:applied_aptc =>'0.0'} }
       let(:responsible_party_node) { instance_double(::Openhbx::Cv2::ResponsibleParty) }
+      let(:created_policy) do
+        Policy.create({
+          plan: plan,
+          eg_id: "rspec-eg-id",
+          pre_amt_tot: 0.0,
+          tot_res_amt: 0.0,
+          kind: nil,
+          cobra_eligibility_date: nil, 
+          applied_aptc: 0.0,
+          responsible_party_id: responsible_party.id,
+          carrier_id: '01'
+        })
+      end
 
       before :each do
         allow(subject).to receive(:policy_exists?).and_return(false)
@@ -128,6 +146,23 @@ describe ExternalEvents::ExternalPolicy, "given:
         allow(policy_cv).to receive(:responsible_party).and_return(responsible_party_node)
         allow(policy_cv).to receive(:previous_policy_id).and_return('')
         subject.instance_variable_set(:@plan,plan)
+        allow(Policy).to receive(:create!).with({
+          plan: plan,
+          eg_id: "rspec-eg-id",
+          pre_amt_tot: "0.0",
+          tot_res_amt: "0.0",
+          kind: nil,
+          cobra_eligibility_date: nil, 
+          applied_aptc: "0.0",
+          responsible_party_id: responsible_party.id,
+          carrier_id: '01'
+          }).and_return(created_policy)
+        allow(Observers::PolicyUpdated).to receive(:notify).with(created_policy)
+      end
+
+      it "notifies of the creation" do
+        expect(Observers::PolicyUpdated).to receive(:notify).with(created_policy)
+        subject.persist
       end
 
       it "should create policy and update responsible party for policy" do
@@ -165,6 +200,21 @@ describe ExternalEvents::ExternalPolicy, "with a parsed market value param in th
 
   subject { ExternalEvents::ExternalPolicy.new(policy_cv, plan, false, market_from_payload: "coverall") }
 
+  let(:created_policy) do 
+    Policy.create!(
+       {
+        plan: plan,
+        eg_id: "rspec-eg-id",
+        pre_amt_tot: "0.0",
+        tot_res_amt: "0.0",
+        kind: "coverall",
+        cobra_eligibility_date: nil, 
+        applied_aptc: "0.0",
+        responsible_party_id: responsible_party.id
+        }
+    )
+  end
+
     before :each do
       allow(subject).to receive(:policy_exists?).and_return(false)
       allow(subject).to receive(:responsible_party_exists?).and_return(true)
@@ -181,6 +231,23 @@ describe ExternalEvents::ExternalPolicy, "with a parsed market value param in th
       allow(policy_cv).to receive(:responsible_party).and_return(responsible_party_node)
       allow(policy_cv).to receive(:previous_policy_id).and_return('')
       subject.instance_variable_set(:@plan,plan)
+      allow(Policy).to receive(:create!).with({
+        plan: plan,
+        carrier_id: "01",
+        eg_id: "rspec-eg-id",
+        pre_amt_tot: "0.0",
+        tot_res_amt: "0.0",
+        kind: "coverall",
+        cobra_eligibility_date: nil, 
+        applied_aptc: "0.0",
+        responsible_party_id: responsible_party.id
+        }).and_return(created_policy)
+      allow(Observers::PolicyUpdated).to receive(:notify).with(created_policy)
+    end
+  
+    it "notifies of creation" do
+      expect(Observers::PolicyUpdated).to receive(:notify).with(created_policy)
+      subject.persist
     end
 
     it "should populate the policy with the market being passed in the initalize method" do
@@ -216,7 +283,23 @@ describe ExternalEvents::ExternalPolicy, "with reinstated policy cv", dbclean: :
   let(:dependent_relationship_uri) { "urn:openhbx:terms:v1:individual_relationship#spouse" }
   subject { ExternalEvents::ExternalPolicy.new(policy_cv, plan, false, policy_reinstate: true) }
 
+  let(:created_policy) do 
+    Policy.create!(
+       {
+        plan: plan,
+        eg_id: "rspec-eg-id",
+        pre_amt_tot: "0.0",
+        tot_res_amt: "0.0",
+        kind: nil,
+        cobra_eligibility_date: nil, 
+        applied_aptc: "0.0",
+        carrier_id: '01'
+        }
+    )
+  end
+
   before :each do
+    allow(subject).to receive(:policy_exists?).and_return(false)
     allow(subject).to receive(:extract_enrollment_group_id).with(policy_cv).and_return(policy_id)
     allow(subject).to receive(:extract_pre_amt_tot).and_return("0.0")
     allow(subject).to receive(:extract_tot_res_amt).and_return("0.0")
@@ -228,6 +311,22 @@ describe ExternalEvents::ExternalPolicy, "with reinstated policy cv", dbclean: :
     allow(subject).to receive(:extract_enrollee_premium).with(enrollees2).and_return("100")
     allow(policy_cv).to receive(:responsible_party).and_return('')
     subject.instance_variable_set(:@plan,plan)
+    allow(Policy).to receive(:create!).with({
+      plan: plan,
+      eg_id: "rspec-eg-id",
+      pre_amt_tot: "0.0",
+      tot_res_amt: "0.0",
+      kind: nil,
+      cobra_eligibility_date: nil, 
+      applied_aptc: "0.0",
+      carrier_id: '01'
+      }).and_return(created_policy)
+    allow(Observers::PolicyUpdated).to receive(:notify).with(created_policy)
+  end
+
+  it "notifies of creation" do
+    expect(Observers::PolicyUpdated).to receive(:notify).with(created_policy)
+    subject.persist
   end
 
   it "should create a new policy for reinstated policy" do
