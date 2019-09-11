@@ -68,10 +68,16 @@ describe EnrollmentAction::CarrierSwitch, "given a qualified enrollment set, bei
     allow(policy_updater).to receive(:persist).and_return(true)
     allow(subject.action).to receive(:existing_policy).and_return(false)
     allow(subject.action).to receive(:kind).and_return(action_event)
+    allow(Observers::PolicyUpdated).to receive(:notify).with(policy)
   end
 
   it "successfully creates the new policy" do
     expect(subject.persist).to be_truthy
+  end
+
+  it "notifies of the policy change" do
+    expect(Observers::PolicyUpdated).to receive(:notify).with(policy)
+    subject.persist
   end
 end
 
