@@ -16,12 +16,27 @@ describe Observers::PolicyUpdated do
     end
   end
 
+  context "given a dental policy" do
+    let(:policy) do
+      instance_double(
+        Policy,
+        is_shop?: true,
+        coverage_type: "dental"
+      )
+    end
+
+    it "does nothing" do
+      Observers::PolicyUpdated.notify(policy, today)
+    end
+  end
+
   context "given an ivl policy from the current year" do
     let(:policy) do
       instance_double(
         Policy,
         is_shop?: false,
-        coverage_year: today.year
+        coverage_year: today.year,
+        coverage_type: "health"
       )
     end
 
@@ -35,7 +50,8 @@ describe Observers::PolicyUpdated do
       instance_double(
         Policy,
         is_shop?: false,
-        coverage_year: 2017
+        coverage_year: 2017,
+        coverage_type: "health"
       )
     end
 
@@ -58,7 +74,8 @@ describe Observers::PolicyUpdated do
         :id => policy_id,
         :eg_id => eg_id,
         is_shop?: false,
-        coverage_year: 2018
+        coverage_year: 2018,
+        coverage_type: "health"
       )
     end
 
