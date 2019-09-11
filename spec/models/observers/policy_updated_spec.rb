@@ -50,6 +50,20 @@ describe Observers::PolicyUpdated do
     end
   end
 
+  context "given a dental policy" do
+    let(:policy) do
+      instance_double(
+        Policy,
+        is_shop?: true,
+        coverage_type: "dental"
+      )
+    end
+
+    it "does nothing" do
+      Observers::PolicyUpdated.notify(policy, today)
+    end
+  end
+
   context "given an ivl policy from the current year" do
     let(:policy) do
       instance_double(
