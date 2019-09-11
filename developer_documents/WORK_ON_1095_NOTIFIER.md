@@ -32,4 +32,4 @@
    5. ~~external_events/external_policy_member_drop.rb~~
    6. ~~external_events/external_policy_reinstate.rb~~
 5. ~~UI Initiated Changes~~
-6. EDI Import
+6. ~~EDI Import~~

@@ -374,6 +374,7 @@ class Policy
       found_enrollment.save!
       return found_enrollment
     end
+    Observers::PolicyUpdated.notify(m_enrollment)
     m_enrollment.save!
 #    m_enrollment.unsafe_save!
     m_enrollment
