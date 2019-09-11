@@ -1,6 +1,6 @@
 1. ~~Observer~~
 2. ~~Individual Updates - individual_change_set.rb~~
-3. Enrollment Actions
+3. ~~Enrollment Actions~~
    1. ~~active_renewal.rb~~
    2. ~~assistance_change.rb~~
    3. ~~carrier_switch.rb~~
@@ -24,12 +24,12 @@
    21. ~~reselection_of_existing_coverage.rb~~
    22. ~~terminate_policy_with_earlier_date.rb~~
    23. ~~termination.rb~~
-4. Because of enrollment actions
+4. ~~Because of enrollment actions~~
    1. ~~external_events/external_policy.rb~~
    2. ~~external_events/external_policy_assistance_change.rb~~
    3. ~~external_events/external_policy_cobra_switch.rb~~
    4. ~~external_events/external_policy_member_add.rb~~
    5. ~~external_events/external_policy_member_drop.rb~~
    6. ~~external_events/external_policy_reinstate.rb~~
-5. UI Initiated Changes
+5. ~~UI Initiated Changes~~
 6. EDI Import
