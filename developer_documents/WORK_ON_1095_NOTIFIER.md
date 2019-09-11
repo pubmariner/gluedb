@@ -31,5 +31,10 @@
    4. ~~external_events/external_policy_member_add.rb~~
    5. ~~external_events/external_policy_member_drop.rb~~
    6. ~~external_events/external_policy_reinstate.rb~~
+<<<<<<< HEAD
 5. ~~UI Initiated Changes~~
 6. ~~EDI Import~~
+=======
+5. UI Initiated Changes
+6. EDI Import
+>>>>>>> Finished with COR updates.
