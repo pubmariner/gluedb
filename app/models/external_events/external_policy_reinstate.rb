@@ -17,7 +17,9 @@ module ExternalEvents
         :aasm_state => "resubmitted"
       })
       @existing_policy.hbx_enrollment_ids << extract_enrollment_group_id(@policy_node)
-      @existing_policy.save!
+      result = @existing_policy.save!
+      Observers::PolicyUpdated.notify(@existing_policy)
+      result
     end
 
     def update_enrollee(enrollee_node)

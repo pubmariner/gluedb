@@ -170,6 +170,7 @@ module ExternalEvents
       @policy_node.enrollees.each do |en|
         term_enrollee(pol, en)
       end
+      Observers::PolicyUpdated.notify(pol)
       true
     end
   end

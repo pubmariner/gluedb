@@ -26,10 +26,10 @@
    23. ~~termination.rb~~
 4. Because of enrollment actions
    1. ~~external_events/external_policy.rb~~
-   2. external_events/external_policy_assistance_change.rb
-   3. external_events/external_policy_cobra_switch.rb
-   4. external_events/external_policy_member_add.rb
-   5. external_events/external_policy_member_drop.rb
-   6. external_events/external_policy_reinstate.rb
+   2. ~~external_events/external_policy_assistance_change.rb~~
+   3. ~~external_events/external_policy_cobra_switch.rb~~
+   4. ~~external_events/external_policy_member_add.rb~~
+   5. ~~external_events/external_policy_member_drop.rb~~
+   6. ~~external_events/external_policy_reinstate.rb~~
 5. UI Initiated Changes
 6. EDI Import
