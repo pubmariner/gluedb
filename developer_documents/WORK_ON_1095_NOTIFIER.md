@@ -1,6 +1,6 @@
-1. Observer
+1. ~~Observer~~
 2. Individual Updates
-3. COR
+3. Enrollment Actions
    1. active_renewal.rb
    2. assistance_change.rb
    3. carrier_switch.rb
