@@ -241,9 +241,11 @@ module ExternalEvents
       build_subscriber(policy)
 
       other_enrollees = @policy_node.enrollees.reject { |en| en.subscriber? }
-      other_enrollees.each do |en|
+      results = other_enrollees.each do |en|
         build_enrollee(policy, en)
       end
+      Observers::PolicyUpdated.notify(policy)
+      results
     end
   end
 end
