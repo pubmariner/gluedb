@@ -68,7 +68,7 @@ class ReportEligiblityProcessor
   
   def self.generate_h41_xml(params, policy)
     #passing the true argument to trigger H41 instead of 1095A
-    @xml_file = Generators::Reports::IrsYearlySerializer.new(params, true).proccess_policy(policy)
+    @xml_file = Generators::Reports::IrsYearlySerializer.new(params, true).process_policy(policy)
   end
  
 
