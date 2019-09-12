@@ -365,10 +365,14 @@ module Generators::Reports
             create_new_irs_folder
           end
         elsif @render_H41
+          irs_path = "#{Rails.root.to_s}/irs/irs_EOY_#{Time.now.strftime('%m_%d_%Y_%H_%M')}"
+          @irs_xml_path = irs_path + "/h41/"
+          create_directory @irs_xml_path
+          create_directory @irs_xml_path + "/transmission"
+          create_new_irs_folder
           render_xml(notice)
           merge_and_validate_xmls(@folder_count)
           create_manifest
-          create_new_irs_folder
         else
           render_pdf(notice)
           append_report_row(notice)
@@ -515,12 +519,11 @@ module Generators::Reports
     end
 
     def render_xml(notice)
-      yearly_xml_generator = Generators::Reports::IrsYearlyXml.new(notice)
+      yearly_xml_generator = Generators::Reports::IrsYearlyXml.new(notice, @count.to_s)
       yearly_xml_generator.corrected_record_sequence_num = @corrected_h41_policies[notice.policy_id] if @corrected_h41_policies.present?
       yearly_xml_generator.voided_record_sequence_num = @void_policies[notice.policy_id] if @void_policies.present?
 
       xml_report = yearly_xml_generator.serialize.to_xml(:indent => 2)
-
       File.open("#{@irs_xml_path + @h41_folder_name}/#{@report_names[:xml]}.xml", 'w') do |file|
         file.write xml_report
       end
@@ -547,7 +550,6 @@ module Generators::Reports
       pdf_notice.settings = @settings
       pdf_notice.responsible_party_data = @responsible_party_data[notice.policy_id.to_i] if @responsible_party_data.present? # && ![87085,87244,87653,88495,88566,89129,89702,89922,95250,115487].include?(notice.policy_id.to_i)
       pdf_notice.process
-
       @notice_absolute_path = "#{@irs_pdf_path + @irs1095_folder_name}/#{@report_names[:pdf]}.pdf"
       pdf_notice.render_file(@notice_absolute_path)
     end
@@ -570,7 +572,7 @@ module Generators::Reports
       if Dir.exists?(path)
         FileUtils.rm_rf(path)
       end
-      Dir.mkdir path
+      FileUtils.mkdir_p(path)
     end
 
     def prepend_zeros(number, n)
