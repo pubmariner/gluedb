@@ -24,17 +24,22 @@ module Generators::Reports::Importers
           federal_policy_id = node.xpath('./air5.0:Policy/air5.0:MarketPlacePolicyNum').text
   
           if record_sequence_number.present? && federal_policy_id.present? && content_file_number.present? && batch_id.present?
-            policy = Policy.find(federal_policy_id)
+            policy = Policy.where(id: federal_policy_id).first
             
             if policy.present?
-              policy.federal_transmissions.create(
-                record_sequence_number: record_sequence_number,
-                content_file: content_file_number,
-                report_type: indicator(node),
-                batch_id: batch_id
-              )
+              fed_trans = policy.federal_transmissions.create!(record_sequence_number: record_sequence_number,
+                                                              content_file: content_file_number,
+                                                              report_type: indicator(node),
+                                                              batch_id: batch_id
+                                                              )
+              if fed_trans.present?
+                puts "New federal transmission record created for policy_id:#{federal_policy_id}" unless Rails.env.test?
+              else 
+                puts "New federal transmission not created for policy_id:#{federal_policy_id}" unless Rails.env.test?
+              end
+            else
+              puts "No policy has been found with this policy_id:#{federal_policy_id}" unless Rails.env.test?
             end
-            puts "New fedral transmission record created for policy_id:#{federal_policy_id}" unless Rails.env.test?
           end
         end
       end
