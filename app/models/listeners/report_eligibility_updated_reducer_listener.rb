@@ -39,7 +39,6 @@ module Listeners
 
     def self.create_bindings(chan, q)
       ec = ExchangeInformation
-      event_topic_exchange_name = "#{ec.id}.#{ec.environment}.e.topic.events"
       event_topic_exchange_name = "#{ec.hbx_id}.#{ec.environment}.e.topic.events"
       event_topic_exchange = chan.topic(event_topic_exchange_name, {:durable => true})
       q.bind(event_topic_exchange, {:routing_key => "info.events.policy.reporting_eligibility_updated"})
