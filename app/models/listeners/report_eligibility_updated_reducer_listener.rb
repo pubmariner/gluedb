@@ -41,7 +41,7 @@ module Listeners
       ec = ExchangeInformation
       event_topic_exchange_name = "#{ec.hbx_id}.#{ec.environment}.e.topic.events"
       event_topic_exchange = chan.topic(event_topic_exchange_name, {:durable => true})
-      q.bind(event_topic_exchange, {:routing_key => "info.events.policy.reporting_eligibility_updated"})
+      q.bind(event_topic_exchange, {:routing_key => "info.events.policy.federal_reporting_eligibility_updated"})
     end
 
     def self.create_queues(chan)
