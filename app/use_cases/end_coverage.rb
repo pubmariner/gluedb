@@ -24,7 +24,9 @@ class EndCoverage
       include_enrollee_ids: enrollees_not_already_canceled.map(&:m_id),
       current_user: request[:current_user]
     }
-    action.execute(action_request)
+    result = action.execute(action_request)
+    Observers::PolicyUpdated.notify(@policy)
+    result
   end
 
   def execute_csv(request, listener)

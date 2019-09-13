@@ -62,12 +62,18 @@ describe EnrollmentAction::RenewalDependentDrop, "given a qualified enrollent se
     allow(policy_updater).to receive(:persist).and_return(true)
     allow(old_policy).to receive(:terminate_member_id_on).with(2, member_end_date).and_return(true)
     allow(subject.action).to receive(:kind).and_return(action_event)
+    allow(Observers::PolicyUpdated).to receive(:notify).with(old_policy)
   end
 
   it "creates the new policy" do
     expect(subject.persist).to be_truthy
   end
 
+  it "notifies of the termination" do
+    expect(Observers::PolicyUpdated).to receive(:notify).with(old_policy)
+    subject.persist
+  end
+  
   it "terminates the dropped member" do
     expect(old_policy).to receive(:terminate_member_id_on).with(2, member_end_date).and_return(true)
     subject.persist
