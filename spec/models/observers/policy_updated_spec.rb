@@ -2,6 +2,10 @@ require 'rails_helper'
 
 describe Observers::PolicyUpdated do
   let(:today) { Time.mktime(2025, 1, 1) }
+  let(:current_year) { ((today.beginning_of_year)..today.end_of_year) }
+  let(:coverage_year_first) { (Time.mktime(2018, 1, 1)..Time.mktime(2018, 12, 31) )}
+  let(:coverage_year_too_old) { (Time.mktime(2017, 1, 1)..Time.mktime(2017, 12, 31) )}
+
 
   context "given a shop policy" do
     let(:policy) do
@@ -35,7 +39,7 @@ describe Observers::PolicyUpdated do
       instance_double(
         Policy,
         is_shop?: false,
-        coverage_year: today.year,
+        coverage_year: current_year,
         coverage_type: "health"
       )
     end
@@ -50,7 +54,7 @@ describe Observers::PolicyUpdated do
       instance_double(
         Policy,
         is_shop?: false,
-        coverage_year: 2017,
+        coverage_year: coverage_year_too_old,
         coverage_type: "health"
       )
     end
@@ -74,7 +78,7 @@ describe Observers::PolicyUpdated do
         :id => policy_id,
         :eg_id => eg_id,
         is_shop?: false,
-        coverage_year: 2018,
+        coverage_year: coverage_year_first,
         coverage_type: "health"
       )
     end

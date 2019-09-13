@@ -8,8 +8,8 @@ module Observers
     def self.notify_of_federal_reporting_changes(policy, time)
       return if policy.is_shop?
       return if policy.coverage_type.to_s.downcase != "health"
-      return if policy.coverage_year == time.year
-      return if policy.coverage_year < 2018
+      return if policy.coverage_year.first.year == time.year
+      return if policy.coverage_year.first.year < 2018
       ::Amqp::EventBroadcaster.with_broadcaster do |b|
         b.broadcast(
           {
