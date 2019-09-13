@@ -7,20 +7,18 @@ describe ReportEligiblityProcessor do
 
   ["submitted", 'terminated', 'canceled'].each do |status|
     let!(:"#{status}_policy") {double(Policy, aasm_state: status, 
-    responsible_party_id:"",
-    id: Moped::BSON::ObjectId.new,
-    eg_id: Moped::BSON::ObjectId.new,
-    enrollees: [enrollee],
-    plan: plan,
-    spouse:"",
-    market: "individual",
-    term_for_np:false
-    )}
+                                              responsible_party_id:"",
+                                              id: Moped::BSON::ObjectId.new,
+                                              eg_id: Moped::BSON::ObjectId.new,
+                                              enrollees: [enrollee],
+                                              plan: plan,
+                                              spouse:"",
+                                              market: "individual",
+                                              term_for_np:false )}
   end
-
-  let!(:records) {[ double(PolicyEvents::ReportingEligibilityUpdated, policy_id: submitted_policy.id),
-                    double(PolicyEvents::ReportingEligibilityUpdated, policy_id: terminated_policy.id),
-                    double(PolicyEvents::ReportingEligibilityUpdated, policy_id: canceled_policy.id)
+  let!(:records) {[ double(policy_id: submitted_policy.id),
+                    double(policy_id: terminated_policy.id),
+                    double(policy_id: canceled_policy.id)
                   ]}
 
   let(:policies){[submitted_policy, terminated_policy, canceled_policy]}
