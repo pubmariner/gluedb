@@ -11,13 +11,15 @@ module Generators::Reports::Importers
     def batch_id
       batch_file = Nokogiri::XML(@batch_file)
       batch_id = batch_file.xpath('//ns3:BatchID').text
+
       return batch_id
     end
 
     def federal_report_ingester
       Dir[EOY_DIRECTORY_FILES].each do |file_name|
-        content_file_number = file_name.scan(/\d+/)[1]
-        file = File.read(file_name) 
+        file_numbers = file_name.scan(/\d+/)
+        content_file_number = file_numbers.flatten.select { |fn| fn.length == 5 }.first
+        file = File.read(file_name)
         doc = Nokogiri::XML(file)
         doc.xpath('//air5.0:Form1095AUpstreamDetail').each do |node|
           record_sequence_number = node.xpath('./air5.0:RecordSequenceNum').text
@@ -29,7 +31,7 @@ module Generators::Reports::Importers
             if policy.present?
               fed_trans = policy.federal_transmissions.create!(record_sequence_number: record_sequence_number,
                                                               content_file: content_file_number,
-                                                              report_type: indicator(node),
+                                                              report_type: indicator,
                                                               batch_id: batch_id
                                                               )
               if fed_trans.present?
@@ -45,15 +47,15 @@ module Generators::Reports::Importers
       end
     end
 
-    def indicator(node)
-      if node.xpath('./air5.0:VoidInd').text == "0" && node.xpath('./irs:CorrectedInd').text == "false"
-        "ORIGINAL"
-      elsif node.xpath('./air5.0:VoidInd').text == "1" && node.xpath('./irs:CorrectedInd').text == "false"
-        "VOIDED"
-      elsif node.xpath('./air5.0:VoidInd').text == "0" && node.xpath('./irs:CorrectedInd').text == "true"
+    def indicator
+      batch_file = Nokogiri::XML(@batch_file)
+      if batch_file.xpath('//ns4:BatchCategoryCode').text == "IRS_EOY_SUBMIT_CORRECTED_RECORDS_REQ"
         "CORRECTED"
+      elsif batch_file.xpath('//ns4:BatchCategoryCode').text == "IRS_EOY_SUBMIT_VOID_RECORDS_REQ"
+        "VOIDED"
+      else
+        "ORIGINAL"
       end  
     end
-
   end
 end
