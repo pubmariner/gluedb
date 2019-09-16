@@ -30,6 +30,9 @@ describe FederalTransmissionReport, dbclean: :after_each do
       subject.migrate
       policy.reload
       expect(policy.federal_transmissions.count).to eq 1
+      expect(policy.federal_transmissions.first.content_file).to eq "00001"
+      expect(policy.federal_transmissions.first.record_sequence_number).to eq policy.id.to_s
+      expect(policy.federal_transmissions.first.report_type).to eq "ORIGINAL"
     end
   end
 end
