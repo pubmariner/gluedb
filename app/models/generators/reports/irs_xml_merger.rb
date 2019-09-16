@@ -1,7 +1,7 @@
 require 'nokogiri'
 
 module Generators::Reports  
-  class IrsYearlyXmlMerger
+  class IrsXmlMerger
 
     attr_reader :consolidated_doc
     attr_reader :xml_docs

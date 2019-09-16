@@ -8,7 +8,7 @@ module Generators::Reports
 
     attr_accessor :notice_params, :calender_year, :qhp_type, :notice_absolute_path, :xml_output
 
-    def initialize(options = {}, render_H41 = false)
+    def initialize(options = {})
       @count = 0
       @policy_id = nil
       @hbx_member_id = nil
@@ -269,7 +269,6 @@ module Generators::Reports
 
     def generate_notice
       set_default_directory
-
       policy = Policy.find(notice_params[:policy_id])
 
       if policy.responsible_party_id.present?
@@ -326,7 +325,21 @@ module Generators::Reports
       irs_input
     end
 
-    def process_policy(policy)
+    def generate_h41
+      policy = Policy.find(notice_params[:policy_id])
+      begin
+        process_policy(policy, true)
+        create_directory "#{Rails.root}/H41_federal_report"
+        `zip #{@h41_folder_name}.zip #{@h41_folder_name}`
+        `mv #{@h41_folder_name}  "#{Rails.root}/H41_federal_report"`
+        return "#{@h41_folder_name}.zip" if File.exists?("#{@h41_folder_name}.zip")
+      rescue => e
+        puts policy.id
+        puts e.to_s.inspect
+      end
+    end
+
+    def process_policy(policy, h41 = nil)
       if valid_policy?(policy)
         @calender_year = policy.subscriber.coverage_start.year
         @qhp_type  = ((policy.applied_aptc > 0 || policy.multi_aptc?) ? 'assisted' : 'unassisted')
@@ -485,6 +498,10 @@ module Generators::Reports
       Generators::Reports::IrsYearlyManifest.new.create("#{@irs_xml_path}/transmission")
     end
 
+    def create_individual_manifest
+      Generators::Reports::IrsYearlyManifest.new.create("#{@h41_folder_name}/")
+    end
+
     def rejected_policy?(policy)
       edi_transactions = Protocols::X12::TransactionSetEnrollment.where({ "policy_id" => policy.id })
       return true if edi_transactions.size == 1 && edi_transactions.first.aasm_state == 'rejected'
@@ -555,6 +572,12 @@ module Generators::Reports
       @irs_set += 1
       folder_number = prepend_zeros(@irs_set.to_s, 3)
       @h41_folder_name = "DCHBX_H41_#{Time.now.strftime('%H_%M_%d_%m_%Y')}_#{folder_number}"
+      create_directory @irs_xml_path + @h41_folder_name
+    end
+
+    def create_individual_h41_folder
+      @irs_xml_path = ''
+      @h41_folder_name = "FFEP0020DC.DSH.EOYIN.D#{Time.now.strftime('%Y%m%d')[2..-1]}.T#{Time.now.strftime("%s")[0..5] + "000"}.P.IN"
       create_directory @irs_xml_path + @h41_folder_name
     end
 

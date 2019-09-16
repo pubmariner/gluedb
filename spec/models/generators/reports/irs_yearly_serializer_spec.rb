@@ -12,8 +12,9 @@ module Generators::Reports
     let(:options) { { multiple: false, calender_year: 2018, qhp_type: "assisted", notice_type: 'new'} }
     let(:premium) {double(premium_amount:100, slcsp_premium_amount: 200, aptc_amount:0)}
     let(:report) { Generators::Reports::IrsYearlyPdfReport.new(notice, options)  }  
-    let!(:xml_generator) { IrsYearlySerializer.new(params, true) }
     let(:monthly_premiums) { [OpenStruct.new({serial: (1), premium_amount: 0.0, premium_amount_slcsp: 0.0, monthly_aptc: 0.0})] }  
+    let(:h41_folder_name)  { "FFEP0020DC.DSH.EOYIN.D#{Time.now.strftime('%Y%m%d')[2..-1]}.T#{Time.now.strftime("%s")[0..5] + "000"}.P.IN" }
+  
     let(:person) { double(Person, 
                    authority_member: member,
                    mailing_address: address,
@@ -28,7 +29,7 @@ module Generators::Reports
                    coverage_termination_date: (Date.today).strftime("%Y%m%d")) }  
                             
     let(:policy) { double(Policy,
-                   id: Moped::BSON::ObjectId.new,
+                   id: Moped::BSON::ObjectId.new.to_s,
                    term_for_np: false,
                    responsible_party_id:"",
                    spouse: nil,
@@ -55,12 +56,14 @@ module Generators::Reports
                    issuer_name: "CareFirst",
                    covered_household: [person],
                    enrollees:[enrollee],
-                   id: policy.id) }
+                   policy_id: policy.id) }
 
 
 
     before(:each) do
-      FileUtils.rm_rf(Dir["#{Rails.root}/irs/"])
+      FileUtils.rm_rf(Dir["FFEP*"])
+      FileUtils.rm_rf(Dir["H41_federal_report"])
+      FileUtils.rm_rf(Dir["*.zip"])
       FileUtils.rm_rf(Dir["#{Rails.root}/tmp/irs_notices"])
       allow(Policy).to receive(:find).and_return(policy)
       allow(policy).to receive(:enrollees).and_return([enrollee])
@@ -73,7 +76,6 @@ module Generators::Reports
       allow(policy).to receive(:ehb_premium).and_return(1)
       allow(Generators::Reports::IrsYearlyPdfReport).to receive(:new).and_return(report)
       allow(subject).to receive(:append_report_row).and_return(true)
-      allow(xml_generator).to receive(:merge_and_validate_xmls).and_return(true)
 
     end
 
@@ -90,10 +92,12 @@ module Generators::Reports
 
     context '#process_policy' do
       it 'generates a h41 file' do 
-        expect(File).not_to exist("#{Rails.root}/irs/") 
-        xml_generator.process_policy(policy)
-        expect(File).to exist("#{Rails.root}/irs/") 
-        FileUtils.rm_rf(Dir["#{Rails.root}/irs/"])
+        expect(File).not_to exist("#{h41_folder_name}") 
+        subject.generate_h41
+        expect(File).to exist("H41_federal_report/#{h41_folder_name}")
+        expect(File).to exist("#{h41_folder_name}.zip")
+        FileUtils.rm_rf(Dir[("H41_federal_report")])
+        FileUtils.rm_rf(Dir["*.zip"])
       end
     end
 
