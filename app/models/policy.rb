@@ -54,6 +54,8 @@ class Policy
 
   embeds_many :aptc_credits
   embeds_many :aptc_maximums
+  embeds_many :federal_transmissions
+
   embeds_many :cost_sharing_variants
   embeds_many :federal_transmissions
 
