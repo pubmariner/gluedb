@@ -2,8 +2,8 @@ class FederalTransmission
   include Mongoid::Document
   include Mongoid::Timestamps::Created
 
-  REPORT_TYPES = %w(ORGINIAL CORRECTED VOIDED)
-
+  REPORT_TYPES = %w[ORGINIAL CORRECTED VOIDED].freeze
+  
   field :report_type, type: String, default: "ORGINIAL"
   field :batch_id, type: String
   field :content_file, type: String
