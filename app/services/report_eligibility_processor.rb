@@ -1,4 +1,4 @@
-class ReportEligiblityProcessor
+class ReportEligiblityDetermination
 #This class calls all of the ReportingEligibilityUpdated documents, generates the correct 1095As and H41s for them, and publishes them to s3 and sFTP
 #please see 33567
 
