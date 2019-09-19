@@ -305,7 +305,6 @@ module Generators::Reports
     def valid_policy?(policy)
       active_enrollees = policy.enrollees.reject{|en| en.canceled?}
       return false if active_enrollees.empty?
-
       if rejected_policy?(policy) || policy.canceled? || !policy.belong_to_authority_member?
         return false
       end

@@ -9,9 +9,9 @@ module FederalReports
         policy = Policy.find(record.policy_id)
         if policy.present? 
           if policy.aasm_state.in?(["canceled", "carrier_canceled"])
-            ::FederalReports::ReportProcessor.transmit_cancelled_reports_for(policy)
+            ::FederalReports::ReportProcessor.upload_canceled_reports_for(policy)
           elsif policy.aasm_state.in?(["terminated", "submitted"])
-            ::FederalReports::ReportProcessor.transmit_active_reports_for(policy)
+            ::FederalReports::ReportProcessor.upload_active_reports_for(policy)
           end
         end
       end

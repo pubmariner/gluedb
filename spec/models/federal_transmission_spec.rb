@@ -7,7 +7,7 @@ describe FederalTransmission, type: :model, :dbclean => :after_each do
     let(:params) {{report_type: "ORGINIAL", batch_id: "1241241", content_file: "00001", record_sequence_number: "010101"}}
 
     it "should not be valid" do
-      expect {described_class.create}.to raise_error(Mongoid::Errors::Validations)
+      expect {described_class.create!}.to raise_error(Mongoid::Errors::Validations)
     end
 
     it "should create federal_transmissions object" do
