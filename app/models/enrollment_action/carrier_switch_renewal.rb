@@ -19,6 +19,7 @@ module EnrollmentAction
         [t_pol, t_pol.active_member_ids]
       end
       termination_results = termination_candidates.map do |rc|
+        Observers::PolicyUpdated.notify(rc)
         rc.terminate_as_of(action.subscriber_start - 1.day)
       end
       return false unless termination_results.all?
