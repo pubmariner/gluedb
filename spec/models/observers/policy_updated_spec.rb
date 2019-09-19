@@ -55,7 +55,8 @@ describe Observers::PolicyUpdated do
       instance_double(
         Policy,
         is_shop?: true,
-        coverage_type: "dental"
+        coverage_type: "dental",
+        kind: 'employer_sponsored'
       )
     end
 
