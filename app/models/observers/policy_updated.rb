@@ -6,6 +6,8 @@ module Observers
     end
 
     def self.notify_of_federal_reporting_changes(policy, time)
+      # Coverall policies are are not considered part of IVL marketplace
+      return if policy.kind == 'coverall'
       return if policy.is_shop?
       return if policy.coverage_type.to_s.downcase != "health"
       return if policy.coverage_year.first.year == time.year

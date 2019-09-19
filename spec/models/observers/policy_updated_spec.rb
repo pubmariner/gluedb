@@ -11,7 +11,22 @@ describe Observers::PolicyUpdated do
     let(:policy) do
       instance_double(
         Policy,
-        is_shop?: true
+        is_shop?: true,
+        kind: 'employer_sponsored'
+      )
+    end
+
+    it "does nothing" do
+      Observers::PolicyUpdated.notify(policy, today)
+    end
+  end
+
+  context 'given a coverall kind policy' do
+    let(:policy) do
+      instance_double(
+        Policy,
+        is_shop?: false,
+        kind: 'coverall'
       )
     end
 
@@ -25,7 +40,8 @@ describe Observers::PolicyUpdated do
       instance_double(
         Policy,
         is_shop?: true,
-        coverage_type: "dental"
+        coverage_type: "dental",
+        kind: 'employer_sponsored'
       )
     end
 
@@ -39,6 +55,7 @@ describe Observers::PolicyUpdated do
       instance_double(
         Policy,
         is_shop?: false,
+        kind: 'individual',
         coverage_year: current_year,
         coverage_type: "health"
       )
@@ -54,6 +71,7 @@ describe Observers::PolicyUpdated do
       instance_double(
         Policy,
         is_shop?: false,
+        kind: 'individual',
         coverage_year: coverage_year_too_old,
         coverage_type: "health"
       )
@@ -78,6 +96,7 @@ describe Observers::PolicyUpdated do
         :id => policy_id,
         :eg_id => eg_id,
         is_shop?: false,
+        kind: 'individual',
         coverage_year: coverage_year_first,
         coverage_type: "health"
       )
