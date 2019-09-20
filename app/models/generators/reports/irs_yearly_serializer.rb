@@ -529,7 +529,7 @@ module Generators::Reports
     end
 
     def render_xml(notice)
-      yearly_xml_generator = Generators::Reports::IrsYearlyXml.new(notice, @count.to_s)
+      yearly_xml_generator = Generators::Reports::IrsYearlyXml.new(notice)
       yearly_xml_generator.corrected_record_sequence_num = @corrected_h41_policies[notice.policy_id] if @corrected_h41_policies.present?
       yearly_xml_generator.voided_record_sequence_num = @void_policies[notice.policy_id] if @void_policies.present?
 

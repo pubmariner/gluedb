@@ -33,6 +33,7 @@ class Policy
   field :updated_by, type: String
   field :is_active, type: Boolean, default: true
   field :hbx_enrollment_ids, type: Array
+  field :kind, type: String
 
 # Adding field values Carrier specific
   field :carrier_specific_plan_id, type: String

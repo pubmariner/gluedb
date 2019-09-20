@@ -2,12 +2,12 @@ module Generators::Reports
   class IrsYearlyManifest
 
     NS = {
-      "xmlns:ns0" => "http://birsrep.dsh.cms.gov/exchange/1.0",
-      "xmlns:ns3" => "http://hix.cms.gov/0.1/hix-core", 
-      "xmlns:ns4" => "http://birsrep.dsh.cms.gov/extension/1.0",
-      "xmlns:ns5" => "http://niem.gov/niem/niem-core/2.0",
-      "xmlns:inp1" => "http://xmlns.oracle.com/singleString", 
-      "xmlns:wsa" => "http://www.w3.org/2005/08/addressing"      
+      "xmlns:ns0"  => "http://birsrep.dsh.cms.gov/exchange/1.0",
+      "xmlns:ns3"  => "http://hix.cms.gov/0.1/hix-core", 
+      "xmlns:ns4"  => "http://birsrep.dsh.cms.gov/extension/1.0",
+      "xmlns:ns5"  => "http://niem.gov/niem/niem-core/2.0"
+      # "xmlns:inp1" => "http://xmlns.oracle.com/singleString", 
+      # "xmlns:wsa"  => "http://www.w3.org/2005/08/addressing"      
     }
 
     def create(folder)
@@ -37,7 +37,7 @@ module Generators::Reports
     def attachments
       Dir.glob(@folder+'/*.xml').inject([]) do |data, file|
         data << OpenStruct.new({
-          checksum: Digest::MD5.file(file).hexdigest,
+          checksum: Digest::SHA256.file(file).hexdigest,
           binarysize: File.size(file),
           filename: File.basename(file),
           sequence_id: File.basename(file).match(/\d{5}/)[0]
@@ -74,7 +74,7 @@ module Generators::Reports
       xml['ns4'].Attachment do |xml|
         xml['ns5'].DocumentBinary do |xml|
           xml['ns3'].ChecksumAugmentation do |xml|
-            xml.MD5ChecksumText file.checksum
+            xml.SHA256HashValueText file.checksum
           end
           xml['ns3'].BinarySizeValue file.binarysize
         end
