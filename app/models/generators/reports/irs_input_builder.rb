@@ -52,6 +52,7 @@ module Generators::Reports
       # @policy.plan.carrier.name
       @notice.qhp_id = @policy.plan.hios_plan_id.gsub('-','')
       @notice.policy_id = prepend_zeros(@policy.id.to_s, 6)
+      @notice.subscriber_hbx_id = @policy.subscriber.m_id
 
       if @policy.responsible_party_id.present?
         append_responsible_party_address

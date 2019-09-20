@@ -43,7 +43,6 @@ module PdfTemplates
       carrier_feins[self.issuer_name.split.join]
     end
 
-
     def issuer_dc_name
       carrier_names = {
         "Aetna" => "Aetna Life Insurance Company",

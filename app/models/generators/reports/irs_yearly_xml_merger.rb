@@ -1,27 +1,31 @@
 require 'nokogiri'
 
 module Generators::Reports  
-  class IrsXmlMerger
+  class IrsYearlyXmlMerger
 
     attr_reader :consolidated_doc
     attr_reader :xml_docs
 
-    attr_accessor :irs_monthly_folder
+    attr_accessor :irs_yearly_xml_folder
 
 
     # DURATION = 12
     # CALENDER_YEAR = 2014
 
+
     NS = { 
-      "xmlns" => "urn:us:gov:treasury:irs:common",
-      "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
-      "xmlns:n1" => "urn:us:gov:treasury:irs:msg:monthlyexchangeperiodicdata"
+      "xmlns:air5.0" => "urn:us:gov:treasury:irs:ext:aca:air:5.0",
+      "xmlns:irs" => "urn:us:gov:treasury:irs:common",
+      "xmlns:batchreq" => "urn:us:gov:treasury:irs:msg:form1095atransmissionupstreammessage",
+      "xmlns:batchresp"=> "urn:us:gov:treasury:irs:msg:form1095atransmissionexchrespmessage",
+      "xmlns:reqack"=> "urn:us:gov:treasury:irs:msg:form1095atransmissionexchackngmessage",
+      "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance"
     }
 
     def initialize(dir, sequential_number)
       @dir = dir
       timestamp = Time.now.utc.iso8601.gsub(/-|:/,'').match(/(.*)Z/)[1] + "000Z"
-      output_file_name = "EOM_Request_#{sequential_number}_#{timestamp}.xml"
+      output_file_name = "EOY_Request_#{sequential_number}_#{timestamp}.xml"
       @data_file_path = File.join(@dir,'..', 'transmission', output_file_name)
       @xml_docs = []
       @doc_count = nil
@@ -33,7 +37,7 @@ module Generators::Reports
 
     def process
       @xml_validator = XmlValidator.new
-      @xml_validator.folder_path = @irs_monthly_folder.to_s
+      @xml_validator.folder_path = @irs_yearly_xml_folder.to_s
 
       read
       merge
@@ -48,6 +52,8 @@ module Generators::Reports
     # end
 
     def read
+      puts "============"
+      puts @dir.inspect
       Dir.glob(@dir+'/*.xml').each do |file_path|
         @xml_docs << Nokogiri::XML(File.open(file_path))
       end
@@ -56,6 +62,7 @@ module Generators::Reports
     end
 
     def merge
+      return if @xml_docs.empty?
       if @consolidated_doc == nil
         xml_doc = @xml_docs[0]
         xml_doc = chop_special_characters(xml_doc)
@@ -64,10 +71,10 @@ module Generators::Reports
 
       @xml_docs.shift
 
-      @consolidated_doc.xpath('//xmlns:IndividualExchange', NS).each do |node|
+      @consolidated_doc.xpath('//batchreq:Form1095ATransmissionUpstream', NS).each do |node|
         @xml_docs.each do |xml_doc|
-          xml_doc.remove_namespaces!
-          new_node = xml_doc.xpath('//IRSHouseholdGrp').first
+          # xml_doc.remove_namespaces!
+          new_node = xml_doc.xpath('//air5.0:Form1095AUpstreamDetail').first
           new_node = chop_special_characters(new_node)
           node.add_child(new_node.to_xml(:indent => 2) + "\n")
         end
@@ -84,7 +91,7 @@ module Generators::Reports
     def cross_verify_elements
       xml_doc = Nokogiri::XML(File.open(@data_file_path))
 
-      element_count = xml_doc.xpath('//xmlns:IRSHouseholdGrp', NS).count
+      element_count = xml_doc.xpath('//air5.0:Form1095AUpstreamDetail', NS).count
       if element_count == @doc_count
         puts "Element count looks OK!!"
       else
@@ -107,25 +114,25 @@ module Generators::Reports
     end
 
     def chop_special_characters(node)
-      node.xpath("//SSN", NS).each do |ssn_node|
+
+      node.xpath("//irs:SSN", NS).each do |ssn_node|
         update_ssn = Maybe.new(ssn_node.content).strip.gsub("-","").value
         ssn_node.content = update_ssn
       end
       
       ["PersonFirstName", "PersonMiddleName", "PersonLastName", "AddressLine1Txt", "AddressLine2Txt", "CityNm"].each do |ele|
-        node.xpath("//#{ele}", NS).each do |xml_tag|
-          update_ele = Maybe.new(xml_tag.content).strip.gsub(/(\-{2}|\'|\#|\"|\&|\<|\>)/,"").value
-          if xml_tag.content.match(/(\-{2}|\'|\#|\"|\&|\<|\>)/)
+        node.xpath("//irs:#{ele}", NS).each do |xml_tag|
+          if xml_tag.content.match(/(\-{1,2}|\'|\#|\"|\&|\<|\>|\.|\,|\s{2})/)
             puts xml_tag.content.inspect
-            puts update_ele
+            xml_tag.content = xml_tag.content.gsub(/(\-{1,2}|\'|\#|\"|\&|\<|\>|\.|\,|\s{2})/,"")
           end
+        end
+      end
 
-          if ele == "CityNm"
-            update_ele = update_ele.gsub(/\s{2}/, ' ')
-            update_ele = update_ele.gsub(/\-/, ' ')
-          end
-
-          xml_tag.content = update_ele
+      node.xpath("//irs:USZIPCd", NS).each do |xml_tag|
+        if  xml_tag.content.match(/(\d{5})-(\d{4})/)
+          puts xml_tag.content.inspect
+          xml_tag.content = xml_tag.content.match(/(\d{5})-(\d{4})/)[1]
         end
       end
 
