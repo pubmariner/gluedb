@@ -270,7 +270,6 @@ module Generators::Reports
     def generate_notice
       set_default_directory
       policy = Policy.find(notice_params[:policy_id])
-
       if policy.responsible_party_id.present?
         return if notice_params[:responsible_party_ssn].blank? && notice_params[:responsible_party_dob].blank?
 
@@ -329,8 +328,8 @@ module Generators::Reports
       begin
         process_policy(policy, true)
         create_directory "#{Rails.root}/H41_federal_report"
-        `zip #{@h41_folder_name}.zip #{@h41_folder_name}`
-        `mv #{@h41_folder_name}  "#{Rails.root}/H41_federal_report"`
+        `zip #{@h41_folder_name}.zip #{@h41_folder_name}` #zips h41
+        `mv #{@h41_folder_name} "#{Rails.root}/H41_federal_report"` #moves unzipped file to different folder for the report ingestor to find
         return "#{@h41_folder_name}.zip" if File.exists?("#{@h41_folder_name}.zip")
       rescue => e
         puts policy.id
@@ -339,7 +338,7 @@ module Generators::Reports
     end
 
     def process_policy(policy, h41 = nil)
-      if valid_policy?(policy)
+      # if valid_policy?(policy)
         @calender_year = policy.subscriber.coverage_start.year
         @qhp_type  = ((policy.applied_aptc > 0 || policy.multi_aptc?) ? 'assisted' : 'unassisted')
         @policy_id = policy.id
@@ -365,7 +364,6 @@ module Generators::Reports
 
         notice.active_policies = []
         notice.canceled_policies = []
-
         create_report_names
         if xml_output
           render_xml(notice)
@@ -377,7 +375,7 @@ module Generators::Reports
           end
         else
           render_pdf(notice)
-          append_report_row(notice)
+          #append_report_row(notice)
 
           if notice.covered_household.size > 5
             create_report_names
@@ -392,7 +390,7 @@ module Generators::Reports
 
         notice = nil
         policy = nil
-      end
+      # end
     end
 
     def append_report_row(notice, multiple = false)
@@ -445,7 +443,6 @@ module Generators::Reports
       @calender_year = policy.subscriber.coverage_start.year
       @policy_id = policy.id
       @hbx_member_id = policy.subscriber.person.authority_member.hbx_member_id
-
       irs_input = Generators::Reports::IrsInputBuilder.new(policy, {void: true})
       irs_input.carrier_hash = @carriers
       irs_input.settings = @settings
@@ -530,6 +527,9 @@ module Generators::Reports
       yearly_xml_generator.voided_record_sequence_num = @void_policies[notice.policy_id] if @void_policies.present?
 
       xml_report = yearly_xml_generator.serialize.to_xml(:indent => 2)
+
+      
+
       File.open("#{@irs_xml_path + @h41_folder_name}/#{@report_names[:xml]}.xml", 'w') do |file|
         file.write xml_report
       end
