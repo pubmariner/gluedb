@@ -7,10 +7,10 @@ describe ::FederalReports::ReportEligiblityDetermination, :dbclean => :after_eac
     let!(:"#{status}_policy") {FactoryGirl.create(:policy, aasm_state: status, plan: plan, term_for_np: false ) }
   end
   let(:bad_policy) {FactoryGirl.create(:policy, aasm_state: "effectuated")}
-  let!(:records) {[ double(policy_id: submitted_policy.id),
-                    double(policy_id: terminated_policy.id),
-                    double(policy_id: canceled_policy.id)
-                  ]}
+  let!(:canceled_record) {double(policy_id: canceled_policy.id)}
+  let!(:submitted_record) {double(policy_id: submitted_policy.id)}
+  let!(:terminated_record) {double(policy_id: terminated_policy.id)}
+
   let(:policies){[submitted_policy, terminated_policy, canceled_policy]}
   let(:federal_transmission) {double(FederalTransmission)}
   let(:federal_transmissions) {[federal_transmission]}
@@ -26,7 +26,6 @@ describe ::FederalReports::ReportEligiblityDetermination, :dbclean => :after_eac
 
   before(:each) do
     Policy.all.each{ |policy| FactoryGirl.create(:person, authority_member_id: policy.subscriber.m_id)}
-    allow(::PolicyEvents::ReportingEligibilityUpdated).to receive(:events_for_processing).and_return(records)
     allow(::FederalReports::ReportProcessor).to receive(:upload_canceled_reports_for).with(canceled_policy).and_return(true)
     allow(::FederalReports::ReportProcessor).to receive(:upload_active_reports_for).with(submitted_policy).and_return(true)
     allow(::FederalReports::ReportProcessor).to receive(:upload_active_reports_for).with(terminated_policy).and_return(true)
@@ -34,6 +33,7 @@ describe ::FederalReports::ReportEligiblityDetermination, :dbclean => :after_eac
   
   context "processing cancelled policies" do
     it 'calls the upload_canceled_reports_for() if the policy is cancelled' do
+      allow(::PolicyEvents::ReportingEligibilityUpdated).to receive(:events_for_processing).and_yield(canceled_record)
       subject.determine_report_transmission_type
       expect(::FederalReports::ReportProcessor).to have_received(:upload_canceled_reports_for).with(canceled_policy)
       expect(::FederalReports::ReportProcessor).to_not have_received(:upload_canceled_reports_for).with(terminated_policy)
@@ -43,6 +43,8 @@ describe ::FederalReports::ReportEligiblityDetermination, :dbclean => :after_eac
 
   context "processing terminated policies" do
     it 'calls the upload_active_reports_for() if the policy is terminated' do
+      allow(::PolicyEvents::ReportingEligibilityUpdated).to receive(:events_for_processing).and_yield(terminated_record)
+
       subject.determine_report_transmission_type
       expect(::FederalReports::ReportProcessor).to have_received(:upload_active_reports_for).with(terminated_policy)
       expect(::FederalReports::ReportProcessor).to_not have_received(:upload_active_reports_for).with(canceled_policy)
@@ -51,6 +53,8 @@ describe ::FederalReports::ReportEligiblityDetermination, :dbclean => :after_eac
 
   context "processing submitted policies" do
     it 'calls the upload_active_reports_for() if the policy is submitted' do
+      allow(::PolicyEvents::ReportingEligibilityUpdated).to receive(:events_for_processing).and_yield(submitted_record)
+
       subject.determine_report_transmission_type
       expect(::FederalReports::ReportProcessor).to have_received(:upload_active_reports_for).with(submitted_policy)
     end
