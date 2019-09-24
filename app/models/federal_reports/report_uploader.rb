@@ -2,12 +2,12 @@ module FederalReports
   class ReportUploader
 
     def upload_to_s3(pdf_file, xml_file, bucket_name)
-        Aws::S3Storage.save(xml_file, bucket_name, File.basename(file_name), "h41")
-        Aws::S3Storage.save(pdf_file, bucket_name, File.basename(file_name))
+        Aws::S3Storage.save(xml_file, bucket_name, File.basename(xml_file), "h41")
+        Aws::S3Storage.save(pdf_file, bucket_name, File.basename(pdf_file))
     end
   
     def publish_to_sftp(file, bucket_name)
-      Aws::S3Storage.publish_to_sftp(file, bucket_name, File.basename(file_name))
+      Aws::S3Storage.publish_to_sftp(file, bucket_name, File.basename(file))
     end
   
     def remove_tax_docs

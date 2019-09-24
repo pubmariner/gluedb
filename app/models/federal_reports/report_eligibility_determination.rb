@@ -5,7 +5,7 @@ module FederalReports
   #please see 33567
   
     def self.determine_report_transmission_type
-      ::PolicyEvents::ReportingEligibilityUpdated.events_for_processing.each do |record|
+      ::PolicyEvents::ReportingEligibilityUpdated.events_for_processing do |record|
         policy = Policy.find(record.policy_id)
         if policy.present? 
           if policy.aasm_state.in?(["canceled", "carrier_canceled"])

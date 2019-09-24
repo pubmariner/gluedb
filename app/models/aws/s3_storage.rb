@@ -89,7 +89,7 @@ module Aws
     end
 
     def env_bucket_name(bucket_name, h41 = nil)
-     h41.present? ? "#{Settings.abbrev}-#{aws_env}-aca-internal-artifact-transport" : "dchbx-gluedb-#{bucket_name}-#{aws_env}" 
+     h41.present? ? "dchbx-enroll-aca-internal-artifact-transport-preprod" : "dchbx-gluedb-#{bucket_name}-#{aws_env}" 
     end
 
     def setup
