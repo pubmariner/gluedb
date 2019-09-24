@@ -59,7 +59,7 @@ describe Aws::S3Storage do
       it 'gives correct bucket name with an h41'do
         allow(object).to receive(:upload_file).with(file_path, :server_side_encryption => 'AES256').and_return(true)
         allow_any_instance_of(Aws::S3Storage).to receive(:get_object).and_return(object)
-        expect(subject.send(:env_bucket_name, bucket_name, "h41")).to eq "#{Settings.abbrev}-#{aws_env}-aca-internal-artifact-transport" 
+        expect(subject.send(:env_bucket_name, bucket_name, "h41")).to eq "dchbx-enroll-aca-internal-artifact-transport-preprod"
       end
     end
   end
