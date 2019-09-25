@@ -328,11 +328,11 @@ module Generators::Reports
       begin
         process_policy(policy, true)
         create_directory "#{Rails.root}/H41_federal_report"
-
       rescue => e
         puts policy.id
         puts e.to_s.inspect
       end
+      find_or_create_directory "#{Rails.root}/H41_federal_report"
       create_individual_manifest
       `zip #{@h41_folder_name}.zip #{@h41_folder_name}`
       `mv #{@h41_folder_name}/* "#{Rails.root}/H41_federal_report"`
