@@ -327,11 +327,19 @@ module Generators::Reports
       policy = Policy.find(notice_params[:policy_id])
       begin
         process_policy(policy, true)
+<<<<<<< HEAD
+=======
+        create_directory "#{Rails.root}/H41_federal_report"
+
+>>>>>>> file utilities updates
       rescue => e
         puts policy.id
         puts e.to_s.inspect
       end
+<<<<<<< HEAD
       find_or_create_directory "#{Rails.root}/H41_federal_report"
+=======
+>>>>>>> file utilities updates
       create_individual_manifest
       `zip #{@h41_folder_name}.zip #{@h41_folder_name}`
       `mv #{@h41_folder_name}/* "#{Rails.root}/H41_federal_report"`
