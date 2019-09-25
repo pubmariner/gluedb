@@ -7,8 +7,8 @@ module FederalReports
     
     def upload_h41(xml_file, bucket_name)
       s3_result = Aws::S3Storage.save(xml_file, bucket_name, File.basename(xml_file), "h41")
-      Aws::S3Storage.publish_to_sftp(xml_file, bucket_name, s3_result.uri)
-      s3_result.object
+      Aws::S3Storage.publish_to_sftp(xml_file, bucket_name, s3_result[:uri])
+      ExternalEvents::ExternalFederalReportingNotification.notify(s3_result, @policy)
     end
   
     def remove_tax_docs
@@ -33,6 +33,7 @@ module FederalReports
     end
     
     def upload(params)
+      @policy = Policy.find(params[:policy_id])
       begin
           generate_1095A_pdf(params)
           generate_h41_xml(params)
