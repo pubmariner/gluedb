@@ -1,16 +1,19 @@
 module FederalReports
   class ReportUploader
 
-    def upload_to_s3(pdf_file, xml_file, bucket_name)
-        Aws::S3Storage.save(xml_file, bucket_name, File.basename(xml_file), "h41")
-        Aws::S3Storage.save(pdf_file, bucket_name, File.basename(pdf_file))
+    def upload_1095(pdf_file, bucket_name)
+      Aws::S3Storage.save(pdf_file, bucket_name, File.basename(pdf_file))
     end
-  
-    def publish_to_sftp(file, bucket_name)
-      Aws::S3Storage.publish_to_sftp(file, bucket_name, File.basename(file))
+    
+    def upload_h41(xml_file, bucket_name)
+      uri = Aws::S3Storage.save(xml_file, bucket_name, File.basename(xml_file), "h41")
+      Aws::S3Storage.publish_to_sftp(xml_file, bucket_name, uri)
+      uri
     end
   
     def remove_tax_docs
+      FileUtils.rm_rf("#{Rails.root}/H41_federal_report") 
+      FileUtils.rm_rf("#{Rails.root}/tmp/irs_notices") 
       File.delete(@pdf_file) if @pdf_file
       File.delete(@xml_file) if @xml_file
     end 
@@ -33,8 +36,8 @@ module FederalReports
       begin
           generate_1095A_pdf(params)
           generate_h41_xml(params)
-          upload_to_s3(@pdf_file, @xml_file, "tax-documents")
-          publish_to_sftp(@xml_file, "tax-documents")
+          upload_1095(@pdf_file, "tax-documents")
+          upload_h41(@xml_file, "tax-documents")
           persist_new_doc
           remove_tax_docs
           ::PolicyEvents::ReportingEligibilityUpdated.where(status: "processed").delete_all
