@@ -6,10 +6,13 @@ describe ::FederalReports::ReportUploader, :dbclean => :after_each do
   let(:params) {{:policy_id=> canceled_policy.id, :type=>"void", :void_cancelled_policy_ids => [canceled_policy.id], :void_active_policy_ids => [], :npt=> false}}
   let(:pdf_file) {"file.pdf"}
   let(:xml_file) {"file.zip"}
+  let(:policy) {double}
   let(:exception) {FederalReports::ReportUploadError.new(canceled_policy.id, "failed to remove tax docs")}
 
   subject { ::FederalReports::ReportUploader.new }
   
+  context "uploading policies" do
+
   before(:each) do
     subject.instance_variable_set(:@pdf_file, pdf_file)
     subject.instance_variable_set(:@xml_file, xml_file)
@@ -21,9 +24,8 @@ describe ::FederalReports::ReportUploader, :dbclean => :after_each do
     allow(subject).to receive(:upload_1095).with(pdf_file, 'tax-documents').and_return(true)
     allow(subject).to receive(:upload_h41).with(xml_file, 'tax-documents').and_return(true)
     allow(subject).to receive(:persist_new_doc).and_return(true)
+    allow(Policy).to receive(:find).and_return(policy)
   end
-  
-  context "uploading policies" do
 
     it 'sftp and s3 methods are hit' do 
       allow(subject).to receive(:remove_tax_docs).and_return(true)
@@ -53,5 +55,17 @@ describe ::FederalReports::ReportUploader, :dbclean => :after_each do
       expect { subject.upload(params) }.to raise_error(FederalReports::ReportUploadError)
     end
     
+  end
+
+  describe do 
+    context '#upload_h41' do 
+      it 'sends an event to the reporting notification' do 
+        allow(Aws::S3Storage).to receive(:save).and_return({uri:"uri"})
+        allow(Aws::S3Storage).to receive(:publish_to_sftp).and_return(true)
+        allow(ExternalEvents::ExternalFederalReportingNotification).to receive(:notify)
+        subject.upload_h41(xml_file, "tax-documents")
+        expect(ExternalEvents::ExternalFederalReportingNotification).to have_received(:notify)
+      end
+    end
   end
 end
