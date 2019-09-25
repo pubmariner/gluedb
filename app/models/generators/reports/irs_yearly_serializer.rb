@@ -328,13 +328,15 @@ module Generators::Reports
       begin
         process_policy(policy, true)
         create_directory "#{Rails.root}/H41_federal_report"
-        `zip #{@h41_folder_name}.zip #{@h41_folder_name}` #zips h41
-        `mv #{@h41_folder_name} "#{Rails.root}/H41_federal_report"` #moves unzipped file to different folder for the report ingestor to find
-        return "#{@h41_folder_name}.zip" if File.exists?("#{@h41_folder_name}.zip")
+
       rescue => e
         puts policy.id
         puts e.to_s.inspect
       end
+      create_individual_manifest
+      `zip #{@h41_folder_name}.zip #{@h41_folder_name}`
+      `mv #{@h41_folder_name}/* "#{Rails.root}/H41_federal_report"`
+      return "#{@h41_folder_name}.zip" if File.exists?("#{@h41_folder_name}.zip")
     end
 
     def process_policy(policy, h41 = nil)
@@ -495,7 +497,7 @@ module Generators::Reports
     end
 
     def create_individual_manifest
-      Generators::Reports::IrsYearlyManifest.new.create("#{@h41_folder_name}/")
+      Generators::Reports::IrsYearlyManifest.new.create("#{@h41_folder_name}")
     end
 
     def rejected_policy?(policy)
@@ -576,8 +578,13 @@ module Generators::Reports
 
     def create_individual_h41_folder
       @irs_xml_path = ''
-      @h41_folder_name = "FFEP0020DC.DSH.EOYIN.D#{Time.now.strftime('%Y%m%d')[2..-1]}.T#{Time.now.strftime("%s")[0..5] + "000"}.P.IN"
-      create_directory @irs_xml_path + @h41_folder_name
+      @h41_folder_name ||= "FFEP0020DC.DSH.EOYIN.D#{Time.now.strftime('%Y%m%d')[2..-1]}.T#{Time.now.strftime("%s")[0..5] + "000"}.P.IN"
+      find_or_create_directory @irs_xml_path + @h41_folder_name
+    end
+
+    def find_or_create_directory(path)
+      return path if Dir.exists?(path)
+      FileUtils.mkdir_p(path)
     end
 
     def create_directory(path)

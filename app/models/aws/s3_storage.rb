@@ -26,12 +26,12 @@ module Aws
 
     # If success, return URI which has the s3 bucket key
     # else return nil
-    def self.save(file_path, bucket_name, key=SecureRandom.uuid)
-      Aws::S3Storage.new.save(file_path, bucket_name, key)
+    def self.save(file_path, bucket_name, key=SecureRandom.uuid, h41 = nil)
+      Aws::S3Storage.new.save(file_path, bucket_name, key, h41)
     end
 
     # Here's an option to publish to SFTP.
-    def publish_to_sftp(filename, transport_process, uri)
+    def self.publish_to_sftp(filename, transport_process, uri)
       conn = AmqpConnectionProvider.start_connection
       eb = Amqp::EventBroadcaster.new(conn)
       aws_key = uri.split("#").last
