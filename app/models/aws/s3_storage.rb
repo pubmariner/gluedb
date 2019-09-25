@@ -15,7 +15,7 @@ module Aws
       begin
         object = get_object(bucket_name, key)
         if object.upload_file(file_path, :server_side_encryption => 'AES256')
-          uri
+          h41.present? ? {object: object, uri: uri} : uri
         else
           nil
         end
