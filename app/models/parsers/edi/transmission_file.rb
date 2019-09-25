@@ -178,7 +178,7 @@ module Parsers
           policy.merge_enrollee(enrollee, policy_loop.action)
         end
         policy.save!
-        Observers::PolicyUpdated.notify(policy) if policy.terminated? || policy.canceled?
+        Observers::PolicyUpdated.notify(policy)
         policy
       end
 
