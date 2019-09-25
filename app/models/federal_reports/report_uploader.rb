@@ -6,9 +6,15 @@ module FederalReports
     end
     
     def upload_h41(xml_file, bucket_name)
+<<<<<<< HEAD
       uri = Aws::S3Storage.save(xml_file, bucket_name, File.basename(xml_file), "h41")
       Aws::S3Storage.publish_to_sftp(xml_file, bucket_name, uri)
       uri
+=======
+      s3_result = Aws::S3Storage.save(xml_file, bucket_name, File.basename(xml_file), "h41")
+      Aws::S3Storage.publish_to_sftp(xml_file, bucket_name, s3_result.uri)
+      s3_result.object
+>>>>>>> updates file utils on processor
     end
   
     def remove_tax_docs
