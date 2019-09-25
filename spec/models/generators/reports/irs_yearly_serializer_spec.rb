@@ -51,7 +51,7 @@ subject { Generators::Reports::IrsYearlySerializer.new(params) }
         policy.subscriber.update_attributes!(m_id: person.authority_member_id)
         person.update_attributes(authority_member_id: policy.subscriber.m_id)
         subject.generate_h41
-        expect(File).to exist("H41_federal_report/#{h41_folder_name}")
+        expect(File).to exist("#{h41_folder_name}")
         expect(File).to exist("#{h41_folder_name}.zip")
         FileUtils.rm_rf(Dir[("H41_federal_report")])
         FileUtils.rm_rf(Dir["*.zip"])

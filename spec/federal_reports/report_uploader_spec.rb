@@ -16,10 +16,10 @@ describe ::FederalReports::ReportUploader, :dbclean => :after_each do
     Policy.all.each{ |policy| FactoryGirl.create(:person, authority_member_id: policy.subscriber.m_id)}
     allow(subject).to receive(:generate_1095A_pdf).with(params).and_return(pdf_file)
     allow(subject).to receive(:generate_h41_xml).with(params).and_return(xml_file)
-    allow(subject).to receive(:upload_to_s3).with(pdf_file, xml_file, 'tax-documents').and_return(true)
-    allow(subject).to receive(:publish_to_sftp).with(pdf_file, 'tax-documents').and_return(true)
-    allow(subject).to receive(:upload_to_s3).with(pdf_file, xml_file, 'tax-documents').and_return(true)
-    allow(subject).to receive(:publish_to_sftp).with(xml_file, 'tax-documents').and_return(true)
+    allow(subject).to receive(:upload_1095).with(pdf_file, 'tax-documents').and_return(true)
+    allow(subject).to receive(:upload_h41).with(pdf_file, 'tax-documents').and_return(true)
+    allow(subject).to receive(:upload_1095).with(pdf_file, 'tax-documents').and_return(true)
+    allow(subject).to receive(:upload_h41).with(xml_file, 'tax-documents').and_return(true)
     allow(subject).to receive(:persist_new_doc).and_return(true)
   end
   
@@ -29,8 +29,8 @@ describe ::FederalReports::ReportUploader, :dbclean => :after_each do
       allow(subject).to receive(:remove_tax_docs).and_return(true)
       subject.upload(params)
       expect(subject).to have_received(:generate_1095A_pdf).with(params) 
-      expect(subject).to have_received(:upload_to_s3).with(pdf_file, xml_file, 'tax-documents')
-      expect(subject).to have_received(:publish_to_sftp).with(xml_file, 'tax-documents')
+      expect(subject).to have_received(:upload_1095).with(pdf_file, 'tax-documents')
+      expect(subject).to have_received(:upload_h41).with(xml_file, 'tax-documents')
     end
 
     it 'removes tax docs after generating them' do 
