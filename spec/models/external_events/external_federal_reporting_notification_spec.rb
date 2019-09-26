@@ -2,9 +2,10 @@ require 'rails_helper'
 
 describe ExternalEvents::ExternalFederalReportingNotification do
   let(:today) { Time.mktime(2025, 1, 1) }
-  let(:object) {double(bucket: "examplebucket", key: "HappyFace.jpg", )}
+  let(:object) {double(bucket: "examplebucket", key: "HappyFace", )}
   let(:uri) { "urn:openhbx:terms:v1:file_storage:s3:bucket:-tax-documents-preprod" }
-  let(:s3_response) { {object: object, uri: uri} }
+  let(:full_file_name) {"30r2j4f09j0359jg0g9HappyFace"}
+  let(:s3_response) { {object: object, uri: uri, full_file_name: full_file_name} }
   let(:policy) { instance_double(Policy, eg_id: "1", id: "2")}
   let(:event_broadcaster) { instance_double(Amqp::EventBroadcaster) }
   let(:subject) { ExternalEvents::ExternalFederalReportingNotification   }
@@ -20,9 +21,11 @@ describe ExternalEvents::ExternalFederalReportingNotification do
       expect(event_broadcaster).to have_received(:broadcast).with(
         {
           :headers => {
-            :file_name =>  s3_response[:object].key,
-            :policy_id => policy.id,
-            :eg_id => policy.eg_id
+              :file_name=>"HappyFace",
+              :policy_id=>"2",
+              :eg_id=>"1",
+              :artifact_key=>"30r2j4f09j0359jg0g9HappyFace",
+              :transport_process=>"TransportProfiles::Processes::PushReportEligibilityUpdatedH41"
           },
           :routing_key => "info.events.transport_artifact.transport_requested"
         },
