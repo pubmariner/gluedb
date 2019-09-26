@@ -6,7 +6,7 @@ module ExternalEvents
         b.broadcast(
           {
             :headers => {
-              :file_name =>  s3_response[:object][:key],
+              :file_name =>  s3_response[:object].key,
               :policy_id => policy.id,
               :eg_id => policy.eg_id
             },
