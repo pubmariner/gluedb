@@ -9,15 +9,31 @@ module Aws
     # If success, return URI which has the s3 bucket key
     # else return nil
     # raises exception if exception occurs
-    def save(file_path, bucket_name, key=SecureRandom.uuid, h41 = nil)
-      h41.present? ? bucket_name = env_bucket_name(bucket_name, "h41") : bucket_name = env_bucket_name(bucket_name)
+    def save(file_path, bucket_name, key=SecureRandom.uuid)
+      bucket_name = env_bucket_name(bucket_name)
       uri = "urn:openhbx:terms:v1:file_storage:s3:bucket:#{bucket_name}##{key}"
       begin
         object = get_object(bucket_name, key)
         if object.upload_file(file_path, :server_side_encryption => 'AES256')
-          h41.present? ? {object: object, uri: uri} : uri
+          uri
         else
           nil
+        end
+      rescue Exception => e
+        raise e
+      end
+    end
+
+    def save_h41(file_path, bucket_name, key=SecureRandom.uuid)
+      bucket_name = env_bucket_name(bucket_name, "h41")
+      uri = "urn:openhbx:terms:v1:file_storage:s3:bucket:#{bucket_name}##{key}"
+      begin
+        object = get_object(bucket_name, key)
+        object.upload_file(file_path, :server_side_encryption => 'AES256')
+        if file_path.in?(`aws s3 ls s3://dchbx-enroll-aca-internal-artifact-transport-preprod/ | grep FFF*`)
+          {object: object, uri: uri, full_file_name: file_path } 
+        else
+          puts "File not uploaded"
         end
       rescue Exception => e
         raise e
@@ -27,7 +43,7 @@ module Aws
     # If success, return URI which has the s3 bucket key
     # else return nil
     def self.save(file_path, bucket_name, key=SecureRandom.uuid, h41 = nil)
-      Aws::S3Storage.new.save(file_path, bucket_name, key, h41)
+      h41.present? ? Aws::S3Storage.new.save_h41(file_path, bucket_name, key) : Aws::S3Storage.new.save(file_path, bucket_name, key)
     end
 
     # Here's an option to publish to SFTP.

@@ -58,6 +58,7 @@ describe ::FederalReports::ReportUploader, :dbclean => :after_each do
   end
 
   describe do 
+
     context '#upload_h41' do 
       it 'sends an event to the reporting notification' do 
         allow(Aws::S3Storage).to receive(:save).and_return({uri:"uri"})
