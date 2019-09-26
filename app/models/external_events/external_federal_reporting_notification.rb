@@ -10,7 +10,7 @@ module ExternalEvents
               :policy_id => policy.id,
               :eg_id => policy.eg_id
             },
-            :routing_key => "info.events.policy.federal_reporting_eligibility_updated"
+            :routing_key => "info.events.transport_artifact.transport_requested"
           },
           ""
         )
