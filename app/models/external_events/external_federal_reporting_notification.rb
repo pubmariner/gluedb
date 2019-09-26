@@ -6,9 +6,11 @@ module ExternalEvents
         b.broadcast(
           {
             :headers => {
-              :file_name =>  s3_response[:object].key,
+              :file_name => s3_response[:object].key,
               :policy_id => policy.id,
-              :eg_id => policy.eg_id
+              :eg_id => policy.eg_id,
+              :artifact_key => s3_response[:full_file_name],
+              :transport_process =>"TransportProfiles::Processes::PushReportEligibilityUpdatedH41",
             },
             :routing_key => "info.events.transport_artifact.transport_requested"
           },
