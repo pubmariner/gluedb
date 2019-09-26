@@ -15,7 +15,7 @@ module FederalReports
       FileUtils.rm_rf("#{Rails.root}/H41_federal_report") 
       FileUtils.rm_rf("#{Rails.root}/tmp/irs_notices")
       base_name =  File.basename(@xml_file, ".zip")  
-      File.delete(base_name) if File.exists?(base_name)
+      FileUtils.rm_rf(base_name) if File.exists?(base_name)
       File.delete(@pdf_file) if File.exists?(@pdf_file)
       File.delete(@xml_file) if File.exists?(@xml_file)
     end 
