@@ -11,7 +11,7 @@ module Notifiers
           {
             :headers => {
             },
-            :routing_key => "info.events.report_eligibility_updated.requested"
+            :routing_key => "info.events.policy.report_eligibility_updated.requested"
           },
           ""
         )
