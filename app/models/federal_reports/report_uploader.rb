@@ -7,7 +7,7 @@ module FederalReports
 
     def build_h41_unique_identifier(file)
       if File.exists?(file)
-        id = Digest::SHA256.file(file).hexdigest
+        id = Digest::SHA256.file(file).hexdigest[0..5]
         unique_name = id + file
         `cp #{file} #{unique_name}`
         unique_name
@@ -17,8 +17,8 @@ module FederalReports
     end
     
     def upload_h41(xml_file, bucket_name)
-      file_name = build_h41_unique_identifier(xml_file)
-      s3_result = Aws::S3Storage.save(file_name, bucket_name, xml_file, "h41")
+      #file_name = build_h41_unique_identifier(xml_file) TO DO:build a unique id name to the file, this is not currently uploading the file 
+      s3_result = Aws::S3Storage.save(xml_file, bucket_name, xml_file, "h41")
       Aws::S3Storage.publish_to_sftp(xml_file, bucket_name, s3_result[:uri])
       ExternalEvents::ExternalFederalReportingNotification.notify(s3_result, @policy)
     end
@@ -37,10 +37,10 @@ module FederalReports
     end
     
     def generate_h41_xml(params)
-      xml_file = Generators::Reports::IrsYearlySerializer.new(params).generate_h41
-      base_name =  File.basename(xml_file, ".zip")  
-      `mv #{xml_file} #{base_name}` #remove zip file extension from xml file
-      @xml_file = base_name
+      @xml_file = Generators::Reports::IrsYearlySerializer.new(params).generate_h41
+      #base_name =  File.basename(xml_file, ".zip")  
+      #`mv #{xml_file} #{base_name}` #remove zip file extension from xml file
+      #@xml_file = base_name
     end
     
     def persist_new_doc

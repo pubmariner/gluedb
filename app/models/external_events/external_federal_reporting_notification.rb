@@ -2,14 +2,15 @@ module ExternalEvents
   class ExternalFederalReportingNotification
 #this class sends a message to EA that an h41 has been place on the s3 bucket
     def self.notify(s3_response, policy, time = Time.now)
+      base_name =  File.basename(s3_response[:object].key, ".zip")  
       ::Amqp::EventBroadcaster.with_broadcaster do |b|
         b.broadcast(
           {
             :headers => {
-              :file_name => s3_response[:object].key,
+              :file_name => base_name,
               :policy_id => policy.id,
               :eg_id => policy.eg_id,
-              :artifact_key => s3_response[:full_file_name],
+              :artifact_key => base_name,
               :transport_process =>"TransportProfiles::Processes::PushReportEligibilityUpdatedH41",
             },
             :routing_key => "info.events.transport_artifact.transport_requested"

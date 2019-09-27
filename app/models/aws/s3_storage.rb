@@ -30,7 +30,7 @@ module Aws
       begin
         object = get_object(bucket_name, key)
         object.upload_file(file_path, :server_side_encryption => 'AES256')
-        if file_path.in?(`aws s3 ls s3://dchbx-enroll-aca-internal-artifact-transport-preprod/ | grep FFF*`)
+        if file_path.in?(`aws s3 ls s3://dchbx-enroll-aca-internal-artifact-transport-preprod/`)
           {object: object, uri: uri, full_file_name: file_path } 
         else
           puts "File not uploaded"
