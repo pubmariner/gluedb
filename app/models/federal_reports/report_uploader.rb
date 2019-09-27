@@ -23,7 +23,8 @@ module FederalReports
       ExternalEvents::ExternalFederalReportingNotification.notify(s3_result, @policy)
     end
   
-    def remove_tax_docs
+    def remove_tax_docs    
+      FileUtils.rm_rf(Dir["FFEP*"])
       FileUtils.rm_rf("#{Rails.root}/H41_federal_report") 
       FileUtils.rm_rf("#{Rails.root}/tmp/irs_notices")
       File.delete(@pdf_file) if File.exists?(@pdf_file)
