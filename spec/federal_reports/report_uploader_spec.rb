@@ -56,17 +56,4 @@ describe ::FederalReports::ReportUploader, :dbclean => :after_each do
     end
     
   end
-
-  describe do 
-
-    context '#upload_h41' do 
-      it 'sends an event to the reporting notification' do 
-        allow(Aws::S3Storage).to receive(:save).and_return({uri:"uri"})
-        allow(Aws::S3Storage).to receive(:publish_to_sftp).and_return(true)
-        allow(ExternalEvents::ExternalFederalReportingNotification).to receive(:notify)
-        subject.upload_h41(xml_file, "tax-documents")
-        expect(ExternalEvents::ExternalFederalReportingNotification).to have_received(:notify)
-      end
-    end
-  end
 end
