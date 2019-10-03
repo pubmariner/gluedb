@@ -34,6 +34,7 @@ class Policy
   field :updated_by, type: String
   field :is_active, type: Boolean, default: true
   field :hbx_enrollment_ids, type: Array
+  field :kind, type: String
 
 # Adding field values Carrier specific
   field :carrier_specific_plan_id, type: String
@@ -55,7 +56,9 @@ class Policy
 
   embeds_many :aptc_credits
   embeds_many :aptc_maximums
+
   embeds_many :cost_sharing_variants
+  embeds_many :federal_transmissions
 
   embeds_many :enrollees
   accepts_nested_attributes_for :enrollees, reject_if: :all_blank, allow_destroy: true
