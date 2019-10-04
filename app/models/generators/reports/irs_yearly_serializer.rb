@@ -582,7 +582,7 @@ module Generators::Reports
 
     def create_individual_h41_folder
       @irs_xml_path = ''
-      @h41_folder_name ||= "FFEP0020DC.DSH.EOYIN.D#{Time.now.strftime('%Y%m%d')[2..-1]}.T#{Time.now.strftime("%H%M%S") + "000"}.P.IN"
+      @h41_folder_name ||= "FEP0020DC.DSH.EOYIN.D#{Time.now.strftime('%Y%m%d')[2..-1]}.T#{Time.now.strftime("%H%M%S") + "000"}.P.IN"
       find_or_create_directory @irs_xml_path + @h41_folder_name
     end
 
