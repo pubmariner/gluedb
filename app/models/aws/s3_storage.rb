@@ -51,6 +51,7 @@ module Aws
       conn = AmqpConnectionProvider.start_connection
       eb = Amqp::EventBroadcaster.new(conn)
       aws_key = uri.split("#").last
+      filename =  File.basename(filename, ".zip")  
       props = {:headers => {:artifact_key => aws_key, :file_name => filename, :transport_process => transport_process}, :routing_key => "info.events.transport_artifact.transport_requested"}
       eb.broadcast(props, "payload")
       conn.close
