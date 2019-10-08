@@ -1,6 +1,8 @@
 module Generators::Reports  
   class IrsYearlyManifest
 
+    CALENDER_YEAR = 2018
+
     NS = {
       "xmlns:ns0"  => "http://birsrep.dsh.cms.gov/exchange/1.0",
       "xmlns:ns3"  => "http://hix.cms.gov/0.1/hix-core", 
@@ -23,7 +25,7 @@ module Generators::Reports
 
     def serialize
       Nokogiri::XML::Builder.new { |xml|
-        xml['ns5'].BatchHandlingServiceRequest(NS) do |xml|
+        xml.BatchHandlingServiceRequest(NS) do |xml|
           serialize_batch_data(xml)
           serialize_transmission_data(xml)
           serialize_service_data(xml)
@@ -65,7 +67,7 @@ module Generators::Reports
     def serialize_service_data(xml)
       xml['ns4'].ServiceSpecificData do |xml|
         xml.ReportPeriod do |xml|
-          xml['ns5'].Year '2014'
+          xml['ns5'].Year CALENDER_YEAR
         end
       end
     end
@@ -74,7 +76,7 @@ module Generators::Reports
       xml['ns4'].Attachment do |xml|
         xml['ns5'].DocumentBinary do |xml|
           xml['ns3'].ChecksumAugmentation do |xml|
-            xml.SHA256HashValueText file.checksum
+            xml['ns4'].SHA256HashValueText file.checksum
           end
           xml['ns3'].BinarySizeValue file.binarysize
         end

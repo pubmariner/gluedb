@@ -14,7 +14,7 @@ module Generators::Reports
 
 
     NS = { 
-      "xmlns:air5.0" => "urn:us:gov:treasury:irs:ext:aca:air:5.0",
+      "xmlns:air5.0" => "urn:us:gov:treasury:irs:ext:aca:air:ty18a",
       "xmlns:irs" => "urn:us:gov:treasury:irs:common",
       "xmlns:batchreq" => "urn:us:gov:treasury:irs:msg:form1095atransmissionupstreammessage",
       "xmlns:batchresp"=> "urn:us:gov:treasury:irs:msg:form1095atransmissionexchrespmessage",
@@ -120,12 +120,25 @@ module Generators::Reports
         ssn_node.content = update_ssn
       end
       
-      ["PersonFirstName", "PersonMiddleName", "PersonLastName", "AddressLine1Txt", "AddressLine2Txt", "CityNm"].each do |ele|
-        node.xpath("//irs:#{ele}", NS).each do |xml_tag|
+      ["PersonFirstNm", "PersonMiddleNm", "PersonLastNm", "SuffixNm", "AddressLine1Txt", "AddressLine2Txt", "CityNm"].each do |ele|
+        prefix = 'air5.0'
+        prefix = 'irs' if ele == 'CityNm'
+         node.xpath("//#{prefix}:#{ele}", NS).each do |xml_tag|
+          
           if xml_tag.content.match(/(\-{1,2}|\'|\#|\"|\&|\<|\>|\.|\,|\s{2})/)
-            puts xml_tag.content.inspect
-            xml_tag.content = xml_tag.content.gsub(/(\-{1,2}|\'|\#|\"|\&|\<|\>|\.|\,|\s{2})/,"")
+            val =  xml_tag.content
+            content = xml_tag.content.gsub(/\s+/, " ").gsub(/(\-{1,2}|\'|\#|\"|\&|\<|\>|\.|\,|\(|\)|\_)/,"")
+            xml_tag.content = content
+            puts "#{val}  >>  #{content}"
           end
+            
+            if ele == 'AddressLine1Txt' || ele == "AddressLine2Txt"
+              xml_tag.content = xml_tag.content.gsub(/\s+/, " ").truncate(35, :omission => '').strip
+            end
+            
+            if ['PersonLastNm','PersonFirstNm','PersonMiddleNm'].include?(ele)
+              xml_tag.content = xml_tag.content.gsub(/\s+/, " ").truncate(20, :omission => '').strip
+            end
         end
       end
 

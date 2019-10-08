@@ -14,11 +14,11 @@ module Generators::Reports
       @hbx_member_id = nil
 
       @report_names = {}
-      @xml_output = false
+      @xml_output = true
 
       @pdf_set  = 0
       @irs_set  = 0
-
+      @record_sequence_num = 1
       @notice_params = options
 
       if options.empty?
@@ -48,9 +48,9 @@ module Generators::Reports
     def load_responsible_party_data
       book = Spreadsheet.open "#{Rails.root}/2018_RP_data.xls"
       @responsible_party_data = book.worksheets.first.inject({}) do |data, row|
-        if row[3].to_s.strip.match(/Responsible Party SSN/i) || (row[3].to_s.strip.blank? && row[5].to_s.strip.blank?)
+        if row[3].to_s.strip.match(/Responsible Party SSN/i) #|| (row[3].to_s.strip.blank? && row[5].to_s.strip.blank?)
         else
-          data[row[0].to_s.strip.to_i] = [prepend_zeros(row[3].to_i.to_s, 9), Date.strptime(row[4].to_s.split("T")[0], "%m/%d/%Y")]
+          data[row[0].to_s.strip.to_i] = [(row[3].blank? ? nil : prepend_zeros(row[3].to_i.to_s, 9)), Date.strptime(row[4].to_s.split("T")[0], "%m/%d/%Y")]
         end
         data
       end
@@ -85,26 +85,26 @@ module Generators::Reports
       create_enclosed_folder
       load_npt_data
       load_responsible_party_data
-      workbook = create_excel_workbook
-
+      # workbook = create_excel_workbook
+      @generate_pdf = true
       count = 0
       @folder_count = 1
 
       policies_by_subscriber.each do |row, policies|
-        policies.each do |policy|
-
+       policies.each do |policy|
+#Policy.where(:id.in => %w(264400 264423 342282 296051 297148 301285 304784 306331 308952 338338 338913 373838)).each do |policy|      
+# Policy.where(:id.in => %w(249322)).each do |policy|
           begin
             next if policy.plan.metal_level =~ /catastrophic/i
             next if policy.kind == 'coverall'
 
             count += 1
-            if count % 1000 == 0
+            if count % 100 == 0
               puts count
             end
 
-            next if count > 300
-
             if policy.responsible_party_id.present?
+     
               if @responsible_party_data[policy.id].blank?
                 puts "RP data missing for #{policy.id}"
                 next
@@ -125,7 +125,7 @@ module Generators::Reports
         end
       end
 
-      workbook.write "#{Rails.root.to_s}/IVL_QHP_1095A_#{Time.now.strftime("%m_%d_%Y_%H_%M")}.xls"
+      #workbook.write "#{Rails.root.to_s}/IVL_QHP_1095A_#{Time.now.strftime("%m_%d_%Y_%H_%M")}.xls"
 
       if xml_output
         merge_and_validate_xmls(@folder_count)
@@ -343,7 +343,6 @@ module Generators::Reports
             # irs_input.append_recipient(responsible_party)
           end
           puts "----responsible party"
-          # return
         end
 
         notice = irs_input.notice
@@ -363,6 +362,7 @@ module Generators::Reports
             merge_and_validate_xmls(@folder_count)
             @folder_count += 1
             create_new_irs_folder
+            @record_sequence_num = 1
           end
         else
           render_pdf(notice)
@@ -511,9 +511,10 @@ module Generators::Reports
 
     def render_xml(notice)
       yearly_xml_generator = Generators::Reports::IrsYearlyXml.new(notice)
+      yearly_xml_generator.record_sequence_num = @record_sequence_num
       yearly_xml_generator.corrected_record_sequence_num = @corrected_h41_policies[notice.policy_id] if @corrected_h41_policies.present?
       yearly_xml_generator.voided_record_sequence_num = @void_policies[notice.policy_id] if @void_policies.present?
-
+      @record_sequence_num += 1
       xml_report = yearly_xml_generator.serialize.to_xml(:indent => 2)
 
       File.open("#{@irs_xml_path + @h41_folder_name}/#{@report_names[:xml]}.xml", 'w') do |file|
@@ -522,6 +523,7 @@ module Generators::Reports
     end
 
     def render_pdf(notice, multiple = false, void = false)
+      return unless @generate_pdf
       options = {multiple: multiple, calender_year: calender_year, qhp_type: qhp_type, notice_type: 'new'}
 
       if void
@@ -577,22 +579,20 @@ module Generators::Reports
       # carrier = Carrier.where(:name => "CareFirst").first
       # plans = Plan.where({:metal_level => {"$not" => /catastrophic/i}, :coverage_type => /health/i, :carrier_id => carrier.id}).map(&:id)
       # plans = Plan.where({:metal_level => /catastrophic/i, :coverage_type => /health/i}).map(&:id)
-
       plans = Plan.where({:metal_level => {"$not" => /catastrophic/i}, :coverage_type => /health/i}).map(&:id)
-
       p_repo = {}
 
       # p_map = Person.collection.aggregate([{"$unwind"=> "$members"}, {"$project" => {"_id" => 0, member_id: "$members.hbx_member_id", person_id: "$_id"}}])
       # p_map.each do |val|
       #   p_repo[val["member_id"]] = val["person_id"]
       # end
-
+      #
       Person.no_timeout.each do |person|
         person.members.each do |member|
           p_repo[member.hbx_member_id] = person._id
         end
       end
-
+      puts "under policies by subscriber..."
       pols = PolicyStatus::Active.between(Date.new(2017,12,31), Date.new(2018,12,31)).results.where({
         :plan_id => {"$in" => plans}, :employer_id => nil
         }).group_by { |p| p_repo[p.subscriber.m_id] }

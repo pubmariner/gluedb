@@ -3,7 +3,7 @@ require 'ostruct'
 module Generators::Reports 
   class IrsGroupBuilder
 
-    attr_accessor :irs_group, :calender_year, :carrier_hash, :npt_policies
+    attr_accessor :irs_group, :calender_year, :carrier_hash, :npt_policies, :settings
 
     def initialize(family)
       @family = family
@@ -39,6 +39,7 @@ module Generators::Reports
         builder.npt_policy = true
         puts "found NPT policy ---- #{pol.id}"
       end
+      builder.settings = settings
       builder.process
       
       notice = builder.notice

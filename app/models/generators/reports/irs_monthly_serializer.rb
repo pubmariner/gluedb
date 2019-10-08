@@ -3,7 +3,7 @@ require 'csv'
 module Generators::Reports  
   class IrsMonthlySerializer
 
-    CALENDER_YEAR = 2018
+    CALENDER_YEAR = 2019
 
     def initialize
       @logger = Logger.new("#{Rails.root}/log/h36_exceptions.log")
@@ -12,7 +12,9 @@ module Generators::Reports
       puts @carriers.inspect
       
       @policy_family_hash = {}
-      load_npt_policies
+      # load_npt_policies
+      @npt_policies = []
+      @settings = YAML.load(File.read("#{Rails.root}/config/irs_settings.yml")).with_indifferent_access
 
       @h36_root_folder = "#{Rails.root}/irs/h36_#{Time.now.strftime('%m_%d_%Y_%H_%M')}"
       create_directory @h36_root_folder
@@ -59,7 +61,7 @@ module Generators::Reports
       sheet.row(index).concat columns
       start = Time.now
 
-      Family.all.each do |family|
+      Family.all.no_timeout.each do |family|
         current += 1
 
         if current % 100 == 0
@@ -194,8 +196,8 @@ module Generators::Reports
           end
 
         rescue Exception => e
-          puts "Failed #{family.e_case_id}--#{e.to_s}"
-        end
+         puts "Failed #{family.e_case_id}--#{e.to_s}"
+      end
       end
 
       # print_families_with_samepolicy
@@ -225,6 +227,7 @@ module Generators::Reports
       builder.carrier_hash = @carriers
       builder.npt_policies = @npt_policies
       builder.calender_year = CALENDER_YEAR
+      builder.settings = @settings
       builder.process
       builder.npt_policies = []
       builder.irs_group
