@@ -1,6 +1,8 @@
 module Generators::Reports  
   class IrsYearlyManifest
 
+    attr_accessor :notice_params
+
     NS = {
       "xmlns:ns0"  => "http://birsrep.dsh.cms.gov/exchange/1.0",
       "xmlns:ns3"  => "http://hix.cms.gov/0.1/hix-core", 
@@ -10,8 +12,9 @@ module Generators::Reports
       # "xmlns:wsa"  => "http://www.w3.org/2005/08/addressing"      
     }
 
-    def create(folder)
+    def create(folder, notice_params = nil)
       @folder = folder
+      @notice_params = notice_params
       @manifest = OpenStruct.new({
         file_count: Dir.glob(@folder+'/*.xml').count,
       })
@@ -46,11 +49,19 @@ module Generators::Reports
     end
 
     def serialize_batch_data(xml)
+      type = notice_params[:type]
       xml['ns3'].BatchMetadata do |xml|
         xml.BatchID Time.now.utc.iso8601
         xml.BatchPartnerID '02.DC*.SBE.001.001'
         xml.BatchAttachmentTotalQuantity @manifest.file_count
-        xml['ns4'].BatchCategoryCode 'IRS_EOY_REQ'
+        # This are lowercase strings in irs_yearly_serializer
+        if type == "corrected"
+          xml['ns4'].BatchCategoryCode 'IRS_EOY_SUBMIT_CORRECTED_RECORDS_REQ'
+        elsif type == "voided"
+          xml['ns4'].BatchCategoryCode 'IRS_EOY_SUBMIT_VOID_RECORDS_REQ'
+        else # original/new
+          xml['ns4'].BatchCategoryCode 'IRS_EOY_REQ'
+        end
         xml.BatchTransmissionQuantity 1
       end
     end

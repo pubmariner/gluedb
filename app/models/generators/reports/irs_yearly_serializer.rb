@@ -334,7 +334,7 @@ module Generators::Reports
       end
       find_or_create_directory "#{Rails.root}/H41_federal_report"
       create_individual_manifest
-      `zip #{@h41_folder_name}.zip #{@h41_folder_name}`
+      `zip -r #{@h41_folder_name}.zip #{@h41_folder_name}`
       `mv #{@h41_folder_name}/* "#{Rails.root}/H41_federal_report"`
       return "#{@h41_folder_name}.zip" if File.exists?("#{@h41_folder_name}.zip")
     end
@@ -501,7 +501,7 @@ module Generators::Reports
     end
 
     def create_individual_manifest
-      Generators::Reports::IrsYearlyManifest.new.create("#{@h41_folder_name}")
+      Generators::Reports::IrsYearlyManifest.new.create("#{@h41_folder_name}", notice_params)
     end
 
     def rejected_policy?(policy)
