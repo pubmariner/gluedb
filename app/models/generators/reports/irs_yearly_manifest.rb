@@ -55,9 +55,9 @@ module Generators::Reports
         xml.BatchPartnerID '02.DC*.SBE.001.001'
         xml.BatchAttachmentTotalQuantity @manifest.file_count
         # This are lowercase strings in irs_yearly_serializer
-        if type == "corrected"
+        if type.match(/corrected/i)
           xml['ns4'].BatchCategoryCode 'IRS_EOY_SUBMIT_CORRECTED_RECORDS_REQ'
-        elsif type == "voided"
+        elsif type.match(/void/i)
           xml['ns4'].BatchCategoryCode 'IRS_EOY_SUBMIT_VOID_RECORDS_REQ'
         else # original/new
           xml['ns4'].BatchCategoryCode 'IRS_EOY_REQ'
