@@ -9,10 +9,10 @@ describe Generators::Reports::IrsYearlyManifest, :dbclean => :after_each do
       expect(yearly_manifest.notice_params).to eq({type: 'corrected'})
     end
 
-    it "voided" do
+    it "void" do
       yearly_manifest = Generators::Reports::IrsYearlyManifest.new
-      yearly_manifest.notice_params = {type: 'voided'}
-      expect(yearly_manifest.notice_params).to eq({type: 'voided'})
+      yearly_manifest.notice_params = {type: 'void'}
+      expect(yearly_manifest.notice_params).to eq({type: 'void'})
     end
 
     it 'something else (new)' do
