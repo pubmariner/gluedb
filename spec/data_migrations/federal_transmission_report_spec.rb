@@ -10,7 +10,7 @@ describe FederalTransmissionReport, dbclean: :after_each do
   let(:file_names_path) {"#{Rails.root}/spec/data/script/irs/irs_xmls/EOY_Request_00001_20170207T023936000Z.xml"}
   let(:original_batch_file) {"#{Rails.root}/spec/data/script/irs/irs_xmls/manifest.xml"}
   let(:corrected_batch_file) {"#{Rails.root}/spec/data/script/irs/irs_xmls/corrected_manifest.xml"}
-  let(:voided_batch_file) {"#{Rails.root}/spec/data/script/irs/irs_xmls/voided_manifest.xml"}
+  let(:void_batch_file) {"#{Rails.root}/spec/data/script/irs/irs_xmls/void_manifest.xml"}
 
   subject { FederalTransmissionReport.new(given_task_name, double(:current_scope => nil)) }
 
@@ -37,12 +37,12 @@ describe FederalTransmissionReport, dbclean: :after_each do
       expect(policy.federal_transmissions.first.report_type).to eq "ORIGINAL"
     end
 
-    it 'should ingest voided federal transmission record info into policy' do
-      stub_const(batch_const, voided_batch_file)
+    it 'should ingest void federal transmission record info into policy' do
+      stub_const(batch_const, void_batch_file)
       expect(policy.federal_transmissions).to eq []
       subject.migrate
       policy.reload
-      expect(policy.federal_transmissions.first.report_type).to eq "VOIDED"
+      expect(policy.federal_transmissions.first.report_type).to eq "VOID"
     end
 
     it 'should ingest corrected federal transmission record info into policy' do

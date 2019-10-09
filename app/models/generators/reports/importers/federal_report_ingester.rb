@@ -52,7 +52,7 @@ module Generators::Reports::Importers
       if batch_file.xpath('//ns4:BatchCategoryCode').text == "IRS_EOY_SUBMIT_CORRECTED_RECORDS_REQ"
         "CORRECTED"
       elsif batch_file.xpath('//ns4:BatchCategoryCode').text == "IRS_EOY_SUBMIT_VOID_RECORDS_REQ"
-        "VOIDED"
+        "VOID"
       else
         "ORIGINAL"
       end  
