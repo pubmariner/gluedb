@@ -12,7 +12,7 @@ describe Generators::Reports::IrsYearlySerializer, :dbclean => :after_each do
   let(:options) { { multiple: false, calender_year: 2018, qhp_type: "assisted", notice_type: 'new'} }
   let(:premium) {double(premium_amount:100, slcsp_premium_amount: 200, aptc_amount:0)}
   let(:monthly_premiums) { [OpenStruct.new({serial: (1), premium_amount: 0.0, premium_amount_slcsp: 0.0, monthly_aptc: 0.0})] }  
-  let(:h41_folder_name)  { "FFEP0020DC.DSH.EOYIN.D#{Time.now.strftime('%Y%m%d')[2..-1]}.T#{Time.now.strftime("%H%M%S") + "000"}.P.IN" }
+  let(:h41_folder_name)  { "FEP0020DC.DSH.EOYIN.D#{Time.now.strftime('%Y%m%d')[2..-1]}.T#{Time.now.strftime("%H%M%S") + "000"}.P.IN" }
 
   let(:policy) { FactoryGirl.create(:policy, term_for_np: false, applied_aptc: 0, pre_amt_tot: 123, plan: plan, carrier: carrier) } 
 
