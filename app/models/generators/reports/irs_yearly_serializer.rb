@@ -333,7 +333,7 @@ module Generators::Reports
         puts e.to_s.inspect
       end
       find_or_create_directory "#{Rails.root}/H41_federal_report"
-      create_individual_manifest(notice_params)
+      create_individual_manifest
       FileUtils.cd(@h41_folder_name)
       `zip #{@h41_folder_name}.zip *`
       `mv #{@h41_folder_name}.zip ..`
