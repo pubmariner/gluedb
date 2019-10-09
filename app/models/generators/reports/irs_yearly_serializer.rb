@@ -330,8 +330,8 @@ module Generators::Reports
         process_policy(policy, true)
         create_directory "#{Rails.root}/H41_federal_report"
       rescue => e
-        puts policy.id
-        puts e.to_s.inspect
+        puts policy.id unless Rails.env.test?
+        puts e.to_s.inspect unless Rails.env.test?
       end
       find_or_create_directory "#{Rails.root}/H41_federal_report"
       create_individual_manifest
@@ -368,8 +368,8 @@ module Generators::Reports
 
         notice.active_policies = []
         notice.canceled_policies = []
-        create_report_names
         if xml_output
+          create_report_names
           render_xml(notice)
 
           if @count != 0 && @count % 4000 == 0
@@ -378,6 +378,7 @@ module Generators::Reports
             create_new_irs_folder
           end
         else
+          create_report_names
           render_pdf(notice)
           #append_report_row(notice)
 
