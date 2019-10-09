@@ -499,7 +499,7 @@ module Generators::Reports
     end
 
     def create_individual_manifest
-      Generators::Reports::IrsYearlyManifest.new.create("#{@h41_folder_name}")
+      Generators::Reports::IrsYearlyManifest.new.create("#{@h41_folder_name}", notice_params)
     end
 
     def rejected_policy?(policy)
