@@ -11,7 +11,7 @@ class FederalTransmission
 
   validates_presence_of :report_type, :batch_id, :content_file, :record_sequence_number
 
-  validates_format_of :content_file, :with => /^\d{6}$/, :message => "should be in the form 00001, 00002..."
+  validates_format_of :content_file, :with => /^\d{5}$/, :message => "should be in the form 00001, 00002..."
   
   embedded_in :policy
 

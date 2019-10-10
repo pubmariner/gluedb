@@ -18,7 +18,7 @@ module Generators::Reports::Importers
     def federal_report_ingester
       Dir[EOY_DIRECTORY_FILES].each do |file_name|
         file_numbers = file_name.scan(/\d+/)
-        content_file_number = file_numbers.flatten.detect { |fn| fn.length == 6 }
+        content_file_number = file_numbers.flatten.detect { |fn| fn.length == 5 }
         file = File.read(file_name)
         doc = Nokogiri::XML(file)
         doc.xpath('//air5.0:Form1095AUpstreamDetail').each do |node|
