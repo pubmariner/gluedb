@@ -43,7 +43,7 @@ module Generators::Reports
           checksum: Digest::SHA256.file(file).hexdigest,
           binarysize: File.size(file),
           filename: File.basename(file),
-          sequence_id: File.basename(file).match(/\d{4}/)[0] # Has only 5 digits total
+          sequence_id: File.basename(file).match(/\d{5}/)[0] # Has only 5 digits total
         })
       end
     end
