@@ -18,7 +18,7 @@ module Generators::Reports::Importers
     def federal_report_ingester
       Dir[EOY_DIRECTORY_FILES].each do |file_name|
         file_numbers = file_name.scan(/\d+/)
-        content_file_number = file_numbers.flatten.select { |fn| fn.length == 5 }.first
+        content_file_number = file_numbers.flatten.detect { |fn| fn.length == 6 }
         file = File.read(file_name)
         doc = Nokogiri::XML(file)
         doc.xpath('//air5.0:Form1095AUpstreamDetail').each do |node|
@@ -34,6 +34,7 @@ module Generators::Reports::Importers
                                                               report_type: indicator,
                                                               batch_id: batch_id
                                                               )
+              policy.save!
               if fed_trans.present?
                 puts "New federal transmission record created for policy_id:#{federal_policy_id}" unless Rails.env.test?
               else 
@@ -42,6 +43,9 @@ module Generators::Reports::Importers
             else
               puts "No policy has been found with this policy_id:#{federal_policy_id}" unless Rails.env.test?
             end
+          else
+            puts "record_sequence_number: #{record_sequence_number},content_file: #{content_file_number},report_type: #{indicator},
+                                                              batch_id: #{batch_id}"
           end
         end
       end

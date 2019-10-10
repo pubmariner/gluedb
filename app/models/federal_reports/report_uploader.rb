@@ -55,7 +55,7 @@ module FederalReports
           generate_1095A_pdf(params)
           generate_h41_xml(params)
           upload_1095(@pdf_file, "tax-documents")
-          upload_h41(@xml_file, "tax-documents")
+          upload_h41(@xml_file, "dchbx-enroll-aca-internal-artifact-transport-preprod")
           persist_new_doc
           remove_tax_docs
         rescue Exception => e
