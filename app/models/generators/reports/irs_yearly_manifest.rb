@@ -59,13 +59,16 @@ module Generators::Reports
         # This are lowercase strings in irs_yearly_serializer
         if type.match(/corrected/i)
           xml['ns4'].BatchCategoryCode 'IRS_EOY_SUBMIT_CORRECTED_RECORDS_REQ'
+          xml.BatchTransmissionQuantity 1
           xml['ns4'].OriginalBatchId most_recent_original_transmission.batch_id.to_s
         elsif type.match(/void/i)
           xml['ns4'].BatchCategoryCode 'IRS_EOY_SUBMIT_VOID_RECORDS_REQ'
+          xml.BatchTransmissionQuantity 1
+          xml['ns4'].OriginalBatchId most_recent_original_transmission.batch_id.to_s
         else # original/new
           xml['ns4'].BatchCategoryCode 'IRS_EOY_REQ'
+          xml.BatchTransmissionQuantity 1
         end
-        xml.BatchTransmissionQuantity 1
       end
     end
 
