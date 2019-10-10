@@ -43,7 +43,7 @@ module Generators::Reports
           checksum: Digest::SHA256.file(file).hexdigest,
           binarysize: File.size(file),
           filename: File.basename(file),
-          sequence_id: File.basename(file).match(/\d{5}/)[0]
+          sequence_id: File.basename(file).match(/\d{4}/)[0] # Has only 5 digits total
         })
       end
     end
@@ -84,7 +84,7 @@ module Generators::Reports
     def serialize_attachment(xml, file)
       xml['ns4'].Attachment do |xml|
         xml['ns5'].DocumentBinary do |xml|
-          xml['ns3'].ChecksumAugmentation do |xml|
+          xml['ns4'].ChecksumAugmentation do |xml|
             xml.SHA256HashValueText file.checksum
           end
           xml['ns3'].BinarySizeValue file.binarysize
