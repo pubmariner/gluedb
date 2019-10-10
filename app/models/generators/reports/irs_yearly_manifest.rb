@@ -1,7 +1,7 @@
 module Generators::Reports  
   class IrsYearlyManifest
 
-    attr_accessor :notice_params
+    attr_accessor :notice_params, :policy, :most_recent_original_transmission
 
     NS = {
       "xmlns:ns0"  => "http://birsrep.dsh.cms.gov/exchange/1.0",
@@ -15,6 +15,8 @@ module Generators::Reports
     def create(folder, notice_params = nil)
       @folder = folder
       @notice_params = notice_params
+      @policy = Policy.where(id: notice_params[:policy_id]).first
+      @most_recent_original_transmission = policy.federal_transmissions.where(report_type: 'ORIGINAL').last
       @manifest = OpenStruct.new({
         file_count: Dir.glob(@folder+'/*.xml').count,
       })
@@ -57,6 +59,7 @@ module Generators::Reports
         # This are lowercase strings in irs_yearly_serializer
         if type.match(/corrected/i)
           xml['ns4'].BatchCategoryCode 'IRS_EOY_SUBMIT_CORRECTED_RECORDS_REQ'
+          xml['ns4'].OriginalBatchId most_recent_original_transmission.batch_id.to_s
         elsif type.match(/void/i)
           xml['ns4'].BatchCategoryCode 'IRS_EOY_SUBMIT_VOID_RECORDS_REQ'
         else # original/new
