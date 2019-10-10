@@ -385,7 +385,6 @@ module Generators::Reports
           sequential_number = @count.to_s
           sequential_number = prepend_zeros(sequential_number, 5)
           @report_names = {
-            pdf: "#{name_prefix}_#{calender_year}_#{Time.now.strftime('%Y%m%d')}_#{@hbx_member_id}_#{@policy_id}_#{sequential_number}",
             xml: "EOY_Request_#{sequential_number}_#{Time.now.utc.iso8601.gsub(/-|:/,'')}"
           }
           create_individual_h41_folder

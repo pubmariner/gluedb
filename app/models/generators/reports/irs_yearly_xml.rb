@@ -13,10 +13,10 @@ module Generators::Reports
       "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance"
     }
 
-    def initialize(notice, notice_params = nil)
+    def initialize(notice, options = {})
       # @sequence_num = sequence_num
       @notice = notice
-      @notice_params = notice_params
+      @notice_params = options
     end
 
     def serialize
