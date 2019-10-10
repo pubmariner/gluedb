@@ -2,7 +2,7 @@ module Generators::Reports
   class IrsYearlyXml
     include ActionView::Helpers::NumberHelper
 
-    attr_accessor :corrected_record_sequence_num, :voided_record_sequence_num
+    attr_accessor :corrected_record_sequence_num, :voided_record_sequence_num, :notice_params
 
     NS = {
       "xmlns:air5.0" => "urn:us:gov:treasury:irs:ext:aca:air:5.0",
@@ -13,9 +13,10 @@ module Generators::Reports
       "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance"
     }
 
-    def initialize(notice)
+    def initialize(notice, notice_params)
       # @sequence_num = sequence_num
       @notice = notice
+      @notice_params = notice_params
     end
 
     def serialize
@@ -36,7 +37,7 @@ module Generators::Reports
     def serialize_headers(xml)
       # xml['air5.0'].RecordSequenceNum @sequence_num
       xml['air5.0'].RecordSequenceNum @notice.policy_id.to_i
-      xml['irs'].TaxYr 2017
+      xml['irs'].TaxYr notice_params[:calender_year]
       xml['irs'].CorrectedInd corrected_record_sequence_num.present?
       xml['air5.0'].CorrectedRecordSequenceNum corrected_record_sequence_num if corrected_record_sequence_num.present?
       xml['air5.0'].VoidInd (voided_record_sequence_num.present? ? 1 : 0)
