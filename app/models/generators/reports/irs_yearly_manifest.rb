@@ -76,7 +76,7 @@ module Generators::Reports
     def serialize_service_data(xml)
       xml['ns4'].ServiceSpecificData do |xml|
         xml.ReportPeriod do |xml|
-          xml['ns5'].Year '2014'
+          xml['ns5'].Year notice_params[:calender_year]
         end
       end
     end

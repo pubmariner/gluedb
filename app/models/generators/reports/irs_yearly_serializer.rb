@@ -346,6 +346,7 @@ module Generators::Reports
 
        if valid_policy?(policy, h41)
         @calender_year = policy.subscriber.coverage_start.year
+        notice_params[:calender_year] = @calender_year.to_s
         @qhp_type  = ((policy.applied_aptc > 0 || policy.multi_aptc?) ? 'assisted' : 'unassisted')
         @policy_id = policy.id
         @hbx_member_id = policy.subscriber.person.authority_member.hbx_member_id
