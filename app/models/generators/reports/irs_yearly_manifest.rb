@@ -1,6 +1,8 @@
 module Generators::Reports  
   class IrsYearlyManifest
 
+    attr_accessor :notice_params, :policy, :most_recent_original_transmission
+
     NS = {
       "xmlns:ns0"  => "http://birsrep.dsh.cms.gov/exchange/1.0",
       "xmlns:ns3"  => "http://hix.cms.gov/0.1/hix-core", 
@@ -10,8 +12,11 @@ module Generators::Reports
       # "xmlns:wsa"  => "http://www.w3.org/2005/08/addressing"      
     }
 
-    def create(folder)
+    def create(folder, notice_params: nil)
       @folder = folder
+      @notice_params = notice_params
+      @policy = Policy.where(id: notice_params[:policy_id]).first
+      @most_recent_original_transmission = policy.federal_transmissions.where(report_type: 'ORIGINAL').last
       @manifest = OpenStruct.new({
         file_count: Dir.glob(@folder+'/*.xml').count,
       })
@@ -46,12 +51,24 @@ module Generators::Reports
     end
 
     def serialize_batch_data(xml)
+      type = notice_params[:type]
       xml['ns3'].BatchMetadata do |xml|
         xml.BatchID Time.now.utc.iso8601
         xml.BatchPartnerID '02.DC*.SBE.001.001'
         xml.BatchAttachmentTotalQuantity @manifest.file_count
-        xml['ns4'].BatchCategoryCode 'IRS_EOY_REQ'
-        xml.BatchTransmissionQuantity 1
+        # This are lowercase strings in irs_yearly_serializer
+        if type.match(/corrected/i)
+          xml['ns4'].BatchCategoryCode 'IRS_EOY_SUBMIT_CORRECTED_RECORDS_REQ'
+          xml.BatchTransmissionQuantity 1
+          xml['ns4'].OriginalBatchId most_recent_original_transmission.batch_id.to_s
+        elsif type.match(/void/i)
+          xml['ns4'].BatchCategoryCode 'IRS_EOY_SUBMIT_VOID_RECORDS_REQ'
+          xml.BatchTransmissionQuantity 1
+          xml['ns4'].OriginalBatchId most_recent_original_transmission.batch_id.to_s
+        else # original/new
+          xml['ns4'].BatchCategoryCode 'IRS_EOY_REQ'
+          xml.BatchTransmissionQuantity 1
+        end
       end
     end
 
