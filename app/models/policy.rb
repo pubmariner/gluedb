@@ -33,6 +33,7 @@ class Policy
   field :updated_by, type: String
   field :is_active, type: Boolean, default: true
   field :hbx_enrollment_ids, type: Array
+  field :kind, type: String
 
 # Adding field values Carrier specific
   field :carrier_specific_plan_id, type: String
@@ -54,7 +55,9 @@ class Policy
 
   embeds_many :aptc_credits
   embeds_many :aptc_maximums
+
   embeds_many :cost_sharing_variants
+  embeds_many :federal_transmissions
 
   embeds_many :enrollees
   accepts_nested_attributes_for :enrollees, reject_if: :all_blank, allow_destroy: true
@@ -374,7 +377,7 @@ class Policy
       found_enrollment.save!
       return found_enrollment
     end
-    Observers::PolicyUpdated.notify(m_enrollment)
+    # Observers::PolicyUpdated.notify(m_enrollment) notified in calling method before save transmission_file.rb/persist_policy
     m_enrollment.save!
 #    m_enrollment.unsafe_save!
     m_enrollment

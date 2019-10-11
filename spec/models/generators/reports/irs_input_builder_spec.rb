@@ -9,7 +9,7 @@ module Generators::Reports
     let(:carrier) { double(name: 'Care First')}
     let(:policy_start) { Date.new(2016, 1, 1) }
     let(:policy_end) { Date.new(2016, 12, 31)} 
-    let(:subscriber) { double(person: person, relationship_status_code: 'Self', coverage_start: policy_start, coverage_end: policy_end) }
+    let(:subscriber) { double(person: person, relationship_status_code: 'Self', coverage_start: policy_start, coverage_end: policy_end, m_id: Moped::BSON::ObjectId.new) }
     let(:dependent1) { double(person: person, relationship_status_code: 'Spouse', coverage_start: policy_start, coverage_end: policy_end) }
     let(:dependent2) { double(person: person, relationship_status_code: 'Child', coverage_start: policy_start, coverage_end: policy_end) }
 

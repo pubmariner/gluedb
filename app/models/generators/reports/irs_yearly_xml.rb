@@ -2,7 +2,9 @@ module Generators::Reports
   class IrsYearlyXml
     include ActionView::Helpers::NumberHelper
 
-    NS = { 
+    attr_accessor :corrected_record_sequence_num, :voided_record_sequence_num, :notice_params
+
+    NS = {
       "xmlns:air5.0" => "urn:us:gov:treasury:irs:ext:aca:air:5.0",
       "xmlns:irs" => "urn:us:gov:treasury:irs:common",
       "xmlns:batchreq" => "urn:us:gov:treasury:irs:msg:form1095atransmissionupstreammessage",
@@ -11,9 +13,10 @@ module Generators::Reports
       "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance"
     }
 
-    def initialize(notice, sequence_num)
-      @sequence_num = sequence_num
+    def initialize(notice, options = {})
+      # @sequence_num = sequence_num
       @notice = notice
+      @notice_params = options
     end
 
     def serialize
@@ -24,7 +27,7 @@ module Generators::Reports
             serialize_policy(xml)
             serialize_recipient(xml)
             serialize_recipient_spouse(xml)
-            serialize_coverage_household(xml)
+            serialize_coverage_household(xml) if @notice.covered_household.present?
             serialize_policy_premiums(xml)
           end
         end
@@ -34,9 +37,11 @@ module Generators::Reports
     def serialize_headers(xml)
       # xml['air5.0'].RecordSequenceNum @sequence_num
       xml['air5.0'].RecordSequenceNum @notice.policy_id.to_i
-      xml['irs'].TaxYr 2014
-      xml['irs'].CorrectedInd false
-      xml['air5.0'].CorrectedRecordSequenceNum
+      xml['irs'].TaxYr notice_params[:calender_year]
+      xml['irs'].CorrectedInd corrected_record_sequence_num.present?
+      xml['air5.0'].CorrectedRecordSequenceNum corrected_record_sequence_num if corrected_record_sequence_num.present?
+      xml['air5.0'].VoidInd (voided_record_sequence_num.present? ? 1 : 0)
+      xml['air5.0'].VoidedRecordSequenceNum voided_record_sequence_num if voided_record_sequence_num.present?
       xml['air5.0'].MarketplaceId "02.DC*.SBE.001.001"  
     end
 
@@ -59,7 +64,7 @@ module Generators::Reports
     def serialize_recipient_spouse(xml)
       if @notice.spouse
         xml['air5.0'].RecipientSpouse do |xml|
-          serialize_individual(xml, @notice.spouse) 
+          serialize_individual(xml, @notice.spouse)
         end
       end
     end
@@ -87,7 +92,7 @@ module Generators::Reports
       end
 
       xml['irs'].SSN individual.ssn unless individual.ssn.blank?
-      xml['irs'].BirthDt date_formatter(individual.dob) unless individual.dob.blank?
+      xml['air5.0'].BirthDt date_formatter(individual.dob) unless individual.dob.blank?
     end
 
     def serialize_address(xml, address)
@@ -147,13 +152,13 @@ module Generators::Reports
 
     def serialize_monthly_premiums(xml, month)
       if month_premium = @notice.monthly_premiums.detect{|p| p.serial == month}
-        xml['irs'].MonthlyPremiumAmt month_premium.premium_amount.to_f.round(2)
+        xml['irs'].MonthlyPremiumAmt two_decimal_number(month_premium.premium_amount)
         if @notice.has_aptc
-          xml['irs'].MonthlyPremiumSLCSPAmt month_premium.premium_amount_slcsp.to_f.round(2)
-          xml['irs'].MonthlyAdvancedPTCAmt month_premium.monthly_aptc.to_f.round(2)
+          xml['irs'].MonthlyPremiumSLCSPAmt two_decimal_number(month_premium.premium_amount_slcsp)
+          xml['irs'].MonthlyAdvancedPTCAmt two_decimal_number(month_premium.monthly_aptc)
         else
-          xml['irs'].MonthlyPremiumSLCSPAmt 0.0
-          xml['irs'].MonthlyAdvancedPTCAmt 0.0 
+          xml['irs'].MonthlyPremiumSLCSPAmt '0.00'
+          xml['irs'].MonthlyAdvancedPTCAmt '0.00'
         end
       else
         blank_preimums(xml)
@@ -161,25 +166,29 @@ module Generators::Reports
     end
 
     def blank_preimums(xml)
-      xml['irs'].MonthlyPremiumAmt 0.0
-      xml['irs'].MonthlyPremiumSLCSPAmt 0.0
-      xml['irs'].MonthlyAdvancedPTCAmt 0.0 
+      xml['irs'].MonthlyPremiumAmt '0.00'
+      xml['irs'].MonthlyPremiumSLCSPAmt '0.00'
+      xml['irs'].MonthlyAdvancedPTCAmt '0.00'
     end
 
     def serialize_annual_premiums(xml)
-      xml['irs'].AnnualPremiumAmt @notice.yearly_premium.premium_amount.to_f.round(2)
+      xml['irs'].AnnualPremiumAmt two_decimal_number(@notice.yearly_premium.premium_amount)
       if @notice.has_aptc
-        xml['irs'].AnnualPremiumSLCSPAmt @notice.yearly_premium.slcsp_premium_amount.to_f.round(2)
-        xml['irs'].AnnualAdvancedPTCAmt @notice.yearly_premium.aptc_amount.to_f.round(2)
+        xml['irs'].AnnualPremiumSLCSPAmt two_decimal_number(@notice.yearly_premium.slcsp_premium_amount)
+        xml['irs'].AnnualAdvancedPTCAmt two_decimal_number(@notice.yearly_premium.aptc_amount)
       else
-        xml['irs'].AnnualPremiumSLCSPAmt 0.0
-        xml['irs'].AnnualAdvancedPTCAmt 0.0
+        xml['irs'].AnnualPremiumSLCSPAmt '0.00'
+        xml['irs'].AnnualAdvancedPTCAmt '0.00'
       end
     end
 
     def date_formatter(date)
       return if date.nil?
       Date.parse(date).strftime("%Y-%m-%d")
+    end
+
+    def two_decimal_number(price)
+      number_with_precision(price.to_f, precision: 2)
     end
   end
 end
