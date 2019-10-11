@@ -377,8 +377,12 @@ module Generators::Reports
             create_new_irs_folder
           end
         elsif h41
-          @count = 0
-          create_report_names
+          @count = 1
+          sequential_number = @count.to_s
+          sequential_number = prepend_zeros(sequential_number, 5)
+          @report_names = {
+            xml: "EOY_Request_#{sequential_number}_#{Time.now.utc.iso8601.gsub(/-|:/,'')}"
+          }
           create_individual_h41_folder
           xml = render_xml(notice)
         else
