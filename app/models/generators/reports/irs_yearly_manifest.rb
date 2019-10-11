@@ -12,7 +12,7 @@ module Generators::Reports
       # "xmlns:wsa"  => "http://www.w3.org/2005/08/addressing"      
     }
 
-    def create(folder, notice_params: nil)
+      def create(folder, notice_params = nil)
       @folder = folder
       @notice_params = notice_params
       @policy = Policy.where(id: notice_params[:policy_id]).first
@@ -45,7 +45,7 @@ module Generators::Reports
           checksum: Digest::SHA256.file(file).hexdigest,
           binarysize: File.size(file),
           filename: File.basename(file),
-          sequence_id: File.basename(file).match(/\d{5}/)[0]
+          sequence_id: File.basename(file).match(/\d{5}/)[0] # Has only 5 digits total
         })
       end
     end
@@ -91,7 +91,7 @@ module Generators::Reports
       xml['ns4'].Attachment do |xml|
         xml['ns5'].DocumentBinary do |xml|
           xml['ns3'].ChecksumAugmentation do |xml|
-            xml.SHA256HashValueText file.checksum
+            xml['ns4'].SHA256HashValueText file.checksum
           end
           xml['ns3'].BinarySizeValue file.binarysize
         end
