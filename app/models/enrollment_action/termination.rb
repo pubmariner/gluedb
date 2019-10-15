@@ -1,7 +1,10 @@
 module EnrollmentAction
   class Termination < Base
+    extend ReinstatementComparisonHelper
+
     def self.qualifies?(chunk)
       return false if chunk.length > 1
+      return false unless reinstate_capable_carrier?(chunk.first)
       chunk.first.is_termination?
     end
 
