@@ -5,7 +5,7 @@ module Generators::Reports
     attr_accessor :corrected_record_sequence_num, :voided_record_sequence_num, :notice_params
 
     NS = {
-      "xmlns:air5.0" => "urn:us:gov:treasury:irs:ext:aca:air:5.0",
+      "xmlns:air5.0" => "urn:us:gov:treasury:irs:ext:aca:air:ty18a",
       "xmlns:irs" => "urn:us:gov:treasury:irs:common",
       "xmlns:batchreq" => "urn:us:gov:treasury:irs:msg:form1095atransmissionupstreammessage",
       "xmlns:batchresp"=> "urn:us:gov:treasury:irs:msg:form1095atransmissionexchrespmessage",
@@ -37,11 +37,18 @@ module Generators::Reports
     def serialize_headers(xml)
       # xml['air5.0'].RecordSequenceNum @sequence_num
       xml['air5.0'].RecordSequenceNum @notice.policy_id.to_i
-      xml['irs'].TaxYr notice_params[:calender_year]
-      xml['irs'].CorrectedInd corrected_record_sequence_num.present?
-      xml['air5.0'].CorrectedRecordSequenceNum corrected_record_sequence_num if corrected_record_sequence_num.present?
+      xml['air5.0'].TaxYr notice_params[:calender_year]
+      xml['air5.0'].CorrectedInd (corrected_record_sequence_num.present? ? 1 : 0)
+      puts corrected_record_sequence_num
+      if corrected_record_sequence_num.present?
+        ft = Policy.find(corrected_record_sequence_num.to_s).federal_transmissions.where(report_type: /original/i).first
+        xml['air5.0'].CorrectedRecordSequenceNum "#{ft.batch_id}|#{ft.content_file}|#{corrected_record_sequence_num}"
+      end
       xml['air5.0'].VoidInd (voided_record_sequence_num.present? ? 1 : 0)
-      xml['air5.0'].VoidedRecordSequenceNum voided_record_sequence_num if voided_record_sequence_num.present?
+      if voided_record_sequence_num.present?
+        ft = Policy.find(voided_record_sequence_num.to_s).federal_transmissions.where(report_type: /original/i).first
+        xml['air5.0'].VoidedRecordSequenceNum "#{ft.batch_id}|#{ft.content_file}|#{voided_record_sequence_num}"
+      end
       xml['air5.0'].MarketplaceId "02.DC*.SBE.001.001"  
     end
 
@@ -72,8 +79,8 @@ module Generators::Reports
     def serialize_coverage_household(xml)
       xml['air5.0'].CoverageHouseholdGrp do |xml|
         @notice.covered_household.each do |individual|
-          xml['irs'].CoveredIndividual do |xml|
-            xml['irs'].InsuredPerson do |xml|
+          xml['air5.0'].CoveredIndividual do |xml|
+            xml['air5.0'].InsuredPerson do |xml|
               serialize_individual(xml, individual)
             end
             xml['irs'].CoverageStartDt date_formatter(individual.coverage_start_date)
@@ -84,7 +91,7 @@ module Generators::Reports
     end
 
     def serialize_individual(xml, individual)
-      xml['irs'].CompletePersonName do |xml|
+      xml['air5.0'].CompletePersonName do |xml|
         xml.PersonFirstName individual.name_first
         xml.PersonMiddleName individual.name_middle
         xml.PersonLastName individual.name_last
@@ -96,7 +103,7 @@ module Generators::Reports
     end
 
     def serialize_address(xml, address)
-      xml['irs'].USAddressGrp do |xml|
+      xml['air5.0'].USAddressGrp do |xml|
         xml.AddressLine1Txt address.street_1
         xml.AddressLine2Txt address.street_2
         xml.CityNm address.city
@@ -152,13 +159,13 @@ module Generators::Reports
 
     def serialize_monthly_premiums(xml, month)
       if month_premium = @notice.monthly_premiums.detect{|p| p.serial == month}
-        xml['irs'].MonthlyPremiumAmt two_decimal_number(month_premium.premium_amount)
+        xml['air5.0'].MonthlyPremiumAmt two_decimal_number(month_premium.premium_amount)
         if @notice.has_aptc
-          xml['irs'].MonthlyPremiumSLCSPAmt two_decimal_number(month_premium.premium_amount_slcsp)
-          xml['irs'].MonthlyAdvancedPTCAmt two_decimal_number(month_premium.monthly_aptc)
+          xml['air5.0'].MonthlyPremiumSLCSPAmt two_decimal_number(month_premium.premium_amount_slcsp)
+          xml['air5.0'].MonthlyAdvancedPTCAmt two_decimal_number(month_premium.monthly_aptc)
         else
-          xml['irs'].MonthlyPremiumSLCSPAmt '0.00'
-          xml['irs'].MonthlyAdvancedPTCAmt '0.00'
+          xml['air5.0'].MonthlyPremiumSLCSPAmt '0.00'
+          xml['air5.0'].MonthlyAdvancedPTCAmt '0.00'
         end
       else
         blank_preimums(xml)
@@ -166,19 +173,19 @@ module Generators::Reports
     end
 
     def blank_preimums(xml)
-      xml['irs'].MonthlyPremiumAmt '0.00'
-      xml['irs'].MonthlyPremiumSLCSPAmt '0.00'
-      xml['irs'].MonthlyAdvancedPTCAmt '0.00'
+      xml['air5.0'].MonthlyPremiumAmt '0.00'
+      xml['air5.0'].MonthlyPremiumSLCSPAmt '0.00'
+      xml['air5.0'].MonthlyAdvancedPTCAmt '0.00'
     end
 
     def serialize_annual_premiums(xml)
-      xml['irs'].AnnualPremiumAmt two_decimal_number(@notice.yearly_premium.premium_amount)
+      xml['air5.0'].AnnualPremiumAmt two_decimal_number(@notice.yearly_premium.premium_amount)
       if @notice.has_aptc
-        xml['irs'].AnnualPremiumSLCSPAmt two_decimal_number(@notice.yearly_premium.slcsp_premium_amount)
-        xml['irs'].AnnualAdvancedPTCAmt two_decimal_number(@notice.yearly_premium.aptc_amount)
+        xml['air5.0'].AnnualPremiumSLCSPAmt two_decimal_number(@notice.yearly_premium.slcsp_premium_amount)
+        xml['air5.0'].AnnualAdvancedPTCAmt two_decimal_number(@notice.yearly_premium.aptc_amount)
       else
-        xml['irs'].AnnualPremiumSLCSPAmt '0.00'
-        xml['irs'].AnnualAdvancedPTCAmt '0.00'
+        xml['air5.0'].AnnualPremiumSLCSPAmt '0.00'
+        xml['air5.0'].AnnualAdvancedPTCAmt '0.00'
       end
     end
 

@@ -527,6 +527,19 @@ module Generators::Reports
       }
     end
 
+
+    def render_individual_h41_xml(notice)
+      yearly_xml_generator = Generators::Reports::IrsYearlyXml.new(notice, notice_params)
+      yearly_xml_generator.corrected_record_sequence_num = notice.policy_id if notice_params[:type] == "corrected"
+      yearly_xml_generator.voided_record_sequence_num = notice.policy_id if notice_params[:type] == "void"
+
+      xml_report = yearly_xml_generator.serialize.to_xml(:indent => 2)
+
+      File.open("#{@irs_xml_path + @h41_folder_name}/#{@report_names[:xml]}.xml", 'w') do |file|
+        file.write xml_report
+      end
+    end
+
     def render_xml(notice)
       yearly_xml_generator = Generators::Reports::IrsYearlyXml.new(notice, @count.to_s)
       yearly_xml_generator.corrected_record_sequence_num = @corrected_h41_policies[notice.policy_id] if @corrected_h41_policies.present?
