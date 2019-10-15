@@ -388,7 +388,7 @@ module Generators::Reports
             xml: "EOY_Request_#{sequential_number}_#{Time.now.utc.iso8601.gsub(/-|:/,'')}"
           }
           create_individual_h41_folder
-          xml = render_xml(notice)
+          xml = render_individual_h41_xml(notice)
         else
           create_report_names
           render_pdf(notice)
@@ -536,6 +536,19 @@ module Generators::Reports
         # pdf: "#{sequential_number}_HBX_01_#{@hbx_member_id}_#{@policy_id}_IRS1095A",
         xml: "EOY_Request_#{sequential_number}_#{Time.now.utc.iso8601.gsub(/-|:/,'')}"
       }
+    end
+
+
+    def render_individual_h41_xml(notice)
+      yearly_xml_generator = Generators::Reports::IrsYearlyXml.new(notice, notice_params)
+      yearly_xml_generator.corrected_record_sequence_num = notice.policy_id if notice_params[:type] == "corrected"
+      yearly_xml_generator.voided_record_sequence_num = notice.policy_id if notice_params[:type] == "void"
+
+      xml_report = yearly_xml_generator.serialize.to_xml(:indent => 2)
+
+      File.open("#{@irs_xml_path + @h41_folder_name}/#{@report_names[:xml]}.xml", 'w') do |file|
+        file.write xml_report
+      end
     end
 
     def render_xml(notice)
