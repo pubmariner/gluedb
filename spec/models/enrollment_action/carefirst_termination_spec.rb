@@ -1,19 +1,19 @@
 require "rails_helper"
 
-describe EnrollmentAction::Termination, "given an EnrollmentAction array that:
+describe EnrollmentAction::CarefirstTermination, "given an EnrollmentAction array that:
   - has one element that is a termination
   - has one element that is not a termination
-  - has more than one element 
-  - the enrollment is for a carrier who is reinstate capable" do
+  - has more than one element
+  - the enrollment is for a carrier who is not reinstate capable", :dbclean => :after_each do
 
   let(:event_1) { instance_double(ExternalEvents::EnrollmentEventNotification, is_termination?: true) }
   let(:event_2) { instance_double(ExternalEvents::EnrollmentEventNotification, is_termination?: false) }
 
-  subject { EnrollmentAction::Termination }
+  subject { EnrollmentAction::CarefirstTermination }
 
   before :each do
-    allow(subject).to receive(:reinstate_capable_carrier?).with(event_1).and_return(true)
-    allow(subject).to receive(:reinstate_capable_carrier?).with(event_2).and_return(true)
+    allow(subject).to receive(:reinstate_capable_carrier?).with(event_1).and_return(false)
+    allow(subject).to receive(:reinstate_capable_carrier?).with(event_2).and_return(false)
   end
 
   it "qualifies" do
@@ -27,26 +27,17 @@ describe EnrollmentAction::Termination, "given an EnrollmentAction array that:
   it "does not qualify" do
     expect(subject.qualifies?([event_1, event_2])).to be_false
   end
-
-  context "
-  - has one element that is a termination
-  - the enrollment is for a carrier who is not reinstate capable
-  " do
-
-    it "does not qualify" do
-      allow(subject).to receive(:reinstate_capable_carrier?).with(event_1).and_return(false)
-      expect(subject.qualifies?([event_1])).to be_false
-    end
-  end
 end
 
-describe EnrollmentAction::Termination, "given a valid enrollment" do
+describe EnrollmentAction::CarefirstTermination, "given a valid terminated enrollment", :dbclean => :after_each do
+
   let(:member) { instance_double(Openhbx::Cv2::EnrolleeMember, id: 1) }
   let(:enrollee) { instance_double(::Openhbx::Cv2::Enrollee, member: member) }
   let(:terminated_policy_cv) { instance_double(Openhbx::Cv2::Policy, enrollees: [enrollee])}
   let(:policy) { instance_double(Policy, hbx_enrollment_ids: [1]) }
   let(:termination_event) { instance_double(
     ::ExternalEvents::EnrollmentEventNotification,
+    is_cancel?: false,
     policy_cv: terminated_policy_cv,
     existing_policy: policy,
     all_member_ids: [1,2]
@@ -58,7 +49,7 @@ describe EnrollmentAction::Termination, "given a valid enrollment" do
   end
 
   subject do
-    EnrollmentAction::Termination.new(termination_event, nil)
+    EnrollmentAction::CarefirstTermination.new(termination_event, nil)
   end
 
   it "persists" do
@@ -66,7 +57,68 @@ describe EnrollmentAction::Termination, "given a valid enrollment" do
   end
 end
 
-describe EnrollmentAction::Termination, "given a valid enrollment" do
+describe EnrollmentAction::CarefirstTermination, "given a valid canceled enrollment", :dbclean => :after_each do
+  let(:plan_link) { instance_double(Openhbx::Cv2::PlanLink, :id => 1, :active_year => "2019", :carrier => carrier_link) }
+  let(:carrier_link) { instance_double(Openhbx::Cv2::CarrierLink, :id => 1) }
+  let(:individual_enrollment_element) { instance_double(Openhbx::Cv2::PolicyEnrollmentIndividualMarket) }
+  let(:enrollment_element) { instance_double(Openhbx::Cv2::PolicyEnrollment, :individual_market => individual_enrollment_element, :shop_market => nil, :plan => plan_link) }
+  let(:canceled_policy_cv) { instance_double(Openhbx::Cv2::Policy, :policy_enrollment => enrollment_element,  enrollees: [enrollee], ) }
+  let(:member) { instance_double(Openhbx::Cv2::EnrolleeMember, id: 1) }
+  let(:enrollee) { instance_double(::Openhbx::Cv2::Enrollee, member: member) }
+  let(:termination_event) { instance_double(
+    ::ExternalEvents::EnrollmentEventNotification,
+    is_cancel?: true,
+    policy_cv: canceled_policy_cv,
+    existing_policy: policy,
+    all_member_ids: [1,2]
+    ) }
+
+  let(:person) {FactoryGirl.create(:person)}
+  let(:member) {person.members.first}
+  let!(:policy) { Policy.new(eg_id: '1', enrollees: [enrollee1], plan: plan, carrier: carrier ) }
+  let!(:policy2) { Policy.new(eg_id: '2', enrollees: [enrollee2], plan: plan, carrier: carrier, employer_id: nil, aasm_state: "terminated", term_for_np: true ) }
+  let!(:plan) { build(:plan) }
+  let!(:carrier) {build(:carrier)}
+  let!(:enrollee1) do
+    Enrollee.new(
+      m_id: member.hbx_member_id,
+      benefit_status_code: 'active',
+      employment_status_code: 'active',
+      relationship_status_code: 'self',
+      coverage_start: Date.new(2019,4,1))
+  end
+  let!(:enrollee2) do
+    Enrollee.new(
+      m_id: member.hbx_member_id,
+      benefit_status_code: 'active',
+      employment_status_code: 'terminated',
+      relationship_status_code: 'self',
+      coverage_start: Date.new(2019,1,1),
+      coverage_end: Date.new(2019,3,31))
+  end
+
+  before :each do
+    person.update_attributes!(:authority_member_id => person.members.first.hbx_member_id)
+    allow(termination_event.existing_policy).to receive(:terminate_as_of).and_return(true)
+    allow(termination_event).to receive(:subscriber_end).and_return(false)
+    policy.save!
+    policy2.save!
+    policy2.update_attributes!(term_for_np: false)
+  end
+
+  subject do
+    EnrollmentAction::CarefirstTermination.new(termination_event, nil)
+  end
+
+  it "persists" do
+    expect(policy2.term_for_np).to eq false
+    expect(subject.persist).to be_truthy
+    policy2.reload
+    expect(policy2.term_for_np).to eq true
+  end
+end
+
+describe EnrollmentAction::CarefirstTermination, "given a valid enrollment", :dbclean => :after_each do
   let(:amqp_connection) { double }
   let(:event_xml) { double }
   let(:event_responder) { instance_double(::ExternalEvents::EventResponder, connection: amqp_connection) }
@@ -96,7 +148,7 @@ describe EnrollmentAction::Termination, "given a valid enrollment" do
   end
 
   subject do
-    EnrollmentAction::Termination.new(termination_event, nil)
+    EnrollmentAction::CarefirstTermination.new(termination_event, nil)
   end
 
   it "publishes a termination event" do
