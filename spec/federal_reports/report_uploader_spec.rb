@@ -20,9 +20,9 @@ describe ::FederalReports::ReportUploader, :dbclean => :after_each do
     allow(subject).to receive(:generate_1095A_pdf).with(params).and_return(pdf_file)
     allow(subject).to receive(:generate_h41_xml).with(params).and_return(xml_file)
     allow(subject).to receive(:upload_1095).with(pdf_file, 'tax-documents').and_return(true)
-    allow(subject).to receive(:upload_h41).with(pdf_file, 'tax-documents').and_return(true)
+    allow(subject).to receive(:upload_h41).with(pdf_file, "internal-artifact-transport").and_return(true)
     allow(subject).to receive(:upload_1095).with(pdf_file, 'tax-documents').and_return(true)
-    allow(subject).to receive(:upload_h41).with(xml_file, 'tax-documents').and_return(true)
+    allow(subject).to receive(:upload_h41).with(xml_file, "internal-artifact-transport").and_return(true)
     allow(subject).to receive(:persist_new_doc).and_return(true)
     allow(Policy).to receive(:find).and_return(policy)
   end
@@ -32,7 +32,7 @@ describe ::FederalReports::ReportUploader, :dbclean => :after_each do
       subject.upload(params)
       expect(subject).to have_received(:generate_1095A_pdf).with(params) 
       expect(subject).to have_received(:upload_1095).with(pdf_file, 'tax-documents')
-      expect(subject).to have_received(:upload_h41).with(xml_file, 'tax-documents')
+      expect(subject).to have_received(:upload_h41).with(xml_file, "internal-artifact-transport")
     end
 
     it 'removes tax docs after generating them' do 
