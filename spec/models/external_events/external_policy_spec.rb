@@ -339,7 +339,7 @@ describe ExternalEvents::ExternalPolicy, "with reinstated policy cv", dbclean: :
     expect(Policy.where(:eg_id => policy_id).first.aasm_state).to eq("resubmitted")
   end
 
-  context 'reset_npt_flag' do
+  context 'reset_npt_on_existing_policy' do
     let(:policy10) { FactoryGirl.create(:policy, term_for_np: true) }
 
     before :each do
