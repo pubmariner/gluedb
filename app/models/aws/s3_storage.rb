@@ -30,7 +30,7 @@ module Aws
       begin
         object = get_object(bucket_name, key)
         object.upload_file(file_path, :server_side_encryption => 'AES256')
-        if file_path.in?(`aws s3 ls s3://dchbx-enroll-aca-internal-artifact-transport-preprod/`)
+        if file_path.in?(`aws s3 ls s3://#{hbx_id}-enroll-aca-internal-artifact-transport-#{aws_env}/`)
           {object: object, uri: uri, full_file_name: file_path } 
         else
           puts "File not uploaded"
@@ -105,8 +105,12 @@ module Aws
       ENV['AWS_ENV'] || "local"
     end
 
+    def hbx_id
+      "dchbx"
+    end
+
     def env_bucket_name(bucket_name, h41 = nil)
-     h41.present? ? "dchbx-enroll-aca-internal-artifact-transport-preprod" : "dchbx-gluedb-#{bucket_name}-#{aws_env}" 
+     h41.present? ? "#{hbx_id}-enroll-aca-internal-artifact-transport-#{aws_env}" : "#{hbx_id}-gluedb-#{bucket_name}-#{aws_env}" 
     end
 
     def setup
