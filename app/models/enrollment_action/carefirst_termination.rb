@@ -8,10 +8,34 @@ module EnrollmentAction
       chunk.first.is_termination?
     end
 
-    # Remember, we only have an @termination, no @action item
+    # Remember, we only have an @terminate_enrollmenttion, no @action item
     def persist
       if termination.existing_policy
         policy_to_term = termination.existing_policy
+        # Is this even a cancellation, if so, check for custom NPT behaviour,
+        # otherwise do nothing
+
+        if termination.is_cancel?
+          begin
+            canceled_policy_m_id = policy_to_term.subscriber.m_id
+            canceled_policy_plan_id = policy_to_term.plan_id
+            canceled_policy_carrier_id = policy_to_term.carrier_id
+            canceled_policy_test_date = (policy_to_term.policy_start - 1.day)
+            pols = Person.where(authority_member_id: canceled_policy_m_id ).first.policies
+            pols.each do |pol|
+              if (pol.aasm_state == "terminated" && pol.employer_id == nil)
+                if (pol.policy_end == canceled_policy_test_date && pol.plan_id == canceled_policy_plan_id && pol.carrier_id == canceled_policy_carrier_id)
+                  unless pol.versions.empty?
+                    last_version_npt = pol.versions.last.term_for_np
+                    pol.update_attributes!(term_for_np: last_version_npt)
+                  end
+                end
+              end
+            end
+          rescue Exception => e
+            puts e.to_s
+          end
+        end
         return policy_to_term.terminate_as_of(termination.subscriber_end)
       end
       true
