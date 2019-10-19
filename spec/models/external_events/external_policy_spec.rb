@@ -212,6 +212,7 @@ describe ExternalEvents::ExternalPolicy, "with reinstated policy cv", dbclean: :
                     relationship_uri: dependent_relationship_uri
     )
   end
+  let!(:previous_policy) {FactoryGirl.create(:policy, id: policy_cv.previous_policy_id, term_for_np: true, aasm_state: "terminated" )}
   let(:policy_id) {'rspec-eg-id'}
   let(:dependent_relationship_uri) { "urn:openhbx:terms:v1:individual_relationship#spouse" }
   subject { ExternalEvents::ExternalPolicy.new(policy_cv, plan) }
@@ -240,17 +241,10 @@ describe ExternalEvents::ExternalPolicy, "with reinstated policy cv", dbclean: :
     expect(Policy.where(:eg_id => policy_id).first.aasm_state).to eq("resubmitted")
   end
 
-  context 'reset_npt_on_existing_policy' do
-    let(:policy10) { FactoryGirl.create(:policy, term_for_np: true) }
-
-    before :each do
-      allow(subject).to receive(:existing_policy).and_return(policy10)
-    end
-
-    it "should set the termination non payment flag to false for existing policy" do
-      expect(policy10.term_for_np).to eq(true)
-      subject.persist
-      expect(policy10.term_for_np).to eq(false)
-    end
+  it "should set the termination non payment flag to false on previous_policy" do
+    expect(previous_policy.term_for_np).to eq(true)
+    subject.persist
+    previous_policy.reload
+    expect(previous_policy.term_for_np).to eq(false)
   end
 end
