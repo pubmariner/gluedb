@@ -239,7 +239,8 @@ module ExternalEvents
         #updating NPT flag on previous policy to false
         previous_policy = Policy.find(@policy_node.previous_policy_id.to_s)
         if previous_policy.present?
-          previous_policy.update_attributes!(term_for_np: false) 
+          previous_policy.update_attributes!(term_for_np: false)
+          Observers::PolicyUpdated.notify(previous_policy)
         end
       end
 

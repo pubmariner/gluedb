@@ -323,6 +323,7 @@ describe ExternalEvents::ExternalPolicy, "with reinstated policy cv", dbclean: :
       carrier_id: '01'
       }).and_return(created_policy)
     allow(Observers::PolicyUpdated).to receive(:notify).with(created_policy)
+    allow(Observers::PolicyUpdated).to receive(:notify).with(previous_policy)
   end
 
   it "notifies of creation" do
@@ -342,6 +343,7 @@ describe ExternalEvents::ExternalPolicy, "with reinstated policy cv", dbclean: :
 
   it "should set the termination non payment flag to false on previous_policy" do
     expect(previous_policy.term_for_np).to eq(true)
+    expect(Observers::PolicyUpdated).to receive(:notify).with(previous_policy)
     subject.persist
     previous_policy.reload
     expect(previous_policy.term_for_np).to eq(false)
