@@ -28,7 +28,8 @@ class Policy
   field :tot_res_amt, as: :total_responsible_amount, type: BigDecimal, default: 0.00
   field :tot_emp_res_amt, as: :employer_contribution, type: BigDecimal, default: 0.00
   field :sep_reason, type: String, default: :open_enrollment
-  field :carrier_to_bill, type: Boolean, default: false
+  # Carrier to bill is always set to true for individual. Only Displays on _policy_detail.html.erb for IVL
+  field :carrier_to_bill, type: Boolean, default: true
   field :aasm_state, type: String
   field :updated_by, type: String
   field :is_active, type: Boolean, default: true
@@ -370,12 +371,13 @@ class Policy
       found_enrollment.tot_res_amt = m_enrollment.tot_res_amt
       found_enrollment.pre_amt_tot = m_enrollment.pre_amt_tot
       found_enrollment.employer_contribution = m_enrollment.employer_contribution
-      found_enrollment.carrier_to_bill = (found_enrollment.carrier_to_bill || m_enrollment.carrier_to_bill)
+      # Carrier to bill is always set to true for individual. Only Displays on _policy_detail.html.erb for IVL
+      found_enrollment.carrier_to_bill = true
       found_enrollment.save!
       return found_enrollment
     end
     m_enrollment.save!
-#    m_enrollment.unsafe_save!
+    #  m_enrollment.unsafe_save!
     m_enrollment
   end
 
