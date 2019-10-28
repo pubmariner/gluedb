@@ -77,7 +77,7 @@ module Generators::Reports
     end
 
     def validate
-      @xml_validator.validate(@data_file_path)
+      @xml_validator.validate(@data_file_path, type: :h36)
       cross_verify_elements
     end
 
@@ -102,7 +102,7 @@ module Generators::Reports
     def self.validate_individuals(dir)
       Dir.glob(dir+'/*.xml').each do |file_path|
         puts file_path.inspect
-        @xml_validator.validate(file_path)
+        @xml_validator.validate(file_path, type: :h36)
       end
     end
 

@@ -7,7 +7,7 @@ FactoryGirl.define do
     name_sfx 'Jr'
 
     transient do
-      dob Date.today - 35.years
+      dob Date.today - 35.years 
     end
 
     after(:create) do |p, evaluator|

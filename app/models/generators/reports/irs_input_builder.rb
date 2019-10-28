@@ -17,8 +17,8 @@ module Generators::Reports
     }
 
     def initialize(policy, options = {})
-      @notice_type = options[:notice_type] || false
-      @npt_policy = options[:npt_policy] || false
+      @notice_type = options[:notice_type] || 'new'
+      @npt_policy  = options[:npt_policy]  || false
 
       # multi_version = options[:multi_version] || false
       # @void = options[:void] || false

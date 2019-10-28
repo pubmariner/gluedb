@@ -56,9 +56,13 @@ module Generators::Reports
       family
     }
 
-    let(:file) { Rails.root.join("#{family.e_case_id}_#{subject.identification_num}.xml") }
+    let(:file) { Rails.root.join("#{family.e_case_id}_#{irs_group.identification_num}.xml") }
 
-    subject { 
+    let(:monthly_xsd) {
+      Nokogiri::XML::Schema(File.open("#{Rails.root.join('spec', 'support')}/xsds/h36/MSG/HHS-IRS-MonthlyExchangePeriodicDataMessage-1.0.xsd")) # IRS 2016
+    }
+
+    let(:irs_group) { 
       group_builder = Generators::Reports::IrsGroupBuilder.new(family)
       group_builder.calender_year = calender_year
       group_builder.npt_policies  = []
@@ -67,23 +71,40 @@ module Generators::Reports
       group_builder.irs_group
     }
 
+    subject { 
+      xml = Generators::Reports::IrsMonthlyXml.new(irs_group, family.e_case_id)
+      xml.folder_path = Rails.root.to_s
+      xml.serialize
+    }
+
+    before do
+      irs_group.insurance_policies.each do |insurance_policy|
+        allow(insurance_policy).to receive(:issuer_fein).and_return("637412315")
+      end
+    end
+
     it 'should build households and tax households' do
-      expect(subject.households).to be_present
-      expect(subject.households.first.tax_households).to be_present
-      expect(subject.identification_num).to be_present
+      expect(irs_group.households).to be_present
+      expect(irs_group.households.first.tax_households).to be_present
+      expect(irs_group.identification_num).to be_present
     end
 
     it 'should build insurance policies ' do
-      expect(subject.insurance_policies).to be_present
-      expect(subject.insurance_policies.first.monthly_premiums.count).to eq coverage_end.month
+      expect(irs_group.insurance_policies).to be_present
+      expect(irs_group.insurance_policies.first.monthly_premiums.count).to eq coverage_end.month
     end
 
-    it 'should generate monthly xml' do 
-      group_xml = Generators::Reports::IrsMonthlyXml.new(subject, family.e_case_id)
-      group_xml.folder_path = Rails.root.to_s
-      group_xml.serialize
-
+    it 'should generate monthly xml' do
+      subject
       expect(File.exists?(file)).to be_truthy
+      File.delete file
+    end
+
+    it 'should generate valid monthly h36' do
+      subject
+      doc = Nokogiri::XML(File.open(file))
+      expect(monthly_xsd.valid?(doc)).to be_truthy
+      File.delete file
     end
   end
 end
