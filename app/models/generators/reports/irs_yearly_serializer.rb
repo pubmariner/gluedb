@@ -85,15 +85,13 @@ module Generators::Reports
       create_enclosed_folder
       load_npt_data
       load_responsible_party_data
-      # workbook = create_excel_workbook
+
       @generate_pdf = true
       count = 0
       @folder_count = 1
 
       policies_by_subscriber.each do |row, policies|
        policies.each do |policy|
-#Policy.where(:id.in => %w(264400 264423 342282 296051 297148 301285 304784 306331 308952 338338 338913 373838)).each do |policy|      
-# Policy.where(:id.in => %w(249322)).each do |policy|
           begin
             next if policy.plan.metal_level =~ /catastrophic/i
             next if policy.kind == 'coverall'
@@ -112,20 +110,13 @@ module Generators::Reports
             end
 
             build_notice_params(policy)
-
-            # next if (policy.applied_aptc > 0 || policy.multi_aptc?)
-            # next unless (policy.subscriber.coverage_end.present? && (policy.subscriber.coverage_end.end_of_month != policy.subscriber.coverage_end))
-
             process_policy(policy)
-
           rescue Exception => e
             puts policy.id
             puts e.to_s.inspect
           end
         end
       end
-
-      #workbook.write "#{Rails.root.to_s}/IVL_QHP_1095A_#{Time.now.strftime("%m_%d_%Y_%H_%M")}.xls"
 
       if xml_output
         merge_and_validate_xmls(@folder_count)
@@ -152,7 +143,7 @@ module Generators::Reports
       @corrected_h41_policies.keys.each do |policy_id|
         policy = Policy.find(policy_id)
 
-        # begin
+        begin
           next if policy.plan.metal_level =~ /catastrophic/i
           next if policy.kind == 'coverall'
 
@@ -174,11 +165,12 @@ module Generators::Reports
           end
 
           process_policy(policy)
-        # rescue Exception => e
-        #   puts policy.id
-        #   puts e.to_s.inspect
-        # end
+        rescue Exception => e
+          puts policy.id
+          puts e.to_s.inspect
+        end
       end
+      
       merge_and_validate_xmls(@folder_count)
       create_manifest
     end
@@ -236,16 +228,6 @@ module Generators::Reports
     def process_policy_ids(ids)
       create_new_pdf_folder
       create_new_irs_folder
-
-      # book = Spreadsheet.open "#{Rails.root}/Responsible_Party_3_10.xls"
-      # @responsible_party_data = book.worksheets.first.inject({}) do |data, row|
-      #   if row[2].to_s.strip.match(/Responsible Party SSN/i) || (row[2].to_s.strip.blank? && row[3].to_s.strip.blank?)
-      #   else
-      #     data[row[0].to_s.strip.to_i] = [prepend_zeros(row[2].to_i.to_s, 9), Date.strptime(row[3].to_s.strip, "%m-%d-%Y")]
-      #   end
-      #   data
-      # end
-
 
       book = Spreadsheet.open "#{Rails.root}/CF_Responsible_Party_1095A_February_Standard_Assisted_20170224.xls"
       @responsible_party_data = book.worksheets.first.inject({}) do |data, row|
@@ -340,9 +322,7 @@ module Generators::Reports
           if responsible_party = Person.where("responsible_parties._id" => Moped::BSON::ObjectId.from_string(policy.responsible_party_id)).first
             puts "responsible party address attached"          
             irs_input.append_recipient_address(responsible_party)
-            # irs_input.append_recipient(responsible_party)
           end
-          puts "----responsible party"
         end
 
         notice = irs_input.notice
@@ -392,18 +372,6 @@ module Generators::Reports
       create_new_pdf_folder
       create_new_irs_folder
 
-      # CSV.foreach("#{Rails.root}/INCLUSION_REDMINE_2014_20160324_VOID_Request_5843-6232.csv") do |row|
-
-      # book = Spreadsheet.open "#{Rails.root}/Responsible_Party_8_18_16_SSN_Added.xls"
-      # # book = Spreadsheet.open "#{Rails.root}/Responsible_Party_3_10_16_SSN_Added_2_2014.xls"
-      # @responsible_party_data = book.worksheets.first.inject({}) do |data, row|
-      #   if row[2].to_s.strip.match(/Responsible Party SSN/i) || (row[2].to_s.strip.blank? && row[3].to_s.strip.blank?)
-      #   else
-      #     data[row[0].to_s.strip.to_i] = [prepend_zeros(row[2].to_i.to_s, 9), Date.strptime(row[3].to_s.strip, "%m-%d-%Y")]
-      #   end
-      #   data
-      # end
-
       CSV.foreach("#{Rails.root}/CF_1095_Revisions_February_20170223_VOID.csv") do |row|
         policy_id = row[0].strip
 
@@ -411,7 +379,6 @@ module Generators::Reports
         policy = Policy.find(policy_id)
 
         if policy.responsible_party_id.present?
-          puts "found responsible party --------------------- #{policy.id}"
           next
         end
 
@@ -576,23 +543,15 @@ module Generators::Reports
     end
 
     def policies_by_subscriber
-      # carrier = Carrier.where(:name => "CareFirst").first
-      # plans = Plan.where({:metal_level => {"$not" => /catastrophic/i}, :coverage_type => /health/i, :carrier_id => carrier.id}).map(&:id)
-      # plans = Plan.where({:metal_level => /catastrophic/i, :coverage_type => /health/i}).map(&:id)
       plans = Plan.where({:metal_level => {"$not" => /catastrophic/i}, :coverage_type => /health/i}).map(&:id)
       p_repo = {}
 
-      # p_map = Person.collection.aggregate([{"$unwind"=> "$members"}, {"$project" => {"_id" => 0, member_id: "$members.hbx_member_id", person_id: "$_id"}}])
-      # p_map.each do |val|
-      #   p_repo[val["member_id"]] = val["person_id"]
-      # end
-      #
       Person.no_timeout.each do |person|
         person.members.each do |member|
           p_repo[member.hbx_member_id] = person._id
         end
       end
-      puts "under policies by subscriber..."
+
       pols = PolicyStatus::Active.between(Date.new(2017,12,31), Date.new(2018,12,31)).results.where({
         :plan_id => {"$in" => plans}, :employer_id => nil
         }).group_by { |p| p_repo[p.subscriber.m_id] }

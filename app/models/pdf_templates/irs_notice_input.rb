@@ -39,6 +39,7 @@ module PdfTemplates
     end
 
     def issuer_fein
+      return if Rails.env.test?
       carrier_feins = YAML.load(File.read("#{Rails.root}/config/issuer_feins.yml")).with_indifferent_access
       carrier_feins[self.issuer_name.split.join]
     end
