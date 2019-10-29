@@ -29,18 +29,6 @@ module Generators::Reports
       person
     }
 
-    let(:primary_family_member) {
-      family_member = FamilyMember.new(is_primary_applicant: true, is_consent_applicant: true)
-      family_member.person = primary
-      family_member
-    }
-
-    let(:child_family_member) {
-      family_member = FamilyMember.new
-      family_member.person = child
-      family_member 
-    }
-
     let(:coverage_end) { Date.new(calender_year, 6, 30) }
 
     let(:policy) {
@@ -79,12 +67,14 @@ module Generators::Reports
     it 'should generate h41 xml' do
       subject
       expect(File.exists?(file)).to be_truthy
+      File.delete file
     end
 
     it 'should generate valid h41 xml' do
       subject
       doc    = Nokogiri::XML(File.open(file))
       expect(yearly_xsd.valid?(doc)).to be_truthy
+      File.delete file
     end
   end
 end
