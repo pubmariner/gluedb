@@ -57,11 +57,9 @@
     </div>
   </div>
 </div>
-<% if @edi_transaction_set.transmission_id %>
-  <%= link_to "EDI Transmission", edi_transmission_path(@edi_transaction_set.transmission_id), {class: 'btn btn-info btn-sm'} %>
-<% end %>
+<%= link_to "EDI Transmission", edi_transmission_path(@edi_transaction_set.transmission_id), {class: 'btn btn-info btn-sm'} %>
 <% if @edi_transaction_set.policy && @edi_transaction_set.policy.subscriber %>
   <%= link_to "Individual", person_path(@edi_transaction_set.policy.subscriber.person), {class: 'btn btn-info btn-sm'}  %>
-  <p class="text-right"><small><%= "updated: #{@edi_transaction_set.updated_at.strftime('%m-%d-%Y') if @edi_transaction_set.updated_at.present?}" %></small></p>
+<p class="text-right"><small><%= "updated: #{@edi_transaction_set.updated_at.strftime('%m-%d-%Y') if @edi_transaction_set.updated_at.present?}" %></small></p>
 <% end %>
 
