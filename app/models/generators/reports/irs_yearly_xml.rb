@@ -2,7 +2,7 @@ module Generators::Reports
   class IrsYearlyXml
     include ActionView::Helpers::NumberHelper
 
-    attr_accessor :corrected_record_sequence_num, :voided_record_sequence_num, :notice_params
+    attr_accessor :record_sequence_num, :corrected_record_sequence_num, :voided_record_sequence_num, :notice_params
 
     NS = {
       "xmlns:air5.0" => "urn:us:gov:treasury:irs:ext:aca:air:ty18a",
@@ -39,7 +39,6 @@ module Generators::Reports
       xml['air5.0'].RecordSequenceNum @notice.policy_id.to_i
       xml['air5.0'].TaxYr notice_params[:calender_year]
       xml['air5.0'].CorrectedInd (corrected_record_sequence_num.present? ? 1 : 0)
-      puts corrected_record_sequence_num
       if corrected_record_sequence_num.present?
         ft = Policy.find(corrected_record_sequence_num.to_s).federal_transmissions.where(report_type: /original/i).first
         xml['air5.0'].CorrectedRecordSequenceNum "#{ft.batch_id}|#{ft.content_file}|#{corrected_record_sequence_num}"
@@ -91,11 +90,11 @@ module Generators::Reports
     end
 
     def serialize_individual(xml, individual)
-      xml['air5.0'].CompletePersonName do |xml|
-        xml.PersonFirstName individual.name_first
-        xml.PersonMiddleName individual.name_middle
-        xml.PersonLastName individual.name_last
-        xml.SuffixName individual.name_sfx
+      xml['air5.0'].OtherCompletePersonName do |xml|
+        xml.PersonFirstNm individual.name_first
+        xml.PersonMiddleNm individual.name_middle
+        xml.PersonLastNm individual.name_last
+        xml.SuffixNm individual.name_sfx
       end
 
       xml['irs'].SSN individual.ssn unless individual.ssn.blank?
@@ -106,9 +105,9 @@ module Generators::Reports
       xml['air5.0'].USAddressGrp do |xml|
         xml.AddressLine1Txt address.street_1
         xml.AddressLine2Txt address.street_2
-        xml.CityNm address.city
+        xml['irs'].CityNm address.city
         xml.USStateCd address.state
-        xml.USZIPCd address.zip
+        xml['irs'].USZIPCd address.zip
         # xml.USZIPExtensionCd
       end
     end

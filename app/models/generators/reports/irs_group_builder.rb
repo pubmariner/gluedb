@@ -3,7 +3,7 @@ require 'ostruct'
 module Generators::Reports 
   class IrsGroupBuilder
 
-    attr_accessor :irs_group, :calender_year, :carrier_hash, :npt_policies
+    attr_accessor :irs_group, :calender_year, :carrier_hash, :npt_policies, :settings
 
     def initialize(family)
       @family = family
@@ -39,6 +39,7 @@ module Generators::Reports
         builder.npt_policy = true
         puts "found NPT policy ---- #{pol.id}"
       end
+      builder.settings = settings
       builder.process
       
       notice = builder.notice
@@ -169,15 +170,12 @@ module Generators::Reports
 
     def build_tax_member(household_member, is_primary = false)
       return unless household_member
-      person = household_member.family_member.person
-      build_enrollee(person, is_primary)
-      #not sure why this method is being called with wrong arugument
-      # if household_member.class.to_s == 'TaxHouseholdMember'
-      #   person = household_member.family_member.person
-      #   build_enrollee(person, is_primary)
-      # else
-      #   build_enrollee(household_member, is_primary)
-      # end
+      if household_member.class.to_s == 'TaxHouseholdMember'
+        person = household_member.family_member.person
+        build_enrollee(person, is_primary)
+      else
+        build_enrollee(household_member, is_primary)
+      end
     end
 
     def build_enrollee(person, is_primary = false)

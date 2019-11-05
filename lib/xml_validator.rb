@@ -4,7 +4,7 @@ class XmlValidator
 
   attr_accessor :folder_path
 
-  def validate(filename=nil)
+  def validate(filename=nil, type: :h36)
     Dir.foreach("#{@folder_path}/transmission") do |filename|
       # Dir.foreach("/Users/raghuram/DCHBX/gluedb/irs/h36_12_14_2015_11_38/transmission") do |filename|
       next if filename == '.' or filename == '..' or filename == 'manifest.xml' or filename == '.DS_Store'
@@ -26,11 +26,15 @@ class XmlValidator
     # xsd = Nokogiri::XML::Schema(File.open("#{Rails.root.to_s}/H36Schema/XML/MSG/HHS-IRS-MonthlyExchangePeriodicDataMessage-1.0.xsd"))
 
     # xsd = Nokogiri::XML::Schema(File.open("#{Rails.root.to_s}/H36Schema_88/MSG/HHS-IRS-MonthlyExchangePeriodicDataMessage-1.0.xsd"))
-    xsd = Nokogiri::XML::Schema(File.open("#{Rails.root.to_s}/ACA_AIR5_1095-ASchema-Marketplace/MSG/IRS-Form1095ATransmissionUpstreamMessage.xsd"))
+    if type == :h41
+      xsd = Nokogiri::XML::Schema(File.open("#{Rails.root.to_s}/ACA_AIR5_1095-ASchema-Marketplace/MSG/IRS-Form1095ATransmissionUpstreamMessage.xsd"))
+    end
+    
+    if type == :h36
+      xsd = Nokogiri::XML::Schema(File.open("#{Rails.root.to_s}/XML_LIBRARY_8_18/MSG/HHS-IRS-MonthlyExchangePeriodicDataMessage-1.0.xsd")) # IRS 2016
+    end
 
-    # xsd = Nokogiri::XML::Schema(File.open("#{Rails.root.to_s}/XML_LIBRARY_8_18/MSG/HHS-IRS-MonthlyExchangePeriodicDataMessage-1.0.xsd")) # IRS 2016
     # xsd = Nokogiri::XML::Schema(File.open("#{Rails.root.to_s}/CMS_XML/XML_LIBRARY_8_18/MSG/SBMPolicyLevelEnrollment-1.0.xsd")) # CMS 2016
-
     # puts filename.inspect
 
     doc = Nokogiri::XML(File.open("#{@folder_path}/transmission/" + filename))
@@ -45,6 +49,6 @@ class XmlValidator
       # puts filename.inspect
       puts error.message
     end
-end
+  end
   end
 end
