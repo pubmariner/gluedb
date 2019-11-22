@@ -101,9 +101,9 @@
 
 <p class="text-right"><small><%= "updated: #{@edi_transmission.updated_at.strftime('%m-%d-%Y') if @edi_transmission.updated_at.present?}" %></small></p>
 
-<div class="well well-sm well-default"
-<div class="form-actions">
-  <%= link_to t('.back', :default => t("helpers.links.back")),
-              edi_transmissions_path, :class => 'btn btn-primary'  %>
-</div>
+<div class="well well-sm well-default">
+  <div class="form-actions">
+    <%= link_to t('.back', :default => t("helpers.links.back")),
+              edi_transaction_set_path(@edi_transmission.transaction_set_enrollments.first), :class => 'btn btn-primary'  %>
+  </div>
 </div>
