@@ -291,6 +291,14 @@ module ExternalEvents
       (existing_policy.present? && existing_policy.terminated? && existing_policy.policy_end > extract_enrollee_end(subscriber))
     end
 
+    def is_concurrent_term_and_cancel_policy?
+      return false unless (enrollment_action == "urn:openhbx:terms:v1:enrollment#terminate_enrollment")
+      return false unless existing_policy.present?
+      existing_policy.active_enrollees.any? do |enrollee|
+        ((enrollee.subscriber? && enrollee.coverage_start < extract_enrollee_start(subscriber)) || enrollee.coverage_start == extract_enrollee_start(subscriber))
+      end
+    end
+
     def enrollment_action
       @enrollment_action ||= extract_enrollment_action(enrollment_event_xml)
     end
