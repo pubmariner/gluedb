@@ -5,8 +5,8 @@ describe EnrollmentAction::ConcurrentPolicyCancelAndTerm, "given an EnrollmentAc
   - has one element that is a termination and not a concurrent policy
   - has more than one element" do
 
-  let(:event_1) { instance_double(ExternalEvents::EnrollmentEventNotification, is_termination?: true, is_concurrent_term_and_cancel_policy?: true) }
-  let(:event_2) { instance_double(ExternalEvents::EnrollmentEventNotification, is_termination?: true, is_concurrent_term_and_cancel_policy?: false) }
+  let(:event_1) { instance_double(ExternalEvents::EnrollmentEventNotification, is_termination?: true, is_concurrent_cancel_term_policy?: true) }
+  let(:event_2) { instance_double(ExternalEvents::EnrollmentEventNotification, is_termination?: true, is_concurrent_cancel_term_policy?: false) }
 
   subject { EnrollmentAction::ConcurrentPolicyCancelAndTerm }
 
