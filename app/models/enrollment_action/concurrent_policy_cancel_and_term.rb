@@ -4,7 +4,7 @@ module EnrollmentAction
     def self.qualifies?(chunk)
       return false if chunk.length > 1
       return false unless chunk.first.is_termination?
-      chunk.first.is_concurrent_term_and_cancel_policy?
+      chunk.first.is_concurrent_cancel_term_policy?
     end
 
     def persist
@@ -54,7 +54,6 @@ module EnrollmentAction
         termination_helper.filter_affected_members(terminated_dependents)
         termination_helper.set_member_end_date(member_end_date_map)
         termination_helper.recalculate_premium_totals_excluding_dropped_dependents(terminated_dependents)
-        # check eligibity event...
 
         amqp_connection = termination.event_responder.connection
         publish_edi(amqp_connection, termination_helper.to_xml, termination.hbx_enrollment_id, termination.employer_hbx_id)
