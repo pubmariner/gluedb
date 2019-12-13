@@ -5,8 +5,11 @@ describe EnrollmentAction::ConcurrentPolicyCancelAndTerm, "given an EnrollmentAc
   - has one element that is a termination and not a concurrent policy
   - has more than one element" do
 
-  let(:event_1) { instance_double(ExternalEvents::EnrollmentEventNotification, is_termination?: true, is_concurrent_cancel_term_policy?: true) }
-  let(:event_2) { instance_double(ExternalEvents::EnrollmentEventNotification, is_termination?: true, is_concurrent_cancel_term_policy?: false) }
+  let(:subscriber) { Enrollee.new(:m_id=> '1', :coverage_end => nil, :coverage_start => (Date.today - 2.month).beginning_of_month, :rel_code => "self") }
+  let(:enrollee) { Enrollee.new(:m_id => "2", :coverage_end => nil, :coverage_start => (Date.today - 1.month).beginning_of_month, :relationship_status_code => "child") }
+  let(:policy) { create(:policy, enrollees: [ subscriber, enrollee ]) }
+  let(:event_1) { instance_double(ExternalEvents::EnrollmentEventNotification, is_termination?: true, is_cancel?: true, existing_policy: policy, subscriber_start: (Date.today - 1.month).beginning_of_month, subscriber_end: (Date.today - 1.month).beginning_of_month, all_member_ids: [1, 2]) }
+  let(:event_2) { instance_double(ExternalEvents::EnrollmentEventNotification, is_termination?: false) }
 
   subject { EnrollmentAction::ConcurrentPolicyCancelAndTerm }
 
@@ -97,6 +100,7 @@ describe EnrollmentAction::ConcurrentPolicyCancelAndTerm, "given a valid enrollm
     allow(termination_action_publish_helper).to receive(:set_member_starts).with({1 => enrollee.coverage_start})
     allow(termination_action_publish_helper).to receive(:set_member_end_date).with({1 => enrollee.coverage_end})
     allow(termination_action_publish_helper).to receive(:filter_affected_members).with([enrollee.m_id])
+    allow(termination_action_publish_helper).to receive(:filter_enrollee_members).with([enrollee.m_id])
     allow(termination_action_publish_helper).to receive(:recalculate_premium_totals_excluding_dropped_dependents).with([enrollee.m_id])
     allow(subject).to receive(:publish_edi).with(amqp_connection, action_helper_result_xml, termination_event.hbx_enrollment_id, termination_event.employer_hbx_id)
   end
@@ -176,6 +180,7 @@ describe EnrollmentAction::ConcurrentPolicyCancelAndTerm, "given a valid enrollm
     allow(termination_publish_action_helper).to receive(:set_member_starts).with({1 => enrollee.coverage_start, 2 => enrollee2.coverage_start})
     allow(termination_publish_action_helper).to receive(:set_member_end_date).with({1 => enrollee.coverage_end, 2 => enrollee2.coverage_end})
     allow(termination_publish_action_helper).to receive(:filter_affected_members).with([enrollee.m_id])
+    allow(termination_publish_action_helper).to receive(:filter_enrollee_members).with([enrollee.m_id])
     allow(termination_publish_action_helper).to receive(:recalculate_premium_totals_excluding_dropped_dependents).with([enrollee.m_id])
     allow(subject).to receive(:publish_edi).with(amqp_connection, termination_action_helper_result_xml, termination_event.hbx_enrollment_id, termination_event.employer_hbx_id)
   end
