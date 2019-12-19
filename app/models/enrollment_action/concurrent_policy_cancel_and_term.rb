@@ -50,7 +50,7 @@ module EnrollmentAction
 
       if dropped_dependents.present?
         cancellation_helper = ActionPublishHelper.new(termination.event_xml)
-        cancellation_helper.set_event_action("urn:openhbx:terms:v1:enrollment#terminate_enrollment")
+        cancellation_helper.set_event_action("urn:openhbx:terms:v1:enrollment#change_member_terminate")
         cancellation_helper.set_policy_id(existing_policy.eg_id)
         cancellation_helper.set_member_starts(member_date_map)
         cancellation_helper.filter_affected_members(dropped_dependents)
@@ -58,7 +58,11 @@ module EnrollmentAction
         cancellation_helper.recalculate_premium_totals_excluding_dropped_dependents(dropped_dependents)
 
         amqp_connection = termination.event_responder.connection
-        publish_edi(amqp_connection, cancellation_helper.to_xml, termination.hbx_enrollment_id, termination.employer_hbx_id)
+        publish_result, publish_errors = publish_edi(amqp_connection, cancellation_helper.to_xml, termination.hbx_enrollment_id, termination.employer_hbx_id)
+
+        unless publish_result
+          return [publish_result, publish_errors]
+        end
       end
 
       if terminated_dependents.present?

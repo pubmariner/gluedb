@@ -166,13 +166,13 @@ describe EnrollmentAction::ConcurrentPolicyCancelAndTerm, "given a valid enrollm
   before :each do
     allow(EnrollmentAction::ActionPublishHelper).to receive(:new).with(event_xml).and_return(cancel_publish_action_helper, termination_publish_action_helper)
 
-    allow(cancel_publish_action_helper).to receive(:set_event_action).with("urn:openhbx:terms:v1:enrollment#terminate_enrollment")
+    allow(cancel_publish_action_helper).to receive(:set_event_action).with("urn:openhbx:terms:v1:enrollment#change_member_terminate")
     allow(cancel_publish_action_helper).to receive(:set_policy_id).with(policy.id)
     allow(cancel_publish_action_helper).to receive(:set_member_starts).with({1 => enrollee.coverage_start, 2 => enrollee2.coverage_start})
     allow(cancel_publish_action_helper).to receive(:filter_affected_members).with([enrollee2.m_id])
     allow(cancel_publish_action_helper).to receive(:keep_member_ends).with([enrollee2.m_id])
     allow(cancel_publish_action_helper).to receive(:recalculate_premium_totals_excluding_dropped_dependents).with([enrollee2.m_id])
-    allow(subject).to receive(:publish_edi).with(amqp_connection, cancel_action_helper_result_xml, termination_event.hbx_enrollment_id, termination_event.employer_hbx_id)
+    allow(subject).to receive(:publish_edi).with(amqp_connection, cancel_action_helper_result_xml, termination_event.hbx_enrollment_id, termination_event.employer_hbx_id).and_return([true, {}])
 
 
     allow(termination_publish_action_helper).to receive(:set_event_action).with("urn:openhbx:terms:v1:enrollment#terminate_enrollment")
@@ -182,7 +182,7 @@ describe EnrollmentAction::ConcurrentPolicyCancelAndTerm, "given a valid enrollm
     allow(termination_publish_action_helper).to receive(:filter_affected_members).with([enrollee.m_id])
     allow(termination_publish_action_helper).to receive(:filter_enrollee_members).with([enrollee.m_id])
     allow(termination_publish_action_helper).to receive(:recalculate_premium_totals_excluding_dropped_dependents).with([enrollee.m_id])
-    allow(subject).to receive(:publish_edi).with(amqp_connection, termination_action_helper_result_xml, termination_event.hbx_enrollment_id, termination_event.employer_hbx_id)
+    allow(subject).to receive(:publish_edi).with(amqp_connection, termination_action_helper_result_xml, termination_event.hbx_enrollment_id, termination_event.employer_hbx_id).and_return([true, {}])
   end
 
   subject do
@@ -191,7 +191,7 @@ describe EnrollmentAction::ConcurrentPolicyCancelAndTerm, "given a valid enrollm
 
 
   it "sets event for cancel action helper" do
-    expect(cancel_publish_action_helper).to receive(:set_event_action).with("urn:openhbx:terms:v1:enrollment#terminate_enrollment")
+    expect(cancel_publish_action_helper).to receive(:set_event_action).with("urn:openhbx:terms:v1:enrollment#change_member_terminate")
     subject.publish
   end
 
