@@ -27,7 +27,7 @@ CSV.open("catastrophic_plans_report_for_#{year}.csv",'w') do |csv|
         policy.subscriber.m_id,
         policy.belong_to_authority_member?,
         policy.plan.metal_level,
-        policy.carrier,
+        policy.carrier.name,
         policy.plan.hios_plan_id,
         policy.aasm_state,
         policy.subscriber.coverage_start,
