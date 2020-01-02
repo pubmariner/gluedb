@@ -18,6 +18,7 @@ CSV.open("catastrophic_plans_report_for_#{year}.csv",'w') do |csv|
   policies = Policy.where(:"plan_id".in => catastrophic_plan_ids, :"enrollees.coverage_start" => { "$gte" => start_date, "$lte" => end_date} )
   policies.each do |policy|
     next if policy.subscriber.coverage_start.year != year
+    next policy if policy.aasm_state == 'canceled'
     begin
       csv << [
         policy.id,
