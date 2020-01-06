@@ -56,4 +56,10 @@ tax_document:
         active_false: "2018-1095A-VOID-ACTIVE-FALSE.pdf"
         active_true: "2018-1095A-VOID-ACTIVE-TRUE.pdf"
     coverage_page_no: 3
-
+  2019:
+    slcsp: '86052DC0400001-01'
+    new:
+      template:
+        unassisted: '2019-1095A-NEW-UQHP.pdf'
+        assisted: '2019-1095A-NEW-AQHP.pdf'
+    coverage_page_no: 3
