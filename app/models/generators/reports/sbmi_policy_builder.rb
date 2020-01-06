@@ -29,6 +29,8 @@ module Generators::Reports
 
       sbmi_policy.effectuation_status = if policy.canceled?
         'N'
+      elsif policy.aasm_state == 'resubmitted'
+        'Y'  
       else
         if policy.subscriber.coverage_start > Date.new(2020, 12, 31)
           (sbmi_policy.terminated? || sbmi_policy.effectuated?) ? 'Y' : 'N'
