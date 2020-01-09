@@ -180,7 +180,7 @@ module Generators::Reports
       elsif @calender_year >= 2018
         bounding_box([36, 447.6+padding], :width => 200) do
           open_sans_font
-          text "#{@notice.recipient.name}:", size: 10
+          text "#{@notice.recipient.name_first}:", size: 10
         end
       else
         bounding_box([x_pos, y_pos+padding], :width => 200) do
