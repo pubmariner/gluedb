@@ -32,7 +32,7 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    Ascii85 (1.0.2)
+    Ascii85 (1.0.3)
     aasm (3.0.26)
     actionmailer (3.2.22.5)
       actionpack (= 3.2.22.5)
@@ -244,7 +244,8 @@ GEM
       parallel
     pd_x12 (1.5.4)
       libxml-ruby
-    pdf-reader (1.4.1)
+    pdf-core (0.7.0)
+    pdf-reader (2.4.0)
       Ascii85 (~> 1.0.0)
       afm (~> 0.2.1)
       hashery (~> 2.0)
@@ -252,9 +253,12 @@ GEM
       ttfunk
     polyglot (0.3.5)
     power_assert (0.4.1)
-    prawn (0.11.1)
-      pdf-reader (>= 0.9.0)
-      ttfunk (~> 1.0.0)
+    prawn (2.2.2)
+      pdf-core (~> 0.7.0)
+      ttfunk (~> 1.5)
+    prawn-templates (0.1.2)
+      pdf-reader (~> 2.0)
+      prawn (~> 2.2)
     psych (2.0.5)
     rack (1.4.7)
     rack-cache (1.7.1)
@@ -372,7 +376,7 @@ GEM
     treetop (1.4.15)
       polyglot
       polyglot (>= 0.3.1)
-    ttfunk (1.0.3)
+    ttfunk (1.5.1)
     tzinfo (0.3.53)
     uglifier (3.0.4)
       execjs (>= 0.3.0, < 3)
@@ -443,7 +447,8 @@ DEPENDENCIES
   origin (~> 1.1.0)
   parallel_tests (~> 2.13.0)
   pd_x12 (~> 1.5.4)
-  prawn (~> 0.11.1)
+  prawn (~> 2.2)
+  prawn-templates (~> 0.1.2)
   psych (= 2.0.5)
   rails (= 3.2.22.5)
   rails_best_practices (~> 1.17.0)

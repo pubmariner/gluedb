@@ -19,9 +19,9 @@ module Generators::Reports
     def get_template(options)
       notice_type = (['new', 'corrected'].include?(options[:notice_type]) ? 'new' : options[:notice_type])
 
-      template_name = if ([2016, 2017, 2018].include?(options[:calender_year]) && options[:notice_type] != 'void')
+      template_name = if (options[:calender_year] >= 2016 && options[:notice_type] != 'void')
         settings[:tax_document][options[:calender_year]][notice_type][:template][options[:qhp_type]]
-      elsif ([2017, 2018].include?(options[:calender_year]) && options[:notice_type] == 'void')
+      elsif (options[:calender_year] >= 2017 && options[:notice_type] == 'void')
         settings[:tax_document][options[:calender_year]][notice_type][:template][options[:void_type]]
       else
         settings[:tax_document][options[:calender_year]][notice_type][:template]
@@ -59,13 +59,13 @@ module Generators::Reports
     def process
       fill_envelope
       fill_coverletter
-      fill_hbx_id_for_coverletter if [2017, 2018].include?(@calender_year)
+      fill_hbx_id_for_coverletter if @calender_year >= 2017
       return if @catastrophic_confirmation
       if @catastrophic_corrected
         go_to_page(3)
       elsif (@notice_2016 || @void_2016 || @void_2017 || @void_2018)
         go_to_page(9)
-      elsif [2017, 2018].include?(@calender_year)
+      elsif @calender_year >= 2017
         go_to_page(11)
       else
         go_to_page(5)
@@ -76,7 +76,7 @@ module Generators::Reports
     end
 
     def fill_envelope
-      if [2017, 2018].include?(@calender_year)
+      if @calender_year >= 2017
         x_pos = mm2pt(14.00) - @margin[0]
         y_pos = 790.86 - mm2pt(44.00) - 65
         bounding_box([x_pos, y_pos], :width => 300) do
@@ -126,7 +126,7 @@ module Generators::Reports
           open_sans_font
           text "#{Date.today.strftime('%m/%d/%Y')}", size: 10
         end
-      elsif @calender_year == 2018
+      elsif @calender_year >= 2018
         bounding_box([8.5, 508+padding], :width => 200) do
           open_sans_font
           text "#{Date.today.strftime('%m/%d/%Y')}", size: 10
@@ -138,7 +138,7 @@ module Generators::Reports
       end
 
       #For Printing Address on template
-      if [2017, 2018].include?(@calender_year)
+      if @calender_year >= 2017
         bounding_box([8, 590+padding], :width => 300) do
           open_sans_font
           fill_recipient_contact(10)
@@ -177,10 +177,10 @@ module Generators::Reports
           open_sans_font
           text "#{@notice.recipient.name}:", size: 10
         end
-      elsif @calender_year == 2018
+      elsif @calender_year >= 2018
         bounding_box([36, 447.6+padding], :width => 200) do
           open_sans_font
-          text "#{@notice.recipient.name}:", size: 10
+          text "#{@notice.recipient.name_first}:", size: 10
         end
       else
         bounding_box([x_pos, y_pos+padding], :width => 200) do
@@ -240,7 +240,7 @@ module Generators::Reports
     end
 
     def fill_hbx_id_for_coverletter
-      if @calender_year == 2018
+      if @calender_year >= 2018
         pages = [4, 5]
       elsif @qhp_type.present? && !@void_2017 && !@void_2018
         pages = [4, 5, 6]
@@ -250,7 +250,7 @@ module Generators::Reports
 
       pages.each do |page|
         go_to_page(page)
-        if @calender_year == 2018
+        if @calender_year >= 2018
           bounding_box([405, 753], :width => 200) do
             open_sans_font
             text "#{@hbx_id}", size: 8
