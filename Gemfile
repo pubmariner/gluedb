@@ -84,7 +84,9 @@ gem 'oj', "~> 2.18.0"
 gem 'roo', '2.1.0'
 gem 'bh', "~> 1.3.6"
 gem 'nokogiri-happymapper', "~> 0.5.9", :require => 'happymapper'
-gem 'prawn', '~> 0.11.1'
+# Upgraded prawn to fix inverted text issue, Ref: https://github.com/prawnpdf/prawn-templates/issues/19
+gem 'prawn', '~> 2.2'
+gem 'prawn-templates', '~> 0.1.2'
 gem 'forkr', '1.0.2'
 gem 'edi_codec', git: "git@github.com:dchbx/edi_codec.git"
 gem 'ibsciss-middleware', git: "https://github.com/dchbx/ruby-middleware.git", :require => "middleware"
