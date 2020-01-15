@@ -464,7 +464,8 @@ module Generators::Reports
       print_policies(canceled_policies, 18, y_position+padding)
       if @notice.active_policies.present?
         active_policies = @notice.active_policies.split(',')
-        print_policies(active_policies, 18, 130+padding)
+        y_ps = @void_2019 ? 125+padding : 130+padding
+        print_policies(active_policies, 18, y_ps)
       end
     end
   end
