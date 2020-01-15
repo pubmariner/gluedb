@@ -3,12 +3,18 @@ require "rails_helper"
 describe EnrollmentAction::Termination, "given an EnrollmentAction array that:
   - has one element that is a termination
   - has one element that is not a termination
-  - has more than one element" do
+  - has more than one element 
+  - the enrollment is for a carrier who is reinstate capable" do
 
   let(:event_1) { instance_double(ExternalEvents::EnrollmentEventNotification, is_termination?: true) }
   let(:event_2) { instance_double(ExternalEvents::EnrollmentEventNotification, is_termination?: false) }
 
   subject { EnrollmentAction::Termination }
+
+  before :each do
+    allow(subject).to receive(:reinstate_capable_carrier?).with(event_1).and_return(true)
+    allow(subject).to receive(:reinstate_capable_carrier?).with(event_2).and_return(true)
+  end
 
   it "qualifies" do
     expect(subject.qualifies?([event_1])).to be_truthy
@@ -20,6 +26,17 @@ describe EnrollmentAction::Termination, "given an EnrollmentAction array that:
 
   it "does not qualify" do
     expect(subject.qualifies?([event_1, event_2])).to be_false
+  end
+
+  context "
+  - has one element that is a termination
+  - the enrollment is for a carrier who is not reinstate capable
+  " do
+
+    it "does not qualify" do
+      allow(subject).to receive(:reinstate_capable_carrier?).with(event_1).and_return(false)
+      expect(subject.qualifies?([event_1])).to be_false
+    end
   end
 end
 
@@ -38,10 +55,16 @@ describe EnrollmentAction::Termination, "given a valid enrollment" do
   before :each do
     allow(termination_event.existing_policy).to receive(:terminate_as_of).and_return(true)
     allow(termination_event).to receive(:subscriber_end).and_return(false)
+    allow(Observers::PolicyUpdated).to receive(:notify).with(policy)
   end
 
   subject do
     EnrollmentAction::Termination.new(termination_event, nil)
+  end
+
+  it "notifies of the termination" do
+    expect(Observers::PolicyUpdated).to receive(:notify).with(policy)
+    subject.persist
   end
 
   it "persists" do

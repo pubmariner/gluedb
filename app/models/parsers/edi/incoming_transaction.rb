@@ -57,13 +57,13 @@ module Parsers
                   is_policy_cancel = true
                   policy_end_date = enrollee.coverage_end
                   enrollee.policy.aasm_state = "canceled"
-                  enrollee.policy.term_for_np = true if is_non_payment
+                  enrollee.policy.term_for_np = is_non_payment
                   enrollee.policy.save
                 else
                   is_policy_term = true
                   policy_end_date = enrollee.coverage_end
                   enrollee.policy.aasm_state = "terminated"
-                  enrollee.policy.term_for_np = true if is_non_payment
+                  enrollee.policy.term_for_np = is_non_payment
                   enrollee.policy.save
                 end
               end
@@ -77,6 +77,7 @@ module Parsers
         save_val = @policy.save
         if is_policy_term
           # Broadcast the term
+          Observers::PolicyUpdated.notify(@policy)
           reason_headers = if is_non_payment
                              {:qualifying_reason => "urn:openhbx:terms:v1:benefit_maintenance#non_payment"}
                            else
@@ -96,6 +97,7 @@ module Parsers
           end
         elsif is_policy_cancel
           # Broadcast the cancel
+          Observers::PolicyUpdated.notify(@policy)
           reason_headers = if is_non_payment
                              {:qualifying_reason => "urn:openhbx:terms:v1:benefit_maintenance#non_payment"}
                            else

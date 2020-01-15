@@ -1,7 +1,10 @@
 module EnrollmentAction
   class Termination < Base
+    extend ReinstatementComparisonHelper
+
     def self.qualifies?(chunk)
       return false if chunk.length > 1
+      return false unless reinstate_capable_carrier?(chunk.first)
       chunk.first.is_termination?
     end
 
@@ -9,7 +12,9 @@ module EnrollmentAction
     def persist
       if termination.existing_policy
         policy_to_term = termination.existing_policy
-        return policy_to_term.terminate_as_of(termination.subscriber_end)
+        result = policy_to_term.terminate_as_of(termination.subscriber_end)
+        Observers::PolicyUpdated.notify(policy_to_term)
+        return result
       end
       true
     end

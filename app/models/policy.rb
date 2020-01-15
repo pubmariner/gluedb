@@ -34,6 +34,7 @@ class Policy
   field :updated_by, type: String
   field :is_active, type: Boolean, default: true
   field :hbx_enrollment_ids, type: Array
+  field :kind, type: String
 
 # Adding field values Carrier specific
   field :carrier_specific_plan_id, type: String
@@ -55,7 +56,9 @@ class Policy
 
   embeds_many :aptc_credits
   embeds_many :aptc_maximums
+
   embeds_many :cost_sharing_variants
+  embeds_many :federal_transmissions
 
   embeds_many :enrollees
   accepts_nested_attributes_for :enrollees, reject_if: :all_blank, allow_destroy: true
@@ -183,6 +186,28 @@ class Policy
     ]
   end
 
+  def calculated_premium_effective_date
+    subscriber_start = subscriber.coverage_start
+    non_canceled_enrollees = enrollees.reject do |en|
+      en.coverage_ended? && (en.coverage_end <= en.coverage_start)
+    end
+    # Return the enrollment start if everybody is canceled
+    return subscriber_start if non_canceled_enrollees.empty?
+    latest_possible_date = subscriber.coverage_ended? ? subscriber.coverage_end : coverage_year.end
+    # Discard end dates that are the last possible policy day,
+    # Since we are going to pick up one day after
+    latest_end_dates = non_canceled_enrollees.map(&:coverage_end).compact.reject do |d|
+      d >= latest_possible_date
+    end
+    # The last day of coverage +1 day is actually the
+    # date the premium for somebody terminated becomes effected
+    provided_end_dates = latest_end_dates.map do |d|
+      d + 1.day
+    end
+    latest_start_dates = non_canceled_enrollees.map(&:coverage_start).compact
+    (provided_end_dates + latest_start_dates).max
+  end
+
   def canceled?
     subscriber.canceled?
   end
@@ -246,6 +271,9 @@ class Policy
       self.enrollees << m_enrollee
     else
       found_enrollee.merge_enrollee(m_enrollee, p_action)
+      found_enrollee.touch
+      self.touch
+      self.save!
     end
   end
 
@@ -376,6 +404,7 @@ class Policy
       found_enrollment.save!
       return found_enrollment
     end
+    # Observers::PolicyUpdated.notify(m_enrollment) notified in calling method before save transmission_file.rb/persist_policy
     m_enrollment.save!
     #  m_enrollment.unsafe_save!
     m_enrollment
