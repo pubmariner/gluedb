@@ -63,7 +63,7 @@ module Generators::Reports
       return if @catastrophic_confirmation
       if @catastrophic_corrected
         go_to_page(3)
-      elsif (@notice_2016 || @void_2016 || @void_2017 || @void_2018)
+      elsif (@notice_2016 || @void_2016 || @void_2017 || @void_2018 || @void_2019)
         go_to_page(9)
       elsif @calender_year >= 2017
         go_to_page(11)
@@ -190,22 +190,10 @@ module Generators::Reports
 
       padding = -20 if @void_2016
 
-      if @void_2018
-        canceled_policies = @notice.canceled_policies.split(',')
-        print_policies(canceled_policies, 18, 340+padding)
-        if @notice.active_policies.present?
-          active_policies = @notice.active_policies.split(',')
-          print_policies(active_policies, 18, 130+padding)
-        end
-      end
-
-      if @void_2017
-        canceled_policies = @notice.canceled_policies.split(',')
-        print_policies(canceled_policies, 18, 285+padding)
-        if @notice.active_policies.present?
-          active_policies = @notice.active_policies.split(',')
-          print_policies(active_policies, 18, 130+padding)
-        end
+      if @void_2018 || @void_2019
+        set_positions(340+padding)
+      elsif @void_2017
+        set_positions(285+padding)
       end
 
       if @void_2016
@@ -242,9 +230,9 @@ module Generators::Reports
     def fill_hbx_id_for_coverletter
       if @calender_year >= 2018
         pages = [4, 5]
-      elsif @qhp_type.present? && !@void_2017 && !@void_2018
+      elsif @qhp_type.present? && !@void_2017 && !@void_2018 && !@void_2019
         pages = [4, 5, 6]
-      elsif (@void_2017 || @void_2018)
+      elsif (@void_2017 || @void_2018 || @void_2019)
         pages = [4]
       end
 
@@ -285,9 +273,9 @@ module Generators::Reports
 
       x_pos_corrected = mm2pt(128.50)
       y_pos_corrected = 790.86 - mm2pt(31.80)
-      y_pos_corrected = 790.86 - mm2pt(23.80) if (@void_2015 || @void_2016 || @void_2017 || @void_2018)
+      y_pos_corrected = 790.86 - mm2pt(23.80) if (@void_2015 || @void_2016 || @void_2017 || @void_2018 || @void_2019)
 
-      if (@corrected || @void || @void_2015 || @void_2016 || @void_2017 || @void_2018)
+      if (@corrected || @void || @void_2015 || @void_2016 || @void_2017 || @void_2018 || @void_2019)
         bounding_box([x_pos_corrected, y_pos_corrected], :width => 100) do
           text "x"
         end
@@ -469,6 +457,15 @@ module Generators::Reports
       ssn = number_to_ssn(ssn)
       last_digits = ssn.match(/\d{4}$/)[0]
       "***-**-#{last_digits}"
+    end
+
+    def set_positions(y_position)
+      canceled_policies = @notice.canceled_policies.split(',')
+      print_policies(canceled_policies, 18, y_position)
+      if @notice.active_policies.present?
+        active_policies = @notice.active_policies.split(',')
+        print_policies(active_policies, 18, 130+padding)
+      end
     end
   end
 end
