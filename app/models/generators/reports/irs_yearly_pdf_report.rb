@@ -191,9 +191,9 @@ module Generators::Reports
       padding = -20 if @void_2016
 
       if @void_2018 || @void_2019
-        set_positions(340+padding)
+        set_positions(340, padding)
       elsif @void_2017
-        set_positions(285+padding)
+        set_positions(285, padding)
       end
 
       if @void_2016
@@ -459,9 +459,9 @@ module Generators::Reports
       "***-**-#{last_digits}"
     end
 
-    def set_positions(y_position)
+    def set_positions(y_position, padding)
       canceled_policies = @notice.canceled_policies.split(',')
-      print_policies(canceled_policies, 18, y_position)
+      print_policies(canceled_policies, 18, y_position+padding)
       if @notice.active_policies.present?
         active_policies = @notice.active_policies.split(',')
         print_policies(active_policies, 18, 130+padding)
