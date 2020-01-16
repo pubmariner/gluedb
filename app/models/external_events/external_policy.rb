@@ -237,7 +237,7 @@ module ExternalEvents
       if @policy_node.previous_policy_id.present? && @policy_reinstate
         policy.aasm_state = "resubmitted"
         #updating NPT flag on previous policy to false
-        previous_policy = Policy.find(@policy_node.previous_policy_id.to_s)
+        previous_policy = Policy.where(:hbx_enrollment_ids  => {"$in" => [@policy_node.previous_policy_id.to_s]}).first
         if previous_policy.present?
           previous_policy.update_attributes!(term_for_np: false)
           Observers::PolicyUpdated.notify(previous_policy)

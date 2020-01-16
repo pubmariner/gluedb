@@ -279,7 +279,7 @@ describe ExternalEvents::ExternalPolicy, "with reinstated policy cv", dbclean: :
                     relationship_uri: dependent_relationship_uri
     )
   end
-  let!(:previous_policy) {FactoryGirl.create(:policy, id: policy_cv.previous_policy_id, term_for_np: true, aasm_state: "terminated" )}
+  let!(:previous_policy) {FactoryGirl.create(:policy, eg_id: policy_cv.previous_policy_id, term_for_np: true, aasm_state: "terminated" )}
   let(:policy_id) {'rspec-eg-id'}
   let(:dependent_relationship_uri) { "urn:openhbx:terms:v1:individual_relationship#spouse" }
   subject { ExternalEvents::ExternalPolicy.new(policy_cv, plan, false, policy_reinstate: true) }
