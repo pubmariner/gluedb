@@ -33,6 +33,7 @@
 		  <% end %>
 			<% if (policy_market(p) == "Individual") %>
 			  <dt>Carrier to Bill?</dt>
+        <%# Individual is always set to yes for carrier to bill %>
 			  <dd><%= boolean_to_human(p.carrier_to_bill) %></dd>
 			  <%# if p.csr_amt %>
 				  <dt>CSR percent</dt>
