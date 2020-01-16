@@ -46,6 +46,7 @@ module Generators::Reports
       end
 
       if options[:notice_type] == 'void'
+        @void = true
         instance_variable_set("@void_#{options[:calender_year]}", true)
       end
 
@@ -53,7 +54,6 @@ module Generators::Reports
       @catastrophic_corrected = false
       @catastrophic_aptc = false
       @catastrophic_confirmation =  false
-      @void = @void_2014
     end
 
     def process
@@ -63,7 +63,7 @@ module Generators::Reports
       return if @catastrophic_confirmation
       if @catastrophic_corrected
         go_to_page(3)
-      elsif (@notice_2016 || @void_2016 || @void_2017 || @void_2018 || @void_2019)
+      elsif (@notice_2016 || (@void && @calender_year >= 2016))
         go_to_page(9)
       elsif @calender_year >= 2017
         go_to_page(11)
@@ -71,7 +71,7 @@ module Generators::Reports
         go_to_page(5)
       end
       fill_subscriber_details
-      fill_household_details unless (@void || @void_2016)
+      fill_household_details unless (@void_2014 || @void_2016)
       fill_preimum_details
     end
 
@@ -166,7 +166,7 @@ module Generators::Reports
 
       x_pos = 42 if @catastrophic_corrected
 
-      padding = 12 unless @void
+      padding = 12 unless @void_2014
       padding = 20 if @void_2016
       y_pos = 409 if @void_2016
       y_pos = 444 if @void_2015
@@ -190,7 +190,7 @@ module Generators::Reports
 
       padding = -20 if @void_2016
 
-      if @void_2018 || @void_2019
+      if @void && @calender_year >= 2018
         set_positions(340, padding)
       elsif @void_2017
         set_positions(285, padding)
@@ -228,11 +228,11 @@ module Generators::Reports
     end
 
     def fill_hbx_id_for_coverletter
-      if @calender_year >= 2018
+      if @calender_year >= 2018 && !@void
         pages = [4, 5]
-      elsif @qhp_type.present? && !@void_2017 && !@void_2018 && !@void_2019
+      elsif @qhp_type.present? && (!@void || (@void && @calender_year <= 2016))
         pages = [4, 5, 6]
-      elsif (@void_2017 || @void_2018 || @void_2019)
+      elsif @void && @calender_year >= 2017
         pages = [4]
       end
 
@@ -273,9 +273,9 @@ module Generators::Reports
 
       x_pos_corrected = mm2pt(128.50)
       y_pos_corrected = 790.86 - mm2pt(31.80)
-      y_pos_corrected = 790.86 - mm2pt(23.80) if (@void_2015 || @void_2016 || @void_2017 || @void_2018 || @void_2019)
+      y_pos_corrected = 790.86 - mm2pt(23.80) if @void && @calender_year >= 2015
 
-      if (@corrected || @void || @void_2015 || @void_2016 || @void_2017 || @void_2018 || @void_2019)
+      if @corrected || @void
         bounding_box([x_pos_corrected, y_pos_corrected], :width => 100) do
           text "x"
         end
@@ -288,7 +288,7 @@ module Generators::Reports
       end
 
 
-      if !@void
+      if !@void_2014
         bounding_box([col2, y_pos], :width => 150) do
           text @notice.policy_id
         end
@@ -306,7 +306,7 @@ module Generators::Reports
       fill_enrollee(@notice.recipient, @responsible_party_data)
 
       move_down(12)
-      if @notice.spouse && @notice.has_aptc && !@void
+      if @notice.spouse && @notice.has_aptc && !@void_2014
         fill_enrollee(@notice.spouse)
       else
         move_down(13)
@@ -314,11 +314,11 @@ module Generators::Reports
       move_down(11)
       y_pos = cursor
       bounding_box([col1, y_pos], :width => 100) do
-        text @notice.recipient.coverage_start_date unless @void
+        text @notice.recipient.coverage_start_date unless @void_2014
       end
 
       bounding_box([col2, y_pos], :width => 100) do
-        text @notice.recipient.coverage_termination_date.to_s unless @void
+        text @notice.recipient.coverage_termination_date.to_s unless @void_2014
       end
 
       bounding_box([col3, y_pos], :width => 250) do
@@ -413,18 +413,18 @@ module Generators::Reports
         monthly_premium = @notice.monthly_premiums.detect{|p| p.serial == index}
         monthly_premium = nil if monthly_premium.present? && monthly_premium.premium_amount.nil?
 
-        if monthly_premium || @void
+        if monthly_premium || @void_2014
           bounding_box([col1, y_pos], :width => 100) do
-            text number_to_currency((@void || @catastrophic_corrected) ? 0.0 : monthly_premium.premium_amount), :align => :right
+            text number_to_currency((@void_2014 || @catastrophic_corrected) ? 0.0 : monthly_premium.premium_amount), :align => :right
           end
 
-          if @void || (monthly_premium.monthly_aptc.present? && monthly_premium.monthly_aptc.to_f > 0)
+          if @void_2014 || (monthly_premium.monthly_aptc.present? && monthly_premium.monthly_aptc.to_f > 0)
             bounding_box([col2, y_pos], :width => 130) do
-              text number_to_currency((@void || @catastrophic_corrected) ? 0.0 : monthly_premium.premium_amount_slcsp), :align => :right
+              text number_to_currency((@void_2014 || @catastrophic_corrected) ? 0.0 : monthly_premium.premium_amount_slcsp), :align => :right
             end
 
             bounding_box([col3, y_pos], :width => 120) do
-              text number_to_currency(@void ? 0.0 : monthly_premium.monthly_aptc), :align => :right
+              text number_to_currency(@void_2014 ? 0.0 : monthly_premium.monthly_aptc), :align => :right
             end
           end
         end
@@ -432,16 +432,16 @@ module Generators::Reports
       end
 
       bounding_box([col1, y_pos], :width => 100) do
-        text number_to_currency((@void || @catastrophic_corrected) ? 0.0 : @notice.yearly_premium.premium_amount), :align => :right
+        text number_to_currency((@void_2014 || @catastrophic_corrected) ? 0.0 : @notice.yearly_premium.premium_amount), :align => :right
       end
 
-      if @void || @notice.yearly_premium.aptc_amount.present?
+      if @void_2014 || @notice.yearly_premium.aptc_amount.present?
         bounding_box([col2, y_pos], :width => 130) do
-          text number_to_currency((@void || @catastrophic_corrected) ? 0.0 : @notice.yearly_premium.slcsp_premium_amount), :align => :right
+          text number_to_currency((@void_2014 || @catastrophic_corrected) ? 0.0 : @notice.yearly_premium.slcsp_premium_amount), :align => :right
         end
   
         bounding_box([col3, y_pos], :width => 120) do
-          text number_to_currency(@void ? 0.0 : @notice.yearly_premium.aptc_amount), :align => :right
+          text number_to_currency(@void_2014 ? 0.0 : @notice.yearly_premium.aptc_amount), :align => :right
         end
       end
     end
@@ -464,7 +464,7 @@ module Generators::Reports
       print_policies(canceled_policies, 18, y_position+padding)
       if @notice.active_policies.present?
         active_policies = @notice.active_policies.split(',')
-        y_ps = @void_2019 ? 125+padding : 130+padding
+        y_ps = (@void && @calender_year >= 2019) ? 125+padding : 130+padding
         print_policies(active_policies, 18, y_ps)
       end
     end
