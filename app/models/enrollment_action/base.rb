@@ -44,8 +44,8 @@ module EnrollmentAction
         ::EnrollmentAction::AssistanceChange,
         ::EnrollmentAction::InitialEnrollment,
         ::EnrollmentAction::TerminatePolicyWithEarlierDate,
-        ::EnrollmentAction::CarefirstTermination,
         ::EnrollmentAction::ConcurrentPolicyCancelAndTerm,
+        ::EnrollmentAction::CarefirstTermination,
         ::EnrollmentAction::Termination,
         ::EnrollmentAction::ReselectionOfExistingCoverage
       ].detect { |kls| kls.qualifies?(chunk) }
