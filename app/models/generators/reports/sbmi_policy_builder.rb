@@ -33,7 +33,7 @@ module Generators::Reports
         'Y'  
       else
         if policy.subscriber.coverage_start > Date.new(2020, 12, 31)
-          (sbmi_policy.terminated? || sbmi_policy.effectuated?) ? 'Y' : 'N'
+          (policy.terminated? || policy.effectuated?) ? 'Y' : 'N'
         else
           'Y'
         end
