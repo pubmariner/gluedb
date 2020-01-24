@@ -28,6 +28,7 @@ module EnrollmentAction
                   unless pol.versions.empty?
                     last_version_npt = pol.versions.last.term_for_np
                     pol.update_attributes!(term_for_np: last_version_npt)
+                    Observers::PolicyUpdated.notify(pol)
                   end
                 end
               end
@@ -36,7 +37,9 @@ module EnrollmentAction
             puts e.to_s
           end
         end
-        return policy_to_term.terminate_as_of(termination.subscriber_end)
+        result = policy_to_term.terminate_as_of(termination.subscriber_end)
+        Observers::PolicyUpdated.notify(policy_to_term)
+        return result
       end
       true
     end

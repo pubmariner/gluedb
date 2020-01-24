@@ -1,5 +1,16 @@
 require "rails_helper"
 
+RSpec.shared_examples "an enrollment action persisting with policy observer notification" do |*policies|
+  policies.each do |pol|
+  class_eval(<<-RUBY_CODE)
+    it "notifies the #{pol} enrollment" do
+      allow(Observers::PolicyUpdated).to receive(:notify).with(#{pol.to_s})
+      subject.persist
+    end
+  RUBY_CODE
+  end
+end
+
 describe EnrollmentAction::CarefirstTermination, "given an EnrollmentAction array that:
   - has one element that is a termination
   - has one element that is not a termination
@@ -46,6 +57,7 @@ describe EnrollmentAction::CarefirstTermination, "given a valid terminated enrol
   before :each do
     allow(termination_event.existing_policy).to receive(:terminate_as_of).and_return(true)
     allow(termination_event).to receive(:subscriber_end).and_return(false)
+    allow(Observers::PolicyUpdated).to receive(:notify).with(policy)
   end
 
   subject do
@@ -55,6 +67,8 @@ describe EnrollmentAction::CarefirstTermination, "given a valid terminated enrol
   it "persists" do
     expect(subject.persist).to be_truthy
   end
+
+  it_behaves_like "an enrollment action persisting with policy observer notification", :policy
 end
 
 describe EnrollmentAction::CarefirstTermination, "given a valid canceled enrollment", :dbclean => :after_each do
@@ -104,6 +118,8 @@ describe EnrollmentAction::CarefirstTermination, "given a valid canceled enrollm
     policy.save!
     policy2.save!
     policy2.update_attributes!(term_for_np: false)
+    allow(Observers::PolicyUpdated).to receive(:notify).with(policy)
+    allow(Observers::PolicyUpdated).to receive(:notify).with(policy2)
   end
 
   subject do
@@ -116,6 +132,8 @@ describe EnrollmentAction::CarefirstTermination, "given a valid canceled enrollm
     policy2.reload
     expect(policy2.term_for_np).to eq true
   end
+
+  it_behaves_like "an enrollment action persisting with policy observer notification", :policy, :policy2
 end
 
 describe EnrollmentAction::CarefirstTermination, "given a valid enrollment", :dbclean => :after_each do
