@@ -26,7 +26,9 @@ module EnrollmentAction
       if termination.existing_policy
         termination_date =  termination.subscriber_end - 1.day
         policy_to_term = termination.existing_policy
-        return policy_to_term.terminate_as_of(termination_date)
+        result = policy_to_term.terminate_as_of(termination_date)
+        Observers::PolicyUpdated.notify(policy_to_term)
+        return result
       else
         false
       end

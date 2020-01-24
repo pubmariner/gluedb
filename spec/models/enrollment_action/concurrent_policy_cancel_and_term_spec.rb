@@ -41,6 +41,7 @@ describe EnrollmentAction::ConcurrentPolicyCancelAndTerm, "given a valid enrollm
   before :each do
     allow(termination_event.existing_policy).to receive(:terminate_as_of).and_return(true)
     allow(termination_event).to receive(:subscriber_end).and_return(Date.today)
+    allow(Observers::PolicyUpdated).to receive(:notify).with(policy)
   end
 
   subject do
@@ -68,6 +69,13 @@ describe EnrollmentAction::ConcurrentPolicyCancelAndTerm, "given a valid enrollm
       expect(subject.persist).to be_false
     end
 
+  end
+
+  context "when policy exists" do
+    it "notifies the policy observer" do
+      expect(Observers::PolicyUpdated).to receive(:notify).with(policy)
+      subject.persist
+    end
   end
 end
 
