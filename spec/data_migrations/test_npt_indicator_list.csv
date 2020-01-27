@@ -1,0 +1,3 @@
+Subscriber ID, Policy ID, Enrollment Group ID, Carrier Name, Coverage Start, Coverage End, NPT Indicator
+123456,1,123403,Kaiser,20190101,20190701,FALSE
+130132,2,123404,Kaiser,20190101,20190303,TRUE
