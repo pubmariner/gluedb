@@ -26,9 +26,9 @@ class UpdateNptIndicator < MongoidMigrationTask
       row = row.compact
       # Skips entirely blank rows
       next if row.length == 0
-      policy_id = row[1]
-      eg_id = row[2]
-      npt_indicator = row[6]
+      policy_id = row[0]
+      eg_id = row[1]
+      npt_indicator = row[2]
       update_npt_indicator(policy_id, eg_id, npt_indicator)
     end
   end
