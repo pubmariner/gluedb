@@ -1,4 +1,4 @@
-# rails runner script/upload_tax_documents_to_aws.rb '/Users/saikumar/dchbx/GLUE/gluedb/irs_documents/irs_docs2,/Users/saikumar/dchbx/GLUE/gluedb/irs_documents/irs_docs3' -e production
+# rails runner script/upload_tax_documents_to_aws.rb '/irs_documents/irs_docs2,/irs_documents/irs_docs3' -e production
 
 folder_paths = ARGV[0]
 
