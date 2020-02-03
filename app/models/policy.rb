@@ -208,6 +208,11 @@ class Policy
     (provided_end_dates + latest_start_dates).max
   end
 
+  def effectuated?
+    edi_transactions = edi_transaction_sets
+    edi_transactions.any?{|transaction| transaction.transaction_kind == 'effectuation'}
+  end
+
   def canceled?
     subscriber.canceled?
   end
